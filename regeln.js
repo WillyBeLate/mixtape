@@ -257,4 +257,23 @@ const SPIELMODI = [
     ende: "Ihr gewinnt gemeinsam, wenn ihr alle {ziel} Level geschafft habt. Ihr verliert gemeinsam, wenn der Nachziehstapel nicht mehr reicht, um ein Level zu wiederholen.",
     beispiel: "Level 3 besteht aus 4 Karten: 1962, 1979, 1994, 2011. Der Song klingt nach Disco – ihr tippt auf 1979.",
   },
+  {
+    id: "tv", name: "TV-Quiz", spieler: "2–10 Personen oder Teams", neu: true,
+    kurz: "Keine Jahreszahlen, nur Fernsehen: Erkennt ihr die Serie zur Titelmelodie?",
+    app: { typ: "tv", ziel: 10, marken: null, teams: [2, 10], namen: "Team", ohneKarten: true,
+      aktionen: [ { label: "Serie erkannt", jeder: true, p: 1 }, { label: "Bonus: Song oder Interpret", jeder: true, p: 1 } ] },
+    material: ["nur das Handy – Jahreskarten braucht ihr hier nicht"],
+    vorbereitung: [
+      "Spielt einzeln oder in Teams. Wählt unter „Spiel“ den Modus „TV-Quiz“ – ein Mix ist nicht nötig, die Titelmelodien kommen aus allen Jahrzehnten.",
+    ],
+    ablauf: [
+      "Tippt auf „Nächste Titelmelodie“. Mixtape spielt die Titelmusik einer Serie – ohne Namen, ohne Bild.",
+      "Wer die Serie erkennt, ruft ihren Namen. Die erste richtige Antwort bekommt einen Punkt.",
+      "Wer falsch rät, ist für diese Melodie raus. Weiß es niemand, hilft „Nochmal von vorn“.",
+      "Tippt auf „Auflösen“: Mixtape zeigt die Serie, den Song bzw. Komponisten, das Startjahr und das Land.",
+      "Bonus: Wer vor dem Auflösen zusätzlich den Songtitel oder den Interpreten nennt, bekommt einen Extrapunkt.",
+    ],
+    ende: "Wer zuerst {ziel} Punkte hat, gewinnt. Bei Gleichstand entscheidet ein Stechen mit einer weiteren Melodie.",
+    beispiel: "Nach zwei Takten Synthesizer ruft Lena „Stranger Things!“ – Punkt. Ben weiß noch „Kyle Dixon & Michael Stein“ – Bonuspunkt.",
+  },
 ];

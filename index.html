@@ -16,6 +16,7 @@
 <script src="lib/qrcode.js"></script>
 <script src="daten.js"></script>
 <script src="regeln.js"></script>
+<script src="geprueft.js"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -271,6 +272,8 @@
       <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
     </div>
 
+    <div id="tvNote" class="panel small" style="display:none">Im TV-Quiz braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten.</div>
+    <div id="mixSec">
     <h2><span class="stepnr">2</span> Euer Mix</h2>
     <div style="text-align:center"><span class="pill" id="mixCount">DEIN MIX 0 | 4</span></div>
     <div class="tabs" id="catTabs">
@@ -290,6 +293,7 @@
       <div class="row"><label for="randStart">Zufälliger Startpunkt im Song</label><input type="checkbox" id="randStart"></div>
     </div>
 
+    </div>
     <button class="btn" id="startBtn">Los geht's</button>
     <div class="small" style="text-align:center;margin-top:-4px">Startet eine neue Runde – die Punktetafel beginnt von vorn.</div>
   </section>
@@ -300,10 +304,11 @@
     <div class="mixline"><span id="gameMix"></span><button id="mixEye" class="eye" title="Mix ausblenden"></button></div>
     <div class="scoreBox"></div>
     <div id="sabBox"></div>
+    <div id="tvBox"></div>
     <div id="reader"></div>
     <div id="scanMsg"></div>
     <button class="btn" id="scanBtn">📷 Scanner starten</button>
-    <div class="panel">
+    <div class="panel" id="manPanel">
       <label>Oder Jahr manuell eingeben (zum Testen)</label>
       <div class="row" style="margin-top:8px"><input type="number" id="manYear" placeholder="z. B. 1987" min="1900" max="2100">
         <button class="btn small" id="manBtn">OK</button></div>
@@ -365,6 +370,7 @@
       <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
       <button class="btn small" id="mbStart">▶ Prüfung starten</button>
       <button class="btn small sec" id="mbCopy">📋 Bericht kopieren</button>
+      <button class="btn small sec" id="mbExport">📤 Ergebnisse exportieren</button>
       <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
       <div id="mbList"></div>
     </div>
@@ -403,7 +409,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.8.3";
+const APP_VERSION = "0.8.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -728,6 +734,14 @@ function reveal(){
     state.forceCat = null;
   }
   const s = c.song;
+  if (s.tv) {
+    $("#revealBox").innerHTML = `<div class="reveal"><div class="meta" style="margin:0 0 6px">Die Serie</div>
+      <div class="t" style="font-size:28px;margin:0">${esc(s.serie)}</div>
+      <div class="a" style="margin-top:10px">„${esc(s.t)}“ · ${esc(s.a)}</div>
+      <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · Serie seit ${s.y}</div></div><div id="awardBox"></div>`;
+    $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
+    c.stage = 9; c.done = true; renderModeBox(); renderScore(); return;
+  }
   $("#revealBox").innerHTML = `<div class="reveal">
     <div class="yr">${s.y}</div>
     <div class="t">${esc(s.t)}</div>
@@ -964,9 +978,9 @@ function renderModeBox(){
 function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
   // nach Spielerzahl gruppiert
-  const grp = x => x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
-  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen"];
-  const kurzSp = x => x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
+  const grp = x => x.app.typ === "tv" ? 4 : x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
+  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extra: ohne Jahreszahlen"];
+  const kurzSp = x => x.app.typ === "tv" ? "Serien raten" : x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
     x.app.teams[0] === x.app.teams[1] ? `${x.app.teams[0]} Teams` : `${x.app.teams[0]}–${x.app.teams[1]} Teams`;
   const sorted = [...SPIELMODI].sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
@@ -976,6 +990,9 @@ function renderModePanel(){
     if (b.dataset.mode === state.game.mode) return;
     newGame(b.dataset.mode, state.game.teams.map(t => t.n)); renderModePanel(); });
   $("#modeDesc").textContent = fillText(m.kurz, m.app);
+  const tv = m.app.typ === "tv";
+  $("#mixSec").style.display = tv ? "none" : ""; $("#tvNote").style.display = tv ? "" : "none";
+  renderCats();
   // Punkteziel
   const a = m.app;
   if (a.ziel && !a.koop) {
@@ -1069,6 +1086,51 @@ function printRules(){
   setTimeout(() => { window.print(); setTimeout(() => { document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; }, 1000); }, 300);
 }
 
+// =====================================================================
+//  TV-QUIZ: Titelmelodien ohne Jahreskarten (Daten: TVTHEMEN in daten.js)
+// =====================================================================
+const TV = (typeof TVTHEMEN !== "undefined" ? TVTHEMEN : []).map((x, i) => ({ i:"tv" + i, serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4], tv:true, opt:{} }));
+function renderTvBox(){
+  const tv = modeDef().app.typ === "tv";
+  ["#reader", "#scanBtn", "#manPanel", "#scanMsg"].forEach(q => { const el = $(q); if (el) el.style.display = tv ? "none" : ""; });
+  $(".mixline").style.display = tv ? "none" : "";
+  $("#v-game h1 span").textContent = tv ? "TV-Quiz" : "Karte scannen";
+  $("#tvBox").innerHTML = tv ? `<button class="btn" id="tvNext">▶ Nächste Titelmelodie</button><div class="small" style="text-align:center">${TV.length} Serien von ${TV[0]?.y} bis ${TV[TV.length-1]?.y}</div>` : "";
+  $("#tvNext")?.addEventListener("click", playTV);
+}
+async function resolveTV(x){
+  const key = "tv1:" + x.serie; const cached = store.get(key, null); if (cached) return cached;
+  const NOGO = /\b(karaoke|cover|tribute|8-bit|lullaby|remix|live|piano version|ringtone)\b/i;
+  const tries = [[`track:${x.t} artist:${x.a}`, "strict"], [`${x.t} ${x.a}`, "strict"], [`${x.serie} theme`, "serie"], [`${x.t} theme`, "serie"]];
+  for (const [q, mode] of tries) {
+    const j = await sp.api(`/search?type=track&limit=10&market=DE&q=${encodeURIComponent(q)}`);
+    const items = (j?.tracks?.items || []).filter(tr => !NOGO.test(tr.name) && (mode === "strict"
+      ? tr.artists.some(ar => norm(ar.name).includes(norm(x.a)) || norm(x.a).includes(norm(ar.name))) && norm(tr.name).includes(norm(x.t))
+      : norm(tr.name + " " + (tr.album?.name || "")).includes(norm(x.t))));
+    if (!items.length) continue;
+    const res = { uri: items[0].uri, dur: items[0].duration_ms }; store.set(key, res); return res;
+  }
+  throw new Error(`Titelmelodie von „${x.serie}“ wurde bei Spotify nicht gefunden – einfach die nächste nehmen.`);
+}
+async function playTV(){
+  if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Spiel“ bei Spotify anmelden."); $("#scanMsg").style.display = ""; return; }
+  let pool = TV.filter(x => !state.played.has(x.i));
+  if (!pool.length) { TV.forEach(x => state.played.delete(x.i)); pool = TV; }   // alle durch -> von vorn
+  const x = pickRand(pool);
+  show("play");
+  $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
+  $("#playState").textContent = "Melodie wird geladen …"; msg("#playMsg");
+  state.current = { song: x, from: null, year: null, uri: null, dur: null, stage: 0 };
+  $("#playHint").textContent = "Welche Serie ist das?";
+  renderModeBox(); renderScore();
+  try { const tr = await resolveTV(x); Object.assign(state.current, { uri: tr.uri, dur: tr.dur }); await playCurrent(true); }
+  catch(e) {
+    if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – danach startet die Melodie automatisch.");
+    else { msg("#playMsg", "err", esc(e.message)); state.played.add(x.i); save(); $("#nextBtn").style.display = "block"; }
+    $("#playState").textContent = "Wiedergabe gestoppt";
+  }
+}
+
 // ---------- QR-Scanner ----------
 let scanner = null, scanLock = false;
 async function startScanner(){
@@ -1124,7 +1186,7 @@ function renderCats(){
   if (!mains.length) h = `<div class="msg warn">Wählt mindestens 1 Main-Mix – der sorgt dafür, dass es zu jedem Jahr einen Song gibt.</div>`;
   else if (gaps.length) h = `<div class="msg warn">Achtung: Euer Main-Mix hat noch keine Songs für ${gaps.length > 6 ? gaps.length + " Jahre" : gaps.join(", ")}. Karten aus diesen Jahren funktionieren noch nicht.</div>`;
   $("#mixInfo").innerHTML = h;
-  $("#startBtn").disabled = !mains.length;
+  $("#startBtn").disabled = !mains.length && modeDef().app.typ !== "tv";
 }
 function toggleCat(id){
   const i = state.sel.indexOf(id);
@@ -1213,7 +1275,10 @@ const mbKey = s => "mbv:" + s.t + "|" + s.a;
 let mbRunning = false;
 function mbResult(s){
   if (typeof BESTAETIGT !== "undefined" && BESTAETIGT.has(s.t + "|" + s.a)) return { y: s.y, mb: s.y, manual: true };   // manuell gegen Quellen bestätigt
-  const r = store.get(mbKey(s), null); return r && r.y === s.y ? r : null;
+  const r = store.get(mbKey(s), null); if (r && r.y === s.y) return r;
+  // Ergebnisse, die schon auf einem anderen Gerät geprüft und in die App übernommen wurden
+  const g = typeof MB_GEPRUEFT !== "undefined" && MB_GEPRUEFT[s.t + "|" + s.a];
+  return g && g[0] === s.y ? { y: g[0], mb: g[1], shared: true } : null;
 }   // Jahr geändert -> neu prüfen
 // "später" bei alten Songs (vor 1960) ist meist nur eine Wiederveröffentlichung (Original-Schellack fehlt in MusicBrainz)
 //  -> zählt nicht als Problem. Wichtig ist vor allem "früher": dann ist unser Jahr wahrscheinlich zu spät.
@@ -1344,7 +1409,7 @@ function show(v){
   if (v === "game") spCheck(true);
   if (v === "data") { renderData(); if (!mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
-  if (v === "game") renderMixLine();
+  if (v === "game") { renderMixLine(); renderTvBox(); }
   window.scrollTo(0, 0);
 }
 // Mix im Scan-Bildschirm per Auge verstecken (z. B. wenn ein Team ihn heimlich gewählt hat)
@@ -1409,6 +1474,7 @@ $("#restartBtn").addEventListener("click", async () => {
 $("#revealBtn").addEventListener("click", reveal);
 $("#nextBtn").addEventListener("click", () => {
   nextTurn(); state.current = null;
+  if (modeDef().app.typ === "tv") { playTV(); return; }
   show("game");
   if (modeDef().app.typ !== "sabotage") startScanner();   // bei Sabotage erst Kategorie wählen lassen
 });
@@ -1418,6 +1484,18 @@ $("#printBtn").addEventListener("click", () => { document.getElementById("pgRule
 $("#mbStart").addEventListener("click", mbRun);
 $("#mbCopy").addEventListener("click", async () => { const t = mbReport();
   try { await navigator.clipboard.writeText(t); alert("Bericht kopiert – einfach in den Chat einfügen."); } catch(e) { prompt("Bericht kopieren:", t); } });
+// Alle Prüfergebnisse dieses Geräts als Datei – kommt dann in geprueft.js, damit kein Gerät doppelt prüft
+$("#mbExport").addEventListener("click", async () => {
+  const out = {};
+  for (const s of DB) { const r = store.get(mbKey(s), null); if (r && r.y === s.y) out[s.t + "|" + s.a] = [r.y, r.mb ?? null]; }
+  const n = Object.keys(out).length; if (!n) { alert("Auf diesem Gerät gibt es noch keine Prüfergebnisse."); return; }
+  const txt = JSON.stringify(out);
+  try {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" }));
+    a.download = "mixtape-pruefung.json"; document.body.appendChild(a); a.click(); a.remove();
+    alert(n + " Ergebnisse als Datei „mixtape-pruefung.json“ gespeichert – einfach im Chat hochladen.");
+  } catch(e) { try { await navigator.clipboard.writeText(txt); alert(n + " Ergebnisse kopiert."); } catch(e2) { prompt("Ergebnisse kopieren:", txt); } }
+});
 $("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnisse löschen?")) return;
   try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
