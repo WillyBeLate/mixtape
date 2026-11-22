@@ -162,6 +162,7 @@
       <div class="disc" id="disc"></div>
       <h2 id="playState">Song läuft …</h2>
       <p class="sub" id="playHint">Welches Jahr? Früher oder später?</p>
+      <p class="small" id="playDev" style="opacity:.5"></p>
     </div>
     <div id="playMsg"></div>
     <button class="btn sec" id="pauseBtn">⏸ Pause</button>
@@ -220,7 +221,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.5.5";
+const APP_VERSION = "0.5.6";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -411,7 +412,10 @@ async function playCurrent(fromStart){
     await sleep(1200);
     const pl = await sp.api("/me/player").catch(() => null);
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
-    if (pl?.is_playing) { state.paused = false; updatePlayUI(); return; }
+    if (pl?.is_playing) {
+      $("#playDev").textContent = "🔊 Läuft auf: " + (pl.device?.name || "?") + (pl.device?.volume_percent != null ? ` · Lautstärke ${pl.device.volume_percent} %` : "");
+      state.paused = false; updatePlayUI(); return;
+    }
     if (i === 0) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
   }
   throw Object.assign(new Error("NOTPLAYING"), { nodevice:true });
@@ -426,7 +430,7 @@ async function handleYear(year){
   const pick = pickSong(year);
   if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte im Datenbank-Check nachsehen.`); return; }
   show("play");
-  $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
+  $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Song wird geladen …"; msg("#playMsg");
   state.current = { ...pick, year, uri: null, dur: null };
   try {
@@ -488,7 +492,8 @@ function renderLogin(err){
   else box.innerHTML = `${err ? `<div class="msg err">${err}</div>` : ""}<div class="small">Spotify Premium nötig. Die App steuert Spotify im Hintergrund – Titel und Cover bleiben verborgen.</div><button class="btn" id="loginBtn">Mit Spotify verbinden</button>`;
   $("#loginBtn")?.addEventListener("click", sp.login);
   $("#tdev")?.addEventListener("click", async () => {
-    try { const d = await getDevice(); msg("#devMsg", d ? "ok" : "warn", d ? `Gerät bereit: ${esc(d.name)}` : "Kein Gerät aktiv – Spotify-App kurz öffnen."); }
+    try { const all = (await sp.api("/me/player/devices"))?.devices || []; const d = await getDevice();
+      msg("#devMsg", d ? "ok" : "warn", d ? `Gerät bereit: ${esc(d.name)}<br><span class="small">Alle: ${all.map(x => esc(x.name) + " (" + x.type + (x.is_active ? ", aktiv" : "") + ")").join(", ")}</span>` : "Kein Gerät aktiv – Spotify-App kurz öffnen."); }
     catch(e){ msg("#devMsg", "err", e.message); }
   });
 }
