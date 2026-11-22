@@ -44,6 +44,7 @@
     padding:14px 16px;margin:8px 0;cursor:pointer;user-select:none}
   .cat .dot{width:38px;height:38px;border-radius:50%;flex:none}
   .cat .nm{flex:1;font-weight:800;font-size:17px}
+  .cat .nm{display:flex;align-items:center;min-height:38px}
   .cat .nm small{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px}
   .cat .ck{width:26px;height:26px;border-radius:50%;border:2px solid #555;flex:none;display:grid;place-items:center}
   .cat.on .ck{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -87,7 +88,87 @@
   .yeargrid i.h{background:var(--ok)}
   .small{font-size:13px;color:#cfc6e8}
 
-  select{width:100%;padding:12px;border-radius:12px;border:0;font-size:16px;background:#fff;color:var(--ink)}
+  /* Eingabefelder im App-Look */
+  input[type=number],input[type=text],select{width:100%;padding:13px 14px;border-radius:14px;font-size:16px;color:#fff;
+    background:#ffffff12;border:1px solid #ffffff24;outline:none;transition:border-color .15s,box-shadow .15s,background .15s;-webkit-appearance:none;appearance:none}
+  input::placeholder{color:#ffffff59}
+  input[type=number]:focus,input[type=text]:focus,select:focus{border-color:var(--accent);background:#ffffff1a;box-shadow:0 0 0 3px #ff5fa233}
+  input[type=checkbox]{width:24px;height:24px;accent-color:var(--accent)}
+  input[type=range]{accent-color:var(--accent)}
+  .flab{font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#cfc6e8;margin:14px 2px 8px}
+  .flab span{opacity:.6;font-weight:600}
+  /* Modus-Kacheln */
+  .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mgh{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#cfc6e8;margin:12px 2px 6px}
+  .mgh:first-child{margin-top:0}
+  .mt{border:1px solid #ffffff1f;background:#ffffff0d;border-radius:14px;padding:11px 12px;text-align:left;color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:all .15s}
+  .mt .mtn{font-weight:800;font-size:15px;line-height:1.2}
+  .mt .mts{font-size:12px;color:#cfc6e8}
+  .mt .tag{margin-left:5px;font-size:9px;padding:1px 6px}
+  .mt.on{border-color:transparent;background:linear-gradient(135deg,#ff5fa2cc,#7c5cffcc);box-shadow:0 4px 16px #7c5cff55}
+  .mt.on .mts{color:#fff}
+  /* Team-Namen */
+  .tin{display:flex;align-items:center;gap:10px;margin:7px 0}
+  .tin i{width:14px;height:14px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 10px var(--c)}
+  .tact{display:flex;gap:14px;margin:4px 2px 2px}
+  .lk{background:none;border:0;color:#ffb3d4;font-size:14px;font-weight:700;padding:6px 0;cursor:pointer}
+  /* Punkteziel */
+  .zrow{display:flex;align-items:center;justify-content:center;gap:18px}
+  .zb{width:44px;height:44px;border-radius:50%;border:1px solid #ffffff2e;background:#ffffff12;color:#fff;font-size:22px;font-weight:700;cursor:pointer}
+  .zv{text-align:center;min-width:80px}.zv b{display:block;font-size:38px;line-height:1;font-weight:900}
+  .zv small{font-size:12px;color:#cfc6e8}
+  /* Mix-Zeile mit Auge */
+  .mixline{display:flex;align-items:center;gap:8px;color:#cfc6e8;font-size:15px;margin:0 0 14px}
+  .eye{background:#ffffff14;border:0;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;cursor:pointer;color:#fff;flex:none}
+  .eye svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .hidmix{letter-spacing:1px;background:#ffffff1a;border-radius:6px;padding:1px 8px;font-size:13px}
+  /* Punktetafel */
+  .sb{margin:10px 0 14px}
+  .sbh{display:flex;align-items:center;gap:8px;margin:0 2px 8px}
+  .sbh .mn{font-weight:800;font-size:14px}
+  .sbh .gl{flex:1;text-align:right;font-size:12px;color:#cfc6e8}
+  .sbh .ed{background:#ffffff14;border:0;color:#cfc6e8;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+  .sbh .ed.on{background:#fff;color:var(--ink)}
+  .tiles{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+  .tiles.n1{grid-template-columns:1fr}
+  .tile{position:relative;border-radius:18px;padding:12px 14px 12px;background:linear-gradient(160deg,#ffffff16,#ffffff08);border:1px solid #ffffff14;overflow:hidden;cursor:pointer;transition:all .2s}
+  .tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+  .tile.on{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 6px 22px -6px var(--c)}
+  .tile.win{background:linear-gradient(160deg,var(--c),#ffffff10)}
+  .tile .tt{display:flex;align-items:center;gap:6px;min-height:20px}
+  .tile .nm{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .zug{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;background:var(--c);color:#1b1033;border-radius:999px;padding:2px 7px;flex:none}
+  .tile .pt{font-size:40px;font-weight:900;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}
+  .tile .pt small{font-size:11px;font-weight:600;color:#cfc6e8;margin-left:6px;letter-spacing:.3px}
+  .tile .bar{height:5px;border-radius:3px;background:#ffffff1a;margin-top:8px;overflow:hidden}
+  .tile .bar i{display:block;height:100%;background:var(--c);border-radius:3px;transition:width .3s}
+  .tile .mk{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#cfc6e8}
+  .tile .mk span{margin-right:3px}
+  .tile .mk i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--c)}
+  .tile .mk i.f{background:var(--c)}
+  .tile .mk b{color:#fff;font-size:13px}
+  .tile .edr{display:flex;align-items:center;justify-content:space-between;margin-top:8px;background:#0003;border-radius:999px;padding:3px}
+  .tile .edr small{font-size:11px;color:#cfc6e8}
+  .tile .edr button{width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+  .sbn{margin-top:10px;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+  .sbn b{font-size:11px;letter-spacing:1px;text-transform:uppercase}
+  .sbn.win{background:linear-gradient(135deg,#2ecc7140,#38d6ff33);color:#d6ffe6}
+  .sbn.lose{background:#ff4d4d2e;color:#ffd0d0}
+  .sbn.nach,.sbn.verl{background:#ffb02029;color:#ffe2a8}
+  .sbn .btn{margin-top:6px}
+  /* Punkte vergeben */
+  .aw{margin-top:12px}
+  .awh{font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#cfc6e8;margin:0 2px 8px}
+  .awg{display:flex;flex-direction:column;gap:7px}
+  .awg.grid{display:grid;grid-template-columns:1fr 1fr}
+  .awb{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1px solid #ffffff1f;background:#ffffff0f;color:#fff;
+    border-radius:14px;padding:10px 12px 10px 16px;cursor:pointer;overflow:hidden;transition:all .15s}
+  .awb::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+  .awb .l{font-weight:700;font-size:14px}.awb .l b{color:var(--c)}
+  .awb .s{font-size:12px;color:#cfc6e8}
+  .awb.on{background:var(--c);border-color:var(--c);color:#1b1033}
+  .awb.on .l b,.awb.on .s{color:#1b1033}
+  .awb.on::after{content:"✓";position:absolute;right:12px;top:50%;transform:translateY(-50%);font-weight:900}
   .stepnr{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:15px;margin-right:6px;vertical-align:2px}
   .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:999px;background:var(--accent);color:#fff;vertical-align:middle;margin-left:6px}
   /* Punktetafel */
@@ -183,9 +264,10 @@
 
     <h2><span class="stepnr">1</span> Spielmodus</h2>
     <div class="panel" id="modePanel">
-      <select id="modeSel"></select>
-      <p class="small" id="modeDesc" style="margin:8px 0"></p>
+      <div id="modeGrid"></div>
+      <p class="small" id="modeDesc" style="margin:12px 2px"></p>
       <div id="teamEd"></div>
+      <div id="zielEd"></div>
       <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
     </div>
 
@@ -215,7 +297,7 @@
   <!-- ======================= SPIEL ======================= -->
   <section class="view" id="v-game">
     <h1><span>Karte scannen</span></h1>
-    <p class="sub" id="gameMix"></p>
+    <div class="mixline"><span id="gameMix"></span><button id="mixEye" class="eye" title="Mix ausblenden"></button></div>
     <div class="scoreBox"></div>
     <div id="sabBox"></div>
     <div id="reader"></div>
@@ -321,7 +403,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.8.1";
+const APP_VERSION = "0.8.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -639,7 +721,10 @@ function reveal(){
   if (!c.revealed) {
     c.revealed = true;
     state.played.add(c.song.i); save();
-    if (modeDef().app.runden) { state.game.runde++; saveGame(); }
+    if (modeDef().app.runden) state.game.runde++;
+    if (modeDef().app.zug === "reihum") state.game.teams[state.game.turn].z++;
+    if (c.stage !== 9 && modeDef().app.typ === "sprint") c.sprintStage = c.stage;
+    saveGame();
     state.forceCat = null;
   }
   const s = c.song;
@@ -648,7 +733,7 @@ function reveal(){
     <div class="t">${esc(s.t)}</div>
     <div class="a">${esc(s.a)}</div>
     <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · aus: ${CAT[c.from].name}${c.repeat ? " · (Wiederholung)" : ""}</div>
-  </div>`;
+  </div><div id="awardBox"></div>`;
   $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
   c.stage = 9; c.done = true; renderModeBox(); renderScore();
 }
@@ -684,55 +769,134 @@ function newGame(modeId, names){
   const teams = [];
   for (let i = 0; i < n; i++) {
     const keep = names?.[i] && !/^(Team [A-J]|Spieler \d+|Wir alle)$/.test(names[i]) ? names[i] : defaultName(m, i);
-    teams.push({ n: keep, p: m.app.handkarten ? (i === 0 ? m.app.handkarten[0] : m.app.handkarten[1]) : (m.app.startPunkte || 0), m: m.app.markenStart || 0 });
+    teams.push({ n: keep, p: m.app.handkarten ? (i === 0 ? m.app.handkarten[0] : m.app.handkarten[1]) : (m.app.startPunkte || 0), m: m.app.markenStart || 0, z: 0 });
   }
-  state.game = { mode: m.id, teams, turn: 0, runde: 0 };
+  state.game = { mode: m.id, teams, turn: 0, runde: 0, ziel: store.get("ziel:" + m.id, m.app.ziel) };
   state.forceCat = null; saveGame();
 }
 if (!state.game || !SPIELMODI.some(m => m.id === state.game.mode)) newGame(SPIELMODI[0].id);
 
-function winner(){
-  const m = modeDef(), g = state.game;
-  if (m.app.handkarten) return g.teams.find(t => t.p <= 0) || null;
-  if (m.app.ziel) return g.teams.find(t => t.p >= m.app.ziel) || null;
-  return null;
-}
-function renderScore(){
-  const m = modeDef(), g = state.game, a = m.app;
-  let hd = m.name, goal = "";
-  if (a.koop) goal = `${g.teams[0].p} / ${a.ziel} Level geschafft`;
-  else if (a.handkarten) goal = "Ziel: keine Handkarten mehr";
-  else if (a.runden) goal = `Karte ${Math.min(g.runde, a.runden)} / ${a.runden}`;
-  else if (a.ziel) goal = `Ziel: ${a.ziel} ${m.id === "duell" ? "Karten" : "Punkte"}`;
-  const ptsLabel = a.koop ? "Level" : a.handkarten ? "Hand" : m.id === "duell" ? "Karten" : "Pkt";
-  const rows = g.teams.map((t, i) => `<div class="tm ${a.zug === "reihum" && g.turn === i ? "on" : ""} ${a.marken ? "two" : ""}">
-    <span class="tn" data-sc="turn" data-i="${i}">${a.zug === "reihum" && g.turn === i ? "▶ " : ""}${esc(t.n)}</span>
-    ${a.marken ? `<span class="ct mk"><small>${a.marken}</small><button data-sc="m-" data-i="${i}">−</button><b>${t.m}</b><button data-sc="m+" data-i="${i}">+</button></span>` : ""}
-    <span class="ct"><small>${ptsLabel}</small><button data-sc="p-" data-i="${i}">−</button><b>${t.p}</b><button data-sc="p+" data-i="${i}">+</button></span></div>`).join("");
-  let end = "";
-  const w = winner();
-  if (w) end = `<div class="msg ok">🏆 ${a.koop ? "Geschafft – ihr habt alle Level gemeistert!" : esc(w.n) + " gewinnt!"} <a href="#" data-sc="new" style="color:#fff">Neues Spiel</a></div>`;
-  else if (a.runden && g.runde >= a.runden) {
-    const best = Math.max(...g.teams.map(t => t.p)), lead = g.teams.filter(t => t.p === best).map(t => esc(t.n));
-    end = `<div class="msg ok">🏁 Alle ${a.runden} Karten gespielt – ${lead.join(" & ")} ${lead.length > 1 ? "teilen sich den Sieg" : "gewinnt"}! <a href="#" data-sc="new" style="color:#fff">Neues Spiel</a></div>`;
+const TEAMFARBEN = ["#ff5fa2", "#38d6ff", "#ffb020", "#2ecc71", "#c06cff", "#ff7a45", "#00c2a8", "#7c5cff", "#ffd23f", "#ff4d6d"];
+const goal = () => state.game.ziel || modeDef().app.ziel;
+const otherIdx = () => (state.game.turn + 1) % state.game.teams.length;
+const SVG_EDIT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>`;
+
+// Spielstand inkl. Nachziehen & Verlängerung (Regel „Gewinnen & Nachziehen“)
+function gameStatus(){
+  const m = modeDef(), g = state.game, a = m.app, T = g.teams;
+  if (a.koop) {
+    if (T[0].p >= a.ziel) return { typ:"win", text:"Geschafft – ihr habt alle Level gemeistert!" };
+    if (a.markenStart && T[0].m <= 0) return { typ:"lose", text:"Nachziehstapel leer – diesmal hat die Zeit gewonnen." };
+    return null;
   }
-  if (a.koop && a.markenStart && g.teams[0].m <= 0 && !w) end = `<div class="msg err">Nachziehstapel leer – diesmal hat die Zeit gewonnen.</div>`;
-  document.querySelectorAll(".scoreBox").forEach(el => el.innerHTML = `<div class="score"><div class="hd"><b>${esc(hd)}</b><span>${goal}</span></div>${rows}${end}</div>`);
-  renderSabotage();
+  if (a.handkarten) { const w = T.find(t => t.p <= 0); return w ? { typ:"win", text:`${esc(w.n)} hat keine Handkarten mehr und gewinnt!`, team:w } : null; }
+  const best = Math.max(...T.map(t => t.p)), lead = T.filter(t => t.p === best);
+  if (a.runden) {
+    if (g.runde < a.runden) return null;
+    return { typ:"win", text: lead.length > 1 ? `Alle ${a.runden} Karten gespielt – ${lead.map(t => esc(t.n)).join(" & ")} teilen sich den Sieg!` : `Alle ${a.runden} Karten gespielt – ${esc(lead[0].n)} gewinnt!`, team: lead.length === 1 ? lead[0] : null };
+  }
+  const ziel = goal(); if (!ziel || best < ziel) return null;
+  if (a.zug === "reihum") {
+    const maxZ = Math.max(...T.map(t => t.z)), behind = T.filter(t => t.z < maxZ);
+    const topT = T.filter(t => t.p >= ziel && !behind.includes(t)), top = topT.map(t => esc(t.n)).join(" & ");
+    if (behind.length) return { typ:"nach", text:`${top} ${topT.length > 1 ? "haben" : "hat"} vorgelegt (${topT[0].p})! ${behind.map(t => esc(t.n)).join(" & ")} ${behind.length > 1 ? "ziehen" : "zieht"} noch nach.` };
+  }
+  if (lead.length === 1) return { typ:"win", text:`${esc(lead[0].n)} gewinnt mit ${lead[0].p} ${m.id === "duell" ? "Karten" : "Punkten"}!`, team: lead[0] };
+  return { typ:"verl", text: a.zug === "reihum" ? `Gleichstand bei ${best}! Verlängerung: ${lead.map(t => esc(t.n)).join(" & ")} spielen weiter, bis nach einer vollen Runde ein Team vorn liegt.` : `Gleichstand bei ${best}! Stechen: noch ein Song, bis ein Team vorn liegt.` };
 }
+
+function renderScore(){
+  const m = modeDef(), g = state.game, a = m.app, ziel = goal();
+  let gl = "";
+  if (a.koop) gl = `Level ${Math.min(g.teams[0].p + 1, a.ziel)} von ${a.ziel}`;
+  else if (a.handkarten) gl = "Wer zuerst keine Handkarten hat";
+  else if (a.runden) gl = `Karte ${Math.min(g.runde, a.runden)} von ${a.runden}`;
+  else if (ziel) gl = `Spiel bis ${ziel} ${m.id === "duell" ? "Karten" : "Punkte"}`;
+  const st = gameStatus(), edit = state.sbEdit;
+  const tiles = g.teams.map((t, i) => {
+    const col = TEAMFARBEN[i % TEAMFARBEN.length], on = a.zug === "reihum" && g.turn === i && !(st && st.typ === "win");
+    const pct = a.koop ? t.p / a.ziel : a.handkarten ? 1 - t.p / Math.max(a.handkarten[0], 1) : a.runden ? 0 : ziel ? t.p / ziel : 0;
+    const lbl = a.koop ? "Level geschafft" : a.handkarten ? "Handkarten" : m.id === "duell" ? "Karten" : "Punkte";
+    let mk = "";
+    if (a.marken) mk = a.markenMax
+      ? `<div class="mk"><span>${a.marken}</span>${Array.from({ length: a.markenMax }, (_, k) => `<i class="${k < t.m ? "f" : ""}"></i>`).join("")}</div>`
+      : `<div class="mk"><span>${a.marken}</span><b>${t.m}</b></div>`;
+    const ed = edit ? `<div class="edr"><button data-sc="p-" data-i="${i}">−</button><small>${lbl}</small><button data-sc="p+" data-i="${i}">+</button></div>` +
+      (a.marken ? `<div class="edr"><button data-sc="m-" data-i="${i}">−</button><small>${a.marken}</small><button data-sc="m+" data-i="${i}">+</button></div>` : "") : "";
+    return `<div class="tile ${on ? "on" : ""} ${st?.team === t ? "win" : ""}" style="--c:${col}" data-sc="turn" data-i="${i}">
+      <div class="tt">${on ? '<span class="zug">am Zug</span>' : ""}<span class="nm">${esc(t.n)}</span></div>
+      <div class="pt">${t.p}<small>${lbl}</small></div>
+      ${pct ? `<div class="bar"><i style="width:${Math.min(100, Math.max(0, pct * 100))}%"></i></div>` : ""}${mk}${ed}</div>`;
+  }).join("");
+  let banner = "";
+  if (st) banner = `<div class="sbn ${st.typ}"><b>${{ win:"Gewonnen", lose:"Verloren", nach:"Nachziehen", verl:"Verlängerung" }[st.typ]}</b><span>${st.text}</span>
+    ${st.typ === "win" || st.typ === "lose" ? `<button class="btn small" data-sc="new">Neue Runde</button>` : ""}</div>`;
+  document.querySelectorAll(".scoreBox").forEach(el => el.innerHTML = `<div class="sb">
+    <div class="sbh"><span class="mn">${esc(m.name)}</span><span class="gl">${gl}</span><button class="ed ${edit ? "on" : ""}" data-sc="edit" title="Punkte korrigieren">${SVG_EDIT}</button></div>
+    <div class="tiles n${Math.min(g.teams.length, 3)}">${tiles}</div>${banner}</div>`);
+  renderSabotage(); renderAwards();
+}
+
+// Punkte vergeben nach dem Auflösen (Knöpfe kommen aus regeln.js → app.aktionen)
+function applyEff(ti, p, mDelta, sign){
+  const g = state.game, a = modeDef().app, t = g.teams[ti];
+  t.p = Math.max(0, t.p + sign * p);
+  t.m = Math.max(0, t.m + sign * mDelta); if (a.markenMax) t.m = Math.min(a.markenMax, t.m);
+}
+function awardList(){
+  const m = modeDef(), a = m.app, g = state.game, c = state.current, out = [];
+  (a.aktionen || []).forEach((x, k) => {
+    const pv = x.p === "stufe" ? (a.stufen?.[c?.stage === 9 ? (c.sprintStage ?? 0) : (c?.stage ?? 0)]?.[1] ?? 1) : (x.p || 0);
+    if (x.jeder) g.teams.forEach((t, i) => out.push({ key:`${k}:${i}`, team:i, label: x.label, sub: esc(t.n), eff:[[i, pv, x.m || 0]], val: pv ? `+${pv}` : x.m ? `+${x.m}` : "" }));
+    else {
+      const eff = x.eff.map(([w, p, mm]) => [w === "aktiv" ? g.turn : otherIdx(), p, mm === "level" ? -(g.teams[0].p + 2) : mm]);
+      const who = [...new Set(eff.map(e => esc(g.teams[e[0]].n)))].join(" / ");
+      out.push({ key:`${k}`, team: eff[0][0], label: x.label, sub: a.koop ? "" : who, eff, val: "" });
+    }
+  });
+  return out;
+}
+function renderAwards(){
+  const box = $("#awardBox"), c = state.current; if (!box) return;
+  if (!c || !c.revealed) { box.innerHTML = ""; return; }
+  const list = awardList(); c.awards ??= {};
+  const grouped = modeDef().app.aktionen?.some(x => x.jeder);
+  box.innerHTML = `<div class="aw"><div class="awh">Punkte vergeben</div><div class="awg ${grouped ? "grid" : ""}">${list.map(x =>
+    `<button class="awb ${c.awards[x.key] ? "on" : ""}" data-aw="${x.key}" style="--c:${TEAMFARBEN[x.team % TEAMFARBEN.length]}">
+      <span class="l">${esc(x.label)}${x.val ? ` <b>${x.val}</b>` : ""}</span>${x.sub ? `<span class="s">${x.sub}</span>` : ""}</button>`).join("")}</div>
+    <div class="small" style="margin-top:6px;opacity:.7">Nochmal tippen nimmt die Vergabe zurück.</div></div>`;
+  box.querySelectorAll("[data-aw]").forEach(b => b.onclick = () => {
+    const x = awardList().find(y => y.key === b.dataset.aw);
+    const on = !c.awards[x.key];
+    // beim Zurücknehmen exakt das abziehen, was vergeben wurde
+    const eff = on ? x.eff : c.awards[x.key];
+    eff.forEach(([ti, p, mm]) => applyEff(ti, p, mm, on ? 1 : -1));
+    if (on) c.awards[x.key] = x.eff; else delete c.awards[x.key];
+    saveGame(); renderScore();
+  });
+}
+
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-sc]"); if (!b) return;
   e.preventDefault();
   const g = state.game, m = modeDef(), i = +b.dataset.i, t = g.teams[i], k = b.dataset.sc;
   if (k === "new") { show("setup"); return; }
-  else if (k === "turn") { if (m.app.zug === "reihum") { g.turn = i; state.forceCat = null; } }
+  if (k === "edit") { state.sbEdit = !state.sbEdit; renderScore(); return; }
+  if (k === "turn") { if (state.sbEdit || !e.target.closest(".tile") || e.target.closest("button")) return;
+    if (m.app.zug === "reihum" && !state.current?.revealed) { g.turn = i; state.forceCat = null; } }
   else if (k === "p+") t.p++;
   else if (k === "p-") t.p = Math.max(0, t.p - 1);
   else if (k === "m+") t.m = m.app.markenMax ? Math.min(m.app.markenMax, t.m + 1) : t.m + 1;
   else if (k === "m-") t.m = Math.max(0, t.m - 1);
-  saveGame(); renderScore();
-});
-function nextTurn(){ const g = state.game; if (modeDef().app.zug === "reihum") g.turn = (g.turn + 1) % g.teams.length; saveGame(); }
+  e.stopPropagation(); saveGame(); renderScore();
+}, true);
+function nextTurn(){
+  const g = state.game, a = modeDef().app;
+  if (a.zug === "reihum") {
+    g.turn = (g.turn + 1) % g.teams.length;
+  }
+  saveGame();
+}
 
 // ---------- Sabotage: Gegner wählt die Kategorie ----------
 function renderSabotage(){
@@ -799,14 +963,40 @@ function renderModeBox(){
 // ---------- Modus-Auswahl im Mix ----------
 function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
-  $("#modeSel").innerHTML = SPIELMODI.map(x => `<option value="${x.id}" ${x.id === m.id ? "selected" : ""}>${esc(x.name)} · ${esc(x.spieler)}${x.neu ? " · NEU" : ""}</option>`).join("");
+  // nach Spielerzahl gruppiert
+  const grp = x => x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
+  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen"];
+  const kurzSp = x => x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
+    x.app.teams[0] === x.app.teams[1] ? `${x.app.teams[0]} Teams` : `${x.app.teams[0]}–${x.app.teams[1]} Teams`;
+  const sorted = [...SPIELMODI].sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
+  $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
+    `<div class="mgh">${gn}</div><div class="mgrid">${l.map(x => `<button class="mt ${x.id === m.id ? "on" : ""}" data-mode="${x.id}">
+      <span class="mtn">${esc(x.name)}</span><span class="mts">${kurzSp(x)}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></button>`).join("")}</div>`; }).join("");
+  document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
+    if (b.dataset.mode === state.game.mode) return;
+    newGame(b.dataset.mode, state.game.teams.map(t => t.n)); renderModePanel(); });
   $("#modeDesc").textContent = fillText(m.kurz, m.app);
-  if (m.app.koop) { $("#teamEd").innerHTML = `<div class="small">Alle spielen zusammen in einem Team.</div>`; return; }
-  const word = m.app.namen === "Spieler" ? "Spieler" : "Teams";
-  $("#teamEd").innerHTML = `<label>${word} (${lo === hi ? lo : lo + "–" + hi})</label>` +
-    g.teams.map((t, i) => `<input type="text" data-tn="${i}" value="${esc(t.n)}" style="margin-top:6px">`).join("") +
-    `<div style="margin-top:6px">${g.teams.length < hi ? `<button class="btn small sec" id="tAdd">+ ${word === "Spieler" ? "Spieler" : "Team"}</button>` : ""}${g.teams.length > lo ? `<button class="btn small sec" id="tDel">− entfernen</button>` : ""}</div>`;
-  document.querySelectorAll("[data-tn]").forEach(el => el.addEventListener("input", () => { g.teams[+el.dataset.tn].n = el.value.trim() || defaultName(m, +el.dataset.tn); saveGame(); }));
+  // Punkteziel
+  const a = m.app;
+  if (a.ziel && !a.koop) {
+    const z = goal(), unit = m.id === "duell" ? "Karten" : "Punkte";
+    const presets = [...new Set([Math.max(3, Math.round(a.ziel / 2)), a.ziel, Math.round(a.ziel * 1.5), a.ziel * 2])];
+    $("#zielEd").innerHTML = `<div class="flab">Spielen bis</div><div class="zrow">
+      <button class="zb" data-z="-1">−</button><div class="zv"><b>${z}</b><small>${unit}</small></div><button class="zb" data-z="1">+</button></div>
+      <div class="chips" style="justify-content:center">${presets.map(v => `<button data-zp="${v}" class="${v === z ? "on" : ""}">${v}</button>`).join("")}</div>`;
+    const setZ = v => { g.ziel = Math.max(1, Math.min(99, v)); store.set("ziel:" + m.id, g.ziel); saveGame(); renderModePanel(); };
+    document.querySelectorAll("#zielEd [data-z]").forEach(b => b.onclick = () => setZ(goal() + +b.dataset.z));
+    document.querySelectorAll("#zielEd [data-zp]").forEach(b => b.onclick = () => setZ(+b.dataset.zp));
+  } else $("#zielEd").innerHTML = "";
+  if (a.koop) { $("#teamEd").innerHTML = `<div class="small" style="margin:0 2px 10px">Alle spielen zusammen in einem Team.</div>`; return; }
+  const word = a.namen === "Spieler" ? "Spieler" : "Teams";
+  $("#teamEd").innerHTML = `<div class="flab">${word} <span>${lo === hi ? lo : lo + "–" + hi}</span></div>` +
+    g.teams.map((t, i) => `<div class="tin" style="--c:${TEAMFARBEN[i % TEAMFARBEN.length]}"><i></i><input type="text" data-tn="${i}" value="${esc(t.n)}" placeholder="${defaultName(m, i)}" maxlength="18"></div>`).join("") +
+    `<div class="tact">${g.teams.length < hi ? `<button class="lk" id="tAdd">+ ${word === "Spieler" ? "Spieler" : "Team"} hinzufügen</button>` : ""}${g.teams.length > lo ? `<button class="lk" id="tDel">− entfernen</button>` : ""}</div>`;
+  document.querySelectorAll("[data-tn]").forEach(el => {
+    el.addEventListener("focus", () => el.select());
+    el.addEventListener("input", () => { g.teams[+el.dataset.tn].n = el.value.trim() || defaultName(m, +el.dataset.tn); saveGame(); });
+  });
   $("#tAdd")?.addEventListener("click", () => { newGame(m.id, [...g.teams.map(t => t.n), defaultName(m, g.teams.length)]); renderModePanel(); });
   $("#tDel")?.addEventListener("click", () => { newGame(m.id, g.teams.slice(0, -1).map(t => t.n)); renderModePanel(); });
 }
@@ -819,9 +1009,10 @@ function appInfo(m){
   if (a.koop) out.push(`Die Punktetafel zählt eure geschafften Level (Ziel: ${a.ziel})${a.marken ? ` und den ${a.marken} (Start: ${a.markenStart} Karten)` : ""}.`);
   else if (a.handkarten) out.push(`Die Punktetafel zählt die Handkarten jedes Teams (Start-Team ${a.handkarten[0]}, alle anderen ${a.handkarten[1]}). Wer auf 0 kommt, gewinnt.`);
   else if (a.runden) out.push(`Die Punktetafel zählt Punkte und spielt mit: Nach jedem Auflösen zählt Mixtape die Karte mit (${a.runden} Karten) und zeigt am Ende den Sieger.`);
-  else if (a.ziel) out.push(`Die Punktetafel zählt bis ${a.ziel} ${m.id === "duell" ? "Karten im Zeitstrahl" : "Punkte"}${a.startPunkte ? ` (Start: ${a.startPunkte})` : ""} und meldet den Sieger.`);
+  else if (a.ziel) out.push(`Die Punktetafel zählt bis ${a.ziel} ${m.id === "duell" ? "Karten im Zeitstrahl" : "Punkte"}${a.startPunkte ? ` (Start: ${a.startPunkte})` : ""} – das Ziel könnt ihr beim Start ändern – und meldet den Sieger.`);
   if (a.marken && !a.koop) out.push(`Zusätzlich zählt sie die ${a.marken} (Start: ${a.markenStart}${a.markenMax ? `, höchstens ${a.markenMax}` : ""}).`);
-  if (a.zug === "reihum") out.push("Wer am Zug ist, ist markiert (▶). Nach „Nächste Karte“ wechselt der Zug automatisch; antippen eines Namens setzt den Zug von Hand.");
+  if (a.aktionen) out.push("Nach dem Auflösen vergebt ihr Punkte per Knopf: " + a.aktionen.map(x => "„" + x.label + "“" + (x.jeder ? " (für jedes Team)" : "")).join(", ") + ".");
+  if (a.zug === "reihum") out.push("Wer am Zug ist, ist markiert („am Zug“). Nach „Nächste Karte“ wechselt der Zug automatisch; antippen einer Team-Kachel setzt den Zug von Hand." + (a.ziel ? " Erreicht ein Team das Ziel, zeigt Mixtape an, wer noch nachzieht, und entscheidet erst danach – bei Gleichstand mit Verlängerung." : ""));
   if (a.typ === "sprint") out.push(`Mixtape stoppt den Song automatisch nach ${a.stufen.map(s => s[0] + " s").join(", dann ")}. Die Knöpfe für die nächste Stufe erscheinen nach jedem Stopp.`);
   if (a.typ === "sabotage") out.push("Im Spiel-Bildschirm wählt das gegnerische Team die Kategorie, bevor gescannt wird. Zur Auswahl stehen alle Kategorien – auch solche, die nicht in eurem Mix sind.");
   if (a.typ === "staffel") out.push("Statt „Auflösen“ gibt es drei Knöpfe: Jahrzehnt, Jahr, Titel & Interpret – je einer pro Etappe.");
@@ -830,7 +1021,7 @@ function appInfo(m){
 function rulesHtml(){
   const R = REGELN, L = arr => arr.map(x => `<li>${esc(x)}</li>`).join("");
   const DL = arr => `<dl>${arr.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("")}</dl>`;
-  const sec = [["worum","Worum geht's?"],["material","Spielmaterial"],["vorb","Vorbereitung"],["kat","Kategorien & euer Mix"],["jahr","Welches Jahr zählt?"],["zug","So läuft ein Zug"],["modi","Die Spielmodi"],["tipps","Tipps & häufige Fragen"]];
+  const sec = [["worum","Worum geht's?"],["material","Spielmaterial"],["vorb","Vorbereitung"],["kat","Kategorien & euer Mix"],["jahr","Welches Jahr zählt?"],["zug","So läuft ein Zug"],["sieg","Gewinnen & Nachziehen"],["modi","Die Spielmodi"],["tipps","Tipps & häufige Fragen"]];
   let h = `<div class="rb">
   <div class="cover"><div class="ttl">${APP_NAME.toUpperCase()}</div><div style="font-weight:700">${esc(R.untertitel)}</div>
     <div class="facts"><span>👥 ${esc(R.spieler)}</span><span>🎂 ${esc(R.alter)}</span><span>⏱ ${esc(R.dauer)}</span></div></div>
@@ -843,7 +1034,8 @@ function rulesHtml(){
   <p class="meta">Aktuell in Mixtape: ${["main","support","kuenstler"].map(t => `<b>${{main:"Main",support:"Support",kuenstler:"Künstler"}[t]}:</b> ${KATEGORIEN.filter(c => CAT[c.id].typ === t).map(c => esc(c.name)).join(", ")}`).join(" · ")}</p>
   <h2 id="r-jahr">5. Welches Jahr zählt?</h2><ul>${L(R.jahr)}</ul>
   <h2 id="r-zug">6. So läuft ein Zug</h2>${DL(R.zug)}
-  <h2 id="r-modi" class="pb">7. Die Spielmodi</h2>
+  <h2 id="r-sieg">7. Gewinnen &amp; Nachziehen</h2>${DL(R.sieg)}
+  <h2 id="r-modi" class="pb">8. Die Spielmodi</h2>
   <p>Den Modus wählt ihr unter „Spiel“, bevor ihr euren Mix zusammenstellt. Die Punktetafel in der App passt sich dem Modus automatisch an.</p>
   <table><tr><th>Modus</th><th>Für</th><th>Kurz gesagt</th></tr>${SPIELMODI.map(m => `<tr><td><b>${esc(m.name)}</b>${m.neu ? '<span class="tag">NEU</span>' : ""}</td><td>${esc(m.spieler)}</td><td>${esc(fillText(m.kurz, m.app))}</td></tr>`).join("")}</table>`;
   for (const m of SPIELMODI) {
@@ -859,7 +1051,7 @@ function rulesHtml(){
       ${m.varianten ? `<h4>Varianten</h4><ul>${m.varianten.map(x => `<li>${F(x)}</li>`).join("")}</ul>` : ""}
       <h4>In der App</h4><p>${esc(appInfo(m))}</p></div>`;
   }
-  h += `<h2 id="r-tipps">8. Tipps &amp; häufige Fragen</h2>${DL(R.tipps)}
+  h += `<h2 id="r-tipps">9. Tipps &amp; häufige Fragen</h2>${DL(R.tipps)}
   <p class="meta" style="margin-top:20px">Mixtape ${APP_VERSION} · Diese Anleitung wird direkt aus den Spieldaten der App erzeugt und ist deshalb immer auf dem Stand der aktuellen Version.</p></div>`;
   return h;
 }
@@ -918,13 +1110,10 @@ function renderLogin(err){
 
 function renderCats(){
   const list = KATEGORIEN.filter(c => effTyp(c.id) === state.tab);
-  const span = years().length;
   $("#catList").innerHTML = list.map(c => {
-    const cov = years().filter(y => byYearCat[c.id]?.[y]?.length).length;
-    const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
     return `<div class="cat ${state.sel.includes(c.id) ? "on" : ""}" data-id="${c.id}">
       <div class="dot" style="background:${catColor(c.id)}"></div>
-      <div class="nm">${esc(c.name)}<small>${n} Songs · ${cov} von ${span} Jahren</small></div><div class="ck"></div></div>`;
+      <div class="nm">${esc(c.name)}</div><div class="ck"></div></div>`;
   }).join("") || `<p class="small">Noch keine Kategorien hier.</p>`;
   document.querySelectorAll("#catList .cat").forEach(el => el.addEventListener("click", () => toggleCat(el.dataset.id)));
   $("#mixCount").textContent = `DEIN MIX ${state.sel.length} | ${MAX_MIX}`;
@@ -934,7 +1123,6 @@ function renderCats(){
   let h = "";
   if (!mains.length) h = `<div class="msg warn">Wählt mindestens 1 Main-Mix – der sorgt dafür, dass es zu jedem Jahr einen Song gibt.</div>`;
   else if (gaps.length) h = `<div class="msg warn">Achtung: Euer Main-Mix hat noch keine Songs für ${gaps.length > 6 ? gaps.length + " Jahre" : gaps.join(", ")}. Karten aus diesen Jahren funktionieren noch nicht.</div>`;
-  else h = `<div class="msg ok">Jedes Jahr von ${state.range[0]} bis ${state.range[1]} ist abgedeckt.</div>`;
   $("#mixInfo").innerHTML = h;
   $("#startBtn").disabled = !mains.length;
 }
@@ -1156,15 +1344,25 @@ function show(v){
   if (v === "game") spCheck(true);
   if (v === "data") { renderData(); if (!mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
-  if (v === "game") $("#gameMix").textContent = "Mix: " + state.sel.map(c => CAT[c].name).join(" · ");
+  if (v === "game") renderMixLine();
   window.scrollTo(0, 0);
 }
+// Mix im Scan-Bildschirm per Auge verstecken (z. B. wenn ein Team ihn heimlich gewählt hat)
+const EYE_OPEN = `<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_SHUT = `<svg viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7c1.8 0 3.4-.5 4.7-1.3"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>`;
+function renderMixLine(){
+  const hid = store.get("hideMix", false);
+  $("#gameMix").innerHTML = "Mix: " + (hid ? `<span class="hidmix">geheim</span>` : esc(state.sel.map(c => CAT[c].name).join(" · ")));
+  $("#mixEye").innerHTML = hid ? EYE_SHUT : EYE_OPEN; $("#mixEye").title = hid ? "Mix anzeigen" : "Mix ausblenden";
+}
+$("#mixEye").addEventListener("click", () => { store.set("hideMix", !store.get("hideMix", false)); renderMixLine(); });
+
 // Reiter „Spiel“: läuft eine Runde, geht's dorthin zurück – sonst zur Auswahl von Modus & Mix
 function openSpiel(){ if (!state.running) return show("setup"); show(state.current && !state.current.done ? "play" : "game"); }
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => b.dataset.v === "spiel" ? openSpiel() : show(b.dataset.v)));
 function renderResume(){
   const g = state.game;
-  $("#resumeBox").innerHTML = state.running ? `<div class="panel"><div class="small">Laufende Runde: <b>${esc(modeDef().name)}</b> · ${g.teams.map(t => esc(t.n) + " " + t.p).join(" · ")}</div>
+  $("#resumeBox").innerHTML = state.running ? `<div class="panel"><div class="small">Laufende Runde: <b>${esc(modeDef().name)}</b> · ${g.teams.map(t => esc(t.n) + " " + t.p).join(" : ")}</div>
     <button class="btn sec" id="resumeBtn">↩ Weiterspielen</button><div class="small">Oder unten Modus &amp; Mix wählen und eine neue Runde starten.</div></div>` : "";
   $("#resumeBtn")?.addEventListener("click", openSpiel);
 }
@@ -1181,7 +1379,6 @@ $("#startBtn").addEventListener("click", () => {
   if (sp.tok() && !spReady) openSpotify();   // kein Spotify-Gerät erreichbar -> jetzt unauffällig wecken
   show("game");
 });
-$("#modeSel").addEventListener("change", e => { newGame(e.target.value, state.game.teams.map(t => t.n)); renderModePanel(); });
 $("#modeRules").addEventListener("click", () => { show("rules"); setTimeout(() => document.getElementById("r-" + state.game.mode)?.scrollIntoView(), 50); });
 $("#rulesPdf").addEventListener("click", printRules);
 $("#rulesPdf2").addEventListener("click", printRules);
