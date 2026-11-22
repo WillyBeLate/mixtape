@@ -545,7 +545,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.18";
+const APP_VERSION = "0.9.19";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1524,7 +1524,12 @@ function renderCats(){
       <div class="nm">${esc(c.name)}</div><div class="ck"></div></div>`;
   }).join("") || `<p class="small">Noch keine Kategorien hier.</p>`;
   document.querySelectorAll("#catList .cat").forEach(el => el.addEventListener("click", () => toggleCat(el.dataset.id)));
-  if (state.tab === "kuenstler") loadArtistImages();
+  if (state.tab === "kuenstler") {
+    const err = store.get("artimgErr", null), missing = list.some(c => !store.get("artimg:" + c.id, null));
+    if (missing) $("#catList").insertAdjacentHTML("beforeend", `<div class="small" style="text-align:center;margin:10px 4px;opacity:.85">${
+      !sp.tok() ? "Künstlerbilder erscheinen, sobald ihr mit Spotify verbunden seid." : err ? "Künstlerbilder: " + esc(err) : "Künstlerbilder werden geladen …"}</div>`);
+    loadArtistImages();
+  }
   $("#mixCount").textContent = `DEIN MIX ${state.sel.length} | ${MAX_MIX}`;
   // Hinweise
   const mains = state.sel.filter(c => effTyp(c) === "main");
@@ -1543,7 +1548,7 @@ function catDot(c){
   if (img) return `<div class="dot" style="background:#222 url('${img}') center/cover"></div>`;
   return `<div class="dot" style="background:${catColor(c.id)};display:grid;place-items:center;font-size:20px">${CAT_ICON[c.id] || (c.typ === "kuenstler" ? "🎙️" : "🎵")}</div>`;
 }
-let artImgBusy = false;
+let artImgBusy = false, artImgRan = false;   // pro App-Start nur ein Durchlauf (kein Dauerfeuer bei Fehlern)
 // Künstlerbild: 1) Künstler-Suche, 2) Künstler einzeln abrufen, 3) notfalls Albumcover eines Songs des Künstlers
 async function artistImage(c){
   const pick = imgs => { const l = (imgs || []).slice().sort((p, q) => (p.width || 0) - (q.width || 0)); return (l.find(i => (i.width || 0) >= 120) || l[l.length - 1])?.url || null; };
@@ -1558,21 +1563,23 @@ async function artistImage(c){
   return url;
 }
 async function loadArtistImages(){
-  if (artImgBusy || !sp.tok()) return;
+  if (artImgBusy || artImgRan || !sp.tok()) return;
   const todo = KATEGORIEN.filter(c => c.typ === "kuenstler" && !store.get("artimg:" + c.id, null) && Date.now() - store.get("artimgTry2:" + c.id, 0) > 6 * 36e5);
   if (!todo.length) return;
-  artImgBusy = true;
+  artImgBusy = true; artImgRan = true;
   for (const c of todo) {
     try {
       const url = await artistImage(c);
-      if (url) { store.set("artimg:" + c.id, url); if (state.tab === "kuenstler") renderCats(); }
-      else store.set("artimgTry2:" + c.id, Date.now());     // wirklich kein Bild -> erst in 6 Std. wieder versuchen
+      if (url) { store.set("artimg:" + c.id, url); store.del("artimgErr"); if (state.tab === "kuenstler") renderCats(); }
+      else { store.set("artimgTry2:" + c.id, Date.now()); store.set("artimgErr", "Spotify liefert für „" + c.name + "“ kein Bild."); }
     } catch(e) {
+      store.set("artimgErr", (e.status ? "HTTP " + e.status + ": " : "") + e.message);
       if (e.status === 429 || e.status === 401) break;      // Spotify bremst/abgemeldet -> beim nächsten Öffnen erneut
       store.set("artimgTry2:" + c.id, Date.now());
     }
   }
   artImgBusy = false;
+  if (state.tab === "kuenstler" && $("#v-setup").classList.contains("on")) renderCats();
 }
 function toggleCat(id){
   const i = state.sel.indexOf(id);
