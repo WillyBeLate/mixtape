@@ -1477,6 +1477,7 @@ const TVTHEMEN = [
 //  KINDERSERIEN-QUIZ – Titelmelodien von Kinderserien, die in Deutschland bekannt waren
 //  [Serie (deutscher Titel), Titel bei Spotify, Interpret bei Spotify, Serienstart, Land]
 //  Interpret "" = unbekannt -> Mixtape sucht nur nach Titel bzw. "<Serie> Titelsong".
+//  Optional 6. Feld: feste Spotify-Track-ID (aus euren Korrekturen) – dann wird nicht mehr gesucht.
 // =====================================================================
 const KINDERTHEMEN = [
   // --- Klassiker (vor 1990) ---
@@ -1562,7 +1563,6 @@ const KINDERTHEMEN = [
   ["Victorious", "Make It Shine", "Victoria Justice", 2010, "US"],
   ["Adventure Time", "Adventure Time", "", 2010, "US"],
   ["Gravity Falls", "Gravity Falls", "", 2012, "US"],
-  ["Die Biene Maja (Neuauflage)", "Die Biene Maja", "Helene Fischer", 2013, "DE"],
   // --- seit 2013 ---
   ["PAW Patrol", "PAW Patrol", "", 2013, "CA"],
   ["Der kleine Drache Kokosnuss", "Drache Kokosnuss", "", 2014, "DE"],

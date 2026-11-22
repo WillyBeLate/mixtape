@@ -197,6 +197,8 @@
   .score .ct button{width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
   .score .ct.mk b{font-size:15px}
   .score .tm.two{flex-wrap:wrap;justify-content:flex-end}.score .tm.two .tn{flex:1 1 100%}
+  .fixit{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid #ffffff14}
+  .fixit>div{flex:1;min-width:0}.fixit span{color:#cfc6e8;font-size:12px}.fixit .btn{margin:0}
   .wopts{display:grid;gap:8px}.wopts .btn{margin:0}
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .chips button{border:0;border-radius:999px;padding:8px 12px;font-size:14px;background:#ffffff1f;color:#fff;cursor:pointer}
@@ -482,7 +484,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.1";
+const APP_VERSION = "0.9.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -773,13 +775,14 @@ async function handleYear(year){
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Song wird geladen …"; msg("#playMsg");
-  state.current = { ...pick, year, uri: null, dur: null, stage: 0 };
+  const cur = state.current = { ...pick, year, uri: null, dur: null, stage: 0 };
   $("#playHint").textContent = fillText(m.kurz, m.app);
   renderModeBox(); renderScore();
   const start = m.app.typ === "sprint" ? () => sprintPlay(0) : () => playCurrent(false);
   try {
     const tr = await resolveTrack(pick.song);
-    Object.assign(state.current, { uri: tr.uri, dur: tr.dur });
+    if (state.current !== cur) return;                       // inzwischen nächste Karte -> alte Suche verwerfen
+    Object.assign(cur, { uri: tr.uri, dur: tr.dur });
     await start();
   } catch(e) {
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – Mixtape öffnet Spotify kurz und spielt den Song danach automatisch ab.", m.app.typ === "sprint" ? () => sprintPlay(0) : null);
@@ -812,7 +815,9 @@ function reveal(){
     $("#revealBox").innerHTML = `<div class="reveal"><div class="meta" style="margin:0 0 6px">Die Serie</div>
       <div class="t" style="font-size:28px;margin:0">${esc(s.serie)}</div>
       <div class="a" style="margin-top:10px">„${esc(c.trName || s.t)}“${(c.trArtist || s.a) ? " · " + esc(c.trArtist || s.a) : ""}</div>
-      <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · Serie seit ${s.y}</div></div><div id="awardBox"></div>`;
+      <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · Serie seit ${s.y}</div>
+      <button class="btn small sec" id="fixBtn" style="margin-top:12px">🎵 Falscher Song? Richtige Version wählen</button></div><div id="fixBox"></div><div id="awardBox"></div>`;
+    $("#fixBtn").onclick = () => openTvPicker();
     $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
     c.stage = 9; c.done = true; renderModeBox(); renderScore(); return;
   }
@@ -1192,7 +1197,7 @@ function printRules(){
 // =====================================================================
 //  TV-QUIZ: Titelmelodien ohne Jahreskarten (Daten: TVTHEMEN in daten.js)
 // =====================================================================
-const mkTv = (arr, pre) => (arr || []).map((x, i) => ({ i: pre + i, serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4], tv:true, opt:{} }));
+const mkTv = (arr, pre) => (arr || []).map((x, i) => ({ i: pre + ":" + x[0], serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4], sid: x[5] || null, tv:true, opt:{} }));
 const TV_DATEN = {
   tv:   { name: "TV-Quiz · Serien-Titelmelodien", liste: mkTv(typeof TVTHEMEN !== "undefined" ? TVTHEMEN : [], "tv") },
   kids: { name: "Kinderserien-Quiz", liste: mkTv(typeof KINDERTHEMEN !== "undefined" ? KINDERTHEMEN : [], "kids") },
@@ -1208,21 +1213,41 @@ function renderTvBox(){
   $("#tvBox").innerHTML = tv ? `<button class="btn" id="tvNext">▶ Nächste Titelmelodie</button><div class="small" style="text-align:center">${L.length} Serien von ${rg[0]} bis ${rg[1]}</div>` : "";
   $("#tvNext")?.addEventListener("click", playTV);
 }
+// Titelmelodie finden: 1) von euch festgelegt  2) fest in daten.js hinterlegt  3) Suche mit Bewertung
+const TV_NOGO = /\b(karaoke|cover|tribute|8-bit|lullaby|remix|live|piano|ringtone|hörspiel|horspiel|hörbuch|folge|teil \d+|kapitel|episode|party|tanz|mix|medley)\b/i;
+const tvFix = x => store.get("tvfix:" + x.i, null);
+async function tvSearch(q, limit = 10){
+  const j = await sp.api(`/search?type=track&limit=${limit}&market=DE&q=${encodeURIComponent(q)}`);
+  return j?.tracks?.items || [];
+}
+function tvScore(tr, x){
+  const name = tr.name.toLowerCase(), alb = (tr.album?.name || "").toLowerCase(), all = norm(tr.name + " " + (tr.album?.name || "") + " " + tr.artists.map(a => a.name).join(" "));
+  if (TV_NOGO.test(tr.name) || TV_NOGO.test(tr.album?.name || "")) return -1;
+  const core = norm(x.serie.replace(/\(.*?\)/g, "").replace(/^(die|der|das|unser|the)\s+/i, "").split(/\s[–-]\s/)[0]);
+  if (!all.includes(core) && !all.includes(norm(x.t))) return -1;
+  let sc = 0;
+  if (norm(tr.name).includes(norm(x.t))) sc += 3;
+  if (/titel|intro|vorspann|theme|opening|title|lied|song/.test(name + " " + alb)) sc += 3;
+  if (/deutsch|german/.test(name + " " + alb)) sc += 2;
+  if (x.a && tr.artists.some(a => norm(a.name).includes(norm(x.a)) || norm(x.a).includes(norm(a.name)))) sc += 5;
+  if (/english|englisch|\(us\)/.test(name)) sc -= 2;
+  return sc + (tr.popularity || 0) / 50;
+}
 async function resolveTV(x){
-  const key = "tv1:" + x.serie; const cached = store.get(key, null); if (cached) return cached;
-  const NOGO = /\b(karaoke|cover|tribute|8-bit|lullaby|remix|live|piano version|ringtone)\b/i;
-  const tries = x.a ? [[`track:${x.t} artist:${x.a}`, "strict"], [`${x.t} ${x.a}`, "strict"]] : [];
-  tries.push([`${x.serie} titelsong`, "serie"], [`${x.t} titellied`, "serie"], [`${x.serie} theme`, "serie"], [`${x.t}`, "serie"]);
-  for (const [q, mode] of tries) {
-    const j = await sp.api(`/search?type=track&limit=10&market=DE&q=${encodeURIComponent(q)}`);
-    const items = (j?.tracks?.items || []).filter(tr => !NOGO.test(tr.name) && (mode === "strict"
-      ? tr.artists.some(ar => norm(ar.name).includes(norm(x.a)) || norm(x.a).includes(norm(ar.name))) && norm(tr.name).includes(norm(x.t))
-      : norm(tr.name + " " + (tr.album?.name || "")).includes(norm(x.t))));
-    if (!items.length) continue;
-    const res = { uri: items[0].uri, dur: items[0].duration_ms, name: items[0].name, artist: items[0].artists.map(a => a.name).join(", ") };
-    store.set(key, res); return res;
+  const fix = tvFix(x); if (fix) return fix;
+  if (x.sid) return { uri: "spotify:track:" + x.sid, dur: null, name: x.t, artist: x.a };
+  const key = "tv2:" + x.i; const cached = store.get(key, null); if (cached) return cached;
+  const qs = [];
+  if (x.a) qs.push(`track:${x.t} artist:${x.a}`, `${x.t} ${x.a}`);
+  qs.push(`${x.serie} titellied`, `${x.serie} titelsong`, `${x.serie} intro deutsch`, `${x.t} titelsong`, `${x.serie}`);
+  let best = null, bestSc = 0;
+  for (const q of qs) {
+    for (const tr of await tvSearch(q)) { const sc = tvScore(tr, x); if (sc > bestSc) { bestSc = sc; best = tr; } }
+    if (bestSc >= 8) break;                                // klarer Treffer -> nicht weiter suchen
   }
-  throw new Error(`Titelmelodie von „${x.serie}“ wurde bei Spotify nicht gefunden – einfach die nächste nehmen.`);
+  if (!best || bestSc < 3) throw new Error(`Für „${x.serie}“ wurde bei Spotify keine passende Titelmelodie gefunden.`);
+  const res = { uri: best.uri, dur: best.duration_ms, name: best.name, artist: best.artists.map(a => a.name).join(", ") };
+  store.set(key, res); return res;
 }
 async function playTV(){
   if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Spiel“ bei Spotify anmelden."); $("#scanMsg").style.display = ""; return; }
@@ -1233,17 +1258,47 @@ async function playTV(){
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Melodie wird geladen …"; msg("#playMsg");
-  state.current = { song: x, from: null, year: null, uri: null, dur: null, stage: 0 };
+  const cur = state.current = { song: x, from: null, year: null, uri: null, dur: null, stage: 0 };
   $("#playHint").textContent = "Welche Serie ist das?";
   renderModeBox(); renderScore();
-  try { const tr = await resolveTV(x); Object.assign(state.current, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist }); await playCurrent(true); }
-  catch(e) {
+  try {
+    const tr = await resolveTV(x);
+    if (state.current !== cur) return;                      // inzwischen weitergetippt -> alte Suche verwerfen
+    Object.assign(cur, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist });
+    await playCurrent(true);
+  } catch(e) {
+    if (state.current !== cur) return;
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – danach startet die Melodie automatisch.");
-    else { msg("#playMsg", "err", esc(e.message)); state.played.add(x.i); save(); $("#nextBtn").style.display = "block"; }
+    else { $("#playMsg").innerHTML = `<div class="msg err">${esc(e.message)}</div><button class="btn sec" id="fixNow">🎵 Richtige Version selbst auswählen</button>`;
+      $("#fixNow").onclick = () => openTvPicker(); $("#nextBtn").style.display = "block"; }
     $("#playState").textContent = "Wiedergabe gestoppt";
   }
 }
-
+// Falsche oder fehlende Titelmelodie: Spotify-Treffer anzeigen, anhören, richtige festlegen
+async function openTvPicker(q){
+  const c = state.current, x = c?.song; if (!x?.tv) return;
+  let box = $("#fixBox");
+  if (!box) { box = document.createElement("div"); box.id = "fixBox"; $("#revealBox").after(box); }
+  box.innerHTML = `<div class="panel"><b>Richtige Titelmelodie für „${esc(x.serie)}“</b>
+    <div class="row" style="margin:8px 0"><input type="text" id="fixQ" value="${esc(q || x.serie + " titellied")}"><button class="btn small" id="fixGo">Suchen</button></div>
+    <div id="fixList" class="small">Suche …</div></div>`;
+  $("#fixGo").onclick = () => openTvPicker($("#fixQ").value);
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+  try {
+    const seen = new Set(), items = [];
+    for (const qq of q ? [q] : [`${x.serie} titellied`, `${x.serie} titelsong`, `${x.serie} intro`, x.serie])
+      for (const tr of await tvSearch(qq, 10)) if (!seen.has(tr.uri)) { seen.add(tr.uri); items.push(tr); }
+    $("#fixList").innerHTML = items.length ? items.slice(0, 20).map((tr, k) => `<div class="fixit">
+      <div><b>${esc(tr.name)}</b><br><span>${esc(tr.artists.map(a => a.name).join(", "))} · ${esc(tr.album?.name || "")}</span></div>
+      <button class="btn small sec" data-fp="${k}">▶</button><button class="btn small" data-fs="${k}">✓</button></div>`).join("") : "Nichts gefunden – anderen Suchbegriff probieren.";
+    const pick = k => ({ uri: items[k].uri, dur: items[k].duration_ms, name: items[k].name, artist: items[k].artists.map(a => a.name).join(", ") });
+    box.querySelectorAll("[data-fp]").forEach(b => b.onclick = async () => { Object.assign(c, pick(+b.dataset.fp)); try { await playCurrent(true); msg("#playMsg"); } catch(e) { msg("#playMsg", "err", e.message); } });
+    box.querySelectorAll("[data-fs]").forEach(b => b.onclick = () => {
+      const r = pick(+b.dataset.fs); store.set("tvfix:" + x.i, r); Object.assign(c, { uri: r.uri, trName: r.name, trArtist: r.artist });
+      if (c.revealed) reveal();
+      const fb = $("#fixBox"); if (fb) fb.innerHTML = `<div class="msg ok">Gespeichert: „${esc(r.name)}“ ist ab jetzt die Titelmelodie für „${esc(x.serie)}“. Unter „Daten → Sonderkategorien“ kannst du deine Korrekturen exportieren.</div>`; });
+  } catch(e) { $("#fixList").textContent = e.message; }
+}
 // ---------- QR-Scanner ----------
 let scanner = null, scanLock = false;
 async function startScanner(){
@@ -1512,7 +1567,7 @@ function renderData(){
   // Sonderkategorien: Inhalte außerhalb der Jahreskarten (TV-Quiz, Kinderserien-Quiz …)
   const tvPanels = Object.values(TV_DATEN).map(D => {
     const L = D.liste; if (!L.length) return "";
-    const rg = tvRange(L), found = L.filter(x => store.get("tv1:" + x.serie, null)).length;
+    const rg = tvRange(L), found = L.filter(x => tvFix(x) || x.sid || store.get("tv2:" + x.i, null)).length;
     const decs = {}; L.forEach(x => { const d = Math.floor(x.y / 10) * 10; decs[d] = (decs[d] || 0) + 1; });
     const max = Math.max(1, ...Object.values(decs));
     return `<div class="panel"><div class="row"><b>${esc(D.name)}</b><span class="small">${L.length} Serien · ${rg[0]}–${rg[1]}</span></div>
@@ -1521,8 +1576,19 @@ function renderData(){
       <div class="small" style="margin-top:8px">Länder: ${Object.entries(L.reduce((m, x) => (m[x.land] = (m[x.land] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${flag(l)} ${n}`).join(" · ")}</div></div>`;
   }).join("");
   const nSp = Object.values(TV_DATEN).filter(D => D.liste.length).length, nMel = Object.values(TV_DATEN).reduce((a, D) => a + D.liste.length, 0);
-  h += foldHtml("special", "Sonderkategorien", `${nSp} Kategorien · ${nMel} Titelmelodien`, tvPanels);
+  const fixes = Object.values(TV_DATEN).flatMap(D => D.liste).filter(x => tvFix(x));
+  const fixPanel = `<div class="panel"><b>Eure Titelmelodie-Korrekturen: ${fixes.length}</b>
+    <div class="small" style="margin:4px 0 8px">Beim Auflösen könnt ihr mit „Falscher Song?“ die richtige Version festlegen. Exportiert die Liste und schickt sie mir – dann trage ich sie fest ein, damit sie auf allen Geräten gilt.</div>
+    ${fixes.length ? `<button class="btn small" id="fixExport">📤 Korrekturen exportieren</button>` : ""}</div>`;
+  h += foldHtml("special", "Sonderkategorien", `${nSp} Kategorien · ${nMel} Titelmelodien`, tvPanels + fixPanel);
   $("#dataBox").innerHTML = h;
+  $("#fixExport")?.addEventListener("click", async () => {
+    const out = {}; Object.values(TV_DATEN).flatMap(D => D.liste).forEach(x => { const f = tvFix(x); if (f) out[x.i] = [f.uri.split(":").pop(), f.name, f.artist]; });
+    const txt = JSON.stringify(out, null, 1);
+    try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" })); a.download = "mixtape-titelmelodien.json"; document.body.appendChild(a); a.click(); a.remove();
+      alert(Object.keys(out).length + " Korrekturen als „mixtape-titelmelodien.json“ gespeichert – einfach im Chat hochladen."); }
+    catch(e) { try { await navigator.clipboard.writeText(txt); alert("Korrekturen kopiert."); } catch(e2) { prompt("Korrekturen:", txt); } }
+  });
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
     if (!d.dataset.init && ["spotify", "mb", "check"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
