@@ -1091,6 +1091,18 @@ const SONGS = [
   ["Defying Gravity", "Cynthia Erivo", 2024, "GB", "film"],
   ["Beyond", "Auliʻi Cravalho", 2024, "US", "film"],
   ["Golden", "HUNTR/X", 2025, "US", "film global"],
+
+  // ---------------- Lücken geschlossen (Hits in Deutschland 1940/45/46, Film 2026) ----------------
+  ["Für eine Nacht voller Seligkeit", "Rudi Schuricke", 1940, "DE", "dehits film"],
+  ["Wenn ein junger Mann kommt", "Willy Fritsch", 1940, "DE", "dehits film"],
+  ["Mir geht's gut", "Heinz Rühmann", 1940, "DE", "dehits"],
+  ["Einen wie dich könnt' ich lieben", "Zarah Leander", 1945, "SE", "dehits"],
+  ["In die schönste der Frauen hab' ich mich heute verliebt", "Herbert Ernst Groh", 1945, "CH", "dehits"],
+  ["Drei kleine Geschichten", "Evelyn Künneke", 1946, "DE", "dehits"],
+  ["Mondnacht auf Cuba", "Hans Bardeleben", 1946, "DE", "dehits"],
+  ["Holli-ahi", "Horst Winter", 1946, "AT", "dehits"],
+  ["A Parallel World", "BINI", 2026, "PH", "film"],
+  ["Now I'm Listening", "Son Lux", 2026, "US", "film"],
 ];
 
 // =====================================================================
@@ -1101,6 +1113,8 @@ const SONGS = [
 //  (und ggf. das Jahr oben korrigieren). In der App: Daten → Prüfliste.
 // =====================================================================
 const PRUEFEN = {
+  "Capri-Fischer|Rudi Schuricke": "Datum unsicher: Aufnahme 1943, Veröffentlichung 1948 oder 1949?",
+  "Holli-ahi|Horst Winter": "Datum unsicher: 1946 laut Compilation – prüfen",
   "Happy Days Are Here Again|Ben Selvin": "Datum unsicher: Aufnahme Nov. 1929, Veröffentlichung 1929 oder 1930?",
   "It's Only a Paper Moon|Paul Whiteman": "Datum unsicher: Aufnahme/Erscheinen 1933 nicht belegt",
   "Lullaby of Broadway|Dick Powell": "Datum unsicher: Plattenaufnahme 1935 nicht belegt",
@@ -1144,6 +1158,6 @@ const LAENDER = {
   IE: "Irland", FR: "Frankreich", IT: "Italien", ES: "Spanien", PT: "Portugal",
   GR: "Griechenland", TR: "Türkei", UA: "Ukraine", IL: "Israel", CA: "Kanada",
   AU: "Australien", JM: "Jamaika", TT: "Trinidad und Tobago", CO: "Kolumbien",
-  PR: "Puerto Rico", BB: "Barbados", KR: "Südkorea", JP: "Japan", PL: "Polen", HU: "Ungarn", IN: "Indien", NZ: "Neuseeland", BE: "Belgien",
+  PR: "Puerto Rico", BB: "Barbados", KR: "Südkorea", JP: "Japan", PH: "Philippinen", PL: "Polen", HU: "Ungarn", IN: "Indien", NZ: "Neuseeland", BE: "Belgien",
   MD: "Moldau", BS: "Bahamas", IS: "Island", EE: "Estland", RS: "Serbien", RU: "Russland", AZ: "Aserbaidschan", ZA: "Südafrika",
 };

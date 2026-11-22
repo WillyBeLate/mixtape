@@ -232,7 +232,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.7.0";
+const APP_VERSION = "0.7.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -302,8 +302,8 @@ function candidates(cats, year, avoidPlayed){
 const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
 
 function pickSong(year){
-  const mains  = state.sel.filter(c => CAT[c].typ === "main");
-  const extras = state.sel.filter(c => CAT[c].typ !== "main");
+  const mains  = state.sel.filter(c => effTyp(c) === "main");
+  const extras = state.sel.filter(c => effTyp(c) !== "main");
   for (const avoid of [true, false]) {           // erst ohne Wiederholung, dann mit
     const ex = candidates(extras, year, avoid);
     const mn = candidates(mains,  year, avoid);
@@ -316,23 +316,15 @@ function pickSong(year){
       const s = pickRand(pool); return { song: s, from: mnCats.find(c => s.cats.includes(c)), repeat: !avoid };
     }
   }
-  // Sicherheitsnetz: hat der gewählte Main-Mix für dieses Jahr keinen Song,
-  // wird automatisch aus „Globale Hits“ gezogen – es muss nie neu gezogen werden.
-  if (!mains.includes("global")) {
-    for (const avoid of [true, false]) {
-      const g = candidates(["global"], year, avoid).global;
-      if (g) return { song: pickRand(g), from: "global", repeat: !avoid, fallback: true };
-    }
-  }
   return null;
 }
 
-function mixCoverage(){   // Jahre, für die auch das Sicherheitsnetz (Globale Hits) nichts hat
-  const mains = [...new Set([...state.sel.filter(c => CAT[c].typ === "main"), "global"])];
-  return years().filter(y => !mains.some(c => byYearCat[c]?.[y]?.length));
-}
-function mixFallbackYears(){   // Jahre, in denen der gewählte Main-Mix auf Globale Hits ausweicht
-  const mains = state.sel.filter(c => CAT[c].typ === "main");
+// Regel wie bei Play: Eine Main-Kategorie muss ALLEIN jedes Jahr des Kartenbereichs abdecken.
+// Als "main" angelegte Kategorien mit Lücken werden automatisch wie Support behandelt.
+function mainGaps(id){ return years().filter(y => !byYearCat[id]?.[y]?.length); }
+function effTyp(id){ const t = CAT[id].typ; return t === "main" && mainGaps(id).length ? "support" : t; }
+function mixCoverage(){
+  const mains = state.sel.filter(c => effTyp(c) === "main");
   return years().filter(y => !mains.some(c => byYearCat[c]?.[y]?.length));
 }
 
@@ -533,7 +525,7 @@ function renderLogin(err){
 }
 
 function renderCats(){
-  const list = KATEGORIEN.filter(c => c.typ === state.tab);
+  const list = KATEGORIEN.filter(c => effTyp(c.id) === state.tab);
   const span = years().length;
   $("#catList").innerHTML = list.map(c => {
     const cov = years().filter(y => byYearCat[c.id]?.[y]?.length).length;
@@ -545,16 +537,12 @@ function renderCats(){
   document.querySelectorAll("#catList .cat").forEach(el => el.addEventListener("click", () => toggleCat(el.dataset.id)));
   $("#mixCount").textContent = `DEIN MIX ${state.sel.length} | ${MAX_MIX}`;
   // Hinweise
-  const mains = state.sel.filter(c => CAT[c].typ === "main");
+  const mains = state.sel.filter(c => effTyp(c) === "main");
   const gaps = mixCoverage();
   let h = "";
   if (!mains.length) h = `<div class="msg warn">Wählt mindestens 1 Main-Mix – der sorgt dafür, dass es zu jedem Jahr einen Song gibt.</div>`;
   else if (gaps.length) h = `<div class="msg warn">Achtung: Euer Main-Mix hat noch keine Songs für ${gaps.length > 6 ? gaps.length + " Jahre" : gaps.join(", ")}. Karten aus diesen Jahren funktionieren noch nicht.</div>`;
-  else {
-    const fb = mixFallbackYears();
-    h = `<div class="msg ok">Jedes Jahr von ${state.range[0]} bis ${state.range[1]} ist abgedeckt.</div>` +
-      (fb.length ? `<div class="small">Für ${fb.join(", ")} springt „Globale Hits“ ein.</div>` : "");
-  }
+  else h = `<div class="msg ok">Jedes Jahr von ${state.range[0]} bis ${state.range[1]} ist abgedeckt.</div>`;
   $("#mixInfo").innerHTML = h;
   $("#startBtn").disabled = !mains.length;
 }
@@ -711,7 +699,7 @@ function renderData(){
     const hit = ys.filter(y => byYearCat[c.id]?.[y]?.length);
     const miss = ys.filter(y => !byYearCat[c.id]?.[y]?.length);
     const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
-    const warn = c.typ === "main" && miss.length ? `<div class="msg err">Main-Lücken: ${miss.join(", ")}</div>` : "";
+    const warn = c.typ === "main" && miss.length ? `<div class="msg err">Lücken: ${miss.join(", ")} – zählt deshalb vorerst nur als Support.</div>` : "";
     return `<div class="panel"><div class="row"><b>${esc(c.name)}</b><span class="small">${c.typ} · ${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
       ${c.regel ? `<div class="small">Regel: ${esc(c.regel)}</div>` : ""}${warn}
       <div class="yeargrid">${ys.map(y => `<i class="${hit.includes(y) ? "h" : ""}" title="${y}"></i>`).join("")}</div></div>`;
