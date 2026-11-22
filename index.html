@@ -157,6 +157,7 @@
 
   <!-- ======================= LÄUFT ======================= -->
   <section class="view" id="v-play">
+    <div class="small" style="text-align:right;opacity:.35">v<span class="verTag"></span></div>
     <div class="stage">
       <div class="disc" id="disc"></div>
       <h2 id="playState">Song läuft …</h2>
@@ -219,7 +220,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.5.3";
+const APP_VERSION = "0.5.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -665,7 +666,12 @@ $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(
 
 // ---------- Installierbare App ----------
 let installEvt = null;
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  // Neue Version sofort holen: SW ohne HTTP-Cache prüfen und nach Wechsel einmal neu laden
+  navigator.serviceWorker.register("sw.js", { updateViaCache:"none" }).then(r => r.update()).catch(()=>{});
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
+}
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; renderInstall(); });
 function renderInstall(){
   const box = $("#installBox"); if (!box) return;
@@ -677,7 +683,7 @@ function renderInstall(){
   else if (ios) box.innerHTML = `<div class="msg warn">iPhone: In Safari unten auf <b>Teilen</b> (□↑) tippen → <b>„Zum Home-Bildschirm“</b>.</div>`;
   else box.innerHTML = `<div class="msg warn">Android: Chrome-Menü (⋮) → <b>„App installieren“</b> bzw. „Zum Startbildschirm hinzufügen“.</div>`;
 }
-$("#appVer").textContent = APP_VERSION;
+$("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);
 
 (async () => {
   renderInstall();
