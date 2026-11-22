@@ -119,6 +119,11 @@
   /* Team-Namen */
   .tin{display:flex;align-items:center;gap:10px;margin:7px 0}
   .tin i{width:14px;height:14px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 10px var(--c)}
+  .tcol{width:30px;height:30px;border-radius:50%;background:var(--c);border:3px solid #ffffffcc;flex:none;box-shadow:0 0 12px var(--c);cursor:pointer;padding:0}
+  .tpal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px 12px 12px;margin:-2px 0 8px;background:#ffffff14;border-radius:16px}
+  .tpal[hidden]{display:none}
+  .tpal button{aspect-ratio:1;max-width:40px;width:100%;justify-self:center;border-radius:50%;background:var(--c);border:3px solid transparent;cursor:pointer;padding:0}
+  .tpal button.on{border-color:#fff;box-shadow:0 0 0 2px var(--c)}
   .tact{display:flex;gap:14px;margin:4px 2px 2px}
   .lk{background:none;border:0;color:#ffb3d4;font-size:14px;font-weight:700;padding:6px 0;cursor:pointer}
   /* Punkteziel */
@@ -567,7 +572,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.21";
+const APP_VERSION = "0.9.22";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -960,21 +965,24 @@ function defaultName(m, i){
   if (m.app.koop) return n;
   return n === "Spieler" ? `Spieler ${i+1}` : `Team ${"ABCDEFGHIJ"[i]}`;
 }
+// 10 klar unterscheidbare Teamfarben; jedes Team kann seine per Tipp auf den Farbpunkt wählen (t.c = Index)
+const TEAMFARBEN = ["#ff4d8d", "#ef4444", "#ff8a1f", "#ffd23f", "#2ecc71", "#14c8b4", "#38bdf8", "#3b6cff", "#9b5cff", "#e5e7eb"];
+const TEAM_START = [0, 6, 3, 4, 8, 2, 5, 7, 1, 9];
+const teamCol = i => TEAMFARBEN[state.game?.teams?.[i]?.c ?? TEAM_START[i % 10]];
 function newGame(modeId, names){
   const m = SPIELMODI.find(x => x.id === modeId) || SPIELMODI[0];
   const [lo, hi] = m.app.teams;
   let n = names ? Math.min(hi, Math.max(lo, names.length)) : lo;
-  const teams = [];
+  const teams = [], oldC = (state.game?.teams || []).map(t => t.c);
   for (let i = 0; i < n; i++) {
     const keep = names?.[i] && !/^(Team [A-J]|Spieler \d+|Wir alle)$/.test(names[i]) ? names[i] : defaultName(m, i);
-    teams.push({ n: keep, p: m.app.handkarten ? (i === 0 ? m.app.handkarten[0] : m.app.handkarten[1]) : (m.app.startPunkte || 0), m: m.app.markenStart || 0, z: 0 });
+    teams.push({ n: keep, p: m.app.handkarten ? (i === 0 ? m.app.handkarten[0] : m.app.handkarten[1]) : (m.app.startPunkte || 0), m: m.app.markenStart || 0, z: 0, c: oldC[i] ?? TEAM_START[i % 10] });
   }
   state.game = { mode: m.id, teams, turn: 0, runde: 0, ziel: store.get("ziel:" + m.id, m.app.ziel) };
   state.forceCat = null; saveGame();
 }
 if (!state.game || !SPIELMODI.some(m => m.id === state.game.mode)) newGame(SPIELMODI[0].id);
 
-const TEAMFARBEN = ["#ff5fa2", "#38d6ff", "#ffb020", "#2ecc71", "#c06cff", "#ff7a45", "#00c2a8", "#7c5cff", "#ffd23f", "#ff4d6d"];
 const goal = () => state.game.ziel || modeDef().app.ziel;
 const otherIdx = () => (state.game.turn + 1) % state.game.teams.length;
 const SVG_EDIT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>`;
@@ -1012,7 +1020,7 @@ function renderScore(){
   else if (ziel) gl = `Spiel bis ${ziel} ${(m.app.einheit || m.id === "duell") ? "Karten" : "Punkte"}`;
   const st = gameStatus(), edit = state.sbEdit;
   const tiles = g.teams.map((t, i) => {
-    const col = TEAMFARBEN[i % TEAMFARBEN.length], on = a.zug === "reihum" && g.turn === i && !(st && st.typ === "win");
+    const col = teamCol(i), on = a.zug === "reihum" && g.turn === i && !(st && st.typ === "win");
     const pct = a.koop ? t.p / a.ziel : a.handkarten ? 1 - t.p / Math.max(a.handkarten[0], 1) : a.runden ? 0 : ziel ? t.p / ziel : 0;
     const lbl = a.koop ? "Level geschafft" : a.handkarten ? "Handkarten" : (m.app.einheit || m.id === "duell") ? "Karten" : "Punkte";
     let mk = "";
@@ -1060,7 +1068,7 @@ function renderAwards(){
   const list = awardList(); c.awards ??= {};
   const grouped = modeDef().app.aktionen?.some(x => x.jeder);
   box.innerHTML = `<div class="aw"><div class="awh">Punkte vergeben</div><div class="awg ${grouped ? "grid" : ""}">${list.map(x =>
-    `<button class="awb ${c.awards[x.key] ? "on" : ""}" data-aw="${x.key}" style="--c:${TEAMFARBEN[x.team % TEAMFARBEN.length]}">
+    `<button class="awb ${c.awards[x.key] ? "on" : ""}" data-aw="${x.key}" style="--c:${teamCol(x.team)}">
       <span class="l">${esc(x.label)}${x.val ? ` <b>${x.val}</b>` : ""}</span>${x.sub ? `<span class="s">${x.sub}</span>` : ""}</button>`).join("")}</div>
     <div class="small" style="margin-top:6px;opacity:.7">Nochmal tippen nimmt die Vergabe zurück.</div></div>`;
   box.querySelectorAll("[data-aw]").forEach(b => b.onclick = () => {
@@ -1214,12 +1222,22 @@ function renderModePanel(){
   if (a.koop) { $("#teamEd").innerHTML = `<div class="small" style="margin:0 2px 10px">Alle spielen zusammen in einem Team.</div>`; return; }
   const word = a.namen === "Spieler" ? "Spieler" : "Teams";
   $("#teamEd").innerHTML = `<div class="flab">${word} <span>${lo === hi ? lo : lo + "–" + hi}</span></div>` +
-    g.teams.map((t, i) => `<div class="tin" style="--c:${TEAMFARBEN[i % TEAMFARBEN.length]}"><i></i><input type="text" data-tn="${i}" value="${esc(t.n)}" placeholder="${defaultName(m, i)}" maxlength="18"></div>`).join("") +
+    g.teams.map((t, i) => `<div class="tin" style="--c:${teamCol(i)}"><button class="tcol" data-tc="${i}" aria-label="Farbe ändern"></button><input type="text" data-tn="${i}" value="${esc(t.n)}" placeholder="${defaultName(m, i)}" maxlength="18"></div>
+      <div class="tpal" id="tpal${i}" hidden>${TEAMFARBEN.map((c, k) => `<button style="--c:${c}" data-tp="${i}:${k}" class="${(t.c ?? TEAM_START[i % 10]) === k ? "on" : ""}" aria-label="Farbe ${k + 1}"></button>`).join("")}</div>`).join("") +
     `<div class="tact">${g.teams.length < hi ? `<button class="lk" id="tAdd">+ ${word === "Spieler" ? "Spieler" : "Team"} hinzufügen</button>` : ""}${g.teams.length > lo ? `<button class="lk" id="tDel">− entfernen</button>` : ""}</div>`;
   document.querySelectorAll("[data-tn]").forEach(el => {
     el.addEventListener("focus", () => el.select());
     el.addEventListener("input", () => { g.teams[+el.dataset.tn].n = el.value.trim() || defaultName(m, +el.dataset.tn); saveGame(); });
   });
+  document.querySelectorAll("[data-tc]").forEach(b => b.onclick = () => {
+    const p = $("#tpal" + b.dataset.tc), open = p.hidden;
+    document.querySelectorAll(".tpal").forEach(x => x.hidden = true); p.hidden = !open; });
+  document.querySelectorAll("[data-tp]").forEach(b => b.onclick = () => {
+    const [i, k] = b.dataset.tp.split(":").map(Number), cur = g.teams[i].c ?? TEAM_START[i % 10];
+    g.teams.forEach((t, j) => { t.c = t.c ?? TEAM_START[j % 10]; });
+    const other = g.teams.findIndex((t, j) => j !== i && t.c === k);
+    if (other >= 0) g.teams[other].c = cur;          // Farbe schon vergeben -> tauschen
+    g.teams[i].c = k; saveGame(); renderModePanel(); renderScore?.(); });
   $("#tAdd")?.addEventListener("click", () => { newGame(m.id, [...g.teams.map(t => t.n), defaultName(m, g.teams.length)]); renderModePanel(); });
   $("#tDel")?.addEventListener("click", () => { newGame(m.id, g.teams.slice(0, -1).map(t => t.n)); renderModePanel(); });
 }
