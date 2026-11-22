@@ -500,7 +500,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.9";
+const APP_VERSION = "0.9.10";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1347,7 +1347,8 @@ const syncKey = s => "trk3:" + s.t + "|" + s.a;
 function syncFlags(s, r){
   if (!r) return ["nicht gefunden"];
   const f = [], y = parseInt(r.date) || 0;
-  if (y && y < s.y) f.push(`Spotify-Album von ${y} – älter als unser Jahr ${s.y}`);
+  const ok = store.get("syncok:" + s.t + "|" + s.a, false) || (typeof BESTAETIGT !== "undefined" && BESTAETIGT.has(s.t + "|" + s.a));
+  if (y && y < s.y) f.push(ok ? `Spotify-Album von ${y} (Jahr ${s.y} bestätigt)` : `Spotify-Album von ${y} – älter als unser Jahr ${s.y}`);
   if (y && y > s.y + 1 && r.typ !== "compilation") f.push(`nur spätere Ausgabe (${y})`);
   if (r.typ === "compilation") f.push("nur auf Sampler");
   if (/\b(version|edit|mix|mono|re-?recorded|re-?mastered \d{4} version|from .* soundtrack)\b/i.test(r.name.replace(/\(.*remaster.*\)/i, ""))) f.push("Versionshinweis im Titel");
@@ -1368,7 +1369,10 @@ function renderSync(){
   $("#syncStart").textContent = syncRunning ? "⏸ Abgleich anhalten" : "▶ Abgleich starten";
   $("#syncList").innerHTML = serious.length ? `<h4 style="margin:12px 0 4px">Bitte kurz prüfen (${serious.length})</h4>` + serious.slice(0, 150).map(([s, r, f]) => `<div class="fixit">
       <div><b>${esc(s.t)}</b> · ${esc(s.a)} (${s.y})<br><span>${r ? "Spotify: „" + esc(r.name) + "“ · " + esc(r.artist) + " · " + esc(r.album) : ""}<br>⚠️ ${esc(f.join(" · "))}</span></div>
-      ${r ? `<button class="btn small sec" data-sync="${s.i}">▶</button>` : ""}</div>`).join("") : "";
+      <div style="display:flex;gap:6px">${r ? `<button class="btn small sec" data-sync="${s.i}">▶</button><button class="btn small sec" data-syncok="${s.i}" title="Passt so">✓</button>` : ""}</div></div>`).join("") : "";
+  document.querySelectorAll("[data-syncok]").forEach(b => b.onclick = () => {
+    const s = DB[+b.dataset.syncok]; store.set("syncok:" + s.t + "|" + s.a, true); renderSync();
+  });
   document.querySelectorAll("[data-sync]").forEach(b => b.onclick = async () => {
     const s = DB[+b.dataset.sync], r = store.get(syncKey(s), null);
     try { state.current = { song: s, uri: r.uri, dur: r.dur }; await playCurrent(true); } catch(e) { alert(e.nodevice ? "Spotify schläft – App kurz öffnen." : e.message); }
