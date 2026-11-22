@@ -305,17 +305,14 @@ const SONGS = [
 
   // =================== ERWEITERUNG v0.6 ===================
   // ---------------- GLOBALE HITS – zusätzliche Songs ----------------
-  ["Happy Days Are Here Again", "Ben Selvin", 1930, "US", "global"],
   ["Puttin' On the Ritz", "Harry Richman", 1930, "US", "global film"],
   ["Dream a Little Dream of Me", "Ozzie Nelson", 1931, "US", "global"],
   ["As Time Goes By", "Rudy Vallée", 1931, "US", "global"],
   ["Night and Day", "Fred Astaire", 1932, "US", "global"],
   ["It Don't Mean a Thing (If It Ain't Got That Swing)", "Duke Ellington", 1932, "US", "global"],
   ["Sophisticated Lady", "Duke Ellington", 1933, "US", "global"],
-  ["It's Only a Paper Moon", "Paul Whiteman", 1933, "US", "global"],
   ["Stars Fell on Alabama", "Guy Lombardo", 1934, "US", "global"],
   ["Solitude", "Duke Ellington", 1934, "US", "global"],
-  ["Lullaby of Broadway", "Dick Powell", 1935, "US", "global"],
   ["In a Sentimental Mood", "Duke Ellington", 1935, "US", "global"],
   ["Pennies from Heaven", "Bing Crosby", 1936, "US", "global film"],
   ["Summertime", "Billie Holiday", 1936, "US", "global"],
@@ -1101,11 +1098,9 @@ const SONGS = [
   ["Für eine Nacht voller Seligkeit", "Rudi Schuricke", 1940, "DE", "dehits film"],
   ["Wenn ein junger Mann kommt", "Willy Fritsch", 1940, "DE", "dehits film"],
   ["Mir geht's gut", "Heinz Rühmann", 1940, "DE", "dehits"],
-  ["Einen wie dich könnt' ich lieben", "Zarah Leander", 1945, "SE", "dehits"],
   ["In die schönste der Frauen hab' ich mich heute verliebt", "Herbert Ernst Groh", 1945, "CH", "dehits"],
   ["Drei kleine Geschichten", "Evelyn Künneke", 1946, "DE", "dehits"],
   ["Mondnacht auf Cuba", "Hans Bardeleben", 1946, "DE", "dehits"],
-  ["Holli-ahi", "Horst Winter", 1946, "AT", "dehits"],
   ["A Parallel World", "BINI", 2026, "PH", "film"],
   ["Now I'm Listening", "Son Lux", 2026, "US", "film"],
   // ---------------- NEUE DEUTSCHE WELLE (Support) ----------------
@@ -1255,18 +1250,13 @@ const SONGS = [
 //  (und ggf. das Jahr oben korrigieren). In der App: Daten → Prüfliste.
 // =====================================================================
 const PRUEFEN = {
-  "Ho Hey|The Lumineers": "Single/Album 2012 – stand evtl. schon auf der selbst veröffentlichten EP 2011 (Titelliste nicht belegt)",
-  "Capri-Fischer|Rudi Schuricke": "Aufnahme 1943 (Polydor-Schellack 1943 belegt, dann verboten), Hit erst mit Neuauflage 1949 – 1943 oder 1949?",
-  "Einen wie dich könnt' ich lieben|Zarah Leander": "Datum unsicher: 1945 laut Compilation, MusicBrainz 1943 – keine Primärquelle",
-  "Holli-ahi|Horst Winter": "Datum unsicher: 1946 laut Compilation – keine Primärquelle",
-  "Happy Days Are Here Again|Ben Selvin": "Aufnahme Nov. 1929, Veröffentlichung 1929 oder 1930?",
-  "It's Only a Paper Moon|Paul Whiteman": "Aufnahme/Erscheinen 1933 nicht belegt",
-  "Lullaby of Broadway|Dick Powell": "Plattenaufnahme 1935 nicht belegt",
 };
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
   // Manuelle Prüfung 22.11.2026
+  "Capri-Fischer|Rudi Schuricke",
+  "Ho Hey|The Lumineers",
   "What Is Love|Haddaway",
   "In the Year 2525 (Exordium & Terminus)|Zager & Evans",
   "Sierra Madre|Zillertaler Schürzenjäger",
