@@ -197,6 +197,7 @@
   .score .ct button{width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
   .score .ct.mk b{font-size:15px}
   .score .tm.two{flex-wrap:wrap;justify-content:flex-end}.score .tm.two .tn{flex:1 1 100%}
+  .wopts{display:grid;gap:8px}.wopts .btn{margin:0}
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .chips button{border:0;border-radius:999px;padding:8px 12px;font-size:14px;background:#ffffff1f;color:#fff;cursor:pointer}
   .chips button.on{background:#fff;color:var(--ink);font-weight:700}
@@ -481,7 +482,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.0";
+const APP_VERSION = "0.9.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -561,7 +562,7 @@ function pickSong(year, force){
   if (force) recycle([force], year);
   else { const ex = state.sel.filter(c => effTyp(c) !== "main"), mn = state.sel.filter(c => effTyp(c) === "main");
     if (ex.length) recycle(ex, year); recycle(mn, year); }
-  // Sabotage: Kategorie vom Gegner erzwungen – hat sie zum Jahr keinen Song, „verpufft“ sie
+  // Wunschkonzert: Kategorie vom anderen Team gewählt (es werden nur Kategorien mit Song angeboten)
   if (force) {
     for (const avoid of [true, false]) {
       const l = (byYearCat[force]?.[year] || []).filter(s => !avoid || !state.played.has(s.i));
@@ -766,7 +767,8 @@ async function handleYear(year){
   stopScanner();
   if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Spiel“ → „Neues Spiel“ bei Spotify anmelden."); return; }
   const m = modeDef();
-  const pick = pickSong(year, m.app.typ === "sabotage" ? state.forceCat : null);
+  if (m.app.typ === "wunsch" && !state.forceCat) { showWunsch(year); return; }
+  const pick = pickSong(year, m.app.typ === "wunsch" ? state.forceCat : null);
   if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte im Datenbank-Check nachsehen.`); return; }
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
@@ -838,7 +840,7 @@ function fillText(t, a){
   const st = a.stufen || [];
   return t.replace(/\{(\w+)\}/g, (all, k) => {
     if (k === "ziel") return a.ziel; if (k === "runden") return a.runden;
-    if (k === "start") return a.markenStart; if (k === "max") return a.markenMax;
+    if (k === "start") return a.markenStart; if (k === "auswahl") return a.auswahl; if (k === "max") return a.markenMax;
     const m = k.match(/^([sp])(\d)$/); if (m && st[m[2]-1]) return st[m[2]-1][m[1] === "s" ? 0 : 1];
     return all;
   });
@@ -887,7 +889,7 @@ function gameStatus(){
     const topT = T.filter(t => t.p >= ziel && !behind.includes(t)), top = topT.map(t => esc(t.n)).join(" & ");
     if (behind.length) return { typ:"nach", text:`${top} ${topT.length > 1 ? "haben" : "hat"} vorgelegt (${topT[0].p})! ${behind.map(t => esc(t.n)).join(" & ")} ${behind.length > 1 ? "ziehen" : "zieht"} noch nach.` };
   }
-  if (lead.length === 1) return { typ:"win", text:`${esc(lead[0].n)} gewinnt mit ${lead[0].p} ${m.id === "duell" ? "Karten" : "Punkten"}!`, team: lead[0] };
+  if (lead.length === 1) return { typ:"win", text:`${esc(lead[0].n)} gewinnt mit ${lead[0].p} ${(m.app.einheit || (m.id === "duell" ? "Karten" : "")) ? "Karten" : "Punkten"}!`, team: lead[0] };
   return { typ:"verl", text: a.zug === "reihum" ? `Gleichstand bei ${best}! Verlängerung: ${lead.map(t => esc(t.n)).join(" & ")} spielen weiter, bis nach einer vollen Runde ein Team vorn liegt.` : `Gleichstand bei ${best}! Stechen: noch ein Song, bis ein Team vorn liegt.` };
 }
 
@@ -897,12 +899,12 @@ function renderScore(){
   if (a.koop) gl = `Level ${Math.min(g.teams[0].p + 1, a.ziel)} von ${a.ziel}`;
   else if (a.handkarten) gl = "Wer zuerst keine Handkarten hat";
   else if (a.runden) gl = `Karte ${Math.min(g.runde, a.runden)} von ${a.runden}`;
-  else if (ziel) gl = `Spiel bis ${ziel} ${m.id === "duell" ? "Karten" : "Punkte"}`;
+  else if (ziel) gl = `Spiel bis ${ziel} ${(m.app.einheit || m.id === "duell") ? "Karten" : "Punkte"}`;
   const st = gameStatus(), edit = state.sbEdit;
   const tiles = g.teams.map((t, i) => {
     const col = TEAMFARBEN[i % TEAMFARBEN.length], on = a.zug === "reihum" && g.turn === i && !(st && st.typ === "win");
     const pct = a.koop ? t.p / a.ziel : a.handkarten ? 1 - t.p / Math.max(a.handkarten[0], 1) : a.runden ? 0 : ziel ? t.p / ziel : 0;
-    const lbl = a.koop ? "Level geschafft" : a.handkarten ? "Handkarten" : m.id === "duell" ? "Karten" : "Punkte";
+    const lbl = a.koop ? "Level geschafft" : a.handkarten ? "Handkarten" : (m.app.einheit || m.id === "duell") ? "Karten" : "Punkte";
     let mk = "";
     if (a.marken) mk = a.markenMax
       ? `<div class="mk"><span>${a.marken}</span>${Array.from({ length: a.markenMax }, (_, k) => `<i class="${k < t.m ? "f" : ""}"></i>`).join("")}</div>`
@@ -984,16 +986,34 @@ function nextTurn(){
   saveGame();
 }
 
-// ---------- Sabotage: Gegner wählt die Kategorie ----------
+// ---------- Wunschkonzert: aktives Team wählt die Kategorie für das nächste Team ----------
+function wunschOptions(year){
+  const has = (c, avoid) => (byYearCat[c.id]?.[year] || []).some(s => !avoid || !state.played.has(s.i));
+  let avail = KATEGORIEN.filter(c => has(c, true)); if (avail.length < 3) avail = KATEGORIEN.filter(c => has(c, false));
+  const shuf = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
+  const extra = shuf(avail.filter(c => c.typ !== "main")), mains = shuf(avail.filter(c => c.typ === "main"));
+  const n = modeDef().app.auswahl || 3;
+  // möglichst 1–2 Support-/Künstler-Kategorien, Rest Main – nicht immer nur die drei Main-Kategorien
+  const take = [...extra.slice(0, Math.min(2, extra.length))];
+  for (const c of [...mains, ...extra.slice(2)]) if (take.length < n) take.push(c);
+  return shuf(take);
+}
+function showWunsch(year){
+  const g = state.game, act = g.teams[g.turn], nxt = g.teams[(g.turn + 1) % g.teams.length];
+  const opts = wunschOptions(year);
+  $("#sabBox").innerHTML = `<div class="panel"><b>${esc(act.n)}</b>, sucht für <b>${esc(nxt.n)}</b> eine Kategorie aus:
+    <div class="small" style="margin:4px 0 8px">Nur ihr dürft den Bildschirm sehen.</div>
+    <div class="wopts">${opts.map(c => `<button class="btn sec" data-wc="${c.id}">${esc(c.name)}</button>`).join("")}</div></div>`;
+  $("#sabBox").querySelectorAll("[data-wc]").forEach(b => b.onclick = () => { state.forceCat = b.dataset.wc; $("#sabBox").innerHTML = ""; handleYear(year); });
+  window.scrollTo(0, 0);
+}
 function renderSabotage(){
   const box = $("#sabBox"); if (!box) return;
   const m = modeDef(), g = state.game;
-  if (m.app.typ !== "sabotage") { box.innerHTML = ""; return; }
-  const act = g.teams[g.turn], opp = g.teams[(g.turn + 1) % g.teams.length];
-  box.innerHTML = `<div class="panel"><b>Sabotage!</b> <span class="small">${esc(opp.n)} wählt die Kategorie für den nächsten Song von <b>${esc(act.n)}</b>:</span>
-    <div class="chips">${KATEGORIEN.map(c => `<button data-fc="${c.id}" class="${state.forceCat === c.id ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>
-    <div class="small" style="margin-top:8px">${state.forceCat ? "Gewählt: <b>" + esc(CAT[state.forceCat].name) + "</b> – jetzt scannen." : "Noch keine Kategorie gewählt – ohne Wahl läuft ein Song aus eurem Mix."}</div></div>`;
-  box.querySelectorAll("[data-fc]").forEach(b => b.onclick = () => { state.forceCat = state.forceCat === b.dataset.fc ? null : b.dataset.fc; renderSabotage(); });
+  if (m.app.typ !== "wunsch") { box.innerHTML = ""; return; }
+  if (box.querySelector("[data-wc]")) return;          // Auswahl läuft gerade
+  const act = g.teams[g.turn], nxt = g.teams[(g.turn + 1) % g.teams.length];
+  box.innerHTML = `<div class="panel small"><b>${esc(act.n)}</b> scannt jetzt eine Karte für <b>${esc(nxt.n)}</b> und sucht danach die Kategorie aus.</div>`;
 }
 
 // ---------- Modus-Bereich im Abspiel-Bildschirm ----------
@@ -1018,7 +1038,8 @@ function renderModeBox(){
   $("#pauseBtn").style.display = $("#restartBtn").style.display = typ === "sprint" ? "none" : "block";
   if (!c) { box.innerHTML = ""; return; }
   let h = "";
-  if (c.fizzle) h += `<div class="msg warn">Sabotage verpufft: „${esc(CAT[c.fizzle].name)}“ hat für diese Karte keinen Song – es läuft ein Song aus eurem Mix.</div>`;
+  if (c.forced && modeDef().app.typ === "wunsch") { /* Kategorie bleibt für das ratende Team geheim */ }
+  else if (c.fizzle) h += `<div class="msg warn">Sabotage verpufft: „${esc(CAT[c.fizzle].name)}“ hat für diese Karte keinen Song – es läuft ein Song aus eurem Mix.</div>`;
   else if (c.forced && c.stage !== 9) h += `<div class="msg ok">Sabotage: Dieser Song kommt aus „${esc(CAT[c.from].name)}“.</div>`;
   if (typ === "sprint" && c.stage !== 9) {
     const st = m.app.stufen, nx = c.stage + 1;
@@ -1062,13 +1083,14 @@ function renderModePanel(){
     if (b.dataset.mode === state.game.mode) return;
     newGame(b.dataset.mode, state.game.teams.map(t => t.n)); renderModePanel(); });
   $("#modeDesc").textContent = fillText(m.kurz, m.app);
-  const tv = m.app.typ === "tv";
-  $("#mixSec").style.display = tv ? "none" : ""; $("#tvNote").style.display = tv ? "" : "none";
+  const tv = m.app.typ === "tv", noMix = tv || m.app.ohneMix;
+  $("#mixSec").style.display = noMix ? "none" : ""; $("#tvNote").style.display = noMix ? "" : "none";
+  $("#tvNote").textContent = tv ? "In diesem Modus braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten." : "Im Wunschkonzert braucht ihr keinen Mix – es spielen alle Kategorien mit.";
   renderCats();
   // Punkteziel
   const a = m.app;
   if (a.ziel && !a.koop) {
-    const z = goal(), unit = m.id === "duell" ? "Karten" : "Punkte";
+    const z = goal(), unit = (m.app.einheit || m.id === "duell") ? "Karten" : "Punkte";
     const presets = [...new Set([Math.max(3, Math.round(a.ziel / 2)), a.ziel, Math.round(a.ziel * 1.5), a.ziel * 2])];
     $("#zielEd").innerHTML = `<div class="flab">Spielen bis</div><div class="zrow">
       <button class="zb" data-z="-1">−</button><div class="zv"><b>${z}</b><small>${unit}</small></div><button class="zb" data-z="1">+</button></div>
@@ -1098,12 +1120,13 @@ function appInfo(m){
   if (a.koop) out.push(`Die Punktetafel zählt eure geschafften Level (Ziel: ${a.ziel})${a.marken ? ` und den ${a.marken} (Start: ${a.markenStart} Karten)` : ""}.`);
   else if (a.handkarten) out.push(`Die Punktetafel zählt die Handkarten jedes Teams (Start-Team ${a.handkarten[0]}, alle anderen ${a.handkarten[1]}). Wer auf 0 kommt, gewinnt.`);
   else if (a.runden) out.push(`Die Punktetafel zählt Punkte und spielt mit: Nach jedem Auflösen zählt Mixtape die Karte mit (${a.runden} Karten) und zeigt am Ende den Sieger.`);
-  else if (a.ziel) out.push(`Die Punktetafel zählt bis ${a.ziel} ${m.id === "duell" ? "Karten im Zeitstrahl" : "Punkte"}${a.startPunkte ? ` (Start: ${a.startPunkte})` : ""} – das Ziel könnt ihr beim Start ändern – und meldet den Sieger.`);
+  else if (a.ziel) out.push(`Die Punktetafel zählt bis ${a.ziel} ${(a.einheit || m.id === "duell") ? "Karten im Zeitstrahl" : "Punkte"}${a.startPunkte ? ` (Start: ${a.startPunkte})` : ""} – das Ziel könnt ihr beim Start ändern – und meldet den Sieger.`);
   if (a.marken && !a.koop) out.push(`Zusätzlich zählt sie die ${a.marken} (Start: ${a.markenStart}${a.markenMax ? `, höchstens ${a.markenMax}` : ""}).`);
   if (a.aktionen) out.push("Nach dem Auflösen vergebt ihr Punkte per Knopf: " + a.aktionen.map(x => "„" + x.label + "“" + (x.jeder ? " (für jedes Team)" : "")).join(", ") + ".");
   if (a.zug === "reihum") out.push("Wer am Zug ist, ist markiert („am Zug“). Nach „Nächste Karte“ wechselt der Zug automatisch; antippen einer Team-Kachel setzt den Zug von Hand." + (a.ziel ? " Erreicht ein Team das Ziel, zeigt Mixtape an, wer noch nachzieht, und entscheidet erst danach – bei Gleichstand mit Verlängerung." : ""));
   if (a.typ === "sprint") out.push(`Mixtape stoppt den Song automatisch nach ${a.stufen.map(s => s[0] + " s").join(", dann ")}. Die Knöpfe für die nächste Stufe erscheinen nach jedem Stopp.`);
-  if (a.typ === "sabotage") out.push("Im Spiel-Bildschirm wählt das gegnerische Team die Kategorie, bevor gescannt wird. Zur Auswahl stehen alle Kategorien – auch solche, die nicht in eurem Mix sind.");
+  if (a.typ === "wunsch") out.push(`Nach dem Scannen zeigt Mixtape dem aktiven Team ${a.auswahl} Kategorien, zu denen es für das Jahr einen Song gibt – meist eine Mischung aus Main, Support und Künstlern. Die gewählte Kategorie erscheint erst beim Auflösen. Ein Mix wird nicht gebraucht.`);
+  if (false) out.push("Im Spiel-Bildschirm wählt das gegnerische Team die Kategorie, bevor gescannt wird. Zur Auswahl stehen alle Kategorien – auch solche, die nicht in eurem Mix sind.");
   if (a.typ === "staffel") out.push("Statt „Auflösen“ gibt es drei Knöpfe: Jahrzehnt, Jahr, Titel & Interpret – je einer pro Etappe.");
   return out.join(" ");
 }
@@ -1179,7 +1202,7 @@ const tvRange = l => [Math.min(...l.map(x => x.y)), Math.max(...l.map(x => x.y))
 function renderTvBox(){
   const tv = modeDef().app.typ === "tv";
   ["#reader", "#scanBtn", "#manPanel", "#scanMsg"].forEach(q => { const el = $(q); if (el) el.style.display = tv ? "none" : ""; });
-  $(".mixline").style.display = tv ? "none" : "";
+  $(".mixline").style.display = tv || modeDef().app.ohneMix ? "none" : "";
   $("#v-game h1 span").textContent = tv ? modeDef().name : "Karte scannen";
   const L = tv ? tvList() : [], rg = tv ? tvRange(L) : [];
   $("#tvBox").innerHTML = tv ? `<button class="btn" id="tvNext">▶ Nächste Titelmelodie</button><div class="small" style="text-align:center">${L.length} Serien von ${rg[0]} bis ${rg[1]}</div>` : "";
@@ -1276,7 +1299,7 @@ function renderCats(){
   if (!mains.length) h = `<div class="msg warn">Wählt mindestens 1 Main-Mix – der sorgt dafür, dass es zu jedem Jahr einen Song gibt.</div>`;
   else if (gaps.length) h = `<div class="msg warn">Achtung: Euer Main-Mix hat noch keine Songs für ${gaps.length > 6 ? gaps.length + " Jahre" : gaps.join(", ")}. Karten aus diesen Jahren funktionieren noch nicht.</div>`;
   $("#mixInfo").innerHTML = h;
-  $("#startBtn").disabled = !mains.length && modeDef().app.typ !== "tv";
+  $("#startBtn").disabled = !mains.length && modeDef().app.typ !== "tv" && !modeDef().app.ohneMix;
 }
 function toggleCat(id){
   const i = state.sel.indexOf(id);
@@ -1597,7 +1620,7 @@ $("#nextBtn").addEventListener("click", () => {
   nextTurn(); state.current = null;
   if (modeDef().app.typ === "tv") { playTV(); return; }
   show("game");
-  if (modeDef().app.typ !== "sabotage") startScanner();   // bei Sabotage erst Kategorie wählen lassen
+  startScanner();
 });
 $("#cFrom").value = state.range[0]; $("#cTo").value = state.range[1];
 ["#cFrom", "#cTo", "#cCopies"].forEach(s => $(s).addEventListener("input", renderCardInfo));
