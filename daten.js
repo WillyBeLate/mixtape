@@ -1554,7 +1554,6 @@ const KINDERTHEMEN = [
   ["Bernd das Brot", "Bernd das Brot", "", 2000, "DE"],
   ["Beyblade", "Beyblade", "", 2001, "JP"],
   ["Der kleine Eisbär", "Der kleine Eisbär", "", 2001, "DE"],
-  ["Wissen macht Ah!", "Wissen macht Ah", "", 2001, "DE"],
   ["Totally Spies!", "Here We Go", "", 2001, "FR"],
   ["Lizzie McGuire", "Lizzie McGuire", "", 2001, "US"],
   ["Cosmo & Wanda – Wenn Elfen helfen", "Cosmo und Wanda", "", 2001, "US"],

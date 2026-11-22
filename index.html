@@ -500,7 +500,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.6";
+const APP_VERSION = "0.9.7";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1221,7 +1221,10 @@ const TV_DATEN = {
   tv:   { name: "TV-Quiz · Serien-Titelmelodien", liste: mkTv(typeof TVTHEMEN !== "undefined" ? TVTHEMEN : [], "tv") },
   kids: { name: "Kinderserien-Quiz", liste: mkTv(typeof KINDERTHEMEN !== "undefined" ? KINDERTHEMEN : [], "kids") },
 };
-const tvList = () => TV_DATEN[modeDef().app.daten || "tv"].liste;
+// „Gesichert“ = feste Spotify-ID, eure Korrektur oder bekannter Interpret (strenge Suche).
+// Serien ohne all das spielen nur mit, wenn ihr das unter Daten → Sonderkategorien erlaubt.
+const tvSafe = x => !!(x.sid || tvFix(x) || x.a);
+const tvList = () => { const L = TV_DATEN[modeDef().app.daten || "tv"].liste; return store.get("tvUnsafe", false) ? L : L.filter(tvSafe); };
 const tvRange = l => [Math.min(...l.map(x => x.y)), Math.max(...l.map(x => x.y))];
 function renderTvBox(){
   const tv = modeDef().app.typ === "tv";
@@ -1658,12 +1661,17 @@ function renderData(){
       <div class="small" style="margin-top:8px">Länder: ${Object.entries(L.reduce((m, x) => (m[x.land] = (m[x.land] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${flag(l)} ${n}`).join(" · ")}</div></div>`;
   }).join("");
   const nSp = Object.values(TV_DATEN).filter(D => D.liste.length).length, nMel = Object.values(TV_DATEN).reduce((a, D) => a + D.liste.length, 0);
+  const unsafe = Object.values(TV_DATEN).flatMap(D => D.liste).filter(x => !tvSafe(x));
   const fixes = Object.values(TV_DATEN).flatMap(D => D.liste).filter(x => tvFix(x));
   const fixPanel = `<div class="panel"><b>Eure Titelmelodie-Korrekturen: ${fixes.length}</b>
     <div class="small" style="margin:4px 0 8px">Beim Auflösen könnt ihr mit „Falscher Song?“ die richtige Version festlegen. Exportiert die Liste und schickt sie mir – dann trage ich sie fest ein, damit sie auf allen Geräten gilt.</div>
-    ${fixes.length ? `<button class="btn small" id="fixExport">📤 Korrekturen exportieren</button>` : ""}</div>`;
+    ${fixes.length ? `<button class="btn small" id="fixExport">📤 Korrekturen exportieren</button>` : ""}</div>
+    <div class="panel"><div class="row"><label for="tvUnsafe"><b>Ungesicherte Serien mitspielen (${unsafe.length})</b></label><input type="checkbox" id="tvUnsafe" ${store.get("tvUnsafe", false) ? "checked" : ""}></div>
+    <div class="small" style="margin-top:6px">Für diese Serien gibt es noch keine feste Spotify-Version – die automatische Suche kann danebenliegen. Eingeschaltet könnt ihr sie spielen und per „Falscher Song?“ korrigieren; danach gelten sie als gesichert.</div>
+    <div class="small" style="margin-top:6px;opacity:.7">${unsafe.map(x => esc(x.serie)).join(" · ")}</div></div>`;
   h += foldHtml("special", "Sonderkategorien", `${nSp} Kategorien · ${nMel} Titelmelodien`, tvPanels + fixPanel);
   $("#dataBox").innerHTML = h;
+  $("#tvUnsafe")?.addEventListener("change", e => { store.set("tvUnsafe", e.target.checked); renderData(); });
   $("#fixExport")?.addEventListener("click", async () => {
     const out = {}; Object.values(TV_DATEN).flatMap(D => D.liste).forEach(x => { const f = tvFix(x); if (f) out[x.i] = [f.uri.split(":").pop(), f.name, f.artist]; });
     const txt = JSON.stringify(out, null, 1);
