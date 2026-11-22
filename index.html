@@ -238,7 +238,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.7.4";
+const APP_VERSION = "0.7.5";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -254,7 +254,8 @@ const store = {
 // ---------- Daten aufbereiten ----------
 const CAT = Object.fromEntries(KATEGORIEN.map(c => [c.id, c]));
 const DB = SONGS.map((s, i) => ({
-  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/), sid: s[5] || null,
+  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/), sid: typeof s[5] === "string" ? s[5] : null,
+  opt: s[5] && typeof s[5] === "object" ? s[5] : {},   // z. B. { mit: "Sean Paul" } = Spotify-Version muss diesen Künstler enthalten
   pruefen: (typeof PRUEFEN !== "undefined" && PRUEFEN[s[0] + "|" + s[1]]) || null
 }));
 // Songs aus der Prüfliste (unsicheres Jahr / Cover) sind standardmäßig nicht im Spiel
@@ -392,7 +393,7 @@ const cleanTitle = t => t.replace(/\(.*?\)/g, "").replace(/[!?,.]/g, " ").replac
 
 async function resolveTrack(song){
   if (song.sid) return { uri:"spotify:track:" + song.sid, dur:null };
-  const key = "trk:" + song.t + "|" + song.a;
+  const key = "trk2:" + song.t + "|" + song.a;
   const cached = store.get(key, null); if (cached) return cached;
   const tries = [ `track:${cleanTitle(song.t)} artist:${song.a}`, `${cleanTitle(song.t)} ${song.a}` ];
   for (const q of tries) {
@@ -402,7 +403,8 @@ async function resolveTrack(song){
       !BAD.test(tr.name.toLowerCase().replace(own, "")) &&          // eigener Titel darf "Live" enthalten
       !BAD.test((tr.album?.name || "").toLowerCase().replace(own, "")) &&
       tr.artists.some(ar => norm(ar.name).includes(norm(song.a)) || norm(song.a).includes(norm(ar.name))) &&
-      norm(tr.name).includes(norm(cleanTitle(song.t))));
+      norm(tr.name).includes(norm(cleanTitle(song.t))) &&
+      (!song.opt.mit || tr.artists.some(ar => norm(ar.name).includes(norm(song.opt.mit)))));
     if (!items.length) continue;
     // Bevorzugt: Original-Album/Single statt Sampler, sonst frühestes Veröffentlichungsdatum
     items.sort((x, y) => (x.album.album_type === "compilation") - (y.album.album_type === "compilation")
@@ -638,7 +640,10 @@ function renderCardInfo(){
 const MB_BAD = /\b(live|demo|remix|mix|instrumental|karaoke|acoustic|unplugged|rehearsal|session|take \d|edit|version|re-?record)/i;
 const mbKey = s => "mbv:" + s.t + "|" + s.a;
 let mbRunning = false;
-function mbResult(s){ const r = store.get(mbKey(s), null); return r && r.y === s.y ? r : null; }   // Jahr geändert -> neu prüfen
+function mbResult(s){
+  if (typeof BESTAETIGT !== "undefined" && BESTAETIGT.has(s.t + "|" + s.a)) return { y: s.y, mb: s.y, manual: true };   // manuell gegen Quellen bestätigt
+  const r = store.get(mbKey(s), null); return r && r.y === s.y ? r : null;
+}   // Jahr geändert -> neu prüfen
 // "später" bei alten Songs (vor 1960) ist meist nur eine Wiederveröffentlichung (Original-Schellack fehlt in MusicBrainz)
 //  -> zählt nicht als Problem. Wichtig ist vor allem "früher": dann ist unser Jahr wahrscheinlich zu spät.
 function mbStatus(r){ return !r ? "offen" : r.mb == null ? "nicht gefunden" : r.mb === r.y ? "ok"
@@ -805,7 +810,7 @@ $("#mbCopy").addEventListener("click", async () => { const t = mbReport();
 $("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnisse löschen?")) return;
   try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
-$("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk:")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
+$("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
 
 // ---------- Installierbare App ----------
