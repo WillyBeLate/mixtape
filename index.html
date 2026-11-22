@@ -216,6 +216,32 @@
   .rb .mode{background:#ffffff10;border-radius:var(--r);padding:4px 14px 12px;margin:14px 0}
   .rb .meta{font-size:13px;color:#cfc6e8}
   .rb .box{border-left:3px solid var(--accent);padding:6px 10px;margin:8px 0;background:#ffffff0d;border-radius:0 10px 10px 0}
+  .rb .cover{position:relative;overflow:hidden;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#3a1f6b,#160b2b);padding:22px 14px 18px;margin-top:8px}
+  .rb .cover .ttl{background:none;-webkit-text-fill-color:initial;color:#fff}
+  .rb .cover .sub2{font-weight:700;margin-top:2px}
+  .rb .stripes{position:absolute;left:0;right:0;bottom:14px;display:flex;flex-direction:column;gap:3px}
+  .rb .stripes i{height:3px;display:block}.rb .stripes i:nth-child(1){background:#ff2f8f}.rb .stripes i:nth-child(2){background:#ffb23d}.rb .stripes i:nth-child(3){background:#2de2e6}
+  .rb .ccards{display:flex;justify-content:center;gap:8px;margin:16px 0 10px;position:relative}
+  .rb .mc{width:64px;height:64px;border-radius:8px;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px #0006}
+  .rb .mc:nth-child(odd){transform:rotate(-6deg)}.rb .mc:nth-child(even){transform:rotate(5deg)}
+  .rb .mc .bgart{position:absolute;inset:0;width:100%;height:100%}
+  .rb .mc .q{position:relative;background:#fff;padding:3px;border-radius:4px;margin-top:8px}.rb .mc .q svg{width:30px;height:30px;display:block}
+  .rb .mc b{font-size:17px;font-weight:900}.rb .mc .d{font-size:7px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;opacity:.9}
+  .rb .facts{position:relative;margin-bottom:12px}
+  .rb .sh{display:flex;align-items:center;gap:10px}
+  .rb .sh .num{width:30px;height:30px;border-radius:50%;background:var(--sc);display:grid;place-items:center;font-size:15px;flex:none}
+  .rb .dl{display:grid;gap:8px}.rb .di{background:#ffffff0d;border-left:3px solid var(--sc,var(--accent));border-radius:0 12px 12px 0;padding:8px 12px}
+  .rb .di b{display:block}.rb .di span{font-size:15px;color:#e9e4f7;line-height:1.45}
+  .rb .chips2{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.rb .ck{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;color:#fff}
+  .rb .ck.main{background:#13a86b}.rb .ck.support{background:#7c5cff}.rb .ck.kuenstler{background:#d98c00}
+  .rb .flow{display:grid;gap:8px}.rb .fs2{background:#ffffff0d;border-radius:12px;padding:10px 12px 10px 48px;position:relative}
+  .rb .fs2 .n{position:absolute;left:12px;top:10px;width:26px;height:26px;border-radius:50%;background:var(--sc);display:grid;place-items:center;font-weight:800}
+  .rb .fs2 b{display:block}.rb .fs2 span:last-child{font-size:15px;color:#e9e4f7}
+  .rb .mode{border-top:4px solid var(--mc)}.rb .mode h4{color:var(--mc)}
+  .rb .mode .kurz{font-style:italic}
+  .rb .goal,.rb .app{background:#ffffff0d;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:15px}
+  .rb .goal b,.rb .app b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--mc)}
+  .rb .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
   .rb .toc a{color:#fff;text-decoration:none;display:block;padding:5px 0;border-bottom:1px solid #ffffff12;cursor:pointer;font-size:15px}
   .rb dl dt{font-weight:800;margin-top:8px}.rb dl dd{margin:2px 0 0;color:#e9e4f7;font-size:15px;line-height:1.45}
   .rb table td,.rb table th{font-size:13px;vertical-align:top}
@@ -245,23 +271,55 @@
     .pc.back .bar{position:absolute;left:9mm;right:9mm;bottom:10mm;height:1.6mm;border-radius:1mm;background:rgba(255,255,255,.3);overflow:hidden}
     .pc.back .bar i{position:absolute;top:0;bottom:0;width:10%;background:#fff;border-radius:1mm}
     .pc.back .brand{position:absolute;bottom:4mm;font:800 2.5mm system-ui,sans-serif;letter-spacing:1mm;opacity:.85}
-    /* Spielanleitung als PDF */
+    /* Spielanleitung als PDF – bunt wie eine echte Spielanleitung */
     .rulebook{color:#1b1033;font:10.5pt/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-    .rulebook .rb p,.rulebook .rb li,.rulebook .rb dd{color:#1b1033;font-size:10.5pt}
-    .rulebook .rb h2{font-size:16pt;color:#7c1fff;margin:16pt 0 5pt;break-after:avoid}
-    .rulebook .rb h3{font-size:13pt;margin:10pt 0 3pt;break-after:avoid}
-    .rulebook .rb h4{color:#d6168f;font-size:9pt;break-after:avoid}
-    .rulebook .rb .mode{background:none;border:0.3mm solid #d9d2ea;border-radius:3mm;break-inside:avoid-page}
-    .rulebook .rb .meta{color:#6b5f8a}
-    .rulebook .rb .box{background:#f6f2fd}
-    .rulebook .rb .facts span{background:#efe9fb;color:#1b1033}
-    .rulebook .rb .cover{padding:0 0 4pt}
-    .rulebook .rb .cover .ttl{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rulebook *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rulebook .rb p,.rulebook .rb li{color:#2a2142;font-size:10.5pt}
     .rulebook .rb .toc,.rulebook .noprint{display:none}
-    .rulebook .rb dt{break-after:avoid}.rulebook .rb dd,.rulebook .rb li{break-inside:avoid}
+    .rulebook .rb .cover{border-radius:5mm;padding:12mm 8mm 14mm;margin:0 0 8mm;color:#fff;break-inside:avoid}
+    .rulebook .rb .cover .ttl{font-size:34pt;letter-spacing:2.5mm;font-weight:900}
+    .rulebook .rb .cover .sub2{font-size:13pt;color:#fff}
+    .rulebook .rb .stripes{bottom:5mm}.rulebook .rb .stripes i{height:1.2mm}
+    .rulebook .rb .ccards{gap:5mm;margin:8mm 0 6mm}
+    .rulebook .rb .mc{width:26mm;height:26mm;border-radius:2.5mm}
+    .rulebook .rb .mc .q svg{width:12mm;height:12mm}.rulebook .rb .mc .q{padding:1mm;margin-top:3mm}
+    .rulebook .rb .mc b{font-size:13pt}.rulebook .rb .mc .d{font-size:5.5pt}
+    .rulebook .rb .facts span{background:#ffffff26;color:#fff;font-size:9.5pt;padding:1.2mm 4mm;border-radius:99mm}
+    .rulebook .rb .sec{break-inside:auto;margin-bottom:5mm}
+    .rulebook .rb .sh{font-size:16pt;color:#1b1033;margin:7mm 0 3mm;padding-bottom:2mm;border-bottom:0.8mm solid var(--sc);break-after:avoid}
+    .rulebook .rb .sh .num{width:9mm;height:9mm;font-size:12pt;color:#fff}
     .rulebook .rb .pb{break-before:page}
-    .rulebook .rb .tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .rulebook table td,.rulebook table th{border-bottom:0.2mm solid #ddd;font-size:9.5pt;color:#1b1033}
+    .rulebook .rb .dl{grid-template-columns:1fr 1fr;gap:3mm}
+    .rulebook .rb .di{background:color-mix(in srgb,var(--sc) 9%,#fff);border-left:1.2mm solid var(--sc);border-radius:0 3mm 3mm 0;padding:2.5mm 3.5mm;break-inside:avoid}
+    .rulebook .rb .di b{color:var(--sc);font-size:10.5pt}.rulebook .rb .di span{color:#2a2142;font-size:9.8pt}
+    .rulebook .rb ol.steps{list-style:none;counter-reset:st;padding-left:0}
+    .rulebook .rb ol.steps li{counter-increment:st;position:relative;padding-left:9mm;margin:1.8mm 0;break-inside:avoid}
+    .rulebook .rb ol.steps li::before{content:counter(st);position:absolute;left:0;top:0;width:6mm;height:6mm;border-radius:50%;background:var(--mc,var(--sc));color:#fff;font-weight:800;font-size:8.5pt;display:grid;place-items:center}
+    .rulebook .rb ul.checks{list-style:none;padding-left:0}
+    .rulebook .rb ul.checks li{position:relative;padding-left:7mm;margin:1.5mm 0}
+    .rulebook .rb ul.checks li::before{content:"";position:absolute;left:1mm;top:1.6mm;width:3mm;height:3mm;border-radius:1mm;background:var(--mc,var(--sc));transform:rotate(45deg)}
+    .rulebook .rb .chips2 .ck{font-size:8.5pt;padding:1mm 3mm}
+    .rulebook .rb .flow{grid-template-columns:1fr 1fr;gap:3mm}
+    .rulebook .rb .fs2{background:color-mix(in srgb,var(--sc) 9%,#fff);border-radius:3mm;padding:3mm 3.5mm 3mm 12mm;break-inside:avoid}
+    .rulebook .rb .fs2 .n{left:3mm;top:3mm;width:7mm;height:7mm;color:#fff}
+    .rulebook .rb .fs2 b{color:#1b1033}.rulebook .rb .fs2 span:last-child{color:#2a2142;font-size:9.8pt}
+    .rulebook .rb table.mt2{border-collapse:separate;border-spacing:0;border-radius:3mm;overflow:hidden;border:0.3mm solid #e3dcf3}
+    .rulebook .rb table.mt2 th{background:#1b1033;color:#fff;font-size:9pt;padding:2mm 3mm}
+    .rulebook .rb table.mt2 td{font-size:9pt;color:#2a2142;padding:2mm 3mm;border-bottom:0.2mm solid #eee}
+    .rulebook .rb table.mt2 tr:nth-child(even) td{background:#f7f3ff}
+    .rulebook .rb .mode{background:#fff;border:0.4mm solid color-mix(in srgb,var(--mc) 35%,#fff);border-top:0;border-radius:4mm;padding:0 5mm 4mm;margin:6mm 0;break-inside:avoid-page;overflow:hidden}
+    .rulebook .rb .mode .mh{background:linear-gradient(90deg,var(--mc),color-mix(in srgb,var(--mc) 55%,#1b1033));margin:0 -5mm 3mm;padding:3.5mm 5mm;color:#fff}
+    .rulebook .rb .mode h3{margin:0;font-size:15pt;color:#fff}
+    .rulebook .rb .mode .mh .meta{color:#ffffffd9;font-size:9pt}
+    .rulebook .rb .mode .kurz{font-size:11pt;color:#1b1033;font-weight:600}
+    .rulebook .rb .mode h4{color:var(--mc);font-size:9pt;letter-spacing:.6mm;margin:3mm 0 1mm;break-after:avoid}
+    .rulebook .rb .goal{background:color-mix(in srgb,var(--mc) 12%,#fff);border-radius:3mm;padding:2.5mm 3.5mm;color:#1b1033;break-inside:avoid}
+    .rulebook .rb .app{background:#f4f1fa;border-radius:3mm;padding:2.5mm 3.5mm;color:#2a2142;font-size:9.5pt;break-inside:avoid}
+    .rulebook .rb .goal b,.rulebook .rb .app b{font-size:8pt;color:var(--mc)}
+    .rulebook .rb .box{background:#fff6dc;border-left:1.2mm solid #f59e0b;border-radius:0 3mm 3mm 0;padding:2.5mm 3.5mm;color:#2a2142;break-inside:avoid}
+    .rulebook .rb .tag{background:#ff2f8f;color:#fff}
+    .rulebook .rb .meta{color:#6b5f8a}
+    .rulebook .rb .foot{text-align:center;margin-top:8mm;font-size:8.5pt}
   }
 </style>
 </head>
@@ -423,7 +481,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.8.9";
+const APP_VERSION = "0.9.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1049,41 +1107,49 @@ function appInfo(m){
   if (a.typ === "staffel") out.push("Statt „Auflösen“ gibt es drei Knöpfe: Jahrzehnt, Jahr, Titel & Interpret – je einer pro Etappe.");
   return out.join(" ");
 }
+const RB_COLORS = ["#ff2f8f", "#7c5cff", "#13a86b", "#f59e0b", "#1f6fe0", "#ff7a00", "#d6168f", "#0fa3a3", "#ef4444", "#9b5cff"];
+function rbCards(){
+  const back = y => { const st = decadeStyle(y); return `<div class="mc back" style="background:${st.bg}"><span class="d">${st.name}</span><b>${y}</b></div>`; };
+  return `<div class="ccards"><div class="mc front">${FRONT_SVG}<div class="q">${qrSvg(QR_PREFIX + "1987")}</div></div>${back(1966)}${back(1987)}${back(2009)}</div>`;
+}
 function rulesHtml(){
-  const R = REGELN, L = arr => arr.map(x => `<li>${esc(x)}</li>`).join("");
-  const DL = arr => `<dl>${arr.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("")}</dl>`;
+  const R = REGELN;
+  const L = arr => arr.map(x => `<li>${esc(x)}</li>`).join("");
+  const DL = arr => `<div class="dl">${arr.map(([t, d]) => `<div class="di"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("")}</div>`;
   const sec = [["worum","Worum geht's?"],["material","Spielmaterial"],["vorb","Vorbereitung"],["kat","Kategorien & euer Mix"],["jahr","Welches Jahr zählt?"],["zug","So läuft ein Zug"],["sieg","Gewinnen & Nachziehen"],["modi","Die Spielmodi"],["tipps","Tipps & häufige Fragen"]];
+  const H = (k, extra = "") => { const i = sec.findIndex(x => x[0] === k); return `<h2 id="r-${k}" class="sh ${extra}" style="--sc:${RB_COLORS[i % RB_COLORS.length]}"><span class="num">${i+1}</span>${esc(sec[i][1])}</h2>`; };
+  const W = (k, inner) => { const i = sec.findIndex(x => x[0] === k); return `<section class="sec" style="--sc:${RB_COLORS[i % RB_COLORS.length]}">${inner}</section>`; };
   let h = `<div class="rb">
-  <div class="cover"><div class="ttl">${APP_NAME.toUpperCase()}</div><div style="font-weight:700">${esc(R.untertitel)}</div>
-    <div class="facts"><span>👥 ${esc(R.spieler)}</span><span>🎂 ${esc(R.alter)}</span><span>⏱ ${esc(R.dauer)}</span></div></div>
+  <div class="cover"><div class="stripes"><i></i><i></i><i></i></div>
+    <div class="ttl">${BRAND_LETTERS}</div><div class="sub2">${esc(R.untertitel)}</div>
+    ${rbCards()}
+    <div class="facts"><span>${esc(R.spieler)}</span><span>${esc(R.alter)}</span><span>${esc(R.dauer)}</span></div></div>
   <div class="toc panel">${sec.map(([id, t], i) => `<a data-go="r-${id}">${i+1}. ${t}</a>` + (id !== "modi" ? "" :
     SPIELMODI.map(m => `<a data-go="r-${m.id}" style="padding-left:16px;font-size:14px">${esc(m.name)}${m.neu ? '<span class="tag">NEU</span>' : ""}</a>`).join(""))).join("")}</div>
-  <h2 id="r-worum">1. Worum geht's?</h2>${R.worum.map(p => `<p>${esc(p)}</p>`).join("")}
-  <h2 id="r-material">2. Spielmaterial</h2>${DL(R.material)}
-  <h2 id="r-vorb">3. Vorbereitung</h2><ol>${L(R.vorbereitung)}</ol>
-  <h2 id="r-kat">4. Kategorien &amp; euer Mix</h2>${DL(R.kategorien)}
-  <p class="meta">Aktuell in Mixtape: ${["main","support","kuenstler"].map(t => `<b>${{main:"Main",support:"Support",kuenstler:"Künstler"}[t]}:</b> ${KATEGORIEN.filter(c => CAT[c.id].typ === t).map(c => esc(c.name)).join(", ")}`).join(" · ")}</p>
-  <h2 id="r-jahr">5. Welches Jahr zählt?</h2><ul>${L(R.jahr)}</ul>
-  <h2 id="r-zug">6. So läuft ein Zug</h2>${DL(R.zug)}
-  <h2 id="r-sieg">7. Gewinnen &amp; Nachziehen</h2>${DL(R.sieg)}
-  <h2 id="r-modi" class="pb">8. Die Spielmodi</h2>
-  <p>Den Modus wählt ihr unter „Spiel“, bevor ihr euren Mix zusammenstellt. Die Punktetafel in der App passt sich dem Modus automatisch an.</p>
-  <table><tr><th>Modus</th><th>Für</th><th>Kurz gesagt</th></tr>${SPIELMODI.map(m => `<tr><td><b>${esc(m.name)}</b>${m.neu ? '<span class="tag">NEU</span>' : ""}</td><td>${esc(m.spieler)}</td><td>${esc(fillText(m.kurz, m.app))}</td></tr>`).join("")}</table>`;
-  for (const m of SPIELMODI) {
+  ${W("worum", H("worum") + R.worum.map(p => `<p>${esc(p.replace("{modi}", SPIELMODI.length))}</p>`).join(""))}
+  ${W("material", H("material") + DL(R.material))}
+  ${W("vorb", H("vorb") + `<ol class="steps">${L(R.vorbereitung)}</ol>`)}
+  ${W("kat", H("kat") + DL(R.kategorien) + `<div class="chips2">${KATEGORIEN.map(c => `<span class="ck ${c.typ}">${esc(c.name)}</span>`).join("")}</div>
+    <p class="meta">Grün = Main · Lila = Support · Gelb = Künstler</p>`)}
+  ${W("jahr", H("jahr") + `<ul class="checks">${L(R.jahr)}</ul>`)}
+  ${W("zug", H("zug") + `<div class="flow">${R.zug.map(([t, d], i) => `<div class="fs2"><span class="n">${i+1}</span><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("")}</div>`)}
+  ${W("sieg", H("sieg") + DL(R.sieg))}
+  ${W("modi", H("modi", "pb") + `<p>Den Modus wählt ihr unter „Spiel“, bevor ihr euren Mix zusammenstellt. Die Punktetafel in der App passt sich dem Modus automatisch an.</p>
+  <table class="mt2"><tr><th>Modus</th><th>Für</th><th>Kurz gesagt</th></tr>${SPIELMODI.map((m, i) => `<tr><td><span class="dot" style="background:${RB_COLORS[i % RB_COLORS.length]}"></span><b>${esc(m.name)}</b>${m.neu ? '<span class="tag">NEU</span>' : ""}</td><td>${esc(m.spieler)}</td><td>${esc(fillText(m.kurz, m.app))}</td></tr>`).join("")}</table>`)}`;
+  SPIELMODI.forEach((m, i) => {
     const F = t => esc(fillText(t, m.app));
-    h += `<div class="mode" id="r-${m.id}"><h3>${esc(m.name)}${m.neu ? '<span class="tag">NEU</span>' : ""}</h3>
-      <div class="meta">${esc(m.spieler)}${m.empfohlen ? " · Tipp für den Einstieg" : ""}</div>
-      <p><i>${F(m.kurz)}</i></p>
-      <h4>Material</h4><p>${m.material.map(esc).join(", ")}</p>
-      <h4>Vorbereitung</h4><ol>${m.vorbereitung.map(x => `<li>${F(x)}</li>`).join("")}</ol>
-      <h4>Ablauf</h4><ol>${m.ablauf.map(x => `<li>${F(x)}</li>`).join("")}</ol>
-      <h4>Spielende</h4><p>${F(m.ende)}</p>
+    h += `<div class="mode" id="r-${m.id}" style="--mc:${RB_COLORS[i % RB_COLORS.length]}"><div class="mh"><h3>${esc(m.name)}${m.neu ? '<span class="tag">NEU</span>' : ""}</h3>
+      <div class="meta">${esc(m.spieler)}${m.empfohlen ? " · Tipp für den Einstieg" : ""}</div></div>
+      <p class="kurz">${F(m.kurz)}</p>
+      <div class="cols"><div><h4>Material</h4><p>${m.material.map(esc).join(", ")}</p>
+      <h4>Vorbereitung</h4><ol class="steps">${m.vorbereitung.map(x => `<li>${F(x)}</li>`).join("")}</ol></div></div>
+      <h4>Ablauf</h4><ol class="steps">${m.ablauf.map(x => `<li>${F(x)}</li>`).join("")}</ol>
+      <div class="goal"><b>Spielende</b> ${F(m.ende)}</div>
       ${m.beispiel ? `<div class="box"><b>Beispiel:</b> ${F(m.beispiel)}</div>` : ""}
-      ${m.varianten ? `<h4>Varianten</h4><ul>${m.varianten.map(x => `<li>${F(x)}</li>`).join("")}</ul>` : ""}
-      <h4>In der App</h4><p>${esc(appInfo(m))}</p></div>`;
-  }
-  h += `<h2 id="r-tipps">9. Tipps &amp; häufige Fragen</h2>${DL(R.tipps)}
-  <p class="meta" style="margin-top:20px">Mixtape ${APP_VERSION} · Diese Anleitung wird direkt aus den Spieldaten der App erzeugt und ist deshalb immer auf dem Stand der aktuellen Version.</p></div>`;
+      ${m.varianten ? `<h4>Varianten</h4><ul class="checks">${m.varianten.map(x => `<li>${F(x)}</li>`).join("")}</ul>` : ""}
+      <div class="app"><b>In der App</b> ${esc(appInfo(m))}</div></div>`;
+  });
+  h += W("tipps", H("tipps") + DL(R.tipps)) + `<p class="meta foot">Mixtape ${APP_VERSION} · Diese Anleitung wird direkt aus den Spieldaten der App erzeugt und ist deshalb immer auf dem Stand der aktuellen Version.</p></div>`;
   return h;
 }
 function renderRules(){

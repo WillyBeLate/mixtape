@@ -15,7 +15,7 @@ const REGELN = {
 
   worum: [
     "Ein Song läuft – aber aus welchem Jahr stammt er? Bei Mixtape scannt ihr Jahreskarten mit dem Handy, hört einen Song und schätzt, wann er erschienen ist. Welche Musik läuft, entscheidet ihr selbst: Ihr mixt euch vor jeder Partie bis zu vier Kategorien zusammen – von Globalen Hits über Schlager und Hip-Hop bis zu einzelnen Künstlern.",
-    "Ob gegeneinander, in Teams oder alle gemeinsam: Mit acht Spielmodi passt Mixtape zu jedem Abend. Hier zählt nicht Expertenwissen, sondern euer Gefühl für Musik.",
+    "Ob gegeneinander, in Teams oder alle gemeinsam: Mit {modi} Spielmodi passt Mixtape zu jedem Abend. Hier zählt nicht Expertenwissen, sondern euer Gefühl für Musik.",
   ],
 
   material: [
