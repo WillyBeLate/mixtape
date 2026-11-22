@@ -191,6 +191,7 @@
     <h1><span>Datenbank-Check</span></h1>
     <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr.</p>
     <div id="dataBox"></div>
+    <div class="panel" id="checkPanel"></div>
     <div class="panel">
       <h2 style="margin-top:0">Spotify-Einstellungen</h2>
       <label>Spotify Client-ID</label>
@@ -221,7 +222,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.6.0";
+const APP_VERSION = "0.6.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -237,10 +238,14 @@ const store = {
 // ---------- Daten aufbereiten ----------
 const CAT = Object.fromEntries(KATEGORIEN.map(c => [c.id, c]));
 const DB = SONGS.map((s, i) => ({
-  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/), sid: s[5] || null
+  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/), sid: s[5] || null,
+  pruefen: (typeof PRUEFEN !== "undefined" && PRUEFEN[s[0] + "|" + s[1]]) || null
 }));
+// Songs aus der Prüfliste (unsicheres Jahr / Cover) sind standardmäßig nicht im Spiel
+const ALLOW_UNCHECKED = store.get("allowUnchecked", false);
+const ACTIVE = DB.filter(s => !s.pruefen || ALLOW_UNCHECKED);
 const byYearCat = {};   // byYearCat[cat][year] = [songs]
-for (const s of DB) for (const c of s.cats) {
+for (const s of ACTIVE) for (const c of s.cats) {
   if (!CAT[c]) console.warn("Unbekannte Kategorie", c, s);
   ((byYearCat[c] ??= {})[s.y] ??= []).push(s);
 }
@@ -510,7 +515,7 @@ function renderCats(){
   const span = years().length;
   $("#catList").innerHTML = list.map(c => {
     const cov = years().filter(y => byYearCat[c.id]?.[y]?.length).length;
-    const n = DB.filter(s => s.cats.includes(c.id)).length;
+    const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
     return `<div class="cat ${state.sel.includes(c.id) ? "on" : ""}" data-id="${c.id}">
       <div class="dot" style="background:${catColor(c.id)}"></div>
       <div class="nm">${esc(c.name)}<small>${n} Songs · ${cov} von ${span} Jahren</small></div><div class="ck"></div></div>`;
@@ -613,12 +618,19 @@ function renderData(){
   $("#dataBox").innerHTML = KATEGORIEN.map(c => {
     const hit = ys.filter(y => byYearCat[c.id]?.[y]?.length);
     const miss = ys.filter(y => !byYearCat[c.id]?.[y]?.length);
-    const n = DB.filter(s => s.cats.includes(c.id)).length;
+    const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
     const warn = c.typ === "main" && miss.length ? `<div class="msg err">Main-Lücken: ${miss.join(", ")}</div>` : "";
     return `<div class="panel"><div class="row"><b>${esc(c.name)}</b><span class="small">${c.typ} · ${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
       ${c.regel ? `<div class="small">Regel: ${esc(c.regel)}</div>` : ""}${warn}
       <div class="yeargrid">${ys.map(y => `<i class="${hit.includes(y) ? "h" : ""}" title="${y}"></i>`).join("")}</div></div>`;
   }).join("");
+  const pl = DB.filter(s => s.pruefen).sort((a, b) => a.y - b.y);
+  $("#checkPanel").innerHTML = `<h2 style="margin-top:0">Prüfliste (${pl.length})</h2>
+    <div class="small">Songs mit unsicherem Jahr oder Cover einer älteren Version. ${ALLOW_UNCHECKED ? "<b>Sie spielen gerade mit.</b>" : "Sie sind <b>nicht</b> im Spiel."}
+    Nach dem Prüfen in <code>daten.js</code> unter PRUEFEN löschen bzw. das Jahr korrigieren.</div>
+    <div class="row" style="margin:10px 0"><label for="allowUnch">Ungeprüfte Songs mitspielen</label><input type="checkbox" id="allowUnch" ${ALLOW_UNCHECKED ? "checked" : ""}></div>
+    <table><tr><th>Jahr</th><th>Song</th><th>Grund</th></tr>${pl.map(s => `<tr><td>${s.y}</td><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td class="small">${esc(s.pruefen)}</td></tr>`).join("")}</table>`;
+  $("#allowUnch").onchange = e => { store.set("allowUnchecked", e.target.checked); location.reload(); };
   $("#clientId").value = sp.cid(); $("#redirUri").textContent = REDIRECT;
 }
 
