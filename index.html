@@ -191,6 +191,16 @@
     <h1><span>Datenbank-Check</span></h1>
     <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr.</p>
     <div id="dataBox"></div>
+    <div class="panel" id="mbPanel">
+      <h2 style="margin-top:0">Jahres-Prüfung (MusicBrainz)</h2>
+      <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
+        Ca. 1 Song pro Sekunde – beim ersten Mal also ~20 Minuten. Bildschirm anlassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
+      <div id="mbStats" style="margin:10px 0"></div>
+      <button class="btn small" id="mbStart">▶ Prüfung starten</button>
+      <button class="btn small sec" id="mbCopy">📋 Bericht kopieren</button>
+      <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
+      <div id="mbList"></div>
+    </div>
     <div class="panel" id="checkPanel"></div>
     <div class="panel">
       <h2 style="margin-top:0">Spotify-Einstellungen</h2>
@@ -222,7 +232,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.6.1";
+const APP_VERSION = "0.7.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -306,10 +316,22 @@ function pickSong(year){
       const s = pickRand(pool); return { song: s, from: mnCats.find(c => s.cats.includes(c)), repeat: !avoid };
     }
   }
+  // Sicherheitsnetz: hat der gewählte Main-Mix für dieses Jahr keinen Song,
+  // wird automatisch aus „Globale Hits“ gezogen – es muss nie neu gezogen werden.
+  if (!mains.includes("global")) {
+    for (const avoid of [true, false]) {
+      const g = candidates(["global"], year, avoid).global;
+      if (g) return { song: pickRand(g), from: "global", repeat: !avoid, fallback: true };
+    }
+  }
   return null;
 }
 
-function mixCoverage(){
+function mixCoverage(){   // Jahre, für die auch das Sicherheitsnetz (Globale Hits) nichts hat
+  const mains = [...new Set([...state.sel.filter(c => CAT[c].typ === "main"), "global"])];
+  return years().filter(y => !mains.some(c => byYearCat[c]?.[y]?.length));
+}
+function mixFallbackYears(){   // Jahre, in denen der gewählte Main-Mix auf Globale Hits ausweicht
   const mains = state.sel.filter(c => CAT[c].typ === "main");
   return years().filter(y => !mains.some(c => byYearCat[c]?.[y]?.length));
 }
@@ -528,7 +550,11 @@ function renderCats(){
   let h = "";
   if (!mains.length) h = `<div class="msg warn">Wählt mindestens 1 Main-Mix – der sorgt dafür, dass es zu jedem Jahr einen Song gibt.</div>`;
   else if (gaps.length) h = `<div class="msg warn">Achtung: Euer Main-Mix hat noch keine Songs für ${gaps.length > 6 ? gaps.length + " Jahre" : gaps.join(", ")}. Karten aus diesen Jahren funktionieren noch nicht.</div>`;
-  else h = `<div class="msg ok">Jedes Jahr von ${state.range[0]} bis ${state.range[1]} ist abgedeckt.</div>`;
+  else {
+    const fb = mixFallbackYears();
+    h = `<div class="msg ok">Jedes Jahr von ${state.range[0]} bis ${state.range[1]} ist abgedeckt.</div>` +
+      (fb.length ? `<div class="small">Für ${fb.join(", ")} springt „Globale Hits“ ein.</div>` : "");
+  }
   $("#mixInfo").innerHTML = h;
   $("#startBtn").disabled = !mains.length;
 }
@@ -610,6 +636,72 @@ function renderCardInfo(){
   state.range = [from, to]; save();
 }
 
+
+// =====================================================================
+//  JAHRES-PRÜFUNG über MusicBrainz (läuft im Browser des Nutzers)
+//  Regel: frühestes Release dieses Titels von diesem Interpreten.
+// =====================================================================
+const MB_BAD = /\b(live|demo|remix|mix|instrumental|karaoke|acoustic|unplugged|rehearsal|session|take \d|edit|version|re-?record)/i;
+const mbKey = s => "mbv:" + s.t + "|" + s.a;
+let mbRunning = false;
+function mbResult(s){ const r = store.get(mbKey(s), null); return r && r.y === s.y ? r : null; }   // Jahr geändert -> neu prüfen
+function mbStatus(r){ return !r ? "offen" : r.mb == null ? "nicht gefunden" : r.mb === r.y ? "ok" : r.mb < r.y ? "früher" : "später"; }
+async function mbCheck(s){
+  const q = `recording:"${cleanTitle(s.t).replace(/"/g, "")}" AND artist:"${s.a.replace(/"/g, "")}"`;
+  const url = "https://musicbrainz.org/ws/2/recording/?fmt=json&limit=50&query=" + encodeURIComponent(q);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const r = await fetch(url, { headers: { Accept: "application/json" } });
+    if (r.status === 503 || r.status === 429) { await new Promise(res => setTimeout(res, 3000)); continue; }
+    if (!r.ok) throw new Error("MusicBrainz HTTP " + r.status);
+    const j = await r.json();
+    const want = norm(cleanTitle(s.t)), artist = norm(s.a);
+    let best = null;
+    for (const rec of j.recordings || []) {
+      const credit = norm((rec["artist-credit"] || []).map(c => c.name + (c.joinphrase || "")).join(""));
+      const okArtist = credit.includes(artist) || artist.includes(credit);
+      const okTitle = norm(rec.title).startsWith(want) || want.startsWith(norm(rec.title));
+      const bad = MB_BAD.test((rec.disambiguation || "") + " " + rec.title.replace(new RegExp(cleanTitle(s.t).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), ""));
+      const d = rec["first-release-date"];
+      if (okArtist && okTitle && !bad && d) { const y = +d.slice(0, 4); if (!best || y < best.y) best = { y, d, id: rec.id }; }
+    }
+    return { y: s.y, mb: best ? best.y : null, d: best?.d || null, id: best?.id || null, ts: Date.now() };
+  }
+  throw new Error("MusicBrainz antwortet nicht (überlastet)");
+}
+function renderMb(){
+  if (!$("#mbStats")) return;
+  const all = DB, res = all.map(s => [s, mbResult(s)]);
+  const c = { ok: 0, "früher": 0, "später": 0, "nicht gefunden": 0, offen: 0 };
+  res.forEach(([s, r]) => c[mbStatus(r)]++);
+  const done = all.length - c.offen;
+  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · 🔶 ${c["später"]} später · ❓ ${c["nicht gefunden"]} nicht gefunden</div>
+    <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100*done/all.length}%;background:var(--accent);border-radius:3px"></div></div>`;
+  const probs = res.filter(([s, r]) => r && mbStatus(r) !== "ok").sort((a, b) => a[0].y - b[0].y);
+  $("#mbList").innerHTML = probs.length ? `<table style="margin-top:10px"><tr><th>Song</th><th>Wir</th><th>MB</th></tr>${probs.map(([s, r]) =>
+    `<tr><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td>${s.y}</td><td>${r.mb ?? "–"}${r.mb != null && r.mb < s.y ? " ⚠️" : ""}</td></tr>`).join("")}</table>` : "";
+  $("#mbStart").textContent = mbRunning ? "⏸ Prüfung anhalten" : (c.offen ? "▶ Prüfung starten" : "✓ Alles geprüft");
+}
+async function mbRun(){
+  if (mbRunning) { mbRunning = false; renderMb(); return; }
+  mbRunning = true; renderMb();
+  let wake = null; try { wake = await navigator.wakeLock?.request("screen"); } catch(e){}
+  for (const s of DB) {
+    if (!mbRunning) break;
+    if (mbResult(s)) continue;
+    try { store.set(mbKey(s), await mbCheck(s)); }
+    catch(e) { msg("#mbList", "err", e.message); break; }
+    renderMb();
+    await new Promise(res => setTimeout(res, 1100));   // MusicBrainz erlaubt ~1 Anfrage/Sekunde
+  }
+  mbRunning = false; try { wake?.release(); } catch(e){}
+  renderMb();
+}
+function mbReport(){
+  const lines = DB.map(s => [s, mbResult(s)]).filter(([s, r]) => r && mbStatus(r) !== "ok")
+    .map(([s, r]) => `${mbStatus(r).toUpperCase()} | ${s.t} | ${s.a} | wir ${s.y} | MB ${r.mb ?? "-"}${r.d ? " (" + r.d + ")" : ""}`);
+  return `Mixtape ${APP_VERSION} – Jahres-Prüfung (${lines.length} Auffälligkeiten)\n` + lines.join("\n");
+}
+
 // =====================================================================
 //  UI: Datenbank-Check
 // =====================================================================
@@ -631,6 +723,7 @@ function renderData(){
     <div class="row" style="margin:10px 0"><label for="allowUnch">Ungeprüfte Songs mitspielen</label><input type="checkbox" id="allowUnch" ${ALLOW_UNCHECKED ? "checked" : ""}></div>
     <table><tr><th>Jahr</th><th>Song</th><th>Grund</th></tr>${pl.map(s => `<tr><td>${s.y}</td><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td class="small">${esc(s.pruefen)}</td></tr>`).join("")}</table>`;
   $("#allowUnch").onchange = e => { store.set("allowUnchecked", e.target.checked); location.reload(); };
+  renderMb();
   $("#clientId").value = sp.cid(); $("#redirUri").textContent = REDIRECT;
 }
 
@@ -685,6 +778,11 @@ $("#nextBtn").addEventListener("click", () => { show("game"); startScanner(); })
 $("#cFrom").value = state.range[0]; $("#cTo").value = state.range[1];
 ["#cFrom", "#cTo", "#cCopies"].forEach(s => $(s).addEventListener("input", renderCardInfo));
 $("#printBtn").addEventListener("click", () => { buildPrint(); setTimeout(() => window.print(), 300); });
+$("#mbStart").addEventListener("click", mbRun);
+$("#mbCopy").addEventListener("click", async () => { const t = mbReport();
+  try { await navigator.clipboard.writeText(t); alert("Bericht kopiert – einfach in den Chat einfügen."); } catch(e) { prompt("Bericht kopieren:", t); } });
+$("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnisse löschen?")) return;
+  try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk:")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
