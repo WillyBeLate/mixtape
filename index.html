@@ -15,6 +15,7 @@
 <script src="lib/html5-qrcode.min.js"></script>
 <script src="lib/qrcode.js"></script>
 <script src="daten.js"></script>
+<script src="regeln.js"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -86,31 +87,85 @@
   .yeargrid i.h{background:var(--ok)}
   .small{font-size:13px;color:#cfc6e8}
 
+  select{width:100%;padding:12px;border-radius:12px;border:0;font-size:16px;background:#fff;color:var(--ink)}
+  .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:999px;background:var(--accent);color:#fff;vertical-align:middle;margin-left:6px}
+  /* Punktetafel */
+  .score{background:#ffffff12;border-radius:var(--r);padding:10px 12px;margin:10px 0}
+  .score .hd{display:flex;justify-content:space-between;font-size:13px;color:#cfc6e8;margin-bottom:6px}
+  .score .tm{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:12px;margin:3px 0}
+  .score .tm.on{background:#ffffff1f;box-shadow:inset 3px 0 0 var(--accent)}
+  .score .tn{flex:1;font-weight:700;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .score .ct{display:flex;align-items:center;gap:4px}
+  .score .ct small{font-size:11px;color:#cfc6e8;margin-right:2px}
+  .score .ct b{min-width:26px;text-align:center;font-size:18px}
+  .score .ct button{width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+  .score .ct.mk b{font-size:15px}
+  .score .tm.two{flex-wrap:wrap;justify-content:flex-end}.score .tm.two .tn{flex:1 1 100%}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chips button{border:0;border-radius:999px;padding:8px 12px;font-size:14px;background:#ffffff1f;color:#fff;cursor:pointer}
+  .chips button.on{background:#fff;color:var(--ink);font-weight:700}
+  .stagecard{background:var(--card);color:var(--ink);border-radius:18px;padding:14px;text-align:center;margin:10px 0;font-weight:900;font-size:34px}
+  .stagecard small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+  /* Spielanleitung (Bildschirm + PDF) */
+  .rb h2{font-size:21px;margin:26px 0 8px}
+  .rb h3{font-size:18px;margin:18px 0 6px}
+  .rb h4{font-size:14px;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.6px;color:#ffb3d4}
+  .rb p,.rb li{font-size:15px;line-height:1.5;color:#e9e4f7}
+  .rb ol,.rb ul{padding-left:22px;margin:6px 0}
+  .rb li{margin:3px 0}
+  .rb .cover{text-align:center;padding:18px 0 6px}
+  .rb .cover .ttl{font-size:46px;font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,#ff2fa0,#ffd23f,#2de2e6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rb .facts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .rb .facts span{background:#ffffff1a;border-radius:999px;padding:5px 12px;font-size:13px}
+  .rb .mode{background:#ffffff10;border-radius:var(--r);padding:4px 14px 12px;margin:14px 0}
+  .rb .meta{font-size:13px;color:#cfc6e8}
+  .rb .box{border-left:3px solid var(--accent);padding:6px 10px;margin:8px 0;background:#ffffff0d;border-radius:0 10px 10px 0}
+  .rb .toc a{color:#fff;text-decoration:none;display:block;padding:5px 0;border-bottom:1px solid #ffffff12;cursor:pointer;font-size:15px}
+  .rb dl dt{font-weight:800;margin-top:8px}.rb dl dd{margin:2px 0 0;color:#e9e4f7;font-size:15px;line-height:1.45}
+  .rb table td,.rb table th{font-size:13px;vertical-align:top}
+
   /* ---------------- Druck ---------------- */
   #printArea{display:none}
   @media print{
     @page{size:A4 portrait;margin:0}
-    body{background:#fff !important;padding:0}
+    html,body{background:#fff !important;padding:0}
     .wrap,.nav{display:none !important}
     #printArea{display:block}
-    .sheet{width:210mm;height:297mm;display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm;
+    .sheet{width:210mm;height:297mm;display:grid;grid-template-columns:repeat(3,65mm);grid-auto-rows:65mm;
       justify-content:center;align-content:center;gap:0;page-break-after:always;break-after:page}
-    .pc{width:63mm;height:88mm;border:0.2mm dashed #bbb;display:flex;flex-direction:column;align-items:center;
+    .pc{width:65mm;height:65mm;border:0.2mm dashed #bbb;display:flex;flex-direction:column;align-items:center;
       justify-content:center;overflow:hidden;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     /* Vorderseite: schwarz, Neon-Rillen wie eine Schallplatte, QR schlicht schwarz/weiß */
     .pc.front{background:#0e0718;color:#fff}
     .pc.front .bgart{position:absolute;inset:0;width:100%;height:100%}
-    .pc.front .qr{position:absolute;left:50%;top:44mm;transform:translate(-50%,-50%);background:#fff;padding:2mm;border-radius:2.5mm}
-    .pc.front .qr svg{width:28mm;height:28mm;display:block}
-    .pc.front .brand{position:absolute;top:16mm;font:900 4.6mm system-ui,sans-serif;letter-spacing:1.4mm;color:#fff}
-    .pc.front .scan{position:absolute;bottom:4mm;font:700 2.3mm system-ui,sans-serif;letter-spacing:.9mm;color:#ffffffaa}
+    .pc.front .qr{position:absolute;left:50%;top:35.5mm;transform:translate(-50%,-50%);background:#fff;padding:1.8mm;border-radius:2.2mm}
+    .pc.front .qr svg{width:26mm;height:26mm;display:block}
+    .pc.front .brand{position:absolute;top:11.2mm;font:900 3.6mm system-ui,sans-serif;letter-spacing:1.1mm;color:#fff}
+    .pc.front .scan{position:absolute;bottom:1.6mm;font:700 2mm system-ui,sans-serif;letter-spacing:.8mm;color:#ffffffaa}
     /* Rückseite: Farbe je Jahrzehnt, innerhalb des Jahrzehnts leicht verlaufend */
     .pc.back{color:#fff}
-    .pc.back .dec{position:absolute;top:6mm;font:800 3.4mm system-ui,sans-serif;letter-spacing:.8mm;opacity:.9;text-transform:uppercase}
-    .pc.back .y{font:900 18mm system-ui,sans-serif;letter-spacing:-.6mm;text-shadow:0 .6mm 0 rgba(0,0,0,.18)}
-    .pc.back .bar{position:absolute;left:8mm;right:8mm;bottom:12mm;height:1.6mm;border-radius:1mm;background:rgba(255,255,255,.3);overflow:hidden}
+    .pc.back .dec{position:absolute;top:5mm;font:800 3mm system-ui,sans-serif;letter-spacing:.8mm;opacity:.9;text-transform:uppercase}
+    .pc.back .y{font:900 16.5mm system-ui,sans-serif;letter-spacing:-.6mm;text-shadow:0 .6mm 0 rgba(0,0,0,.18)}
+    .pc.back .bar{position:absolute;left:9mm;right:9mm;bottom:10mm;height:1.6mm;border-radius:1mm;background:rgba(255,255,255,.3);overflow:hidden}
     .pc.back .bar i{position:absolute;top:0;bottom:0;width:10%;background:#fff;border-radius:1mm}
-    .pc.back .brand{position:absolute;bottom:5mm;font:800 2.8mm system-ui,sans-serif;letter-spacing:1mm;opacity:.85}
+    .pc.back .brand{position:absolute;bottom:4mm;font:800 2.5mm system-ui,sans-serif;letter-spacing:1mm;opacity:.85}
+    /* Spielanleitung als PDF */
+    .rulebook{color:#1b1033;font:10.5pt/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+    .rulebook .rb p,.rulebook .rb li,.rulebook .rb dd{color:#1b1033;font-size:10.5pt}
+    .rulebook .rb h2{font-size:16pt;color:#7c1fff;margin:16pt 0 5pt;break-after:avoid}
+    .rulebook .rb h3{font-size:13pt;margin:10pt 0 3pt;break-after:avoid}
+    .rulebook .rb h4{color:#d6168f;font-size:9pt;break-after:avoid}
+    .rulebook .rb .mode{background:none;border:0.3mm solid #d9d2ea;border-radius:3mm;break-inside:avoid-page}
+    .rulebook .rb .meta{color:#6b5f8a}
+    .rulebook .rb .box{background:#f6f2fd}
+    .rulebook .rb .facts span{background:#efe9fb;color:#1b1033}
+    .rulebook .rb .cover{padding:0 0 4pt}
+    .rulebook .rb .cover .ttl{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rulebook .rb .toc,.rulebook .noprint{display:none}
+    .rulebook .rb dt{break-after:avoid}.rulebook .rb dd,.rulebook .rb li{break-inside:avoid}
+    .rulebook .rb .pb{break-before:page}
+    .rulebook .rb .tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rulebook table td,.rulebook table th{border-bottom:0.2mm solid #ddd;font-size:9.5pt;color:#1b1033}
   }
 </style>
 </head>
@@ -142,14 +197,25 @@
       <div class="row"><label for="randStart">Zufälliger Startpunkt im Song</label><input type="checkbox" id="randStart"></div>
     </div>
 
+    <div class="panel" id="modePanel">
+      <h2 style="margin-top:0">Spielmodus</h2>
+      <select id="modeSel"></select>
+      <p class="small" id="modeDesc" style="margin:8px 0"></p>
+      <div id="teamEd"></div>
+      <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
+    </div>
+
     <button class="btn" id="startBtn">Los geht's</button>
-    <button class="btn sec" id="resetBtn">Neues Spiel (gespielte Songs zurücksetzen)</button>
+    <button class="btn sec" id="resetBtn">Neues Spiel starten</button>
+    <div class="small" style="text-align:center;margin-top:-4px">Punkte auf Start, alle schon gespielten Songs wieder in den Topf.</div>
   </section>
 
   <!-- ======================= SPIEL ======================= -->
   <section class="view" id="v-game">
     <h1><span>Karte scannen</span></h1>
     <p class="sub" id="gameMix"></p>
+    <div class="scoreBox"></div>
+    <div id="sabBox"></div>
     <div id="reader"></div>
     <div id="scanMsg"></div>
     <button class="btn" id="scanBtn">📷 Scanner starten</button>
@@ -171,17 +237,27 @@
       <p class="small" id="playDev" style="opacity:.5"></p>
     </div>
     <div id="playMsg"></div>
+    <div id="modeBox"></div>
     <button class="btn sec" id="pauseBtn">⏸ Pause</button>
     <button class="btn sec" id="restartBtn">↺ Nochmal von vorn</button>
     <button class="btn" id="revealBtn">Auflösen</button>
     <div id="revealBox"></div>
     <button class="btn" id="nextBtn" style="display:none">Nächste Karte →</button>
+    <div class="scoreBox"></div>
+  </section>
+
+  <!-- ======================= REGELN ======================= -->
+  <section class="view" id="v-rules">
+    <div class="row noprint"><span class="small">Spielanleitung · v<span class="verTag"></span></span>
+      <button class="btn small" id="rulesPdf">📄 Als PDF speichern</button></div>
+    <div id="rulesBox"></div>
+    <button class="btn" id="rulesPdf2">📄 Spielanleitung als PDF speichern</button>
   </section>
 
   <!-- ======================= KARTEN ======================= -->
   <section class="view" id="v-cards">
     <h1><span>Karten drucken</span></h1>
-    <p class="sub">Vorderseite QR-Code, Rückseite Jahreszahl. 9 Karten pro A4-Blatt (63 × 88 mm, Spielkartengröße).</p>
+    <p class="sub">Vorderseite QR-Code, Rückseite Jahreszahl. 12 Karten pro A4-Blatt (65 × 65 mm, quadratisch wie bei Hitster).</p>
     <div class="panel">
       <div class="row"><div style="flex:1"><label>Von</label><input type="number" id="cFrom"></div>
         <div style="flex:1"><label>Bis</label><input type="number" id="cTo"></div>
@@ -231,6 +307,7 @@
 <nav class="nav">
   <button data-v="setup" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="7" x2="8" y2="17"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="16" y1="7" x2="16" y2="17"/><rect class="f" x="6.3" y="12" width="3.4" height="2.4" rx=".8"/><rect class="f" x="10.3" y="8.5" width="3.4" height="2.4" rx=".8"/><rect class="f" x="14.3" y="13.5" width="3.4" height="2.4" rx=".8"/></svg>Mix</button>
   <button data-v="game"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
+  <button data-v="rules"><svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><line x1="12" y1="6.5" x2="12" y2="20"/><circle class="f" cx="16.2" cy="10" r="1.6"/><path d="M14.6 14.2h3.4"/></svg>Regeln</button>
   <button data-v="cards"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="11" height="15" rx="2" transform="rotate(-10 9 12.5)"/><rect x="9.5" y="4" width="11" height="15" rx="2"/><line x1="12" y1="14.5" x2="18" y2="14.5"/><line x1="12" y1="16.5" x2="18" y2="16.5"/><circle class="f" cx="15" cy="9" r="2.2"/></svg>Karten</button>
   <button data-v="data" style="position:relative"><span id="dataBadge" class="badge"></span><svg viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="14" y1="20" x2="14" y2="15"/><circle cx="16.5" cy="7.5" r="3.5"/><line x1="19" y1="10" x2="21.5" y2="12.5"/></svg>Daten</button>
 </nav>
@@ -242,7 +319,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.7.6";
+const APP_VERSION = "0.8.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -312,7 +389,15 @@ function candidates(cats, year, avoidPlayed){
 }
 const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
 
-function pickSong(year){
+function pickSong(year, force){
+  // Sabotage: Kategorie vom Gegner erzwungen – hat sie zum Jahr keinen Song, „verpufft“ sie
+  if (force) {
+    for (const avoid of [true, false]) {
+      const l = (byYearCat[force]?.[year] || []).filter(s => !avoid || !state.played.has(s.i));
+      if (l.length) return { song: pickRand(l), from: force, repeat: !avoid, forced: true };
+    }
+    const p = pickSong(year); if (p) p.fizzle = force; return p;
+  }
   const mains  = state.sel.filter(c => effTyp(c) === "main");
   const extras = state.sel.filter(c => effTyp(c) !== "main");
   for (const avoid of [true, false]) {           // erst ohne Wiederholung, dann mit
@@ -494,11 +579,12 @@ document.addEventListener("visibilitychange", async () => {
   }
   spToast("Spotify ist noch nicht erreichbar – öffne die Spotify-App einmal kurz selbst.");
 });
-function showWake(text){
+function showWake(text, retry){
+  retry = retry || (() => playCurrent(true));
   $("#playMsg").innerHTML = `<div class="msg warn">${text}</div><button class="btn" id="wakeBtn">Spotify wecken &amp; abspielen</button>`;
   $("#wakeBtn").onclick = () => openSpotify(async () => {
     msg("#playMsg"); $("#playState").textContent = "Song wird geladen …";
-    try { await playCurrent(true); } catch(e) { showWake("Spotify spielt noch nicht. Bitte noch einmal versuchen."); }
+    try { await retry(); } catch(e) { showWake("Spotify spielt noch nicht. Bitte noch einmal versuchen.", retry); }
   });
 }
 
@@ -508,18 +594,22 @@ function showWake(text){
 async function handleYear(year){
   stopScanner();
   if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Mix“ bei Spotify anmelden."); return; }
-  const pick = pickSong(year);
+  const m = modeDef();
+  const pick = pickSong(year, m.app.typ === "sabotage" ? state.forceCat : null);
   if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte im Datenbank-Check nachsehen.`); return; }
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Song wird geladen …"; msg("#playMsg");
-  state.current = { ...pick, year, uri: null, dur: null };
+  state.current = { ...pick, year, uri: null, dur: null, stage: 0 };
+  $("#playHint").textContent = fillText(m.kurz, m.app);
+  renderModeBox(); renderScore();
+  const start = m.app.typ === "sprint" ? () => sprintPlay(0) : () => playCurrent(false);
   try {
     const tr = await resolveTrack(pick.song);
     Object.assign(state.current, { uri: tr.uri, dur: tr.dur });
-    await playCurrent(false);
+    await start();
   } catch(e) {
-    if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – Mixtape öffnet Spotify kurz und spielt den Song danach automatisch ab.");
+    if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – Mixtape öffnet Spotify kurz und spielt den Song danach automatisch ab.", m.app.typ === "sprint" ? () => sprintPlay(0) : null);
     else if (e.status === 403) msg("#playMsg", "err", "Spotify verweigert die Wiedergabe (Premium nötig bzw. App-Nutzer nicht freigeschaltet).");
     else msg("#playMsg", "err", e.message);
     $("#playState").textContent = "Wiedergabe gestoppt";
@@ -534,7 +624,13 @@ function updatePlayUI(){
 
 function reveal(){
   const c = state.current; if (!c) return;
-  state.played.add(c.song.i); save();
+  clearTimeout(sprintTimer);
+  if (!c.revealed) {
+    c.revealed = true;
+    state.played.add(c.song.i); save();
+    if (modeDef().app.runden) { state.game.runde++; saveGame(); }
+    state.forceCat = null;
+  }
   const s = c.song;
   $("#revealBox").innerHTML = `<div class="reveal">
     <div class="yr">${s.y}</div>
@@ -543,8 +639,231 @@ function reveal(){
     <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · aus: ${CAT[c.from].name}${c.repeat ? " · (Wiederholung)" : ""}</div>
   </div>`;
   $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
+  c.stage = 9; renderModeBox(); renderScore();
 }
 const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+
+// =====================================================================
+//  SPIELMODI & PUNKTETAFEL  (Regeln + Einstellungen stehen in regeln.js)
+// =====================================================================
+state.game = store.get("game", null);
+state.forceCat = null;
+const saveGame = () => store.set("game", state.game);
+function modeDef(){ return SPIELMODI.find(m => m.id === state.game?.mode) || SPIELMODI[0]; }
+function fillText(t, a){
+  if (!t) return "";
+  const st = a.stufen || [];
+  return t.replace(/\{(\w+)\}/g, (all, k) => {
+    if (k === "ziel") return a.ziel; if (k === "runden") return a.runden;
+    if (k === "start") return a.markenStart; if (k === "max") return a.markenMax;
+    const m = k.match(/^([sp])(\d)$/); if (m && st[m[2]-1]) return st[m[2]-1][m[1] === "s" ? 0 : 1];
+    return all;
+  });
+}
+function defaultName(m, i){
+  const n = m.app.namen || "Team";
+  if (m.app.koop) return n;
+  return n === "Spieler" ? `Spieler ${i+1}` : `Team ${"ABCDEFGHIJ"[i]}`;
+}
+function newGame(modeId, names){
+  const m = SPIELMODI.find(x => x.id === modeId) || SPIELMODI[0];
+  const [lo, hi] = m.app.teams;
+  let n = names ? Math.min(hi, Math.max(lo, names.length)) : lo;
+  const teams = [];
+  for (let i = 0; i < n; i++) {
+    const keep = names?.[i] && !/^(Team [A-J]|Spieler \d+|Wir alle)$/.test(names[i]) ? names[i] : defaultName(m, i);
+    teams.push({ n: keep, p: m.app.handkarten ? (i === 0 ? m.app.handkarten[0] : m.app.handkarten[1]) : (m.app.startPunkte || 0), m: m.app.markenStart || 0 });
+  }
+  state.game = { mode: m.id, teams, turn: 0, runde: 0 };
+  state.forceCat = null; saveGame();
+}
+if (!state.game || !SPIELMODI.some(m => m.id === state.game.mode)) newGame(SPIELMODI[0].id);
+
+function winner(){
+  const m = modeDef(), g = state.game;
+  if (m.app.handkarten) return g.teams.find(t => t.p <= 0) || null;
+  if (m.app.ziel) return g.teams.find(t => t.p >= m.app.ziel) || null;
+  return null;
+}
+function renderScore(){
+  const m = modeDef(), g = state.game, a = m.app;
+  let hd = m.name, goal = "";
+  if (a.koop) goal = `${g.teams[0].p} / ${a.ziel} Level geschafft`;
+  else if (a.handkarten) goal = "Ziel: keine Handkarten mehr";
+  else if (a.runden) goal = `Karte ${Math.min(g.runde, a.runden)} / ${a.runden}`;
+  else if (a.ziel) goal = `Ziel: ${a.ziel} ${m.id === "duell" ? "Karten" : "Punkte"}`;
+  const ptsLabel = a.koop ? "Level" : a.handkarten ? "Hand" : m.id === "duell" ? "Karten" : "Pkt";
+  const rows = g.teams.map((t, i) => `<div class="tm ${a.zug === "reihum" && g.turn === i ? "on" : ""} ${a.marken ? "two" : ""}">
+    <span class="tn" data-sc="turn" data-i="${i}">${a.zug === "reihum" && g.turn === i ? "▶ " : ""}${esc(t.n)}</span>
+    ${a.marken ? `<span class="ct mk"><small>${a.marken}</small><button data-sc="m-" data-i="${i}">−</button><b>${t.m}</b><button data-sc="m+" data-i="${i}">+</button></span>` : ""}
+    <span class="ct"><small>${ptsLabel}</small><button data-sc="p-" data-i="${i}">−</button><b>${t.p}</b><button data-sc="p+" data-i="${i}">+</button></span></div>`).join("");
+  let end = "";
+  const w = winner();
+  if (w) end = `<div class="msg ok">🏆 ${a.koop ? "Geschafft – ihr habt alle Level gemeistert!" : esc(w.n) + " gewinnt!"} <a href="#" data-sc="new" style="color:#fff">Neues Spiel</a></div>`;
+  else if (a.runden && g.runde >= a.runden) {
+    const best = Math.max(...g.teams.map(t => t.p)), lead = g.teams.filter(t => t.p === best).map(t => esc(t.n));
+    end = `<div class="msg ok">🏁 Alle ${a.runden} Karten gespielt – ${lead.join(" & ")} ${lead.length > 1 ? "teilen sich den Sieg" : "gewinnt"}! <a href="#" data-sc="new" style="color:#fff">Neues Spiel</a></div>`;
+  }
+  if (a.koop && a.markenStart && g.teams[0].m <= 0 && !w) end = `<div class="msg err">Nachziehstapel leer – diesmal hat die Zeit gewonnen.</div>`;
+  document.querySelectorAll(".scoreBox").forEach(el => el.innerHTML = `<div class="score"><div class="hd"><b>${esc(hd)}</b><span>${goal}</span></div>${rows}${end}</div>`);
+  renderSabotage();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-sc]"); if (!b) return;
+  e.preventDefault();
+  const g = state.game, m = modeDef(), i = +b.dataset.i, t = g.teams[i], k = b.dataset.sc;
+  if (k === "new") { if (confirm("Neues Spiel starten? Punkte werden zurückgesetzt.")) { newGame(g.mode, g.teams.map(x => x.n)); state.played.clear(); save(); } }
+  else if (k === "turn") { if (m.app.zug === "reihum") { g.turn = i; state.forceCat = null; } }
+  else if (k === "p+") t.p++;
+  else if (k === "p-") t.p = Math.max(0, t.p - 1);
+  else if (k === "m+") t.m = m.app.markenMax ? Math.min(m.app.markenMax, t.m + 1) : t.m + 1;
+  else if (k === "m-") t.m = Math.max(0, t.m - 1);
+  saveGame(); renderScore();
+});
+function nextTurn(){ const g = state.game; if (modeDef().app.zug === "reihum") g.turn = (g.turn + 1) % g.teams.length; saveGame(); }
+
+// ---------- Sabotage: Gegner wählt die Kategorie ----------
+function renderSabotage(){
+  const box = $("#sabBox"); if (!box) return;
+  const m = modeDef(), g = state.game;
+  if (m.app.typ !== "sabotage") { box.innerHTML = ""; return; }
+  const act = g.teams[g.turn], opp = g.teams[(g.turn + 1) % g.teams.length];
+  box.innerHTML = `<div class="panel"><b>Sabotage!</b> <span class="small">${esc(opp.n)} wählt die Kategorie für den nächsten Song von <b>${esc(act.n)}</b>:</span>
+    <div class="chips">${KATEGORIEN.map(c => `<button data-fc="${c.id}" class="${state.forceCat === c.id ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>
+    <div class="small" style="margin-top:8px">${state.forceCat ? "Gewählt: <b>" + esc(CAT[state.forceCat].name) + "</b> – jetzt scannen." : "Noch keine Kategorie gewählt – ohne Wahl läuft ein Song aus eurem Mix."}</div></div>`;
+  box.querySelectorAll("[data-fc]").forEach(b => b.onclick = () => { state.forceCat = state.forceCat === b.dataset.fc ? null : b.dataset.fc; renderSabotage(); });
+}
+
+// ---------- Modus-Bereich im Abspiel-Bildschirm ----------
+let sprintTimer = null;
+async function sprintPlay(k){
+  const c = state.current, st = modeDef().app.stufen; if (!c || !st[k]) return;
+  clearTimeout(sprintTimer);
+  c.stage = k; c.sprintRunning = true; renderModeBox();
+  $("#playHint").textContent = `Stufe ${k+1}: ${st[k][0]} Sekunden · ${st[k][1]} ${st[k][1] === 1 ? "Punkt" : "Punkte"}`;
+  await playCurrent(true);
+  const pl = await sp.api("/me/player").catch(() => null);
+  const left = st[k][0] * 1000 - (pl?.progress_ms || 0);
+  sprintTimer = setTimeout(async () => {
+    try { await sp.api("/me/player/pause", { method:"PUT" }); } catch(e) {}
+    state.paused = true; updatePlayUI(); $("#playState").textContent = `Stopp nach ${st[k][0]} Sekunden`;
+    c.sprintRunning = false; renderModeBox();
+  }, Math.max(0, left));
+}
+function renderModeBox(){
+  const box = $("#modeBox"), c = state.current, m = modeDef(); if (!box) return;
+  const typ = m.app.typ;
+  $("#pauseBtn").style.display = $("#restartBtn").style.display = typ === "sprint" ? "none" : "block";
+  if (!c) { box.innerHTML = ""; return; }
+  let h = "";
+  if (c.fizzle) h += `<div class="msg warn">Sabotage verpufft: „${esc(CAT[c.fizzle].name)}“ hat für diese Karte keinen Song – es läuft ein Song aus eurem Mix.</div>`;
+  else if (c.forced && c.stage !== 9) h += `<div class="msg ok">Sabotage: Dieser Song kommt aus „${esc(CAT[c.from].name)}“.</div>`;
+  if (typ === "sprint" && c.stage !== 9) {
+    const st = m.app.stufen, nx = c.stage + 1;
+    if (!c.sprintRunning) {
+      if (st[nx]) h += `<button class="btn" id="sprNext">▶ Stufe ${nx+1}: ${st[nx][0]} Sekunden (${st[nx][1]} ${st[nx][1] === 1 ? "Punkt" : "Punkte"})</button>`;
+      h += `<button class="btn sec" id="sprAgain">↺ Stufe ${c.stage+1} nochmal (${st[c.stage][0]} s)</button>`;
+      if (!st[nx]) h += `<button class="btn sec" id="sprFull">▶ Song weiterlaufen lassen</button>`;
+    }
+  }
+  if (typ === "staffel" && c.stage !== 9) {
+    const dec = Math.floor(c.song.y / 10) * 10;
+    if (c.stage >= 1) h += `<div class="stagecard"><small>Etappe 1 · Jahrzehnt</small>${dec}er</div>`;
+    if (c.stage >= 2) h += `<div class="stagecard"><small>Etappe 2 · Jahr</small>${c.song.y}</div>`;
+    const lbl = ["Etappe 1 · Jahrzehnt aufdecken", "Etappe 2 · Jahr aufdecken", "Etappe 3 · Titel & Interpret aufdecken"][c.stage];
+    h += `<button class="btn" id="stfNext">${lbl}</button>`;
+    if (c.stage > 0) h += `<button class="btn sec" id="stfDrop">Staffelstab gefallen – alles auflösen</button>`;
+  }
+  box.innerHTML = h;
+  $("#revealBtn").style.display = c.stage === 9 || typ === "staffel" ? "none" : "block";
+  const err = e => e.nodevice ? showWake("Spotify schläft gerade.", () => sprintPlay(c.stage)) : msg("#playMsg", "err", e.message);
+  $("#sprNext")?.addEventListener("click", () => sprintPlay(c.stage + 1).catch(err));
+  $("#sprAgain")?.addEventListener("click", () => sprintPlay(c.stage).catch(err));
+  $("#sprFull")?.addEventListener("click", async () => { try { await sp.api("/me/player/play", { method:"PUT" }); state.paused = false; updatePlayUI(); } catch(e) { err(e); } });
+  $("#stfNext")?.addEventListener("click", () => { if (c.stage >= 2) reveal(); else { c.stage++; renderModeBox(); } });
+  $("#stfDrop")?.addEventListener("click", reveal);
+}
+
+// ---------- Modus-Auswahl im Mix ----------
+function renderModePanel(){
+  const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
+  $("#modeSel").innerHTML = SPIELMODI.map(x => `<option value="${x.id}" ${x.id === m.id ? "selected" : ""}>${esc(x.name)} · ${esc(x.spieler)}${x.neu ? " · NEU" : ""}</option>`).join("");
+  $("#modeDesc").textContent = fillText(m.kurz, m.app);
+  if (m.app.koop) { $("#teamEd").innerHTML = `<div class="small">Alle spielen zusammen in einem Team.</div>`; return; }
+  const word = m.app.namen === "Spieler" ? "Spieler" : "Teams";
+  $("#teamEd").innerHTML = `<label>${word} (${lo === hi ? lo : lo + "–" + hi})</label>` +
+    g.teams.map((t, i) => `<input type="text" data-tn="${i}" value="${esc(t.n)}" style="margin-top:6px">`).join("") +
+    `<div style="margin-top:6px">${g.teams.length < hi ? `<button class="btn small sec" id="tAdd">+ ${word === "Spieler" ? "Spieler" : "Team"}</button>` : ""}${g.teams.length > lo ? `<button class="btn small sec" id="tDel">− entfernen</button>` : ""}</div>`;
+  document.querySelectorAll("[data-tn]").forEach(el => el.addEventListener("input", () => { g.teams[+el.dataset.tn].n = el.value.trim() || defaultName(m, +el.dataset.tn); saveGame(); }));
+  $("#tAdd")?.addEventListener("click", () => { newGame(m.id, [...g.teams.map(t => t.n), defaultName(m, g.teams.length)]); renderModePanel(); });
+  $("#tDel")?.addEventListener("click", () => { newGame(m.id, g.teams.slice(0, -1).map(t => t.n)); renderModePanel(); });
+}
+
+// =====================================================================
+//  SPIELANLEITUNG  – wird komplett aus regeln.js erzeugt
+// =====================================================================
+function appInfo(m){
+  const a = m.app, out = [];
+  if (a.koop) out.push(`Die Punktetafel zählt eure geschafften Level (Ziel: ${a.ziel})${a.marken ? ` und den ${a.marken} (Start: ${a.markenStart} Karten)` : ""}.`);
+  else if (a.handkarten) out.push(`Die Punktetafel zählt die Handkarten jedes Teams (Start-Team ${a.handkarten[0]}, alle anderen ${a.handkarten[1]}). Wer auf 0 kommt, gewinnt.`);
+  else if (a.runden) out.push(`Die Punktetafel zählt Punkte und spielt mit: Nach jedem Auflösen zählt Mixtape die Karte mit (${a.runden} Karten) und zeigt am Ende den Sieger.`);
+  else if (a.ziel) out.push(`Die Punktetafel zählt bis ${a.ziel} ${m.id === "duell" ? "Karten im Zeitstrahl" : "Punkte"}${a.startPunkte ? ` (Start: ${a.startPunkte})` : ""} und meldet den Sieger.`);
+  if (a.marken && !a.koop) out.push(`Zusätzlich zählt sie die ${a.marken} (Start: ${a.markenStart}${a.markenMax ? `, höchstens ${a.markenMax}` : ""}).`);
+  if (a.zug === "reihum") out.push("Wer am Zug ist, ist markiert (▶). Nach „Nächste Karte“ wechselt der Zug automatisch; antippen eines Namens setzt den Zug von Hand.");
+  if (a.typ === "sprint") out.push(`Mixtape stoppt den Song automatisch nach ${a.stufen.map(s => s[0] + " s").join(", dann ")}. Die Knöpfe für die nächste Stufe erscheinen nach jedem Stopp.`);
+  if (a.typ === "sabotage") out.push("Im Spiel-Bildschirm wählt das gegnerische Team die Kategorie, bevor gescannt wird. Zur Auswahl stehen alle Kategorien – auch solche, die nicht in eurem Mix sind.");
+  if (a.typ === "staffel") out.push("Statt „Auflösen“ gibt es drei Knöpfe: Jahrzehnt, Jahr, Titel & Interpret – je einer pro Etappe.");
+  return out.join(" ");
+}
+function rulesHtml(){
+  const R = REGELN, L = arr => arr.map(x => `<li>${esc(x)}</li>`).join("");
+  const DL = arr => `<dl>${arr.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("")}</dl>`;
+  const sec = [["worum","Worum geht's?"],["material","Spielmaterial"],["vorb","Vorbereitung"],["kat","Kategorien & euer Mix"],["jahr","Welches Jahr zählt?"],["zug","So läuft ein Zug"],["modi","Die Spielmodi"],["tipps","Tipps & häufige Fragen"]];
+  let h = `<div class="rb">
+  <div class="cover"><div class="ttl">${APP_NAME.toUpperCase()}</div><div style="font-weight:700">${esc(R.untertitel)}</div>
+    <div class="facts"><span>👥 ${esc(R.spieler)}</span><span>🎂 ${esc(R.alter)}</span><span>⏱ ${esc(R.dauer)}</span></div></div>
+  <div class="toc panel">${sec.map(([id, t], i) => `<a data-go="r-${id}">${i+1}. ${t}</a>` + (id !== "modi" ? "" :
+    SPIELMODI.map(m => `<a data-go="r-${m.id}" style="padding-left:16px;font-size:14px">${esc(m.name)}${m.neu ? '<span class="tag">NEU</span>' : ""}</a>`).join(""))).join("")}</div>
+  <h2 id="r-worum">1. Worum geht's?</h2>${R.worum.map(p => `<p>${esc(p)}</p>`).join("")}
+  <h2 id="r-material">2. Spielmaterial</h2>${DL(R.material)}
+  <h2 id="r-vorb">3. Vorbereitung</h2><ol>${L(R.vorbereitung)}</ol>
+  <h2 id="r-kat">4. Kategorien &amp; euer Mix</h2>${DL(R.kategorien)}
+  <p class="meta">Aktuell in Mixtape: ${["main","support","kuenstler"].map(t => `<b>${{main:"Main",support:"Support",kuenstler:"Künstler"}[t]}:</b> ${KATEGORIEN.filter(c => CAT[c.id].typ === t).map(c => esc(c.name)).join(", ")}`).join(" · ")}</p>
+  <h2 id="r-jahr">5. Welches Jahr zählt?</h2><ul>${L(R.jahr)}</ul>
+  <h2 id="r-zug">6. So läuft ein Zug</h2>${DL(R.zug)}
+  <h2 id="r-modi" class="pb">7. Die Spielmodi</h2>
+  <p>Den Modus wählt ihr unter „Mix“. Die Punktetafel in der App passt sich dem Modus automatisch an.</p>
+  <table><tr><th>Modus</th><th>Für</th><th>Kurz gesagt</th></tr>${SPIELMODI.map(m => `<tr><td><b>${esc(m.name)}</b>${m.neu ? '<span class="tag">NEU</span>' : ""}</td><td>${esc(m.spieler)}</td><td>${esc(fillText(m.kurz, m.app))}</td></tr>`).join("")}</table>`;
+  for (const m of SPIELMODI) {
+    const F = t => esc(fillText(t, m.app));
+    h += `<div class="mode" id="r-${m.id}"><h3>${esc(m.name)}${m.neu ? '<span class="tag">NEU</span>' : ""}</h3>
+      <div class="meta">${esc(m.spieler)}${m.empfohlen ? " · Tipp für den Einstieg" : ""}</div>
+      <p><i>${F(m.kurz)}</i></p>
+      <h4>Material</h4><p>${m.material.map(esc).join(", ")}</p>
+      <h4>Vorbereitung</h4><ol>${m.vorbereitung.map(x => `<li>${F(x)}</li>`).join("")}</ol>
+      <h4>Ablauf</h4><ol>${m.ablauf.map(x => `<li>${F(x)}</li>`).join("")}</ol>
+      <h4>Spielende</h4><p>${F(m.ende)}</p>
+      ${m.beispiel ? `<div class="box"><b>Beispiel:</b> ${F(m.beispiel)}</div>` : ""}
+      ${m.varianten ? `<h4>Varianten</h4><ul>${m.varianten.map(x => `<li>${F(x)}</li>`).join("")}</ul>` : ""}
+      <h4>In der App</h4><p>${esc(appInfo(m))}</p></div>`;
+  }
+  h += `<h2 id="r-tipps">8. Tipps &amp; häufige Fragen</h2>${DL(R.tipps)}
+  <p class="meta" style="margin-top:20px">Mixtape ${APP_VERSION} · Diese Anleitung wird direkt aus den Spieldaten der App erzeugt und ist deshalb immer auf dem Stand der aktuellen Version.</p></div>`;
+  return h;
+}
+function renderRules(){
+  $("#rulesBox").innerHTML = rulesHtml();
+  document.querySelectorAll("#rulesBox [data-go]").forEach(a => a.onclick = () => document.getElementById(a.dataset.go)?.scrollIntoView({ behavior:"smooth" }));
+}
+function printRules(){
+  $("#printArea").innerHTML = `<div class="rulebook">${rulesHtml()}</div>`;
+  let st = document.getElementById("pgRules");
+  if (!st) { st = document.createElement("style"); st.id = "pgRules"; st.textContent = "@page{size:A4 portrait;margin:14mm 16mm}"; document.head.appendChild(st); }
+  const done = () => { st.remove(); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  document.title = APP_NAME + " – Spielanleitung";
+  setTimeout(() => { window.print(); setTimeout(() => { document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; }, 1000); }, 300);
+}
 
 // ---------- QR-Scanner ----------
 let scanner = null, scanLock = false;
@@ -639,18 +958,16 @@ function decadeStyle(y){
   const c = mixHex(pal[0], pal[1], t);
   return { bg:`linear-gradient(150deg, ${mixHex(c,"#ffffff",.12)} 0%, ${c} 45%, ${darker(c,.35)} 100%)`, name: pal[2] + "-Jahre", t };
 }
-const FRONT_SVG = `<svg class="bgart" viewBox="0 0 63 88" preserveAspectRatio="none">
+const FRONT_SVG = `<svg class="bgart" viewBox="0 0 65 65" preserveAspectRatio="none">
   <defs>
-    <radialGradient id="fbg" cx=".5" cy=".42" r=".75"><stop offset="0" stop-color="#2a1145"/><stop offset="1" stop-color="#0e0718"/></radialGradient>
+    <radialGradient id="fbg" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="#2a1145"/><stop offset="1" stop-color="#0e0718"/></radialGradient>
     <linearGradient id="fst" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff2f8f"/><stop offset=".5" stop-color="#ffb23d"/><stop offset="1" stop-color="#2de2e6"/></linearGradient>
   </defs>
-  <rect width="63" height="88" fill="url(#fbg)"/>
-  <!-- dezente Kassetten-Streifen unten -->
-  <rect y="74" width="63" height="1.1" fill="#ff2f8f" opacity=".9"/>
-  <rect y="76" width="63" height="1.1" fill="#ffb23d" opacity=".9"/>
-  <rect y="78" width="63" height="1.1" fill="#2de2e6" opacity=".9"/>
-  <!-- kleine Kassette als Logo oben -->
-  <g transform="translate(25.5 6)" fill="none" stroke="url(#fst)" stroke-width=".7">
+  <rect width="65" height="65" fill="url(#fbg)"/>
+  <rect y="54.2" width="65" height=".9" fill="#ff2f8f" opacity=".9"/>
+  <rect y="55.8" width="65" height=".9" fill="#ffb23d" opacity=".9"/>
+  <rect y="57.4" width="65" height=".9" fill="#2de2e6" opacity=".9"/>
+  <g transform="translate(27.5 3.4) scale(.84)" fill="none" stroke="url(#fst)" stroke-width=".8">
     <rect x="0" y="0" width="12" height="7.6" rx="1"/>
     <rect x="2.2" y="2" width="7.6" height="2.6" rx="1.3"/>
     <circle cx="3.6" cy="3.3" r=".7" fill="#fff" stroke="none"/><circle cx="8.4" cy="3.3" r=".7" fill="#fff" stroke="none"/>
@@ -663,14 +980,15 @@ function buildPrint(custom){
   const from = +$("#cFrom").value, to = +$("#cTo").value, copies = Math.max(1, Math.min(5, +$("#cCopies").value || 1));
   const ys = custom || []; if (!custom) for (let y = from; y <= to; y++) for (let k = 0; k < copies; k++) ys.push(y);
   let html = "";
-  for (let p = 0; p < ys.length; p += 9) {
-    const chunk = ys.slice(p, p + 9);
-    while (chunk.length < 9) chunk.push(null);
+  const PER = 12;                                   // 3 × 4 Karten à 65 × 65 mm pro A4-Blatt
+  for (let p = 0; p < ys.length; p += PER) {
+    const chunk = ys.slice(p, p + PER);
+    while (chunk.length < PER) chunk.push(null);
     html += `<div class="sheet">` + chunk.map(y => y === null ? `<div></div>` :
       `<div class="pc front">${FRONT_SVG}<div class="qr">${qrSvg(QR_PREFIX + y)}</div><div class="brand">${APP_NAME.toUpperCase()}</div><div class="scan">SCAN ME</div></div>`).join("") + `</div>`;
     // Rückseite: jede Reihe spiegeln (Duplex, lange Kante)
     const back = [];
-    for (let r = 0; r < 3; r++) back.push(...chunk.slice(r*3, r*3+3).reverse());
+    for (let r = 0; r < 4; r++) back.push(...chunk.slice(r*3, r*3+3).reverse());
     html += `<div class="sheet">` + back.map(y => y === null ? `<div></div>` :
       (st => `<div class="pc back" style="background:${st.bg}"><div class="dec">${st.name}</div><div class="y">${y}</div>
         <div class="bar"><i style="left:${st.t*90}%"></i></div><div class="brand">${APP_NAME.toUpperCase()}</div></div>`)(decadeStyle(y))).join("") + `</div>`;
@@ -681,7 +999,7 @@ function buildPrint(custom){
 function renderCardInfo(){
   const from = +$("#cFrom").value, to = +$("#cTo").value, copies = +$("#cCopies").value || 1;
   const n = Math.max(0, to - from + 1) * copies;
-  $("#cardInfo").innerHTML = `<div class="msg ok">${n} Karten · ${Math.ceil(n/9)} Blätter (beidseitig)</div>`;
+  $("#cardInfo").innerHTML = `<div class="msg ok">${n} Karten · ${Math.ceil(n/12)} Blätter (beidseitig)</div>`;
   state.range = [from, to]; save();
 }
 
@@ -820,7 +1138,9 @@ function show(v){
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
   document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (v === "play" && b.dataset.v === "game")));
   if (v !== "game") stopScanner();
-  if (v === "setup") { renderCats(); spCheck(false); }
+  if (v === "setup") { renderCats(); renderModePanel(); spCheck(false); }
+  if (v === "game" || v === "play") renderScore();
+  if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
   if (v === "data") { renderData(); if (!mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
@@ -838,7 +1158,15 @@ $("#startBtn").addEventListener("click", () => {
   if (sp.tok() && !spReady) openSpotify();   // kein Spotify-Gerät erreichbar -> jetzt unauffällig wecken
   show("game");
 });
-$("#resetBtn").addEventListener("click", () => { state.played.clear(); save(); alert("Alle Songs sind wieder im Topf."); });
+$("#resetBtn").addEventListener("click", () => {
+  if (!confirm("Neues Spiel starten?\n\n• Punktetafel zurück auf Start\n• Alle schon gespielten Songs kommen wieder in den Topf")) return;
+  newGame(state.game.mode, state.game.teams.map(t => t.n)); state.played.clear(); save(); state.current = null;
+  renderModePanel(); alert("Neues Spiel – alles zurückgesetzt.");
+});
+$("#modeSel").addEventListener("change", e => { newGame(e.target.value, state.game.teams.map(t => t.n)); renderModePanel(); });
+$("#modeRules").addEventListener("click", () => { show("rules"); setTimeout(() => document.getElementById("r-" + state.game.mode)?.scrollIntoView(), 50); });
+$("#rulesPdf").addEventListener("click", printRules);
+$("#rulesPdf2").addEventListener("click", printRules);
 $("#backSetup").addEventListener("click", () => show("setup"));
 $("#scanBtn").addEventListener("click", () => scanner ? stopScanner() : startScanner());
 $("#manBtn").addEventListener("click", () => { const y = +$("#manYear").value; if (y) handleYear(y); });
@@ -864,10 +1192,14 @@ $("#restartBtn").addEventListener("click", async () => {
   catch(e){ if (e.nodevice) showWake("Spotify schläft gerade."); else msg("#playMsg", "err", e.message); }
 });
 $("#revealBtn").addEventListener("click", reveal);
-$("#nextBtn").addEventListener("click", () => { show("game"); startScanner(); });
+$("#nextBtn").addEventListener("click", () => {
+  nextTurn(); state.current = null;
+  show("game");
+  if (modeDef().app.typ !== "sabotage") startScanner();   // bei Sabotage erst Kategorie wählen lassen
+});
 $("#cFrom").value = state.range[0]; $("#cTo").value = state.range[1];
 ["#cFrom", "#cTo", "#cCopies"].forEach(s => $(s).addEventListener("input", renderCardInfo));
-$("#printBtn").addEventListener("click", () => { buildPrint(); setTimeout(() => window.print(), 300); });
+$("#printBtn").addEventListener("click", () => { document.getElementById("pgRules")?.remove(); buildPrint(); setTimeout(() => window.print(), 300); });
 $("#mbStart").addEventListener("click", mbRun);
 $("#mbCopy").addEventListener("click", async () => { const t = mbReport();
   try { await navigator.clipboard.writeText(t); alert("Bericht kopiert – einfach in den Chat einfügen."); } catch(e) { prompt("Bericht kopieren:", t); } });
@@ -903,7 +1235,7 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
   const err = await sp.handleRedirect();
-  renderLogin(err); renderCats();
+  renderLogin(err); renderCats(); renderModePanel();
 })();
 </script>
 </body>

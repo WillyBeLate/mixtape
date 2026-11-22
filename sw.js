@@ -2,8 +2,8 @@
 // Strategie "Netz zuerst": Ist das Handy online, wird immer die neueste Version geladen
 // (Updates kommen also automatisch). Nur offline wird die gespeicherte Kopie benutzt.
 // Bei Änderungen an dieser Datei VERSION hochzählen.
-const VERSION = "mixtape-v22";
-const FILES = ["./", "index.html", "daten.js", "manifest.json", "lib/html5-qrcode.min.js", "lib/qrcode.js",
+const VERSION = "mixtape-v23";
+const FILES = ["./", "index.html", "daten.js", "regeln.js", "manifest.json", "lib/html5-qrcode.min.js", "lib/qrcode.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-180.png"];
 
 self.addEventListener("install", e => {
