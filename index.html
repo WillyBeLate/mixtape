@@ -426,7 +426,11 @@
     <div class="panel">
       <div class="row"><div style="flex:1"><label>Von</label><input type="number" id="cFrom"></div>
         <div style="flex:1"><label>Bis</label><input type="number" id="cTo"></div>
-        <div style="flex:1"><label>Kopien/Jahr</label><input type="number" id="cCopies" min="1" max="5" value="1"></div></div>
+        <div style="flex:1" class="cEven"><label>Kopien/Jahr</label><input type="number" id="cCopies" min="1" max="5" value="1"></div>
+        <div style="flex:1" class="cMix"><label>Karten gesamt</label><input type="number" id="cTotal" min="12" max="600" step="12" value="120"></div></div>
+      <label style="display:block;margin-top:12px">Verteilung</label>
+      <select id="cMode"><option value="even">Jede Jahreszahl gleich oft</option><option value="mix">Nach Jahrzehnten gewichten</option></select>
+      <div class="cMix" id="cMixBox" style="margin-top:10px"></div>
       <div class="small" style="margin-top:10px">Drucken: beidseitig, <b>an langer Kante spiegeln</b>, 100 % Größe (nicht „an Seite anpassen“). Rückseiten sind schon passend gespiegelt angeordnet.</div>
     </div>
     <div id="cardInfo"></div>
@@ -503,7 +507,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.13";
+const APP_VERSION = "0.9.14";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1527,7 +1531,8 @@ const BRAND_LETTERS = [...APP_NAME.toUpperCase()].map((ch, i) => `<span style="c
 function qrSvg(text){ const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({ cellSize:4, margin:0, scalable:true }); }
 function buildPrint(custom){
   const from = +$("#cFrom").value, to = +$("#cTo").value, copies = Math.max(1, Math.min(5, +$("#cCopies").value || 1));
-  const ys = custom || []; if (!custom) for (let y = from; y <= to; y++) for (let k = 0; k < copies; k++) ys.push(y);
+  const ys = custom || (($("#cMode")?.value === "mix") ? cardPlan().ys : []);
+  if (!custom && $("#cMode")?.value !== "mix") for (let y = from; y <= to; y++) for (let k = 0; k < copies; k++) ys.push(y);
   let html = "";
   const PER = 12;                                   // 3 × 4 Karten à 65 × 65 mm pro A4-Blatt
   for (let p = 0; p < ys.length; p += PER) {
@@ -1545,9 +1550,54 @@ function buildPrint(custom){
   $("#printArea").innerHTML = html;
   return ys.length;
 }
+// ---------- Kartenmix nach Jahrzehnten ----------
+// Anteile sind relative Gewichte (0–100) je Jahrzehnt; angezeigt wird der daraus berechnete Prozentwert.
+const CARD_PRESETS = { gleich: () => 50, modern: d => d < 1950 ? 10 : d < 1970 ? 25 : d < 1980 ? 45 : d < 2000 ? 80 : 100 };
+function cardDecades(){ const from = +$("#cFrom").value, to = +$("#cTo").value, out = [];
+  for (let d = Math.floor(from / 10) * 10; d <= to; d += 10) out.push(d); return out; }
+function cardWeights(){ const w = store.get("cardMix", {}); const o = {}; cardDecades().forEach(d => o[d] = w[d] ?? CARD_PRESETS.modern(d)); return o; }
+// Karten pro Jahrzehnt (größter Rest, damit die Summe genau stimmt) und innerhalb des Jahrzehnts gleichmäßig auf die Jahre
+function cardPlan(){
+  const from = +$("#cFrom").value, to = +$("#cTo").value, total = Math.max(0, Math.min(600, +$("#cTotal").value || 0));
+  const w = cardWeights(), ds = cardDecades().filter(d => w[d] > 0), sum = ds.reduce((a, d) => a + w[d], 0) || 1;
+  const raw = ds.map(d => [d, total * w[d] / sum]), cnt = Object.fromEntries(raw.map(([d, x]) => [d, Math.floor(x)]));
+  let rest = total - Object.values(cnt).reduce((a, b) => a + b, 0);
+  raw.sort((a, b) => (b[1] % 1) - (a[1] % 1)).forEach(([d]) => { if (rest > 0) { cnt[d]++; rest--; } });
+  const ys = [];
+  for (const d of cardDecades()) {
+    const yrs = []; for (let y = Math.max(d, from); y <= Math.min(d + 9, to); y++) yrs.push(y);
+    const n = cnt[d] || 0; if (!n || !yrs.length) continue;
+    const base = Math.floor(n / yrs.length), r = n % yrs.length;
+    const extra = new Set(Array.from({ length: r }, (_, i) => Math.floor((i + 0.5) * yrs.length / r)));   // Zusatzkarten über das Jahrzehnt verteilt
+    yrs.forEach((y, i) => { for (let k = 0; k < base + (extra.has(i) ? 1 : 0); k++) ys.push(y); });
+  }
+  return { ys, cnt, w, sum };
+}
+function renderCardMix(){
+  const box = $("#cMixBox"); if (!box) return;
+  const { cnt, w, sum } = cardPlan(), from = +$("#cFrom").value, to = +$("#cTo").value;
+  box.innerHTML = cardDecades().map(d =>
+    `<div style="margin:8px 0"><div class="row small"><b>${d}er</b><span data-lbl="${d}"></span></div>
+      <input type="range" min="0" max="100" step="5" value="${w[d]}" data-dec="${d}"></div>`).join("") +
+    `<div class="row" style="gap:6px;margin-top:6px"><button class="btn small sec" data-preset="gleich">Gleich verteilt</button><button class="btn small sec" data-preset="modern">Mehr Neues</button></div>`;
+  refreshMixLabels();
+  box.querySelectorAll("[data-dec]").forEach(el => el.addEventListener("input", () => {
+    const m = store.get("cardMix", {}); m[el.dataset.dec] = +el.value; store.set("cardMix", m); renderCardInfo(); }));
+  box.querySelectorAll("[data-preset]").forEach(b => b.onclick = () => {
+    const m = {}; cardDecades().forEach(d => m[d] = CARD_PRESETS[b.dataset.preset](d)); store.set("cardMix", m); renderCardInfo(); });
+}
+function refreshMixLabels(){
+  const { cnt, w, sum } = cardPlan(), from = +$("#cFrom").value, to = +$("#cTo").value;
+  document.querySelectorAll("[data-lbl]").forEach(el => { const d = +el.dataset.lbl, n = cnt[d] || 0, nY = Math.min(d + 9, to) - Math.max(d, from) + 1;
+    el.innerHTML = `${w[d] > 0 ? Math.round(100 * w[d] / sum) : 0} % · ${n} Karten${n && n < nY ? ` <span style="opacity:.6">(nicht jedes Jahr)</span>` : ""}`; });
+}
 function renderCardInfo(){
   const from = +$("#cFrom").value, to = +$("#cTo").value, copies = +$("#cCopies").value || 1;
-  const n = Math.max(0, to - from + 1) * copies;
+  const mix = $("#cMode").value === "mix"; store.set("cardMode", mix ? "mix" : "even");
+  document.querySelectorAll(".cMix").forEach(e => e.style.display = mix ? "" : "none");
+  document.querySelectorAll(".cEven").forEach(e => e.style.display = mix ? "none" : "");
+  if (mix) { const a = document.activeElement; if (!(a && a.dataset && a.dataset.dec)) renderCardMix(); else refreshMixLabels(); }
+  const n = mix ? cardPlan().ys.length : Math.max(0, to - from + 1) * copies;
   $("#cardInfo").innerHTML = `<div class="msg ok">${n} Karten · ${Math.ceil(n/12)} Blätter (beidseitig)</div>`;
   state.range = [from, to]; save();
 }
@@ -1813,7 +1863,9 @@ $("#nextBtn").addEventListener("click", () => {
   startScanner();
 });
 $("#cFrom").value = state.range[0]; $("#cTo").value = state.range[1];
-["#cFrom", "#cTo", "#cCopies"].forEach(s => $(s).addEventListener("input", renderCardInfo));
+$("#cMode").value = store.get("cardMode", "even"); $("#cTotal").value = store.get("cardTotal", 120);
+$("#cTotal").addEventListener("input", () => store.set("cardTotal", +$("#cTotal").value));
+["#cFrom", "#cTo", "#cCopies", "#cTotal", "#cMode"].forEach(s => $(s).addEventListener("input", renderCardInfo));
 $("#printBtn").addEventListener("click", () => { document.getElementById("pgRules")?.remove(); buildPrint(); setTimeout(() => window.print(), 300); });
 $("#mbStart").addEventListener("click", mbRun);
 $("#mbCopy").addEventListener("click", async () => { const t = mbReport();
