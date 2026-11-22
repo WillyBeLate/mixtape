@@ -386,6 +386,7 @@ async function resolveTrack(song){
   throw new Error(`„${song.t}“ wurde bei Spotify nicht gefunden.`);
 }
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function getDevice(){
   const j = await sp.api("/me/player/devices");
   const d = j?.devices || [];
@@ -398,8 +399,20 @@ async function playCurrent(fromStart){
   if (!dev) throw Object.assign(new Error("NODEVICE"), { nodevice:true });
   let pos = 0;
   if (!fromStart && state.randStart && c.dur) pos = Math.floor(c.dur * (0.2 + Math.random() * 0.35));
-  await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body: JSON.stringify({ uris:[c.uri], position_ms:pos }) });
-  state.paused = false; updatePlayUI();
+  const body = JSON.stringify({ uris:[c.uri], position_ms:pos });
+  if (!dev.is_active) {                               // Gerät erst "aufwecken", sonst ignoriert Spotify den Befehl oft
+    await sp.api("/me/player", { method:"PUT", body: JSON.stringify({ device_ids:[dev.id], play:false }) }).catch(() => {});
+    await sleep(600);
+  }
+  await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body });
+  // Kontrolle: läuft wirklich der richtige Song? Sonst einmal nachlegen.
+  for (let i = 0; i < 2; i++) {
+    await sleep(1200);
+    const pl = await sp.api("/me/player").catch(() => null);
+    if (pl?.is_playing && pl.item?.uri === c.uri) { state.paused = false; updatePlayUI(); return; }
+    if (i === 0) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
+  }
+  throw Object.assign(new Error("NOTPLAYING"), { nodevice:true });
 }
 
 // =====================================================================
@@ -419,7 +432,8 @@ async function handleYear(year){
     Object.assign(state.current, { uri: tr.uri, dur: tr.dur });
     await playCurrent(false);
   } catch(e) {
-    if (e.nodevice) msg("#playMsg", "warn", "Kein Spotify-Gerät gefunden. Öffne kurz die Spotify-App auf dem Handy, starte und pausiere irgendeinen Song und komm zurück. Dann „Nochmal von vorn“ tippen.");
+    if (e.message === "NOTPLAYING") msg("#playMsg", "warn", "Spotify hat den Song nicht gestartet. Öffne kurz die Spotify-App, starte und pausiere irgendeinen Song und tippe dann hier „Nochmal von vorn“.");
+    else if (e.nodevice) msg("#playMsg", "warn", "Kein Spotify-Gerät gefunden. Öffne kurz die Spotify-App auf dem Handy, starte und pausiere irgendeinen Song und komm zurück. Dann „Nochmal von vorn“ tippen.");
     else if (e.status === 403) msg("#playMsg", "err", "Spotify verweigert die Wiedergabe (Premium nötig bzw. App-Nutzer nicht freigeschaltet).");
     else msg("#playMsg", "err", e.message);
     $("#playState").textContent = "Wiedergabe gestoppt";
@@ -447,20 +461,21 @@ function reveal(){
 const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
 
 // ---------- QR-Scanner ----------
-let scanner = null;
+let scanner = null, scanLock = false;
 async function startScanner(){
-  msg("#scanMsg");
+  msg("#scanMsg"); scanLock = false;
   try {
     scanner = new Html5Qrcode("reader");
     await scanner.start({ facingMode:"environment" }, { fps:10, qrbox:{ width:240, height:240 } }, txt => {
       const m = txt.match(/(\d{4})\s*$/);
+      if (scanLock) return;                       // Kamera liefert ~10 Treffer/Sek. → nur den ersten nehmen
       if (!txt.startsWith(QR_PREFIX) || !m) { msg("#scanMsg", "warn", "Das ist keine " + APP_NAME + "-Karte."); return; }
-      handleYear(+m[1]);
+      scanLock = true; handleYear(+m[1]);
     });
     $("#scanBtn").textContent = "Scanner stoppen";
   } catch(e) { msg("#scanMsg", "err", "Kamera nicht verfügbar: " + (e.message || e)); scanner = null; }
 }
-function stopScanner(){ if (scanner) { scanner.stop().catch(()=>{}).finally(()=>{ try{scanner.clear();}catch(e){} scanner = null; }); } $("#scanBtn").textContent = "📷 Scanner starten"; }
+function stopScanner(){ if (scanner) { try { scanner.pause(true); } catch(e){} scanner.stop().catch(()=>{}).finally(()=>{ try{scanner.clear();}catch(e){} scanner = null; }); } $("#scanBtn").textContent = "📷 Scanner starten"; }
 
 // =====================================================================
 //  UI: Setup
@@ -637,7 +652,7 @@ $("#restartBtn").addEventListener("click", async () => {
   if (!state.current) return;
   try { if (!state.current.uri) { const tr = await resolveTrack(state.current.song); Object.assign(state.current, { uri: tr.uri, dur: tr.dur }); }
     await playCurrent(true); msg("#playMsg"); }
-  catch(e){ msg("#playMsg", e.nodevice ? "warn" : "err", e.nodevice ? "Immer noch kein Gerät – Spotify-App öffnen." : e.message); }
+  catch(e){ msg("#playMsg", e.nodevice ? "warn" : "err", e.nodevice ? "Spotify spielt noch nicht – Spotify-App öffnen, kurz einen Song starten und pausieren, dann nochmal tippen." : e.message); }
 });
 $("#revealBtn").addEventListener("click", reveal);
 $("#nextBtn").addEventListener("click", () => { show("game"); startScanner(); });
