@@ -1,35 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14002e"/><stop offset="1" stop-color="#4a0b6b"/></linearGradient>
-    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe14d"/><stop offset=".55" stop-color="#ff7a3d"/><stop offset="1" stop-color="#ff2f8f"/></linearGradient>
-    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f7ff"/><stop offset=".48" stop-color="#7fb6ff"/><stop offset=".52" stop-color="#2b2f7a"/><stop offset="1" stop-color="#c79bff"/></linearGradient>
-    <linearGradient id="lbl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff2f8f"/><stop offset=".5" stop-color="#ffb23d"/><stop offset="1" stop-color="#2de2e6"/></linearGradient>
-    <clipPath id="top"><rect x="0" y="0" width="512" height="290"/></clipPath><clipPath id="sunc"><circle cx="256" cy="250" r="150"/></clipPath>
+    <radialGradient id="bg" cx=".5" cy=".38" r=".8"><stop offset="0" stop-color="#5a2a9e"/><stop offset=".55" stop-color="#2a1158"/><stop offset="1" stop-color="#120724"/></radialGradient>
+    <linearGradient id="st" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2f8f"/><stop offset=".5" stop-color="#ffb23d"/><stop offset="1" stop-color="#2de2e6"/></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <rect width="512" height="512" fill="url(#sky)"/>
-  <!-- Sonne mit Streifen -->
-  <g clip-path="url(#top)">
-    <circle cx="256" cy="250" r="150" fill="url(#sun)"/>
-    <g fill="#3a0858" clip-path="url(#sunc)"><rect x="80" y="196" width="352" height="6"/><rect x="80" y="216" width="352" height="9"/><rect x="80" y="238" width="352" height="12"/></g>
-  </g>
-  <!-- Boden mit Gitter -->
-  <rect y="290" width="512" height="222" fill="#12002a"/>
-  <g stroke="#ff2f8f" stroke-width="3" opacity=".85">
-    <line x1="0" y1="290" x2="512" y2="290" stroke="#2de2e6" stroke-width="4"/>
-    <line x1="0" y1="312" x2="512" y2="312"/><line x1="0" y1="342" x2="512" y2="342"/>
-    <line x1="0" y1="384" x2="512" y2="384"/><line x1="0" y1="440" x2="512" y2="440"/>
-    <line x1="256" y1="290" x2="256" y2="512"/><line x1="200" y1="290" x2="60" y2="512"/><line x1="312" y1="290" x2="452" y2="512"/>
-    <line x1="150" y1="290" x2="-120" y2="512"/><line x1="362" y1="290" x2="632" y2="512"/>
-  </g>
-  <!-- Kassette -->
-  <g transform="translate(96 250)">
-    <rect x="0" y="0" width="320" height="200" rx="22" fill="#0d0d16" stroke="url(#chrome)" stroke-width="10"/>
-    <rect x="22" y="20" width="276" height="100" rx="10" fill="url(#lbl)"/>
-    <rect x="62" y="46" width="196" height="54" rx="27" fill="#0d0d16"/>
-    <circle cx="100" cy="73" r="19" fill="#f5f5ff"/><circle cx="220" cy="73" r="19" fill="#f5f5ff"/>
-    <g fill="#0d0d16"><circle cx="100" cy="73" r="7"/><circle cx="220" cy="73" r="7"/></g>
-    <rect x="128" y="62" width="64" height="22" rx="4" fill="#3a2a55"/>
-    <path d="M70 200 L95 150 H225 L250 200 Z" fill="#1f1f33" stroke="url(#chrome)" stroke-width="5"/>
-    <g fill="#0d0d16"><circle cx="120" cy="176" r="7"/><circle cx="200" cy="176" r="7"/></g>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect y="392" width="512" height="9" fill="#ff2f8f"/>
+  <rect y="410" width="512" height="9" fill="#ffb23d"/>
+  <rect y="428" width="512" height="9" fill="#2de2e6"/>
+  <g transform="translate(116 132)" filter="url(#glow)">
+    <rect x="0" y="0" width="280" height="187" rx="28" fill="#ffffff12" stroke="url(#st)" stroke-width="11"/>
+    <rect x="37" y="30" width="206" height="80" rx="40" fill="#0e0718" stroke="url(#st)" stroke-width="7"/>
+    <circle cx="87" cy="70" r="25" fill="#fff"/><path d="M87 52v10M87 78v10M69 70h10M95 70h10" stroke="#2a1145" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="193" cy="70" r="25" fill="#fff"/><path d="M193 52v10M193 78v10M175 70h10M201 70h10" stroke="#2a1145" stroke-width="7" stroke-linecap="round"/>
+    <path d="M63 187l17-37h120l17 37" fill="none" stroke="url(#st)" stroke-width="9" stroke-linejoin="round"/>
+    <circle cx="103" cy="167" r="6" fill="#fff"/><circle cx="177" cy="167" r="6" fill="#fff"/>
   </g>
 </svg>
