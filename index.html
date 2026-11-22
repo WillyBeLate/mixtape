@@ -170,6 +170,19 @@
   .awb.on{background:var(--c);border-color:var(--c);color:#1b1033}
   .awb.on .l b,.awb.on .s{color:#1b1033}
   .awb.on::after{content:"✓";position:absolute;right:12px;top:50%;transform:translateY(-50%);font-weight:900}
+  /* Einklappbare Bereiche */
+  details.fold{background:#ffffff0d;border:1px solid #ffffff14;border-radius:var(--r);margin:10px 0;padding:0 12px}
+  details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 2px;user-select:none}
+  details.fold>summary::-webkit-details-marker{display:none}
+  details.fold>summary::after{content:"";width:9px;height:9px;border-right:2px solid #cfc6e8;border-bottom:2px solid #cfc6e8;transform:rotate(45deg);margin:-4px 4px 0 auto;transition:transform .2s;flex:none}
+  details.fold[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+  details.fold .ft{font-weight:800;font-size:17px}
+  details.fold .fs{font-size:12px;color:#cfc6e8}
+  details.fold[open]{padding-bottom:4px}
+  details.fold .panel{background:#ffffff0d}
+  .decs{display:flex;gap:4px;align-items:flex-end;height:60px;margin-top:10px}
+  .decs div{flex:1;text-align:center;font-size:10px;color:#cfc6e8}
+  .decs i{display:block;background:linear-gradient(180deg,var(--accent),var(--accent2));border-radius:4px 4px 0 0;margin:0 auto 3px;width:70%}
   .stepnr{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:15px;margin-right:6px;vertical-align:2px}
   .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:999px;background:var(--accent);color:#fff;vertical-align:middle;margin-left:6px}
   /* Punktetafel */
@@ -360,7 +373,7 @@
   <!-- ======================= DATEN ======================= -->
   <section class="view" id="v-data">
     <h1><span>Datenbank-Check</span></h1>
-    <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr.</p>
+    <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
     <div id="dataBox"></div>
     <div class="panel" id="mbPanel">
       <h2 style="margin-top:0">Jahres-Prüfung (MusicBrainz)</h2>
@@ -375,8 +388,8 @@
       <div id="mbList"></div>
     </div>
     <div class="panel" id="checkPanel"></div>
-    <div class="panel">
-      <h2 style="margin-top:0">Spotify-Einstellungen</h2>
+    <details class="fold" data-fold="spotify"><summary><span class="ft">Spotify-Einstellungen</span><span class="fs" id="spSum"></span></summary>
+    <div class="panel" style="margin-top:6px">
       <label>Spotify Client-ID</label>
       <input type="text" id="clientId" placeholder="aus dem Spotify Developer Dashboard">
       <div class="small" style="margin-top:8px">Redirect-URI, die du im Dashboard einträgst:<br><code id="redirUri"></code></div>
@@ -384,7 +397,7 @@
       <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
       <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
-    </div>
+    </div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
       <div class="small">Version <b id="appVer"></b> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
       <div id="installBox"></div>
@@ -409,7 +422,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.8.7";
+const APP_VERSION = "0.8.8";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1374,17 +1387,42 @@ function mbReport(){
 // =====================================================================
 //  UI: Datenbank-Check
 // =====================================================================
+function catPanel(c, ys){
+  const hit = ys.filter(y => byYearCat[c.id]?.[y]?.length);
+  const miss = ys.filter(y => !byYearCat[c.id]?.[y]?.length);
+  const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
+  const warn = c.typ === "main" && miss.length ? `<div class="msg err">Lücken: ${miss.join(", ")} – zählt deshalb vorerst nur als Support.</div>` : "";
+  return `<div class="panel"><div class="row"><b>${esc(c.name)}</b><span class="small">${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
+    ${c.regel ? `<div class="small">Regel: ${esc(c.regel)}</div>` : ""}${warn}
+    <div class="yeargrid">${ys.map(y => `<i class="${hit.includes(y) ? "h" : ""}" title="${y}"></i>`).join("")}</div></div>`;
+}
+function foldHtml(id, title, sum, inner){
+  const open = store.get("fold:" + id, false);
+  return `<details class="fold" data-fold="${id}" ${open ? "open" : ""}><summary><span class="ft">${title}</span><span class="fs">${sum}</span></summary>${inner}</details>`;
+}
 function renderData(){
   const ys = years();
-  $("#dataBox").innerHTML = KATEGORIEN.map(c => {
-    const hit = ys.filter(y => byYearCat[c.id]?.[y]?.length);
-    const miss = ys.filter(y => !byYearCat[c.id]?.[y]?.length);
-    const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
-    const warn = c.typ === "main" && miss.length ? `<div class="msg err">Lücken: ${miss.join(", ")} – zählt deshalb vorerst nur als Support.</div>` : "";
-    return `<div class="panel"><div class="row"><b>${esc(c.name)}</b><span class="small">${c.typ} · ${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
-      ${c.regel ? `<div class="small">Regel: ${esc(c.regel)}</div>` : ""}${warn}
-      <div class="yeargrid">${ys.map(y => `<i class="${hit.includes(y) ? "h" : ""}" title="${y}"></i>`).join("")}</div></div>`;
+  const groups = [["main", "Main-Kategorien"], ["support", "Support-Kategorien"], ["kuenstler", "Künstler"]];
+  let h = groups.map(([t, title]) => {
+    const list = KATEGORIEN.filter(c => c.typ === t);
+    const songs = new Set(ACTIVE.filter(s => s.cats.some(c => CAT[c]?.typ === t)).map(s => s.i)).size;
+    return foldHtml("cat-" + t, title, `${list.length} Kategorien · ${songs} Songs`, list.map(c => catPanel(c, ys)).join(""));
   }).join("");
+  // Sonderkategorien: Inhalte außerhalb der Jahreskarten (z. B. TV-Quiz)
+  const tvFound = TV.filter(x => store.get("tv1:" + x.serie, null)).length;
+  const decs = {}; TV.forEach(x => { const d = Math.floor(x.y / 10) * 10; decs[d] = (decs[d] || 0) + 1; });
+  const max = Math.max(1, ...Object.values(decs));
+  const tvPanel = `<div class="panel"><div class="row"><b>TV-Quiz · Titelmelodien</b><span class="small">${TV.length} Serien · ${TV[0]?.y}–${TV[TV.length-1]?.y}</span></div>
+    <div class="small">Eigener Modus ohne Jahreskarten. Pro Serie eine Titelmelodie; Spotify-Treffer bisher geladen: ${tvFound}/${TV.length}.</div>
+    <div class="decs">${Object.keys(decs).sort().map(d => `<div><i style="height:${Math.round(decs[d] / max * 40)}px"></i>${String(d).slice(2)}er<br><b style="color:#fff">${decs[d]}</b></div>`).join("")}</div>
+    <div class="small" style="margin-top:8px">Länder: ${Object.entries(TV.reduce((m, x) => (m[x.land] = (m[x.land] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${flag(l)} ${n}`).join(" · ")}</div></div>`;
+  h += foldHtml("special", "Sonderkategorien", `1 Kategorie · ${TV.length} Titelmelodien`, tvPanel);
+  $("#dataBox").innerHTML = h;
+  document.querySelectorAll("details.fold[data-fold]").forEach(d => {
+    if (d.dataset.fold === "spotify" && !d.dataset.init) { d.open = store.get("fold:spotify", false); d.dataset.init = 1; }
+    d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
+  });
+  $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
   const pl = DB.filter(s => s.pruefen).sort((a, b) => a.y - b.y);
   $("#checkPanel").innerHTML = `<h2 style="margin-top:0">Prüfliste (${pl.length})</h2>
     <div class="small">Songs mit unsicherem Jahr oder Cover einer älteren Version. ${ALLOW_UNCHECKED ? "<b>Sie spielen gerade mit.</b>" : "Sie sind <b>nicht</b> im Spiel."}
