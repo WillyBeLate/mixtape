@@ -260,7 +260,7 @@ const SPIELMODI = [
   {
     id: "tv", name: "TV-Quiz", spieler: "2–10 Personen oder Teams", neu: true,
     kurz: "Keine Jahreszahlen, nur Fernsehen: Erkennt ihr die Serie zur Titelmelodie?",
-    app: { typ: "tv", ziel: 10, marken: null, teams: [2, 10], namen: "Team", ohneKarten: true,
+    app: { typ: "tv", daten: "tv", ziel: 10, marken: null, teams: [2, 10], namen: "Team", ohneKarten: true,
       aktionen: [ { label: "Serie erkannt", jeder: true, p: 1 }, { label: "Bonus: Song oder Interpret", jeder: true, p: 1 } ] },
     material: ["nur das Handy – Jahreskarten braucht ihr hier nicht"],
     vorbereitung: [
@@ -275,5 +275,25 @@ const SPIELMODI = [
     ],
     ende: "Wer zuerst {ziel} Punkte hat, gewinnt. Bei Gleichstand entscheidet ein Stechen mit einer weiteren Melodie.",
     beispiel: "Nach zwei Takten Synthesizer ruft Lena „Stranger Things!“ – Punkt. Ben weiß noch „Kyle Dixon & Michael Stein“ – Bonuspunkt.",
+  },
+  {
+    id: "kids", name: "Kinderserien-Quiz", spieler: "2–10 Personen oder Teams", neu: true,
+    kurz: "Biene Maja, Pokémon oder Hannah Montana? Erkennt ihr die Kinderserie zur Titelmelodie?",
+    app: { typ: "tv", daten: "kids", ziel: 10, marken: null, teams: [2, 10], namen: "Team", ohneKarten: true,
+      aktionen: [ { label: "Serie erkannt", jeder: true, p: 1 }, { label: "Bonus: mitgesungen", jeder: true, p: 1 } ] },
+    material: ["nur das Handy – Jahreskarten braucht ihr hier nicht"],
+    vorbereitung: [
+      "Spielt einzeln oder in Teams. Wählt unter „Spiel“ den Modus „Kinderserien-Quiz“ – ein Mix ist nicht nötig.",
+      "Die Serien stammen aus allen Jahrzehnten seit dem Sandmännchen – Schwerpunkt sind Kinderserien, die in Deutschland liefen, auch wenn sie ursprünglich aus Japan, den USA oder Frankreich kommen.",
+    ],
+    ablauf: [
+      "Tippt auf „Nächste Titelmelodie“. Mixtape spielt den Titelsong einer Kinderserie – ohne Namen, ohne Bild.",
+      "Wer die Serie erkennt, ruft ihren Namen. Die erste richtige Antwort bekommt einen Punkt.",
+      "Wer falsch rät, ist für diese Melodie raus. Weiß es niemand, hilft „Nochmal von vorn“.",
+      "Tippt auf „Auflösen“: Mixtape zeigt die Serie, das Startjahr und das Herkunftsland.",
+      "Bonus: Wer den Refrain textsicher mitsingen kann, bekommt einen Extrapunkt – die anderen entscheiden, ob es gilt.",
+    ],
+    ende: "Wer zuerst {ziel} Punkte hat, gewinnt. Bei Gleichstand entscheidet ein Stechen mit einer weiteren Melodie.",
+    beispiel: "Nach drei Tönen ruft Willy „Pokémon!“ – Punkt. Seine Freundin singt „Ich will der Allerbeste sein …“ weiter – Bonuspunkt.",
   },
 ];

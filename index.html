@@ -285,7 +285,7 @@
       <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
     </div>
 
-    <div id="tvNote" class="panel small" style="display:none">Im TV-Quiz braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten.</div>
+    <div id="tvNote" class="panel small" style="display:none">In diesem Modus braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten.</div>
     <div id="mixSec">
     <h2><span class="stepnr">2</span> Euer Mix</h2>
     <div style="text-align:center"><span class="pill" id="mixCount">DEIN MIX 0 | 4</span></div>
@@ -375,8 +375,8 @@
     <h1><span>Datenbank-Check</span></h1>
     <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
     <div id="dataBox"></div>
-    <div class="panel" id="mbPanel">
-      <h2 style="margin-top:0">Jahres-Prüfung (MusicBrainz)</h2>
+    <details class="fold" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
+    <div class="panel" id="mbPanel" style="margin-top:6px">
       <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
         Ca. 1 Song alle 1,6 Sekunden – beim ersten Mal also ~30 Minuten, bei Auslastung länger. Bildschirm anlassen und nur in <b>einem</b> Tab/Gerät laufen lassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
       <div id="mbStats" style="margin:10px 0"></div>
@@ -386,8 +386,9 @@
       <button class="btn small sec" id="mbExport">📤 Ergebnisse exportieren</button>
       <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
       <div id="mbList"></div>
-    </div>
-    <div class="panel" id="checkPanel"></div>
+    </div></details>
+    <details class="fold" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
+    <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
     <details class="fold" data-fold="spotify"><summary><span class="ft">Spotify-Einstellungen</span><span class="fs" id="spSum"></span></summary>
     <div class="panel" style="margin-top:6px">
       <label>Spotify Client-ID</label>
@@ -422,7 +423,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.8.8";
+const APP_VERSION = "0.8.9";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -750,7 +751,7 @@ function reveal(){
   if (s.tv) {
     $("#revealBox").innerHTML = `<div class="reveal"><div class="meta" style="margin:0 0 6px">Die Serie</div>
       <div class="t" style="font-size:28px;margin:0">${esc(s.serie)}</div>
-      <div class="a" style="margin-top:10px">„${esc(s.t)}“ · ${esc(s.a)}</div>
+      <div class="a" style="margin-top:10px">„${esc(c.trName || s.t)}“${(c.trArtist || s.a) ? " · " + esc(c.trArtist || s.a) : ""}</div>
       <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · Serie seit ${s.y}</div></div><div id="awardBox"></div>`;
     $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
     c.stage = 9; c.done = true; renderModeBox(); renderScore(); return;
@@ -1102,31 +1103,41 @@ function printRules(){
 // =====================================================================
 //  TV-QUIZ: Titelmelodien ohne Jahreskarten (Daten: TVTHEMEN in daten.js)
 // =====================================================================
-const TV = (typeof TVTHEMEN !== "undefined" ? TVTHEMEN : []).map((x, i) => ({ i:"tv" + i, serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4], tv:true, opt:{} }));
+const mkTv = (arr, pre) => (arr || []).map((x, i) => ({ i: pre + i, serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4], tv:true, opt:{} }));
+const TV_DATEN = {
+  tv:   { name: "TV-Quiz · Serien-Titelmelodien", liste: mkTv(typeof TVTHEMEN !== "undefined" ? TVTHEMEN : [], "tv") },
+  kids: { name: "Kinderserien-Quiz", liste: mkTv(typeof KINDERTHEMEN !== "undefined" ? KINDERTHEMEN : [], "kids") },
+};
+const tvList = () => TV_DATEN[modeDef().app.daten || "tv"].liste;
+const tvRange = l => [Math.min(...l.map(x => x.y)), Math.max(...l.map(x => x.y))];
 function renderTvBox(){
   const tv = modeDef().app.typ === "tv";
   ["#reader", "#scanBtn", "#manPanel", "#scanMsg"].forEach(q => { const el = $(q); if (el) el.style.display = tv ? "none" : ""; });
   $(".mixline").style.display = tv ? "none" : "";
-  $("#v-game h1 span").textContent = tv ? "TV-Quiz" : "Karte scannen";
-  $("#tvBox").innerHTML = tv ? `<button class="btn" id="tvNext">▶ Nächste Titelmelodie</button><div class="small" style="text-align:center">${TV.length} Serien von ${TV[0]?.y} bis ${TV[TV.length-1]?.y}</div>` : "";
+  $("#v-game h1 span").textContent = tv ? modeDef().name : "Karte scannen";
+  const L = tv ? tvList() : [], rg = tv ? tvRange(L) : [];
+  $("#tvBox").innerHTML = tv ? `<button class="btn" id="tvNext">▶ Nächste Titelmelodie</button><div class="small" style="text-align:center">${L.length} Serien von ${rg[0]} bis ${rg[1]}</div>` : "";
   $("#tvNext")?.addEventListener("click", playTV);
 }
 async function resolveTV(x){
   const key = "tv1:" + x.serie; const cached = store.get(key, null); if (cached) return cached;
   const NOGO = /\b(karaoke|cover|tribute|8-bit|lullaby|remix|live|piano version|ringtone)\b/i;
-  const tries = [[`track:${x.t} artist:${x.a}`, "strict"], [`${x.t} ${x.a}`, "strict"], [`${x.serie} theme`, "serie"], [`${x.t} theme`, "serie"]];
+  const tries = x.a ? [[`track:${x.t} artist:${x.a}`, "strict"], [`${x.t} ${x.a}`, "strict"]] : [];
+  tries.push([`${x.serie} titelsong`, "serie"], [`${x.t} titellied`, "serie"], [`${x.serie} theme`, "serie"], [`${x.t}`, "serie"]);
   for (const [q, mode] of tries) {
     const j = await sp.api(`/search?type=track&limit=10&market=DE&q=${encodeURIComponent(q)}`);
     const items = (j?.tracks?.items || []).filter(tr => !NOGO.test(tr.name) && (mode === "strict"
       ? tr.artists.some(ar => norm(ar.name).includes(norm(x.a)) || norm(x.a).includes(norm(ar.name))) && norm(tr.name).includes(norm(x.t))
       : norm(tr.name + " " + (tr.album?.name || "")).includes(norm(x.t))));
     if (!items.length) continue;
-    const res = { uri: items[0].uri, dur: items[0].duration_ms }; store.set(key, res); return res;
+    const res = { uri: items[0].uri, dur: items[0].duration_ms, name: items[0].name, artist: items[0].artists.map(a => a.name).join(", ") };
+    store.set(key, res); return res;
   }
   throw new Error(`Titelmelodie von „${x.serie}“ wurde bei Spotify nicht gefunden – einfach die nächste nehmen.`);
 }
 async function playTV(){
   if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Spiel“ bei Spotify anmelden."); $("#scanMsg").style.display = ""; return; }
+  const TV = tvList();
   let pool = TV.filter(x => !state.played.has(x.i));
   if (!pool.length) { TV.forEach(x => state.played.delete(x.i)); pool = TV; }   // alle durch -> von vorn
   const x = pickRand(pool);
@@ -1136,7 +1147,7 @@ async function playTV(){
   state.current = { song: x, from: null, year: null, uri: null, dur: null, stage: 0 };
   $("#playHint").textContent = "Welche Serie ist das?";
   renderModeBox(); renderScore();
-  try { const tr = await resolveTV(x); Object.assign(state.current, { uri: tr.uri, dur: tr.dur }); await playCurrent(true); }
+  try { const tr = await resolveTV(x); Object.assign(state.current, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist }); await playCurrent(true); }
   catch(e) {
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – danach startet die Melodie automatisch.");
     else { msg("#playMsg", "err", esc(e.message)); state.played.add(x.i); save(); $("#nextBtn").style.display = "block"; }
@@ -1345,6 +1356,7 @@ function renderMb(){
   const c = { ok: 0, "früher": 0, "später": 0, "später (alt)": 0, "nicht gefunden": 0, offen: 0 };
   res.forEach(([s, r]) => c[mbStatus(r)]++);
   const done = all.length - c.offen;
+  if ($("#mbSum")) $("#mbSum").textContent = `${done}/${all.length} geprüft${mbRunning ? " · läuft" : ""}`;
   $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · ❓ ${c["nicht gefunden"]} nicht gefunden
     <br>ℹ️ ${c["später (alt)"]} Songs, bei denen MusicBrainz nur spätere Wiederveröffentlichungen kennt (kein Fehler)</div>
     <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100*done/all.length}%;background:var(--accent);border-radius:3px"></div></div>`;
@@ -1408,23 +1420,28 @@ function renderData(){
     const songs = new Set(ACTIVE.filter(s => s.cats.some(c => CAT[c]?.typ === t)).map(s => s.i)).size;
     return foldHtml("cat-" + t, title, `${list.length} Kategorien · ${songs} Songs`, list.map(c => catPanel(c, ys)).join(""));
   }).join("");
-  // Sonderkategorien: Inhalte außerhalb der Jahreskarten (z. B. TV-Quiz)
-  const tvFound = TV.filter(x => store.get("tv1:" + x.serie, null)).length;
-  const decs = {}; TV.forEach(x => { const d = Math.floor(x.y / 10) * 10; decs[d] = (decs[d] || 0) + 1; });
-  const max = Math.max(1, ...Object.values(decs));
-  const tvPanel = `<div class="panel"><div class="row"><b>TV-Quiz · Titelmelodien</b><span class="small">${TV.length} Serien · ${TV[0]?.y}–${TV[TV.length-1]?.y}</span></div>
-    <div class="small">Eigener Modus ohne Jahreskarten. Pro Serie eine Titelmelodie; Spotify-Treffer bisher geladen: ${tvFound}/${TV.length}.</div>
-    <div class="decs">${Object.keys(decs).sort().map(d => `<div><i style="height:${Math.round(decs[d] / max * 40)}px"></i>${String(d).slice(2)}er<br><b style="color:#fff">${decs[d]}</b></div>`).join("")}</div>
-    <div class="small" style="margin-top:8px">Länder: ${Object.entries(TV.reduce((m, x) => (m[x.land] = (m[x.land] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${flag(l)} ${n}`).join(" · ")}</div></div>`;
-  h += foldHtml("special", "Sonderkategorien", `1 Kategorie · ${TV.length} Titelmelodien`, tvPanel);
+  // Sonderkategorien: Inhalte außerhalb der Jahreskarten (TV-Quiz, Kinderserien-Quiz …)
+  const tvPanels = Object.values(TV_DATEN).map(D => {
+    const L = D.liste; if (!L.length) return "";
+    const rg = tvRange(L), found = L.filter(x => store.get("tv1:" + x.serie, null)).length;
+    const decs = {}; L.forEach(x => { const d = Math.floor(x.y / 10) * 10; decs[d] = (decs[d] || 0) + 1; });
+    const max = Math.max(1, ...Object.values(decs));
+    return `<div class="panel"><div class="row"><b>${esc(D.name)}</b><span class="small">${L.length} Serien · ${rg[0]}–${rg[1]}</span></div>
+      <div class="small">Eigener Modus ohne Jahreskarten. Spotify-Treffer bisher geladen: ${found}/${L.length}.</div>
+      <div class="decs">${Object.keys(decs).sort().map(d => `<div><i style="height:${Math.round(decs[d] / max * 40)}px"></i>${String(d).slice(2)}er<br><b style="color:#fff">${decs[d]}</b></div>`).join("")}</div>
+      <div class="small" style="margin-top:8px">Länder: ${Object.entries(L.reduce((m, x) => (m[x.land] = (m[x.land] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${flag(l)} ${n}`).join(" · ")}</div></div>`;
+  }).join("");
+  const nSp = Object.values(TV_DATEN).filter(D => D.liste.length).length, nMel = Object.values(TV_DATEN).reduce((a, D) => a + D.liste.length, 0);
+  h += foldHtml("special", "Sonderkategorien", `${nSp} Kategorien · ${nMel} Titelmelodien`, tvPanels);
   $("#dataBox").innerHTML = h;
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
-    if (d.dataset.fold === "spotify" && !d.dataset.init) { d.open = store.get("fold:spotify", false); d.dataset.init = 1; }
+    if (!d.dataset.init && ["spotify", "mb", "check"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
   const pl = DB.filter(s => s.pruefen).sort((a, b) => a.y - b.y);
-  $("#checkPanel").innerHTML = `<h2 style="margin-top:0">Prüfliste (${pl.length})</h2>
+  $("#checkSum").textContent = pl.length ? `${pl.length} Songs offen` : "leer – alles geprüft";
+  $("#checkPanel").innerHTML = `
     <div class="small">Songs mit unsicherem Jahr oder Cover einer älteren Version. ${ALLOW_UNCHECKED ? "<b>Sie spielen gerade mit.</b>" : "Sie sind <b>nicht</b> im Spiel."}
     Nach dem Prüfen in <code>daten.js</code> unter PRUEFEN löschen bzw. das Jahr korrigieren.</div>
     <div class="row" style="margin:10px 0"><label for="allowUnch">Ungeprüfte Songs mitspielen</label><input type="checkbox" id="allowUnch" ${ALLOW_UNCHECKED ? "checked" : ""}></div>
