@@ -88,6 +88,7 @@
   .small{font-size:13px;color:#cfc6e8}
 
   select{width:100%;padding:12px;border-radius:12px;border:0;font-size:16px;background:#fff;color:var(--ink)}
+  .stepnr{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:15px;margin-right:6px;vertical-align:2px}
   .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:999px;background:var(--accent);color:#fff;vertical-align:middle;margin-left:6px}
   /* Punktetafel */
   .score{background:#ffffff12;border-radius:var(--r);padding:10px 12px;margin:10px 0}
@@ -172,13 +173,23 @@
 <body>
 <div class="wrap">
 
-  <!-- ======================= SETUP ======================= -->
+  <!-- ======================= NEUES SPIEL: Modus + Mix ======================= -->
   <section class="view on" id="v-setup">
     <h1><span id="appName">Mixtape</span></h1>
-    <p class="sub">Mixt eure Playlist – bis zu 4 Kategorien, mindestens 1 Main-Mix.</p>
+    <p class="sub">Neues Spiel: erst den Modus, dann euren Mix wählen.</p>
 
     <div id="loginBox" class="panel"></div>
+    <div id="resumeBox"></div>
 
+    <h2><span class="stepnr">1</span> Spielmodus</h2>
+    <div class="panel" id="modePanel">
+      <select id="modeSel"></select>
+      <p class="small" id="modeDesc" style="margin:8px 0"></p>
+      <div id="teamEd"></div>
+      <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
+    </div>
+
+    <h2><span class="stepnr">2</span> Euer Mix</h2>
     <div style="text-align:center"><span class="pill" id="mixCount">DEIN MIX 0 | 4</span></div>
     <div class="tabs" id="catTabs">
       <button data-t="main" class="on">Main</button>
@@ -197,17 +208,8 @@
       <div class="row"><label for="randStart">Zufälliger Startpunkt im Song</label><input type="checkbox" id="randStart"></div>
     </div>
 
-    <div class="panel" id="modePanel">
-      <h2 style="margin-top:0">Spielmodus</h2>
-      <select id="modeSel"></select>
-      <p class="small" id="modeDesc" style="margin:8px 0"></p>
-      <div id="teamEd"></div>
-      <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
-    </div>
-
     <button class="btn" id="startBtn">Los geht's</button>
-    <button class="btn sec" id="resetBtn">Neues Spiel starten</button>
-    <div class="small" style="text-align:center;margin-top:-4px">Punkte auf Start, alle schon gespielten Songs wieder in den Topf.</div>
+    <div class="small" style="text-align:center;margin-top:-4px">Startet eine neue Runde – die Punktetafel beginnt von vorn.</div>
   </section>
 
   <!-- ======================= SPIEL ======================= -->
@@ -224,7 +226,7 @@
       <div class="row" style="margin-top:8px"><input type="number" id="manYear" placeholder="z. B. 1987" min="1900" max="2100">
         <button class="btn small" id="manBtn">OK</button></div>
     </div>
-    <button class="btn sec" id="backSetup">← Mix ändern</button>
+    <button class="btn sec" id="backSetup">Neues Spiel (Modus &amp; Mix wählen)</button>
   </section>
 
   <!-- ======================= LÄUFT ======================= -->
@@ -292,6 +294,7 @@
       <div class="small" style="margin-top:8px">Redirect-URI, die du im Dashboard einträgst:<br><code id="redirUri"></code></div>
       <button class="btn small" id="saveCid">Speichern</button>
       <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
+      <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
     </div>
     <div class="panel"><h2 style="margin-top:0">App</h2>
@@ -305,8 +308,7 @@
 <div id="spToast" style="display:none;position:fixed;left:12px;right:12px;bottom:84px;z-index:50;background:#2a1850;border:1px solid #ffffff22;
   color:#fff;border-radius:14px;padding:12px 14px;font-size:14px;box-shadow:0 6px 24px #0008;text-align:center"></div>
 <nav class="nav">
-  <button data-v="setup" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="7" x2="8" y2="17"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="16" y1="7" x2="16" y2="17"/><rect class="f" x="6.3" y="12" width="3.4" height="2.4" rx=".8"/><rect class="f" x="10.3" y="8.5" width="3.4" height="2.4" rx=".8"/><rect class="f" x="14.3" y="13.5" width="3.4" height="2.4" rx=".8"/></svg>Mix</button>
-  <button data-v="game"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
+  <button data-v="spiel" class="on"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
   <button data-v="rules"><svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><line x1="12" y1="6.5" x2="12" y2="20"/><circle class="f" cx="16.2" cy="10" r="1.6"/><path d="M14.6 14.2h3.4"/></svg>Regeln</button>
   <button data-v="cards"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="11" height="15" rx="2" transform="rotate(-10 9 12.5)"/><rect x="9.5" y="4" width="11" height="15" rx="2"/><line x1="12" y1="14.5" x2="18" y2="14.5"/><line x1="12" y1="16.5" x2="18" y2="16.5"/><circle class="f" cx="15" cy="9" r="2.2"/></svg>Karten</button>
   <button data-v="data" style="position:relative"><span id="dataBadge" class="badge"></span><svg viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="14" y1="20" x2="14" y2="15"/><circle cx="16.5" cy="7.5" r="3.5"/><line x1="19" y1="10" x2="21.5" y2="12.5"/></svg>Daten</button>
@@ -319,7 +321,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.8.0";
+const APP_VERSION = "0.8.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -389,7 +391,16 @@ function candidates(cats, year, avoidPlayed){
 }
 const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
 
+// Song-Gedächtnis: Sind alle passenden Songs eines Jahres schon gelaufen, kommen genau diese
+// automatisch wieder in den Topf. So muss nie jemand von Hand etwas zurücksetzen.
+function recycle(cats, year){
+  const all = cats.flatMap(c => byYearCat[c]?.[year] || []);
+  if (all.length && all.every(s => state.played.has(s.i))) { all.forEach(s => state.played.delete(s.i)); save(); }
+}
 function pickSong(year, force){
+  if (force) recycle([force], year);
+  else { const ex = state.sel.filter(c => effTyp(c) !== "main"), mn = state.sel.filter(c => effTyp(c) === "main");
+    if (ex.length) recycle(ex, year); recycle(mn, year); }
   // Sabotage: Kategorie vom Gegner erzwungen – hat sie zum Jahr keinen Song, „verpufft“ sie
   if (force) {
     for (const avoid of [true, false]) {
@@ -593,7 +604,7 @@ function showWake(text, retry){
 // =====================================================================
 async function handleYear(year){
   stopScanner();
-  if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Mix“ bei Spotify anmelden."); return; }
+  if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Spiel“ → „Neues Spiel“ bei Spotify anmelden."); return; }
   const m = modeDef();
   const pick = pickSong(year, m.app.typ === "sabotage" ? state.forceCat : null);
   if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte im Datenbank-Check nachsehen.`); return; }
@@ -639,7 +650,7 @@ function reveal(){
     <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · aus: ${CAT[c.from].name}${c.repeat ? " · (Wiederholung)" : ""}</div>
   </div>`;
   $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
-  c.stage = 9; renderModeBox(); renderScore();
+  c.stage = 9; c.done = true; renderModeBox(); renderScore();
 }
 const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
 
@@ -648,6 +659,7 @@ const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt
 // =====================================================================
 state.game = store.get("game", null);
 state.forceCat = null;
+state.running = store.get("running", false);
 const saveGame = () => store.set("game", state.game);
 function modeDef(){ return SPIELMODI.find(m => m.id === state.game?.mode) || SPIELMODI[0]; }
 function fillText(t, a){
@@ -712,7 +724,7 @@ document.addEventListener("click", e => {
   const b = e.target.closest("[data-sc]"); if (!b) return;
   e.preventDefault();
   const g = state.game, m = modeDef(), i = +b.dataset.i, t = g.teams[i], k = b.dataset.sc;
-  if (k === "new") { if (confirm("Neues Spiel starten? Punkte werden zurückgesetzt.")) { newGame(g.mode, g.teams.map(x => x.n)); state.played.clear(); save(); } }
+  if (k === "new") { show("setup"); return; }
   else if (k === "turn") { if (m.app.zug === "reihum") { g.turn = i; state.forceCat = null; } }
   else if (k === "p+") t.p++;
   else if (k === "p-") t.p = Math.max(0, t.p - 1);
@@ -832,7 +844,7 @@ function rulesHtml(){
   <h2 id="r-jahr">5. Welches Jahr zählt?</h2><ul>${L(R.jahr)}</ul>
   <h2 id="r-zug">6. So läuft ein Zug</h2>${DL(R.zug)}
   <h2 id="r-modi" class="pb">7. Die Spielmodi</h2>
-  <p>Den Modus wählt ihr unter „Mix“. Die Punktetafel in der App passt sich dem Modus automatisch an.</p>
+  <p>Den Modus wählt ihr unter „Spiel“, bevor ihr euren Mix zusammenstellt. Die Punktetafel in der App passt sich dem Modus automatisch an.</p>
   <table><tr><th>Modus</th><th>Für</th><th>Kurz gesagt</th></tr>${SPIELMODI.map(m => `<tr><td><b>${esc(m.name)}</b>${m.neu ? '<span class="tag">NEU</span>' : ""}</td><td>${esc(m.spieler)}</td><td>${esc(fillText(m.kurz, m.app))}</td></tr>`).join("")}</table>`;
   for (const m of SPIELMODI) {
     const F = t => esc(fillText(t, m.app));
@@ -1136,9 +1148,9 @@ function renderData(){
 // =====================================================================
 function show(v){
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (v === "play" && b.dataset.v === "game")));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play"].includes(v) && b.dataset.v === "spiel")));
   if (v !== "game") stopScanner();
-  if (v === "setup") { renderCats(); renderModePanel(); spCheck(false); }
+  if (v === "setup") { renderCats(); renderModePanel(); renderResume(); spCheck(false); }
   if (v === "game" || v === "play") renderScore();
   if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
@@ -1147,7 +1159,15 @@ function show(v){
   if (v === "game") $("#gameMix").textContent = "Mix: " + state.sel.map(c => CAT[c].name).join(" · ");
   window.scrollTo(0, 0);
 }
-document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+// Reiter „Spiel“: läuft eine Runde, geht's dorthin zurück – sonst zur Auswahl von Modus & Mix
+function openSpiel(){ if (!state.running) return show("setup"); show(state.current && !state.current.done ? "play" : "game"); }
+document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => b.dataset.v === "spiel" ? openSpiel() : show(b.dataset.v)));
+function renderResume(){
+  const g = state.game;
+  $("#resumeBox").innerHTML = state.running ? `<div class="panel"><div class="small">Laufende Runde: <b>${esc(modeDef().name)}</b> · ${g.teams.map(t => esc(t.n) + " " + t.p).join(" · ")}</div>
+    <button class="btn sec" id="resumeBtn">↩ Weiterspielen</button><div class="small">Oder unten Modus &amp; Mix wählen und eine neue Runde starten.</div></div>` : "";
+  $("#resumeBtn")?.addEventListener("click", openSpiel);
+}
 document.querySelectorAll("#catTabs button").forEach(b => b.addEventListener("click", () => {
   state.tab = b.dataset.t; document.querySelectorAll("#catTabs button").forEach(x => x.classList.toggle("on", x === b)); renderCats(); }));
 $("#weight").value = state.weight; $("#wVal").textContent = state.weight + " %";
@@ -1155,13 +1175,11 @@ $("#weight").addEventListener("input", e => { state.weight = +e.target.value; $(
 $("#randStart").checked = state.randStart;
 $("#randStart").addEventListener("change", e => { state.randStart = e.target.checked; save(); });
 $("#startBtn").addEventListener("click", () => {
+  // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
+  newGame(state.game.mode, state.game.teams.map(t => t.n));
+  state.current = null; state.running = true; store.set("running", true);
   if (sp.tok() && !spReady) openSpotify();   // kein Spotify-Gerät erreichbar -> jetzt unauffällig wecken
   show("game");
-});
-$("#resetBtn").addEventListener("click", () => {
-  if (!confirm("Neues Spiel starten?\n\n• Punktetafel zurück auf Start\n• Alle schon gespielten Songs kommen wieder in den Topf")) return;
-  newGame(state.game.mode, state.game.teams.map(t => t.n)); state.played.clear(); save(); state.current = null;
-  renderModePanel(); alert("Neues Spiel – alles zurückgesetzt.");
 });
 $("#modeSel").addEventListener("change", e => { newGame(e.target.value, state.game.teams.map(t => t.n)); renderModePanel(); });
 $("#modeRules").addEventListener("click", () => { show("rules"); setTimeout(() => document.getElementById("r-" + state.game.mode)?.scrollIntoView(), 50); });
@@ -1207,6 +1225,7 @@ $("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnis
   try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
+$("#clearPlayed").addEventListener("click", () => { if (!confirm("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); save(); alert("Verlauf gelöscht."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
 
 // ---------- Installierbare App ----------

@@ -26,11 +26,11 @@ const REGELN = {
   ],
 
   vorbereitung: [
-    "Öffnet Mixtape. Beim ersten Mal unter „Daten“ die Spotify-Verbindung einrichten und unter „Mix“ mit Spotify verbinden.",
-    "Mixt eure Playlist: Wählt unter „Mix“ bis zu 4 Kategorien. Mindestens eine davon muss eine Main-Kategorie sein.",
-    "Wählt den Spielmodus und tragt unter „Spieler & Teams“ eure Namen ein.",
+    "Öffnet Mixtape. Beim ersten Mal unter „Daten“ die Spotify-Verbindung einrichten und unter „Spiel“ mit Spotify verbinden.",
+    "Wählt unter „Spiel“ zuerst den Spielmodus und tragt eure Namen bzw. Teams ein.",
+    "Mixt dann eure Playlist: Wählt bis zu 4 Kategorien. Mindestens eine davon muss eine Main-Kategorie sein.",
     "Mischt die Jahreskarten und legt sie mit dem QR-Code nach oben bereit. Die Jahreszahl darf vor dem Auflösen niemand sehen.",
-    "Tippt auf „Los geht's“. Falls Spotify gerade schläft, öffnet Mixtape die Spotify-App kurz von selbst – einfach zurück zu Mixtape wechseln.",
+    "Tippt auf „Los geht's“ – damit beginnt eine neue Runde und die Punktetafel startet von vorn. Falls Spotify gerade schläft, öffnet Mixtape die Spotify-App kurz von selbst – einfach zurück zu Mixtape wechseln.",
   ],
 
   kategorien: [
@@ -57,7 +57,8 @@ const REGELN = {
   tipps: [
     ["Nicht aufs Handy schielen", "Der Sperrbildschirm und die Benachrichtigungsleiste des Handys zeigen den Spotify-Titel. Legt das Handy während des Hörens am besten mit dem Display nach unten hin."],
     ["Spotify schläft", "Läuft kein Song, tippt auf „Spotify wecken & abspielen“. Mixtape öffnet Spotify kurz; wechselt zurück und der Song startet von selbst."],
-    ["Neues Spiel", "„Neues Spiel“ unter „Mix“ legt alle bereits gespielten Songs zurück in den Topf und setzt die Punktetafel zurück. Innerhalb einer Partie wiederholt sich ein Song erst, wenn alle Songs eines Jahres gespielt sind."],
+    ["Neue Runde", "Jede Runde beginnt mit der Wahl von Modus und Mix. Mit „Los geht's“ startet die Punktetafel von vorn. Eine laufende Runde könnt ihr unter „Spiel“ jederzeit fortsetzen."],
+    ["Wiederholen sich Songs?", "Mixtape merkt sich auch über mehrere Abende, welche Songs schon gelaufen sind, und spielt zu einem Jahr zuerst die anderen. Sind alle Songs eines Jahres in eurem Mix durch, kommen sie automatisch wieder in den Topf."],
     ["Karten nachdrucken", "Unter „Karten“ könnt ihr jederzeit neue Jahreskarten drucken: beidseitig, an der langen Kante spiegeln, 100 % Größe, dann entlang der Linien schneiden."],
   ],
 };
