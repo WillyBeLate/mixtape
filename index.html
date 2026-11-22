@@ -71,8 +71,12 @@
   .nav{position:fixed;left:0;right:0;bottom:0;background:#120a24ee;backdrop-filter:blur(8px);display:flex;
     padding:8px 8px calc(8px + env(safe-area-inset-bottom));border-top:1px solid #ffffff14}
   .nav button{flex:1;background:none;border:0;color:#a99cc9;font-size:12px;padding:6px;cursor:pointer}
-  .nav button b{display:block;font-size:20px;margin-bottom:2px}
+  .nav button svg{display:block;width:26px;height:26px;margin:0 auto 3px;fill:none;stroke:currentColor;stroke-width:1.7;
+    stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+  .nav button svg .f{fill:currentColor;stroke:none}
   .nav button.on{color:#fff}
+  .nav button.on svg{stroke:url(#nvg);transform:translateY(-1px) scale(1.08);filter:drop-shadow(0 0 4px #ff2f8f66)}
+  .nav button.on svg .f{fill:url(#nvg)}
   table{width:100%;border-collapse:collapse;font-size:13px}
   td,th{padding:6px 4px;border-bottom:1px solid #ffffff14;text-align:left}
   .yeargrid{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
@@ -194,7 +198,7 @@
     <div class="panel" id="mbPanel">
       <h2 style="margin-top:0">Jahres-Prüfung (MusicBrainz)</h2>
       <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
-        Ca. 1 Song pro Sekunde – beim ersten Mal also ~20 Minuten. Bildschirm anlassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
+        Ca. 1 Song alle 1,6 Sekunden – beim ersten Mal also ~30 Minuten, bei Auslastung länger. Bildschirm anlassen und nur in <b>einem</b> Tab/Gerät laufen lassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
       <div id="mbStats" style="margin:10px 0"></div>
       <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
       <button class="btn small" id="mbStart">▶ Prüfung starten</button>
@@ -219,11 +223,12 @@
   </section>
 </div>
 
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="nvg" gradientUnits="userSpaceOnUse" x1="3" y1="3" x2="21" y2="21"><stop offset="0" stop-color="#ff2f8f"/><stop offset=".5" stop-color="#ffb23d"/><stop offset="1" stop-color="#2de2e6"/></linearGradient></defs></svg>
 <nav class="nav">
-  <button data-v="setup" class="on"><b>🎛</b>Mix</button>
-  <button data-v="game"><b>📷</b>Spiel</button>
-  <button data-v="cards"><b>🃏</b>Karten</button>
-  <button data-v="data"><b>📊</b>Daten</button>
+  <button data-v="setup" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="7" x2="8" y2="17"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="16" y1="7" x2="16" y2="17"/><rect class="f" x="6.3" y="12" width="3.4" height="2.4" rx=".8"/><rect class="f" x="10.3" y="8.5" width="3.4" height="2.4" rx=".8"/><rect class="f" x="14.3" y="13.5" width="3.4" height="2.4" rx=".8"/></svg>Mix</button>
+  <button data-v="game"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
+  <button data-v="cards"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="11" height="15" rx="2" transform="rotate(-10 9 12.5)"/><rect x="9.5" y="4" width="11" height="15" rx="2"/><line x1="12" y1="14.5" x2="18" y2="14.5"/><line x1="12" y1="16.5" x2="18" y2="16.5"/><circle class="f" cx="15" cy="9" r="2.2"/></svg>Karten</button>
+  <button data-v="data"><svg viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="14" y1="20" x2="14" y2="15"/><circle cx="16.5" cy="7.5" r="3.5"/><line x1="19" y1="10" x2="21.5" y2="12.5"/></svg>Daten</button>
 </nav>
 
 <div id="printArea"></div>
@@ -233,7 +238,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.7.2";
+const APP_VERSION = "0.7.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -637,18 +642,19 @@ function mbResult(s){ const r = store.get(mbKey(s), null); return r && r.y === s
 // "später" bei alten Songs (vor 1960) ist meist nur eine Wiederveröffentlichung (Original-Schellack fehlt in MusicBrainz)
 //  -> zählt nicht als Problem. Wichtig ist vor allem "früher": dann ist unser Jahr wahrscheinlich zu spät.
 function mbStatus(r){ return !r ? "offen" : r.mb == null ? "nicht gefunden" : r.mb === r.y ? "ok"
-  : r.mb < r.y ? "früher" : r.y < 1960 ? "später (alt)" : "später"; }
-const MB_RELEVANT = st => st === "früher" || st === "später" || st === "nicht gefunden";
+  : r.mb < r.y ? "früher" : "später (alt)"; }
+const MB_RELEVANT = st => st === "früher" || st === "nicht gefunden";
 async function mbCheck(s){
   const q = `recording:"${cleanTitle(s.t).replace(/"/g, "")}" AND artist:"${s.a.replace(/"/g, "")}"`;
   const url = "https://musicbrainz.org/ws/2/recording/?fmt=json&limit=100&query=" + encodeURIComponent(q);
-  let wait = 2000;
-  for (let attempt = 0; attempt < 6; attempt++) {
+  let wait = 5000;
+  for (;;) {                                   // so lange versuchen, bis MusicBrainz antwortet (oder angehalten wird)
+    if (!mbRunning) throw new Error("angehalten");
     let r;
     try { r = await fetch(url, { headers: { Accept: "application/json" } }); }
-    catch(e) { mbNote(`Netzwerkfehler, neuer Versuch in ${wait/1000}s …`); await sleep(wait); wait *= 2; continue; }
-    if (r.status === 503 || r.status === 429 || r.status >= 500) {   // MusicBrainz drosselt -> warten, dann nochmal
-      mbNote(`MusicBrainz ausgelastet, warte ${wait/1000}s …`); await sleep(wait); wait = Math.min(wait * 2, 30000); continue;
+    catch(e) { await mbWait(wait, "Netzwerkfehler"); wait = Math.min(wait * 2, 60000); continue; }
+    if (r.status === 503 || r.status === 429 || r.status >= 500) {
+      await mbWait(wait, "MusicBrainz ist gerade ausgelastet"); wait = Math.min(wait * 2, 60000); continue;
     }
     if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
@@ -665,7 +671,11 @@ async function mbCheck(s){
     mbNote("");
     return { y: s.y, mb: best ? best.y : null, d: best?.d || null, id: best?.id || null, ts: Date.now() };
   }
-  throw new Error("keine Antwort nach mehreren Versuchen");
+}
+async function mbWait(ms, why){        // Countdown anzeigen, damit man sieht, dass es weitergeht
+  for (let left = Math.round(ms / 1000); left > 0 && mbRunning; left--) {
+    mbNote(`${why} – nächster Versuch in ${left}s … (Fortschritt ist gespeichert)`); await sleep(1000);
+  }
 }
 function mbNote(t){ const el = $("#mbNote"); if (el) el.textContent = t; }
 function renderMb(){
@@ -674,8 +684,8 @@ function renderMb(){
   const c = { ok: 0, "früher": 0, "später": 0, "später (alt)": 0, "nicht gefunden": 0, offen: 0 };
   res.forEach(([s, r]) => c[mbStatus(r)]++);
   const done = all.length - c.offen;
-  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · 🔶 ${c["später"]} später · ❓ ${c["nicht gefunden"]} nicht gefunden
-    <br>ℹ️ ${c["später (alt)"]} alte Songs, bei denen MusicBrainz nur Wiederveröffentlichungen kennt (kein Fehler)</div>
+  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · ❓ ${c["nicht gefunden"]} nicht gefunden
+    <br>ℹ️ ${c["später (alt)"]} Songs, bei denen MusicBrainz nur spätere Wiederveröffentlichungen kennt (kein Fehler)</div>
     <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100*done/all.length}%;background:var(--accent);border-radius:3px"></div></div>`;
   const probs = res.filter(([s, r]) => r && MB_RELEVANT(mbStatus(r))).sort((a, b) => a[0].y - b[0].y);
   $("#mbList").innerHTML = probs.length ? `<table style="margin-top:10px"><tr><th>Song</th><th>Wir</th><th>MB</th></tr>${probs.map(([s, r]) =>
@@ -695,9 +705,9 @@ async function mbRun(){
       if (!mbRunning) break;
       if (mbResult(s) || (round === 0 && skipped.has(s.i))) continue;
       try { store.set(mbKey(s), await mbCheck(s)); skipped.delete(s.i); }
-      catch(e) { skipped.add(s.i); mbNote(`„${s.t}“ übersprungen (${e.message}) – kommt am Ende nochmal dran.`); }
+      catch(e) { if (!mbRunning) break; skipped.add(s.i); mbNote(`„${s.t}“ übersprungen (${e.message}) – kommt am Ende nochmal dran.`); }
       renderMb();
-      await sleep(1200);                                          // MusicBrainz erlaubt ~1 Anfrage/Sekunde
+      await sleep(1600);                                          // unter 1 Anfrage/Sekunde bleiben (MusicBrainz-Limit pro IP)
     }
     if (!skipped.size) break;
     await sleep(10000);
