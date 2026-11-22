@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1033">
+<title>Mixtape – Das Musik-Zeitreise-Spiel</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mixtape">
+<script src="lib/html5-qrcode.min.js"></script>
+<script src="lib/qrcode.js"></script>
+<script src="daten.js"></script>
+<style>
+  :root{
+    --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
+    --accent:#ff5fa2; --accent2:#7c5cff; --ok:#2ecc71; --warn:#ffb020; --err:#ff4d4d;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#3a1f6b 0%,var(--bg) 60%);color:#fff;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100%}
+  body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .wrap{max-width:520px;margin:0 auto;padding:18px 16px 110px}
+  h1{font-size:34px;line-height:1;margin:10px 0 4px;letter-spacing:-.5px}
+  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h2{font-size:20px;margin:22px 0 10px}
+  p.sub{color:#cfc6e8;margin:0 0 14px;font-size:15px}
+  .view{display:none}.view.on{display:block}
+  .btn{display:block;width:100%;border:0;border-radius:999px;padding:16px 18px;font-size:17px;font-weight:700;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;cursor:pointer;margin:10px 0}
+  .btn.sec{background:#ffffff1a;font-weight:600}
+  .btn.small{display:inline-block;width:auto;padding:10px 16px;font-size:15px;margin:4px 4px 4px 0}
+  .btn:disabled{opacity:.4}
+  .tabs{display:flex;background:#ffffff1a;border-radius:999px;padding:4px;margin:8px 0 12px}
+  .tabs button{flex:1;border:0;background:none;color:#cfc6e8;padding:10px;border-radius:999px;font-size:15px;cursor:pointer}
+  .tabs button.on{background:#fff;color:var(--ink);font-weight:600}
+  .cat{display:flex;align-items:center;gap:12px;background:var(--card);color:var(--ink);border-radius:var(--r);
+    padding:14px 16px;margin:8px 0;cursor:pointer;user-select:none}
+  .cat .dot{width:38px;height:38px;border-radius:50%;flex:none}
+  .cat .nm{flex:1;font-weight:800;font-size:17px}
+  .cat .nm small{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px}
+  .cat .ck{width:26px;height:26px;border-radius:50%;border:2px solid #555;flex:none;display:grid;place-items:center}
+  .cat.on .ck{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cat.on .ck::after{content:"✓";font-weight:900}
+  .pill{display:inline-block;background:#ff5fa233;color:#ffd1e6;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+  .panel{background:#ffffff12;border-radius:var(--r);padding:14px 16px;margin:12px 0}
+  .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  label{font-size:15px}
+  input[type=range]{width:100%}
+  input[type=number],input[type=text]{width:100%;padding:12px;border-radius:12px;border:0;font-size:16px}
+  .msg{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .msg.warn{background:#ffb02026;color:#ffe2a8}.msg.err{background:#ff4d4d26;color:#ffc4c4}.msg.ok{background:#2ecc7126;color:#b8f5d0}
+  #reader{border-radius:var(--r);overflow:hidden;background:#000;margin:10px 0}
+  .stage{text-align:center;padding:30px 10px}
+  .disc{width:190px;height:190px;margin:10px auto 20px;border-radius:50%;
+    background:conic-gradient(from 0deg,#ff5fa2,#7c5cff,#38d6ff,#ff5fa2);position:relative;animation:spin 3s linear infinite}
+  .disc::after{content:"";position:absolute;inset:38%;border-radius:50%;background:var(--bg)}
+  .disc.paused{animation-play-state:paused;opacity:.6}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .reveal{background:var(--card);color:var(--ink);border-radius:24px;padding:24px;text-align:center;margin:16px 0}
+  .reveal .yr{font-size:72px;font-weight:900;line-height:1;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .reveal .t{font-size:22px;font-weight:800;margin-top:10px}
+  .reveal .a{font-size:17px;color:#555;margin-top:4px}
+  .reveal .meta{font-size:13px;color:var(--muted);margin-top:12px}
+  .nav{position:fixed;left:0;right:0;bottom:0;background:#120a24ee;backdrop-filter:blur(8px);display:flex;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));border-top:1px solid #ffffff14}
+  .nav button{flex:1;background:none;border:0;color:#a99cc9;font-size:12px;padding:6px;cursor:pointer}
+  .nav button b{display:block;font-size:20px;margin-bottom:2px}
+  .nav button.on{color:#fff}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td,th{padding:6px 4px;border-bottom:1px solid #ffffff14;text-align:left}
+  .yeargrid{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+  .yeargrid i{width:14px;height:14px;border-radius:3px;background:#ffffff1a;display:block}
+  .yeargrid i.h{background:var(--ok)}
+  .small{font-size:13px;color:#cfc6e8}
+
+  /* ---------------- Druck ---------------- */
+  #printArea{display:none}
+  @media print{
+    @page{size:A4 portrait;margin:0}
+    body{background:#fff !important;padding:0}
+    .wrap,.nav{display:none !important}
+    #printArea{display:block}
+    .sheet{width:210mm;height:297mm;display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm;
+      justify-content:center;align-content:center;gap:0;page-break-after:always;break-after:page}
+    .pc{width:63mm;height:88mm;border:0.2mm dashed #bbb;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;overflow:hidden;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    /* Vorderseite: schwarz, Neon-Rillen wie eine Schallplatte, QR schlicht schwarz/weiß */
+    .pc.front{background:#0e0718;color:#fff}
+    .pc.front .bgart{position:absolute;inset:0;width:100%;height:100%}
+    .pc.front .qr{position:absolute;left:50%;top:44mm;transform:translate(-50%,-50%);background:#fff;padding:2mm;border-radius:2.5mm}
+    .pc.front .qr svg{width:28mm;height:28mm;display:block}
+    .pc.front .brand{position:absolute;top:16mm;font:900 4.6mm system-ui,sans-serif;letter-spacing:1.4mm;color:#fff}
+    .pc.front .scan{position:absolute;bottom:4mm;font:700 2.3mm system-ui,sans-serif;letter-spacing:.9mm;color:#ffffffaa}
+    /* Rückseite: Farbe je Jahrzehnt, innerhalb des Jahrzehnts leicht verlaufend */
+    .pc.back{color:#fff}
+    .pc.back .dec{position:absolute;top:6mm;font:800 3.4mm system-ui,sans-serif;letter-spacing:.8mm;opacity:.9;text-transform:uppercase}
+    .pc.back .y{font:900 18mm system-ui,sans-serif;letter-spacing:-.6mm;text-shadow:0 .6mm 0 rgba(0,0,0,.18)}
+    .pc.back .bar{position:absolute;left:8mm;right:8mm;bottom:12mm;height:1.6mm;border-radius:1mm;background:rgba(255,255,255,.3);overflow:hidden}
+    .pc.back .bar i{position:absolute;top:0;bottom:0;width:10%;background:#fff;border-radius:1mm}
+    .pc.back .brand{position:absolute;bottom:5mm;font:800 2.8mm system-ui,sans-serif;letter-spacing:1mm;opacity:.85}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ======================= SETUP ======================= -->
+  <section class="view on" id="v-setup">
+    <h1><span id="appName">Mixtape</span></h1>
+    <p class="sub">Mixt eure Playlist – bis zu 4 Kategorien, mindestens 1 Main-Mix.</p>
+
+    <div id="loginBox" class="panel"></div>
+
+    <div style="text-align:center"><span class="pill" id="mixCount">DEIN MIX 0 | 4</span></div>
+    <div class="tabs" id="catTabs">
+      <button data-t="main" class="on">Main</button>
+      <button data-t="support">Support</button>
+      <button data-t="kuenstler">Künstler</button>
+    </div>
+    <div id="catList"></div>
+    <div id="mixInfo"></div>
+
+    <div class="panel">
+      <label>Wie oft sollen Support/Künstler bevorzugt werden? <b id="wVal"></b></label>
+      <input type="range" id="weight" min="0" max="100" step="5">
+      <div class="small">Bei 100 % kommt immer ein Song aus Support/Künstler, sobald es zum Jahr einen gibt. Sonst wird aus dem Main-Mix aufgefüllt.</div>
+    </div>
+    <div class="panel">
+      <div class="row"><label for="randStart">Zufälliger Startpunkt im Song</label><input type="checkbox" id="randStart"></div>
+    </div>
+
+    <button class="btn" id="startBtn">Los geht's</button>
+    <button class="btn sec" id="resetBtn">Neues Spiel (gespielte Songs zurücksetzen)</button>
+  </section>
+
+  <!-- ======================= SPIEL ======================= -->
+  <section class="view" id="v-game">
+    <h1><span>Karte scannen</span></h1>
+    <p class="sub" id="gameMix"></p>
+    <div id="reader"></div>
+    <div id="scanMsg"></div>
+    <button class="btn" id="scanBtn">📷 Scanner starten</button>
+    <div class="panel">
+      <label>Oder Jahr manuell eingeben (zum Testen)</label>
+      <div class="row" style="margin-top:8px"><input type="number" id="manYear" placeholder="z. B. 1987" min="1900" max="2100">
+        <button class="btn small" id="manBtn">OK</button></div>
+    </div>
+    <button class="btn sec" id="backSetup">← Mix ändern</button>
+  </section>
+
+  <!-- ======================= LÄUFT ======================= -->
+  <section class="view" id="v-play">
+    <div class="stage">
+      <div class="disc" id="disc"></div>
+      <h2 id="playState">Song läuft …</h2>
+      <p class="sub" id="playHint">Welches Jahr? Früher oder später?</p>
+    </div>
+    <div id="playMsg"></div>
+    <button class="btn sec" id="pauseBtn">⏸ Pause</button>
+    <button class="btn sec" id="restartBtn">↺ Nochmal von vorn</button>
+    <button class="btn" id="revealBtn">Auflösen</button>
+    <div id="revealBox"></div>
+    <button class="btn" id="nextBtn" style="display:none">Nächste Karte →</button>
+  </section>
+
+  <!-- ======================= KARTEN ======================= -->
+  <section class="view" id="v-cards">
+    <h1><span>Karten drucken</span></h1>
+    <p class="sub">Vorderseite QR-Code, Rückseite Jahreszahl. 9 Karten pro A4-Blatt (63 × 88 mm, Spielkartengröße).</p>
+    <div class="panel">
+      <div class="row"><div style="flex:1"><label>Von</label><input type="number" id="cFrom"></div>
+        <div style="flex:1"><label>Bis</label><input type="number" id="cTo"></div>
+        <div style="flex:1"><label>Kopien/Jahr</label><input type="number" id="cCopies" min="1" max="5" value="1"></div></div>
+      <div class="small" style="margin-top:10px">Drucken: beidseitig, <b>an langer Kante spiegeln</b>, 100 % Größe (nicht „an Seite anpassen“). Rückseiten sind schon passend gespiegelt angeordnet.</div>
+    </div>
+    <div id="cardInfo"></div>
+    <button class="btn" id="printBtn">🖨 Druckansicht öffnen</button>
+  </section>
+
+  <!-- ======================= DATEN ======================= -->
+  <section class="view" id="v-data">
+    <h1><span>Datenbank-Check</span></h1>
+    <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr.</p>
+    <div id="dataBox"></div>
+    <div class="panel">
+      <h2 style="margin-top:0">Spotify-Einstellungen</h2>
+      <label>Spotify Client-ID</label>
+      <input type="text" id="clientId" placeholder="aus dem Spotify Developer Dashboard">
+      <div class="small" style="margin-top:8px">Redirect-URI, die du im Dashboard einträgst:<br><code id="redirUri"></code></div>
+      <button class="btn small" id="saveCid">Speichern</button>
+      <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
+      <button class="btn small sec" id="logoutBtn">Abmelden</button>
+    </div>
+    <div class="panel"><h2 style="margin-top:0">App</h2>
+      <div class="small">Version <b id="appVer"></b> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
+      <div id="installBox"></div>
+    </div>
+  </section>
+</div>
+
+<nav class="nav">
+  <button data-v="setup" class="on"><b>🎛</b>Mix</button>
+  <button data-v="game"><b>📷</b>Spiel</button>
+  <button data-v="cards"><b>🃏</b>Karten</button>
+  <button data-v="data"><b>📊</b>Daten</button>
+</nav>
+
+<div id="printArea"></div>
+
+<script>
+// =====================================================================
+//  Grundeinstellungen
+// =====================================================================
+const APP_NAME = "Mixtape";
+const APP_VERSION = "0.5";
+const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
+const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
+const MAX_MIX = 4;
+const SCOPES = "user-read-playback-state user-modify-playback-state";
+
+// ---------- sicherer Speicher ----------
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} },
+};
+
+// ---------- Daten aufbereiten ----------
+const CAT = Object.fromEntries(KATEGORIEN.map(c => [c.id, c]));
+const DB = SONGS.map((s, i) => ({
+  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/), sid: s[5] || null
+}));
+const byYearCat = {};   // byYearCat[cat][year] = [songs]
+for (const s of DB) for (const c of s.cats) {
+  if (!CAT[c]) console.warn("Unbekannte Kategorie", c, s);
+  ((byYearCat[c] ??= {})[s.y] ??= []).push(s);
+}
+const COLORS = ["#ff5fa2","#7c5cff","#38d6ff","#ffb020","#2ecc71","#ff7a45","#c06cff","#00c2a8"];
+const catColor = id => { const k = KATEGORIEN.findIndex(c => c.id === id); return `conic-gradient(${COLORS[k%8]}, ${COLORS[(k+3)%8]}, ${COLORS[k%8]})`; };
+
+// ---------- Zustand ----------
+const state = {
+  sel: store.get("sel", ["global"]),
+  weight: store.get("weight", 75),
+  randStart: store.get("randStart", false),
+  range: store.get("range", [DEFAULT_FROM, DEFAULT_TO]),
+  played: new Set(store.get("played", [])),
+  current: null,       // {song, uri, from}
+  paused: false,
+  tab: "main",
+};
+const save = () => { store.set("sel", state.sel); store.set("weight", state.weight); store.set("randStart", state.randStart);
+  store.set("range", state.range); store.set("played", [...state.played]); };
+
+const $ = s => document.querySelector(s);
+const msg = (el, type, text) => { $(el).innerHTML = text ? `<div class="msg ${type}">${text}</div>` : ""; };
+const years = () => { const [a,b] = state.range; return Array.from({length: b-a+1}, (_,k) => a+k); };
+const flag = cc => cc ? cc.replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0))) : "";
+
+// =====================================================================
+//  SONG-AUSWAHL  (Herzstück)
+//  1) Gibt es in den gewählten Support/Künstler-Kategorien einen Song
+//     aus dem Jahr? -> mit Wahrscheinlichkeit "weight" wird er genommen.
+//     Jede gewählte Extra-Kategorie hat dabei die gleiche Chance
+//     (kleine Künstler gehen nicht in großen Kategorien unter).
+//  2) Sonst Main-Mix. Main deckt jedes Jahr ab -> nie "neu ziehen".
+//  3) Bereits gespielte Songs werden vermieden; erst wenn ein Jahr
+//     komplett durch ist, darf sich etwas wiederholen.
+// =====================================================================
+function candidates(cats, year, avoidPlayed){
+  const out = {};
+  for (const c of cats) {
+    const list = (byYearCat[c]?.[year] || []).filter(s => !avoidPlayed || !state.played.has(s.i));
+    if (list.length) out[c] = list;
+  }
+  return out;
+}
+const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
+
+function pickSong(year){
+  const mains  = state.sel.filter(c => CAT[c].typ === "main");
+  const extras = state.sel.filter(c => CAT[c].typ !== "main");
+  for (const avoid of [true, false]) {           // erst ohne Wiederholung, dann mit
+    const ex = candidates(extras, year, avoid);
+    const mn = candidates(mains,  year, avoid);
+    const exCats = Object.keys(ex), mnCats = Object.keys(mn);
+    const useExtra = exCats.length && (!mnCats.length || Math.random() * 100 < state.weight);
+    if (useExtra) { const c = pickRand(exCats); return { song: pickRand(ex[c]), from: c, repeat: !avoid }; }
+    if (mnCats.length) {
+      // Main-Songs gleichmäßig über alle Main-Kategorien des Jahres (ohne Duplikate)
+      const pool = [...new Map(mnCats.flatMap(c => mn[c]).map(s => [s.i, s])).values()];
+      const s = pickRand(pool); return { song: s, from: mnCats.find(c => s.cats.includes(c)), repeat: !avoid };
+    }
+  }
+  return null;
+}
+
+function mixCoverage(){
+  const mains = state.sel.filter(c => CAT[c].typ === "main");
+  return years().filter(y => !mains.some(c => byYearCat[c]?.[y]?.length));
+}
+
+// =====================================================================
+//  SPOTIFY  (Login per PKCE, ohne Server)
+// =====================================================================
+const REDIRECT = location.origin + location.pathname;
+const sp = {
+  cid: () => store.get("clientId", ""),
+  tok: () => store.get("tok", null),
+  async login(){
+    if (!sp.cid()) { alert("Bitte zuerst unter „Daten“ die Spotify Client-ID eintragen."); show("data"); return; }
+    const v = b64url(crypto.getRandomValues(new Uint8Array(64)));
+    store.set("pkce", v);
+    const ch = b64url(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v))));
+    const q = new URLSearchParams({ response_type:"code", client_id:sp.cid(), scope:SCOPES,
+      code_challenge_method:"S256", code_challenge:ch, redirect_uri:REDIRECT });
+    location.href = "https://accounts.spotify.com/authorize?" + q;
+  },
+  async tokenReq(params){
+    const r = await fetch("https://accounts.spotify.com/api/token", { method:"POST",
+      headers:{ "Content-Type":"application/x-www-form-urlencoded" }, body:new URLSearchParams({ client_id:sp.cid(), ...params }) });
+    if (!r.ok) throw new Error("Token-Fehler " + r.status);
+    const j = await r.json();
+    const old = sp.tok() || {};
+    store.set("tok", { access:j.access_token, refresh:j.refresh_token || old.refresh, exp:Date.now() + (j.expires_in - 60) * 1000 });
+  },
+  async handleRedirect(){
+    const p = new URLSearchParams(location.search);
+    if (p.get("error")) { history.replaceState({}, "", REDIRECT); return "Spotify-Login abgebrochen."; }
+    if (!p.get("code")) return null;
+    try { await sp.tokenReq({ grant_type:"authorization_code", code:p.get("code"), redirect_uri:REDIRECT, code_verifier:store.get("pkce","") }); }
+    catch(e){ history.replaceState({}, "", REDIRECT); return "Login fehlgeschlagen: " + e.message; }
+    history.replaceState({}, "", REDIRECT);
+    return null;
+  },
+  async access(){
+    const t = sp.tok(); if (!t) throw new Error("Nicht bei Spotify angemeldet.");
+    if (Date.now() > t.exp) await sp.tokenReq({ grant_type:"refresh_token", refresh_token:t.refresh });
+    return sp.tok().access;
+  },
+  async api(path, opt = {}){
+    const r = await fetch("https://api.spotify.com/v1" + path, { ...opt,
+      headers:{ Authorization:"Bearer " + await sp.access(), "Content-Type":"application/json" } });
+    if (r.status === 204) return null;
+    const txt = await r.text(); const j = txt ? JSON.parse(txt) : null;
+    if (!r.ok) { const e = new Error(j?.error?.message || ("HTTP " + r.status)); e.status = r.status; e.reason = j?.error?.reason; throw e; }
+    return j;
+  },
+};
+function b64url(bytes){ return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+
+// ---------- Song -> richtiger Spotify-Track ----------
+// Ausgeschlossen: Live, Remix, Karaoke, Neuaufnahmen, Cover … (Remaster ist ok = gleiche Aufnahme)
+const BAD = /\b(live|remix|mixed|karaoke|instrumental|cover|tribute|re-?record(ed)?|taylor'?s version|acoustic|unplugged|demo|sped up|slowed|nightcore|orchestral|symphonic|edit by|8-bit|lullaby)\b/i;
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/^the\s+/,"").replace(/[^a-z0-9]/g,"");
+const cleanTitle = t => t.replace(/\(.*?\)/g, "").replace(/[!?,.]/g, " ").replace(/\s+/g, " ").trim();
+
+async function resolveTrack(song){
+  if (song.sid) return { uri:"spotify:track:" + song.sid, dur:null };
+  const key = "trk:" + song.t + "|" + song.a;
+  const cached = store.get(key, null); if (cached) return cached;
+  const tries = [ `track:${cleanTitle(song.t)} artist:${song.a}`, `${cleanTitle(song.t)} ${song.a}` ];
+  for (const q of tries) {
+    const j = await sp.api(`/search?type=track&limit=10&market=from_token&q=${encodeURIComponent(q)}`);
+    const own = cleanTitle(song.t).toLowerCase();
+    const items = (j?.tracks?.items || []).filter(tr =>
+      !BAD.test(tr.name.toLowerCase().replace(own, "")) &&          // eigener Titel darf "Live" enthalten
+      !BAD.test((tr.album?.name || "").toLowerCase().replace(own, "")) &&
+      tr.artists.some(ar => norm(ar.name).includes(norm(song.a)) || norm(song.a).includes(norm(ar.name))) &&
+      norm(tr.name).includes(norm(cleanTitle(song.t))));
+    if (!items.length) continue;
+    // Bevorzugt: Original-Album/Single statt Sampler, sonst frühestes Veröffentlichungsdatum
+    items.sort((x, y) => (x.album.album_type === "compilation") - (y.album.album_type === "compilation")
+      || (x.album.release_date || "9999").localeCompare(y.album.release_date || "9999"));
+    const res = { uri: items[0].uri, dur: items[0].duration_ms };
+    store.set(key, res); return res;
+  }
+  throw new Error(`„${song.t}“ wurde bei Spotify nicht gefunden.`);
+}
+
+async function getDevice(){
+  const j = await sp.api("/me/player/devices");
+  const d = j?.devices || [];
+  return d.find(x => x.is_active) || d.find(x => x.type === "Smartphone") || d[0] || null;
+}
+
+async function playCurrent(fromStart){
+  const c = state.current;
+  const dev = await getDevice();
+  if (!dev) throw Object.assign(new Error("NODEVICE"), { nodevice:true });
+  let pos = 0;
+  if (!fromStart && state.randStart && c.dur) pos = Math.floor(c.dur * (0.2 + Math.random() * 0.35));
+  await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body: JSON.stringify({ uris:[c.uri], position_ms:pos }) });
+  state.paused = false; updatePlayUI();
+}
+
+// =====================================================================
+//  ABLAUF
+// =====================================================================
+async function handleYear(year){
+  stopScanner();
+  if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Mix“ bei Spotify anmelden."); return; }
+  const pick = pickSong(year);
+  if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte im Datenbank-Check nachsehen.`); return; }
+  show("play");
+  $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
+  $("#playState").textContent = "Song wird geladen …"; msg("#playMsg");
+  state.current = { ...pick, year, uri: null, dur: null };
+  try {
+    const tr = await resolveTrack(pick.song);
+    Object.assign(state.current, { uri: tr.uri, dur: tr.dur });
+    await playCurrent(false);
+  } catch(e) {
+    if (e.nodevice) msg("#playMsg", "warn", "Kein Spotify-Gerät gefunden. Öffne kurz die Spotify-App auf dem Handy, starte und pausiere irgendeinen Song und komm zurück. Dann „Nochmal von vorn“ tippen.");
+    else if (e.status === 403) msg("#playMsg", "err", "Spotify verweigert die Wiedergabe (Premium nötig bzw. App-Nutzer nicht freigeschaltet).");
+    else msg("#playMsg", "err", e.message);
+    $("#playState").textContent = "Wiedergabe gestoppt";
+  }
+}
+
+function updatePlayUI(){
+  $("#disc").classList.toggle("paused", state.paused);
+  $("#playState").textContent = state.paused ? "Pausiert" : "Song läuft …";
+  $("#pauseBtn").textContent = state.paused ? "▶ Weiter" : "⏸ Pause";
+}
+
+function reveal(){
+  const c = state.current; if (!c) return;
+  state.played.add(c.song.i); save();
+  const s = c.song;
+  $("#revealBox").innerHTML = `<div class="reveal">
+    <div class="yr">${s.y}</div>
+    <div class="t">${esc(s.t)}</div>
+    <div class="a">${esc(s.a)}</div>
+    <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · aus: ${CAT[c.from].name}${c.repeat ? " · (Wiederholung)" : ""}</div>
+  </div>`;
+  $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
+}
+const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+
+// ---------- QR-Scanner ----------
+let scanner = null;
+async function startScanner(){
+  msg("#scanMsg");
+  try {
+    scanner = new Html5Qrcode("reader");
+    await scanner.start({ facingMode:"environment" }, { fps:10, qrbox:{ width:240, height:240 } }, txt => {
+      const m = txt.match(/(\d{4})\s*$/);
+      if (!txt.startsWith(QR_PREFIX) || !m) { msg("#scanMsg", "warn", "Das ist keine " + APP_NAME + "-Karte."); return; }
+      handleYear(+m[1]);
+    });
+    $("#scanBtn").textContent = "Scanner stoppen";
+  } catch(e) { msg("#scanMsg", "err", "Kamera nicht verfügbar: " + (e.message || e)); scanner = null; }
+}
+function stopScanner(){ if (scanner) { scanner.stop().catch(()=>{}).finally(()=>{ try{scanner.clear();}catch(e){} scanner = null; }); } $("#scanBtn").textContent = "📷 Scanner starten"; }
+
+// =====================================================================
+//  UI: Setup
+// =====================================================================
+function renderLogin(err){
+  const box = $("#loginBox");
+  if (sp.tok()) box.innerHTML = `<div class="row"><span>✅ Mit Spotify verbunden</span><button class="btn small sec" id="tdev">Gerät prüfen</button></div><div id="devMsg"></div>`;
+  else box.innerHTML = `${err ? `<div class="msg err">${err}</div>` : ""}<div class="small">Spotify Premium nötig. Die App steuert Spotify im Hintergrund – Titel und Cover bleiben verborgen.</div><button class="btn" id="loginBtn">Mit Spotify verbinden</button>`;
+  $("#loginBtn")?.addEventListener("click", sp.login);
+  $("#tdev")?.addEventListener("click", async () => {
+    try { const d = await getDevice(); msg("#devMsg", d ? "ok" : "warn", d ? `Gerät bereit: ${esc(d.name)}` : "Kein Gerät aktiv – Spotify-App kurz öffnen."); }
+    catch(e){ msg("#devMsg", "err", e.message); }
+  });
+}
+
+function renderCats(){
+  const list = KATEGORIEN.filter(c => c.typ === state.tab);
+  const span = years().length;
+  $("#catList").innerHTML = list.map(c => {
+    const cov = years().filter(y => byYearCat[c.id]?.[y]?.length).length;
+    const n = DB.filter(s => s.cats.includes(c.id)).length;
+    return `<div class="cat ${state.sel.includes(c.id) ? "on" : ""}" data-id="${c.id}">
+      <div class="dot" style="background:${catColor(c.id)}"></div>
+      <div class="nm">${esc(c.name)}<small>${n} Songs · ${cov} von ${span} Jahren</small></div><div class="ck"></div></div>`;
+  }).join("") || `<p class="small">Noch keine Kategorien hier.</p>`;
+  document.querySelectorAll("#catList .cat").forEach(el => el.addEventListener("click", () => toggleCat(el.dataset.id)));
+  $("#mixCount").textContent = `DEIN MIX ${state.sel.length} | ${MAX_MIX}`;
+  // Hinweise
+  const mains = state.sel.filter(c => CAT[c].typ === "main");
+  const gaps = mixCoverage();
+  let h = "";
+  if (!mains.length) h = `<div class="msg warn">Wählt mindestens 1 Main-Mix – der sorgt dafür, dass es zu jedem Jahr einen Song gibt.</div>`;
+  else if (gaps.length) h = `<div class="msg warn">Achtung: Euer Main-Mix hat noch keine Songs für ${gaps.length > 6 ? gaps.length + " Jahre" : gaps.join(", ")}. Karten aus diesen Jahren funktionieren noch nicht.</div>`;
+  else h = `<div class="msg ok">Jedes Jahr von ${state.range[0]} bis ${state.range[1]} ist abgedeckt.</div>`;
+  $("#mixInfo").innerHTML = h;
+  $("#startBtn").disabled = !mains.length;
+}
+function toggleCat(id){
+  const i = state.sel.indexOf(id);
+  if (i >= 0) state.sel.splice(i, 1);
+  else if (state.sel.length < MAX_MIX) state.sel.push(id);
+  else { alert(`Maximal ${MAX_MIX} Kategorien.`); return; }
+  save(); renderCats();
+}
+
+// =====================================================================
+//  UI: Karten drucken
+// =====================================================================
+// Jahrzehnt-Farben: [Anfang des Jahrzehnts, Ende des Jahrzehnts, Name]
+const DECADES = {
+  1920:["#5b4636","#8a6a4f","20er"],   1930:["#7a4e2d","#b98a5a","30er"],  // Sepia, Grammophon
+  1940:["#4f5d2f","#8f9a55","40er"],                                       // Oliv, Swing & Kriegsjahre
+  1950:["#0fa3a3","#5fd3c4","50er"],                                       // Diner-Türkis, Rock'n'Roll
+  1960:["#ff7a00","#ff3d7f","60er"],                                       // Psychedelic Orange→Pink
+  1970:["#d98c00","#c2410c","70er"],                                       // Senfgelb→Disco-Orange
+  1980:["#ff1f8f","#7a1fff","80er"],                                       // Neon Pink→Lila
+  1990:["#13a86b","#9bcf1f","90er"],                                       // Grunge-Grün→Limette
+  2000:["#1f6fe0","#5fb4ff","2000er"],                                     // Y2K Chrom-Blau
+  2010:["#6a1fd0","#d6168f","2010er"],                                     // Violett→Magenta (Streaming-Ära)
+  2020:["#f59e0b","#ef4444","2020er"],                                     // Gold→Koralle
+};
+function mixHex(a, b, t){ const p = h => [1,3,5].map(i => parseInt(h.substr(i,2),16));
+  const [x,y] = [p(a),p(b)]; return "#" + x.map((v,i) => Math.round(v + (y[i]-v)*t).toString(16).padStart(2,"0")).join(""); }
+function darker(h, f){ return mixHex(h, "#000000", f); }
+function decadeStyle(y){
+  const d = Math.floor(y/10)*10, pal = DECADES[d] || DECADES[2020], t = (y % 10) / 9;
+  const c = mixHex(pal[0], pal[1], t);
+  return { bg:`linear-gradient(150deg, ${mixHex(c,"#ffffff",.12)} 0%, ${c} 45%, ${darker(c,.35)} 100%)`, name: pal[2] + "-Jahre", t };
+}
+const FRONT_SVG = `<svg class="bgart" viewBox="0 0 63 88" preserveAspectRatio="none">
+  <defs>
+    <radialGradient id="fbg" cx=".5" cy=".42" r=".75"><stop offset="0" stop-color="#2a1145"/><stop offset="1" stop-color="#0e0718"/></radialGradient>
+    <linearGradient id="fst" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff2f8f"/><stop offset=".5" stop-color="#ffb23d"/><stop offset="1" stop-color="#2de2e6"/></linearGradient>
+  </defs>
+  <rect width="63" height="88" fill="url(#fbg)"/>
+  <!-- dezente Kassetten-Streifen unten -->
+  <rect y="74" width="63" height="1.1" fill="#ff2f8f" opacity=".9"/>
+  <rect y="76" width="63" height="1.1" fill="#ffb23d" opacity=".9"/>
+  <rect y="78" width="63" height="1.1" fill="#2de2e6" opacity=".9"/>
+  <!-- kleine Kassette als Logo oben -->
+  <g transform="translate(25.5 6)" fill="none" stroke="url(#fst)" stroke-width=".7">
+    <rect x="0" y="0" width="12" height="7.6" rx="1"/>
+    <rect x="2.2" y="2" width="7.6" height="2.6" rx="1.3"/>
+    <circle cx="3.6" cy="3.3" r=".7" fill="#fff" stroke="none"/><circle cx="8.4" cy="3.3" r=".7" fill="#fff" stroke="none"/>
+    <path d="M2.6 7.6 L3.6 5.9 H8.4 L9.4 7.6"/>
+  </g>
+</svg>`;
+const BRAND_LETTERS = [...APP_NAME.toUpperCase()].map((ch, i) => `<span style="color:${["#ff2fa0","#ff6f61","#ffd23f","#9be15d","#2de2e6","#9b5cff"][i % 6]}">${ch}</span>`).join("");
+function qrSvg(text){ const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({ cellSize:4, margin:0, scalable:true }); }
+function buildPrint(custom){
+  const from = +$("#cFrom").value, to = +$("#cTo").value, copies = Math.max(1, Math.min(5, +$("#cCopies").value || 1));
+  const ys = custom || []; if (!custom) for (let y = from; y <= to; y++) for (let k = 0; k < copies; k++) ys.push(y);
+  let html = "";
+  for (let p = 0; p < ys.length; p += 9) {
+    const chunk = ys.slice(p, p + 9);
+    while (chunk.length < 9) chunk.push(null);
+    html += `<div class="sheet">` + chunk.map(y => y === null ? `<div></div>` :
+      `<div class="pc front">${FRONT_SVG}<div class="qr">${qrSvg(QR_PREFIX + y)}</div><div class="brand">${APP_NAME.toUpperCase()}</div><div class="scan">SCAN ME</div></div>`).join("") + `</div>`;
+    // Rückseite: jede Reihe spiegeln (Duplex, lange Kante)
+    const back = [];
+    for (let r = 0; r < 3; r++) back.push(...chunk.slice(r*3, r*3+3).reverse());
+    html += `<div class="sheet">` + back.map(y => y === null ? `<div></div>` :
+      (st => `<div class="pc back" style="background:${st.bg}"><div class="dec">${st.name}</div><div class="y">${y}</div>
+        <div class="bar"><i style="left:${st.t*90}%"></i></div><div class="brand">${APP_NAME.toUpperCase()}</div></div>`)(decadeStyle(y))).join("") + `</div>`;
+  }
+  $("#printArea").innerHTML = html;
+  return ys.length;
+}
+function renderCardInfo(){
+  const from = +$("#cFrom").value, to = +$("#cTo").value, copies = +$("#cCopies").value || 1;
+  const n = Math.max(0, to - from + 1) * copies;
+  $("#cardInfo").innerHTML = `<div class="msg ok">${n} Karten · ${Math.ceil(n/9)} Blätter (beidseitig)</div>`;
+  state.range = [from, to]; save();
+}
+
+// =====================================================================
+//  UI: Datenbank-Check
+// =====================================================================
+function renderData(){
+  const ys = years();
+  $("#dataBox").innerHTML = KATEGORIEN.map(c => {
+    const hit = ys.filter(y => byYearCat[c.id]?.[y]?.length);
+    const miss = ys.filter(y => !byYearCat[c.id]?.[y]?.length);
+    const n = DB.filter(s => s.cats.includes(c.id)).length;
+    const warn = c.typ === "main" && miss.length ? `<div class="msg err">Main-Lücken: ${miss.join(", ")}</div>` : "";
+    return `<div class="panel"><div class="row"><b>${esc(c.name)}</b><span class="small">${c.typ} · ${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
+      ${c.regel ? `<div class="small">Regel: ${esc(c.regel)}</div>` : ""}${warn}
+      <div class="yeargrid">${ys.map(y => `<i class="${hit.includes(y) ? "h" : ""}" title="${y}"></i>`).join("")}</div></div>`;
+  }).join("");
+  $("#clientId").value = sp.cid(); $("#redirUri").textContent = REDIRECT;
+}
+
+// =====================================================================
+//  Navigation & Events
+// =====================================================================
+function show(v){
+  document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (v === "play" && b.dataset.v === "game")));
+  if (v !== "game") stopScanner();
+  if (v === "setup") renderCats();
+  if (v === "data") renderData();
+  if (v === "cards") renderCardInfo();
+  if (v === "game") $("#gameMix").textContent = "Mix: " + state.sel.map(c => CAT[c].name).join(" · ");
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+document.querySelectorAll("#catTabs button").forEach(b => b.addEventListener("click", () => {
+  state.tab = b.dataset.t; document.querySelectorAll("#catTabs button").forEach(x => x.classList.toggle("on", x === b)); renderCats(); }));
+$("#weight").value = state.weight; $("#wVal").textContent = state.weight + " %";
+$("#weight").addEventListener("input", e => { state.weight = +e.target.value; $("#wVal").textContent = state.weight + " %"; save(); });
+$("#randStart").checked = state.randStart;
+$("#randStart").addEventListener("change", e => { state.randStart = e.target.checked; save(); });
+$("#startBtn").addEventListener("click", () => show("game"));
+$("#resetBtn").addEventListener("click", () => { state.played.clear(); save(); alert("Alle Songs sind wieder im Topf."); });
+$("#backSetup").addEventListener("click", () => show("setup"));
+$("#scanBtn").addEventListener("click", () => scanner ? stopScanner() : startScanner());
+$("#manBtn").addEventListener("click", () => { const y = +$("#manYear").value; if (y) handleYear(y); });
+$("#pauseBtn").addEventListener("click", async () => {
+  try {
+    if (state.paused) await sp.api("/me/player/play", { method:"PUT" });
+    else await sp.api("/me/player/pause", { method:"PUT" });
+    state.paused = !state.paused; updatePlayUI();
+  } catch(e){ msg("#playMsg", "err", e.message); }
+});
+$("#restartBtn").addEventListener("click", async () => {
+  if (!state.current) return;
+  try { if (!state.current.uri) { const tr = await resolveTrack(state.current.song); Object.assign(state.current, { uri: tr.uri, dur: tr.dur }); }
+    await playCurrent(true); msg("#playMsg"); }
+  catch(e){ msg("#playMsg", e.nodevice ? "warn" : "err", e.nodevice ? "Immer noch kein Gerät – Spotify-App öffnen." : e.message); }
+});
+$("#revealBtn").addEventListener("click", reveal);
+$("#nextBtn").addEventListener("click", () => { show("game"); startScanner(); });
+$("#cFrom").value = state.range[0]; $("#cTo").value = state.range[1];
+["#cFrom", "#cTo", "#cCopies"].forEach(s => $(s).addEventListener("input", renderCardInfo));
+$("#printBtn").addEventListener("click", () => { buildPrint(); setTimeout(() => window.print(), 300); });
+$("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
+$("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk:")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
+$("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
+
+// ---------- Installierbare App ----------
+let installEvt = null;
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; renderInstall(); });
+function renderInstall(){
+  const box = $("#installBox"); if (!box) return;
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (standalone) box.innerHTML = `<div class="msg ok">Als App installiert ✓</div>`;
+  else if (installEvt) { box.innerHTML = `<button class="btn" id="instBtn">📲 Mixtape installieren</button>`;
+    $("#instBtn").onclick = async () => { installEvt.prompt(); await installEvt.userChoice; installEvt = null; renderInstall(); }; }
+  else if (ios) box.innerHTML = `<div class="msg warn">iPhone: In Safari unten auf <b>Teilen</b> (□↑) tippen → <b>„Zum Home-Bildschirm“</b>.</div>`;
+  else box.innerHTML = `<div class="msg warn">Android: Chrome-Menü (⋮) → <b>„App installieren“</b> bzw. „Zum Startbildschirm hinzufügen“.</div>`;
+}
+$("#appVer").textContent = APP_VERSION;
+
+(async () => {
+  renderInstall();
+  document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
+  const err = await sp.handleRedirect();
+  renderLogin(err); renderCats();
+})();
+</script>
+</body>
+</html>
