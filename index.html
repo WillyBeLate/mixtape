@@ -491,11 +491,11 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.3";
+const APP_VERSION = "0.9.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
-const SCOPES = "user-read-playback-state user-modify-playback-state";
+const SCOPES = "user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative";
 
 // ---------- sicherer Speicher ----------
 const store = {
@@ -1725,10 +1725,10 @@ $("#plGo").addEventListener("click", async () => {
   try {
     $("#plMsg").textContent = "Lese Playlist …";
     const meta = await sp.api(`/playlists/${m[1]}?fields=name,tracks.total&market=DE`); out.name = meta?.name || "";
-    let url = `/playlists/${m[1]}/tracks?market=DE&limit=100&fields=next,items(track(id,name,artists(name),album(name,release_date),duration_ms,is_local))`;
+    let url = `/playlists/${m[1]}/items?market=DE&limit=50`;   // seit Feb. 2026: /items statt /tracks, nur eigene Playlists
     while (url) {
       const j = await sp.api(url);
-      for (const it of j?.items || []) { const t = it.track; if (!t || t.is_local || !t.id) continue;
+      for (const it of j?.items || []) { const t = it.item || it.track; if (!t || t.is_local || !t.id || t.type === "episode") continue;
         out.tracks.push([t.id, t.name, t.artists.map(a => a.name).join(", "), t.album?.name || "", t.album?.release_date || ""]); }
       $("#plMsg").textContent = `${out.tracks.length} Songs gelesen …`;
       url = j?.next ? j.next.replace("https://api.spotify.com/v1", "") : null;
@@ -1737,7 +1737,10 @@ $("#plGo").addEventListener("click", async () => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" }));
     a.download = "mixtape-playlist.json"; document.body.appendChild(a); a.click(); a.remove();
     $("#plMsg").innerHTML = `<div class="msg ok">${out.tracks.length} Songs aus „${esc(out.name)}“ als <b>mixtape-playlist.json</b> gespeichert – jetzt im Chat hochladen.</div>`;
-  } catch(e) { $("#plMsg").innerHTML = `<div class="msg err">Fehler: ${esc(e.message || String(e))}${e.status === 404 ? " – ist die Playlist öffentlich?" : ""}</div>`; }
+  } catch(e) {
+    const hint = e.status === 403 ? `<br><br><b>Spotify erlaubt seit Februar 2026 nur noch das Auslesen eigener Playlists.</b> So geht's trotzdem: In der Spotify-App die Playlist öffnen → ⋯ → „Zu anderer Playlist hinzufügen“ → „Neue Playlist“. Dann den Link <b>dieser eigenen Kopie</b> hier einfügen. Falls es dann immer noch nicht klappt: einmal unter „Daten“ abmelden und neu mit Spotify verbinden (Mixtape braucht dafür eine zusätzliche Leseberechtigung).`
+      : e.status === 404 ? " – Link prüfen bzw. ist die Playlist privat?" : "";
+    $("#plMsg").innerHTML = `<div class="msg err">Fehler: ${esc(e.message || String(e))}${hint}</div>`; }
 });
 $("#clearPlayed").addEventListener("click", () => { if (!confirm("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); save(); alert("Verlauf gelöscht."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
