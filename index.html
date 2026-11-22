@@ -196,6 +196,7 @@
       <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
         Ca. 1 Song pro Sekunde – beim ersten Mal also ~20 Minuten. Bildschirm anlassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
       <div id="mbStats" style="margin:10px 0"></div>
+      <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
       <button class="btn small" id="mbStart">▶ Prüfung starten</button>
       <button class="btn small sec" id="mbCopy">📋 Bericht kopieren</button>
       <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
@@ -232,7 +233,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.7.1";
+const APP_VERSION = "0.7.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -633,14 +634,23 @@ const MB_BAD = /\b(live|demo|remix|mix|instrumental|karaoke|acoustic|unplugged|r
 const mbKey = s => "mbv:" + s.t + "|" + s.a;
 let mbRunning = false;
 function mbResult(s){ const r = store.get(mbKey(s), null); return r && r.y === s.y ? r : null; }   // Jahr geändert -> neu prüfen
-function mbStatus(r){ return !r ? "offen" : r.mb == null ? "nicht gefunden" : r.mb === r.y ? "ok" : r.mb < r.y ? "früher" : "später"; }
+// "später" bei alten Songs (vor 1960) ist meist nur eine Wiederveröffentlichung (Original-Schellack fehlt in MusicBrainz)
+//  -> zählt nicht als Problem. Wichtig ist vor allem "früher": dann ist unser Jahr wahrscheinlich zu spät.
+function mbStatus(r){ return !r ? "offen" : r.mb == null ? "nicht gefunden" : r.mb === r.y ? "ok"
+  : r.mb < r.y ? "früher" : r.y < 1960 ? "später (alt)" : "später"; }
+const MB_RELEVANT = st => st === "früher" || st === "später" || st === "nicht gefunden";
 async function mbCheck(s){
   const q = `recording:"${cleanTitle(s.t).replace(/"/g, "")}" AND artist:"${s.a.replace(/"/g, "")}"`;
-  const url = "https://musicbrainz.org/ws/2/recording/?fmt=json&limit=50&query=" + encodeURIComponent(q);
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const r = await fetch(url, { headers: { Accept: "application/json" } });
-    if (r.status === 503 || r.status === 429) { await new Promise(res => setTimeout(res, 3000)); continue; }
-    if (!r.ok) throw new Error("MusicBrainz HTTP " + r.status);
+  const url = "https://musicbrainz.org/ws/2/recording/?fmt=json&limit=100&query=" + encodeURIComponent(q);
+  let wait = 2000;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    let r;
+    try { r = await fetch(url, { headers: { Accept: "application/json" } }); }
+    catch(e) { mbNote(`Netzwerkfehler, neuer Versuch in ${wait/1000}s …`); await sleep(wait); wait *= 2; continue; }
+    if (r.status === 503 || r.status === 429 || r.status >= 500) {   // MusicBrainz drosselt -> warten, dann nochmal
+      mbNote(`MusicBrainz ausgelastet, warte ${wait/1000}s …`); await sleep(wait); wait = Math.min(wait * 2, 30000); continue;
+    }
+    if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
     const want = norm(cleanTitle(s.t)), artist = norm(s.a);
     let best = null;
@@ -652,19 +662,22 @@ async function mbCheck(s){
       const d = rec["first-release-date"];
       if (okArtist && okTitle && !bad && d) { const y = +d.slice(0, 4); if (!best || y < best.y) best = { y, d, id: rec.id }; }
     }
+    mbNote("");
     return { y: s.y, mb: best ? best.y : null, d: best?.d || null, id: best?.id || null, ts: Date.now() };
   }
-  throw new Error("MusicBrainz antwortet nicht (überlastet)");
+  throw new Error("keine Antwort nach mehreren Versuchen");
 }
+function mbNote(t){ const el = $("#mbNote"); if (el) el.textContent = t; }
 function renderMb(){
   if (!$("#mbStats")) return;
   const all = DB, res = all.map(s => [s, mbResult(s)]);
-  const c = { ok: 0, "früher": 0, "später": 0, "nicht gefunden": 0, offen: 0 };
+  const c = { ok: 0, "früher": 0, "später": 0, "später (alt)": 0, "nicht gefunden": 0, offen: 0 };
   res.forEach(([s, r]) => c[mbStatus(r)]++);
   const done = all.length - c.offen;
-  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · 🔶 ${c["später"]} später · ❓ ${c["nicht gefunden"]} nicht gefunden</div>
+  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · 🔶 ${c["später"]} später · ❓ ${c["nicht gefunden"]} nicht gefunden
+    <br>ℹ️ ${c["später (alt)"]} alte Songs, bei denen MusicBrainz nur Wiederveröffentlichungen kennt (kein Fehler)</div>
     <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100*done/all.length}%;background:var(--accent);border-radius:3px"></div></div>`;
-  const probs = res.filter(([s, r]) => r && mbStatus(r) !== "ok").sort((a, b) => a[0].y - b[0].y);
+  const probs = res.filter(([s, r]) => r && MB_RELEVANT(mbStatus(r))).sort((a, b) => a[0].y - b[0].y);
   $("#mbList").innerHTML = probs.length ? `<table style="margin-top:10px"><tr><th>Song</th><th>Wir</th><th>MB</th></tr>${probs.map(([s, r]) =>
     `<tr><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td>${s.y}</td><td>${r.mb ?? "–"}${r.mb != null && r.mb < s.y ? " ⚠️" : ""}</td></tr>`).join("")}</table>` : "";
   $("#mbStart").textContent = mbRunning ? "⏸ Prüfung anhalten" : (c.offen ? "▶ Prüfung starten" : "✓ Alles geprüft");
@@ -672,20 +685,30 @@ function renderMb(){
 async function mbRun(){
   if (mbRunning) { mbRunning = false; renderMb(); return; }
   mbRunning = true; renderMb();
-  let wake = null; try { wake = await navigator.wakeLock?.request("screen"); } catch(e){}
-  for (const s of DB) {
-    if (!mbRunning) break;
-    if (mbResult(s)) continue;
-    try { store.set(mbKey(s), await mbCheck(s)); }
-    catch(e) { msg("#mbList", "err", e.message); break; }
-    renderMb();
-    await new Promise(res => setTimeout(res, 1100));   // MusicBrainz erlaubt ~1 Anfrage/Sekunde
+  let wake = null;
+  const lock = async () => { try { wake = await navigator.wakeLock?.request("screen"); } catch(e){} };
+  await lock();
+  document.addEventListener("visibilitychange", lock);          // Bildschirmsperre nach Tab-Wechsel erneuern
+  const skipped = new Set();
+  for (let round = 0; round < 3 && mbRunning; round++) {         // übersprungene Songs am Ende nochmal versuchen
+    for (const s of DB) {
+      if (!mbRunning) break;
+      if (mbResult(s) || (round === 0 && skipped.has(s.i))) continue;
+      try { store.set(mbKey(s), await mbCheck(s)); skipped.delete(s.i); }
+      catch(e) { skipped.add(s.i); mbNote(`„${s.t}“ übersprungen (${e.message}) – kommt am Ende nochmal dran.`); }
+      renderMb();
+      await sleep(1200);                                          // MusicBrainz erlaubt ~1 Anfrage/Sekunde
+    }
+    if (!skipped.size) break;
+    await sleep(10000);
   }
+  document.removeEventListener("visibilitychange", lock);
   mbRunning = false; try { wake?.release(); } catch(e){}
   renderMb();
+  if (skipped.size) mbNote(`${skipped.size} Songs konnten nicht abgefragt werden – „Prüfung starten“ versucht es erneut.`);
 }
 function mbReport(){
-  const lines = DB.map(s => [s, mbResult(s)]).filter(([s, r]) => r && mbStatus(r) !== "ok")
+  const lines = DB.map(s => [s, mbResult(s)]).filter(([s, r]) => r && MB_RELEVANT(mbStatus(r)))
     .map(([s, r]) => `${mbStatus(r).toUpperCase()} | ${s.t} | ${s.a} | wir ${s.y} | MB ${r.mb ?? "-"}${r.d ? " (" + r.d + ")" : ""}`);
   return `Mixtape ${APP_VERSION} – Jahres-Prüfung (${lines.length} Auffälligkeiten)\n` + lines.join("\n");
 }
