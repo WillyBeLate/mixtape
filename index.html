@@ -79,6 +79,7 @@
     stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
   .nav button svg .f{fill:currentColor;stroke:none}
   .nav button.on{color:#fff}
+  body:not(.admin) .adm{display:none!important} body.admin .noadm{display:none!important}
   .badge{display:none;position:absolute;top:0;left:50%;margin-left:6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;
     background:var(--accent);color:#fff;font:700 10px/18px system-ui,sans-serif;white-space:nowrap}
   .nav button.on svg{stroke:url(#nvg);transform:translateY(-1px) scale(1.08);filter:drop-shadow(0 0 4px #ff2f8f66)}
@@ -434,10 +435,11 @@
 
   <!-- ======================= DATEN ======================= -->
   <section class="view" id="v-data">
-    <h1><span>Datenbank-Check</span></h1>
-    <p class="sub">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
-    <div id="dataBox"></div>
-    <details class="fold" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
+    <h1 class="noadm"><span>Einstellungen</span></h1>
+    <h1 class="adm"><span>Datenbank-Check</span></h1>
+    <p class="sub adm">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
+    <div id="dataBox" class="adm"></div>
+    <details class="fold adm" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
     <div class="panel" id="mbPanel" style="margin-top:6px">
       <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
         Ca. 1 Song alle 1,6 Sekunden – beim ersten Mal also ~30 Minuten, bei Auslastung länger. Bildschirm anlassen und nur in <b>einem</b> Tab/Gerät laufen lassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
@@ -449,9 +451,9 @@
       <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
       <div id="mbList"></div>
     </div></details>
-    <details class="fold" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
+    <details class="fold adm" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
     <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
-    <details class="fold" data-fold="spsync"><summary><span class="ft">Spotify-Abgleich</span><span class="fs" id="syncSum"></span></summary>
+    <details class="fold adm" data-fold="spsync"><summary><span class="ft">Spotify-Abgleich</span><span class="fs" id="syncSum"></span></summary>
     <div class="panel" style="margin-top:6px">
       <div class="small">Sucht einmal alle Songs bei Spotify und merkt sich die genaue Aufnahme. Auffällige Treffer werden markiert – die könnt ihr mit ▶ direkt anhören. Danach „Exportieren“ und die Datei im Chat hochladen, dann trage ich alle Songs fest ein. Dauert ca. 5–10 Minuten; Bildschirm anlassen.</div>
       <div id="syncStats" style="margin:10px 0"></div>
@@ -459,7 +461,7 @@
       <button class="btn small sec" id="syncExport">📤 Exportieren</button>
       <div id="syncList"></div>
     </div></details>
-    <details class="fold" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
+    <details class="fold adm" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
     <div class="panel" style="margin-top:6px">
       <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
       <input type="text" id="plUrl" placeholder="https://open.spotify.com/playlist/…" style="margin-top:8px">
@@ -477,8 +479,9 @@
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
     </div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
-      <div class="small">Version <b id="appVer"></b> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
+      <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
       <div id="installBox"></div>
+      <button class="btn small sec adm" id="admOff" style="margin-top:8px">Daten-Bereich auf diesem Gerät ausblenden</button>
     </div>
   </section>
 </div>
@@ -490,7 +493,7 @@
   <button data-v="spiel" class="on"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
   <button data-v="rules"><svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><line x1="12" y1="6.5" x2="12" y2="20"/><circle class="f" cx="16.2" cy="10" r="1.6"/><path d="M14.6 14.2h3.4"/></svg>Regeln</button>
   <button data-v="cards"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="11" height="15" rx="2" transform="rotate(-10 9 12.5)"/><rect x="9.5" y="4" width="11" height="15" rx="2"/><line x1="12" y1="14.5" x2="18" y2="14.5"/><line x1="12" y1="16.5" x2="18" y2="16.5"/><circle class="f" cx="15" cy="9" r="2.2"/></svg>Karten</button>
-  <button data-v="data" style="position:relative"><span id="dataBadge" class="badge"></span><svg viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="14" y1="20" x2="14" y2="15"/><circle cx="16.5" cy="7.5" r="3.5"/><line x1="19" y1="10" x2="21.5" y2="12.5"/></svg>Daten</button>
+  <button data-v="data" style="position:relative"><span id="dataBadge" class="badge adm"></span><svg class="noadm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg><svg class="adm" viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="14" y1="20" x2="14" y2="15"/><circle cx="16.5" cy="7.5" r="3.5"/><line x1="19" y1="10" x2="21.5" y2="12.5"/></svg><span class="adm">Daten</span><span class="noadm">Einstellungen</span></button>
 </nav>
 
 <div id="printArea"></div>
@@ -500,7 +503,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.10";
+const APP_VERSION = "0.9.11";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1738,7 +1741,7 @@ function show(v){
   if (v === "game" || v === "play") renderScore();
   if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
-  if (v === "data") { renderData(); if (!mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
+  if (v === "data") { renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
   if (v === "game") { renderMixLine(); renderTvBox(); }
   window.scrollTo(0, 0);
@@ -1880,6 +1883,16 @@ function renderInstall(){
   else if (ios) box.innerHTML = `<div class="msg warn">iPhone: In Safari unten auf <b>Teilen</b> (□↑) tippen → <b>„Zum Home-Bildschirm“</b>.</div>`;
   else box.innerHTML = `<div class="msg warn">Android: Chrome-Menü (⋮) → <b>„App installieren“</b> bzw. „Zum Startbildschirm hinzufügen“.</div>`;
 }
+// Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
+const isAdmin = () => store.get("admin", false);
+function applyAdmin(){ document.body.classList.toggle("admin", isAdmin()); }
+applyAdmin();
+let verTaps = 0, verTapT = 0;
+$("#verTap").addEventListener("click", () => {
+  const now = Date.now(); verTaps = now - verTapT < 1500 ? verTaps + 1 : 1; verTapT = now;
+  if (verTaps >= 7 && !isAdmin()) { verTaps = 0; store.set("admin", true); applyAdmin(); renderData(); alert("Daten-Bereich auf diesem Gerät freigeschaltet."); }
+});
+$("#admOff").addEventListener("click", () => { if (!confirm("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; syncRunning = false; mbRunning = false; store.set("admin", false); applyAdmin(); });
 $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);
 
 (async () => {
