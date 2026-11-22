@@ -500,7 +500,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.8";
+const APP_VERSION = "0.9.9";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1360,8 +1360,10 @@ function renderSync(){
   const fixed = DB.length - all.length;
   const rows = done.map(s => [s, store.get(syncKey(s), null)]).map(([s, r]) => [s, r, syncFlags(s, r)]);
   const serious = rows.filter(x => SYNC_SERIOUS(x[2])), info = rows.filter(x => x[2].length && !SYNC_SERIOUS(x[2]));
-  $("#syncSum").textContent = `${done.length + fixed}/${DB.length} festgelegt${syncRunning ? " · läuft" : ""}`;
-  $("#syncStats").innerHTML = `<div class="small">${fixed} fest eingetragen · ${done.length}/${all.length} abgeglichen · ⚠️ ${serious.length} prüfen · ℹ️ ${info.length} Hinweise</div>
+  const cool = sp.coolUntil - Date.now();
+  const coolTxt = cool > 0 ? (cool > 90000 ? "Spotify-Sperre bis " + new Date(sp.coolUntil).toLocaleTimeString("de-DE", { hour:"2-digit", minute:"2-digit" }) : "Spotify bremst – kurz warten") : "";
+  $("#syncSum").textContent = `${done.length + fixed}/${DB.length} festgelegt${syncRunning ? (cool > 0 ? " · wartet" : " · läuft") : ""}`;
+  $("#syncStats").innerHTML = `${coolTxt ? `<div class="small" style="color:#ffb86b;margin-bottom:4px">⏳ ${coolTxt}. Der Fortschritt bleibt gespeichert – danach einfach weiter abgleichen.</div>` : ""}<div class="small">${fixed} fest eingetragen · ${done.length}/${all.length} abgeglichen · ⚠️ ${serious.length} prüfen · ℹ️ ${info.length} Hinweise</div>
     <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100 * done.length / Math.max(1, all.length)}%;background:var(--accent);border-radius:3px"></div></div>`;
   $("#syncStart").textContent = syncRunning ? "⏸ Abgleich anhalten" : "▶ Abgleich starten";
   $("#syncList").innerHTML = serious.length ? `<h4 style="margin:12px 0 4px">Bitte kurz prüfen (${serious.length})</h4>` + serious.slice(0, 150).map(([s, r, f]) => `<div class="fixit">
@@ -1385,7 +1387,10 @@ async function syncRun(){
     for (let k = 0; k < 6; k++) {
       try { await resolveTrack(s); break; }
       catch(e) {
-        if (e.status === 429) { await sleep(Math.max(5000, (e.retryAfter || 5) * 1000)); continue; }
+        if (e.status === 429) {
+          if ((e.retryAfter || 0) > 60) { syncRunning = false; renderSync(); return; }   // lange Sperre: anhalten statt endlos warten
+          renderSync(); await sleep(Math.max(5000, (e.retryAfter || 5) * 1000)); continue;
+        }
         if (e.status >= 500) { await sleep(5000 * (k + 1)); continue; }
         if (e.status === 401) { syncRunning = false; alert("Spotify-Anmeldung abgelaufen – bitte neu verbinden."); break; }
         store.set("syncmiss:" + s.t + "|" + s.a, true); break;   // nicht gefunden
