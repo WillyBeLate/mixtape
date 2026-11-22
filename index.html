@@ -349,7 +349,8 @@ const sp = {
     const r = await fetch("https://api.spotify.com/v1" + path, { ...opt,
       headers:{ Authorization:"Bearer " + await sp.access(), "Content-Type":"application/json" } });
     if (r.status === 204) return null;
-    const txt = await r.text(); const j = txt ? JSON.parse(txt) : null;
+    const txt = await r.text(); let j = null;
+    try { j = txt ? JSON.parse(txt) : null; } catch(_) { j = null; }   // Spotify schickt bei play/pause teils Nicht-JSON
     if (!r.ok) { const e = new Error(j?.error?.message || ("HTTP " + r.status)); e.status = r.status; e.reason = j?.error?.reason; throw e; }
     return j;
   },
@@ -619,9 +620,17 @@ $("#scanBtn").addEventListener("click", () => scanner ? stopScanner() : startSca
 $("#manBtn").addEventListener("click", () => { const y = +$("#manYear").value; if (y) handleYear(y); });
 $("#pauseBtn").addEventListener("click", async () => {
   try {
-    if (state.paused) await sp.api("/me/player/play", { method:"PUT" });
-    else await sp.api("/me/player/pause", { method:"PUT" });
-    state.paused = !state.paused; updatePlayUI();
+    // Echten Zustand bei Spotify abfragen statt nur dem eigenen Merker zu trauen
+    const pl = await sp.api("/me/player").catch(() => null);
+    const playing = pl ? !!pl.is_playing : !state.paused;
+    const dev = pl?.device?.id ? `?device_id=${pl.device.id}` : "";
+    try {
+      await sp.api((playing ? "/me/player/pause" : "/me/player/play") + dev, { method:"PUT" });
+    } catch(e) {
+      // "Restriction violated" = ist schon pausiert / läuft schon → kein echter Fehler
+      if (!(e.status === 403 || /restriction/i.test(e.message))) throw e;
+    }
+    state.paused = playing; updatePlayUI(); msg("#playMsg");
   } catch(e){ msg("#playMsg", "err", e.message); }
 });
 $("#restartBtn").addEventListener("click", async () => {
