@@ -1241,6 +1241,10 @@ const SONGS = [
   ["Hold My Hand", "Michael Jackson", 2010, "US", "mj", {mit:"Akon"}],
   ["Love Never Felt So Good", "Michael Jackson", 2014, "US", "mj"],
   ["A Place with No Name", "Michael Jackson", 2014, "US", "mj"],
+  // ---------------- Klassiker mit belegtem Erscheinungsjahr (Ersatz, 22.11.2026) ----------------
+  ["It's Only a Paper Moon", "Ella Fitzgerald", 1945, "US", "global", {mit:"The Delta Rhythm Boys"}],
+  ["Lullaby of Broadway", "Doris Day", 1951, "US", "film"],
+  ["Happy Days Are Here Again", "Barbra Streisand", 1962, "US", "global"],
 ];
 // =====================================================================
 //  PRÜFLISTE: Songs mit unsicherem Jahr.
@@ -1255,6 +1259,9 @@ const PRUEFEN = {
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
   // Manuelle Prüfung 22.11.2026
+  "It's Only a Paper Moon|Ella Fitzgerald",
+  "Lullaby of Broadway|Doris Day",
+  "Happy Days Are Here Again|Barbra Streisand",
   "Capri-Fischer|Rudi Schuricke",
   "Ho Hey|The Lumineers",
   "What Is Love|Haddaway",
