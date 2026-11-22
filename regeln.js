@@ -300,4 +300,24 @@ const SPIELMODI = [
     ende: "Wer zuerst {ziel} Punkte hat, gewinnt. Bei Gleichstand entscheidet ein Stechen mit einer weiteren Melodie.",
     beispiel: "Nach drei Tönen ruft Willy „Pokémon!“ – Punkt. Seine Freundin singt „Ich will der Allerbeste sein …“ weiter – Bonuspunkt.",
   },
+  {
+    id: "games", name: "Videospiel-Quiz", spieler: "2–10 Personen oder Teams", neu: true,
+    kurz: "Mario, Minecraft oder Skyrim? Erkennt ihr das Spiel an der Musik?",
+    app: { typ: "tv", daten: "games", ziel: 10, marken: null, teams: [2, 10], namen: "Team", ohneKarten: true,
+      aktionen: [ { label: "Spiel erkannt", jeder: true, p: 1 }, { label: "Bonus: Reihe/Konsole oder Jahr ±2", jeder: true, p: 1 } ] },
+    material: ["nur das Handy – Jahreskarten braucht ihr hier nicht"],
+    vorbereitung: [
+      "Spielt einzeln oder in Teams. Wählt unter „Spiel“ den Modus „Videospiel-Quiz“ – ein Mix ist nicht nötig.",
+      "Die Musik stammt aus Videospielen von Pac-Man bis heute – Titelmusik, Level-Musik und bekannte Songs aus Spielen.",
+    ],
+    ablauf: [
+      "Tippt auf „Nächste Spielmusik“. Mixtape spielt ein Stück aus einem Videospiel – ohne Namen, ohne Bild.",
+      "Wer das Spiel erkennt, ruft seinen Namen. Die erste richtige Antwort bekommt einen Punkt.",
+      "Wer falsch rät, ist für dieses Stück raus. Weiß es niemand, hilft „Nochmal von vorn“.",
+      "Tippt auf „Auflösen“: Mixtape zeigt das Spiel, das Musikstück mit Komponist, das Erscheinungsjahr und das Land.",
+      "Bonus: Wer zusätzlich die Konsole bzw. Spielereihe oder das Erscheinungsjahr auf zwei Jahre genau nennt, bekommt einen Extrapunkt.",
+    ],
+    ende: "Wer zuerst {ziel} Punkte hat, gewinnt. Bei Gleichstand entscheidet ein Stechen mit einem weiteren Stück.",
+    beispiel: "Nach ein paar ruhigen Klaviertönen ruft Willy „Minecraft!“ – Punkt. Seine Freundin ergänzt „2011“ – Bonuspunkt.",
+  },
 ];
