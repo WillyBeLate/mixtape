@@ -500,7 +500,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.7";
+const APP_VERSION = "0.9.8";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -653,9 +653,27 @@ const sp = {
     if (Date.now() > t.exp) await sp.tokenReq({ grant_type:"refresh_token", refresh_token:t.refresh });
     return sp.tok().access;
   },
-  async api(path, opt = {}){
+  // Alle Spotify-Aufrufe laufen nacheinander mit Mindestabstand durch eine Warteschlange.
+  // Bei 429 („Too many requests“) wird die von Spotify genannte Wartezeit (Retry-After) eingehalten.
+  _q: Promise.resolve(), _last: 0, gap: 120, coolUntil: 0,
+  api(path, opt = {}){
+    const run = sp._q.then(() => sp._api(path, opt));
+    sp._q = run.catch(() => {});
+    return run;
+  },
+  async _api(path, opt, tries = 0){
+    const wait = Math.max(sp.coolUntil - Date.now(), sp._last + sp.gap - Date.now());
+    if (wait > 0) await sleep(wait);
+    sp._last = Date.now();
     const r = await fetch("https://api.spotify.com/v1" + path, { ...opt,
       headers:{ Authorization:"Bearer " + await sp.access(), "Content-Type":"application/json" } });
+    if (r.status === 429) {
+      const ra = Math.max(1, parseInt(r.headers.get("Retry-After") || "5", 10) || 5);
+      sp.coolUntil = Date.now() + ra * 1000;
+      if (ra <= 10 && tries < 2) return sp._api(path, opt, tries + 1);   // kurze Bremse: still abwarten
+      const e = new Error(`Spotify bremst gerade (zu viele Anfragen) – bitte ca. ${ra < 120 ? ra + " Sekunden" : Math.ceil(ra / 60) + " Minuten"} warten.`);
+      e.status = 429; e.retryAfter = ra; throw e;
+    }
     if (r.status === 204) return null;
     const txt = await r.text(); let j = null;
     try { j = txt ? JSON.parse(txt) : null; } catch(_) { j = null; }   // Spotify schickt bei play/pause teils Nicht-JSON
@@ -1324,7 +1342,7 @@ async function openTvPicker(q){
 // =====================================================================
 //  SPOTIFY-ABGLEICH: alle Songs einmal auflösen, Auffälliges markieren, exportieren
 // =====================================================================
-let syncRunning = false, syncPace = 250;   // ~4 Suchen pro Sekunde, schont das Spotify-Limit
+let syncRunning = false, syncPace = 700;   // gemächlich, damit das Spotify-Limit für das Spiel frei bleibt
 const syncKey = s => "trk3:" + s.t + "|" + s.a;
 function syncFlags(s, r){
   if (!r) return ["nicht gefunden"];
@@ -1361,10 +1379,14 @@ async function syncRun(){
   const todo = DB.filter(s => !s.sid && !store.get(syncKey(s), null) && !store.get("syncmiss:" + s.t + "|" + s.a, false));
   for (const s of todo) {
     if (!syncRunning) break;
+    // Abgleich pausiert, solange man nicht im Daten-Tab ist (z. B. während des Spiels)
+    while (syncRunning && !document.getElementById("v-data")?.classList.contains("on")) await sleep(1000);
+    if (!syncRunning) break;
     for (let k = 0; k < 6; k++) {
       try { await resolveTrack(s); break; }
       catch(e) {
-        if (e.status === 429 || e.status >= 500) { await sleep(5000 * (k + 1)); continue; }
+        if (e.status === 429) { await sleep(Math.max(5000, (e.retryAfter || 5) * 1000)); continue; }
+        if (e.status >= 500) { await sleep(5000 * (k + 1)); continue; }
         if (e.status === 401) { syncRunning = false; alert("Spotify-Anmeldung abgelaufen – bitte neu verbinden."); break; }
         store.set("syncmiss:" + s.t + "|" + s.a, true); break;   // nicht gefunden
       }
