@@ -1191,9 +1191,9 @@ const SONGS = [
   ["Take Me to Church", "Hozier", 2013, "IE", "indie"],
   ["Cigarette Daydreams", "Cage the Elephant", 2013, "US", "indie"],
   ["Ribs", "Lorde", 2013, "NZ", "indie"],
-  ["Maschin", "Bilderbuch", 2014, "AT", "indie deutsch"],
+  ["Maschin", "Bilderbuch", 2013, "AT", "indie deutsch"],
   ["Space Song", "Beach House", 2015, "US", "indie"],
-  ["Oft gefragt", "AnnenMayKantereit", 2016, "DE", "indie deutsch"],
+  ["Oft gefragt", "AnnenMayKantereit", 2013, "DE", "indie deutsch"],
   ["Feel It Still", "Portugal. The Man", 2017, "US", "indie"],
   ["Don't Delete the Kisses", "Wolf Alice", 2017, "GB", "indie"],
   ["Nobody", "Mitski", 2018, "US", "indie"],
@@ -1288,6 +1288,10 @@ const BESTAETIGT = new Set([
   "Song für Liam|Kraftklub",
   "P.Y.T. (Pretty Young Thing)|Michael Jackson",
   "Ein Song namens Schunder|Die Ärzte",
+  // von Willy entschieden: Eisbär = Single 1981 (Sampler 1980 zählt nicht), Maschin = Single 2013, Oft gefragt = EP 2013
+  "Eisbär|Grauzone",
+  "Maschin|Bilderbuch",
+  "Oft gefragt|AnnenMayKantereit",
   // MusicBrainz-Treffer früher = Demo/Promo/Fehlzuordnung, erste offizielle Veröffentlichung geprüft
   "Psycho Killer|Talking Heads",
   "The Killing Moon|Echo & the Bunnymen",
