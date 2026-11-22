@@ -1600,6 +1600,7 @@ const KINDERTHEMEN = [
   ["Michel aus Lönneberga", "Michel aus Lönneberga", "Die Sternenkinder", 1971, "SE", "7ymZKF8uiTrK46Asjtti3u"],
   ["Die Glücksbärchis", "Ich möcht ein Glücksbärchi sein (Die Glücksbärchis)", "Die Sternenkinder", 1985, "US", "1oXHKT9alzxJZjWOuQL1xL"],
   ["Mein Name ist Hase (Bugs Bunny)", "Bugs Bunny: Mein Name Ist Hase", "Orchester & Chor Eric Frantzen, Siegfried Rabe", 1940, "US", "3UH0yu8pddaBM7uSvz5Ll3"],
+  ["Hanni und Nanni", "Hanni und Nanni", "Die Sternenkinder", 1991, "JP", "46iuzXvcP3hzJZSaRwZJnr"],
   ["Pinky und der Brain", "Der Pinky und der Brain", "Die Sternenkinder", 1995, "US", "4rMLMYpgrNFf0B34tOwl2g"],
   ["Jim Knopf (Augsburger Puppenkiste)", "Jim Knopf - Eine Insel mit zwei Bergen (Das Lummerlandlied)", "Die Sternenkinder", 1961, "DE", "72R1SqlpgpKEoVHVf2cmf1"],
   ["Sindbad", "Sindbad - Main Title", "Honey B", 1975, "JP", "2w69e1WDZBpD2Zlh7bvrU4"],

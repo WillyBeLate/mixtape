@@ -17,6 +17,7 @@
 <script src="daten.js"></script>
 <script src="regeln.js"></script>
 <script src="geprueft.js"></script>
+<script src="ids.js"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -450,6 +451,14 @@
     </div></details>
     <details class="fold" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
     <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
+    <details class="fold" data-fold="spsync"><summary><span class="ft">Spotify-Abgleich</span><span class="fs" id="syncSum"></span></summary>
+    <div class="panel" style="margin-top:6px">
+      <div class="small">Sucht einmal alle Songs bei Spotify und merkt sich die genaue Aufnahme. Auffällige Treffer werden markiert – die könnt ihr mit ▶ direkt anhören. Danach „Exportieren“ und die Datei im Chat hochladen, dann trage ich alle Songs fest ein. Dauert ca. 5–10 Minuten; Bildschirm anlassen.</div>
+      <div id="syncStats" style="margin:10px 0"></div>
+      <button class="btn small" id="syncStart">▶ Abgleich starten</button>
+      <button class="btn small sec" id="syncExport">📤 Exportieren</button>
+      <div id="syncList"></div>
+    </div></details>
     <details class="fold" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
     <div class="panel" style="margin-top:6px">
       <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
@@ -491,7 +500,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.5";
+const APP_VERSION = "0.9.6";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -507,7 +516,8 @@ const store = {
 // ---------- Daten aufbereiten ----------
 const CAT = Object.fromEntries(KATEGORIEN.map(c => [c.id, c]));
 const DB = SONGS.map((s, i) => ({
-  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/), sid: typeof s[5] === "string" ? s[5] : null,
+  i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/),
+  sid: typeof s[5] === "string" ? s[5] : (typeof SPOTIFY_IDS !== "undefined" && SPOTIFY_IDS[s[0] + "|" + s[1]]) || null,
   opt: s[5] && typeof s[5] === "object" ? s[5] : {},   // z. B. { mit: "Sean Paul" } = Spotify-Version muss diesen Künstler enthalten
   pruefen: (typeof PRUEFEN !== "undefined" && PRUEFEN[s[0] + "|" + s[1]]) || null
 }));
@@ -663,7 +673,7 @@ const cleanTitle = t => t.replace(/\(.*?\)/g, "").replace(/[!?,.]/g, " ").replac
 
 async function resolveTrack(song){
   if (song.sid) return { uri:"spotify:track:" + song.sid, dur:null };
-  const key = "trk2:" + song.t + "|" + song.a;
+  const key = "trk3:" + song.t + "|" + song.a;
   const cached = store.get(key, null); if (cached) return cached;
   const tries = [ `track:${cleanTitle(song.t)} artist:${song.a}`, `${cleanTitle(song.t)} ${song.a}` ];
   for (const q of tries) {
@@ -679,7 +689,9 @@ async function resolveTrack(song){
     // Bevorzugt: Original-Album/Single statt Sampler, sonst frühestes Veröffentlichungsdatum
     items.sort((x, y) => (x.album.album_type === "compilation") - (y.album.album_type === "compilation")
       || (x.album.release_date || "9999").localeCompare(y.album.release_date || "9999"));
-    const res = { uri: items[0].uri, dur: items[0].duration_ms };
+    const b = items[0];
+    const res = { uri: b.uri, dur: b.duration_ms, name: b.name, artist: b.artists.map(a => a.name).join(", "),
+      album: b.album?.name || "", date: b.album?.release_date || "", typ: b.album?.album_type || "" };
     store.set(key, res); return res;
   }
   throw new Error(`„${song.t}“ wurde bei Spotify nicht gefunden.`);
@@ -1306,6 +1318,69 @@ async function openTvPicker(q){
       const fb = $("#fixBox"); if (fb) fb.innerHTML = `<div class="msg ok">Gespeichert: „${esc(r.name)}“ ist ab jetzt die Titelmelodie für „${esc(x.serie)}“. Unter „Daten → Sonderkategorien“ kannst du deine Korrekturen exportieren.</div>`; });
   } catch(e) { $("#fixList").textContent = e.message; }
 }
+// =====================================================================
+//  SPOTIFY-ABGLEICH: alle Songs einmal auflösen, Auffälliges markieren, exportieren
+// =====================================================================
+let syncRunning = false, syncPace = 250;   // ~4 Suchen pro Sekunde, schont das Spotify-Limit
+const syncKey = s => "trk3:" + s.t + "|" + s.a;
+function syncFlags(s, r){
+  if (!r) return ["nicht gefunden"];
+  const f = [], y = parseInt(r.date) || 0;
+  if (y && y < s.y) f.push(`Spotify-Album von ${y} – älter als unser Jahr ${s.y}`);
+  if (y && y > s.y + 1 && r.typ !== "compilation") f.push(`nur spätere Ausgabe (${y})`);
+  if (r.typ === "compilation") f.push("nur auf Sampler");
+  if (/\b(version|edit|mix|mono|re-?recorded|re-?mastered \d{4} version|from .* soundtrack)\b/i.test(r.name.replace(/\(.*remaster.*\)/i, ""))) f.push("Versionshinweis im Titel");
+  return f;
+}
+const SYNC_SERIOUS = f => f.some(x => /nicht gefunden|älter als/.test(x));
+function renderSync(){
+  if (!$("#syncStats")) return;
+  const all = DB.filter(s => !s.sid), done = all.filter(s => store.get(syncKey(s), null) || store.get("syncmiss:" + s.t + "|" + s.a, false));
+  const fixed = DB.length - all.length;
+  const rows = done.map(s => [s, store.get(syncKey(s), null)]).map(([s, r]) => [s, r, syncFlags(s, r)]);
+  const serious = rows.filter(x => SYNC_SERIOUS(x[2])), info = rows.filter(x => x[2].length && !SYNC_SERIOUS(x[2]));
+  $("#syncSum").textContent = `${done.length + fixed}/${DB.length} festgelegt${syncRunning ? " · läuft" : ""}`;
+  $("#syncStats").innerHTML = `<div class="small">${fixed} fest eingetragen · ${done.length}/${all.length} abgeglichen · ⚠️ ${serious.length} prüfen · ℹ️ ${info.length} Hinweise</div>
+    <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100 * done.length / Math.max(1, all.length)}%;background:var(--accent);border-radius:3px"></div></div>`;
+  $("#syncStart").textContent = syncRunning ? "⏸ Abgleich anhalten" : "▶ Abgleich starten";
+  $("#syncList").innerHTML = serious.length ? `<h4 style="margin:12px 0 4px">Bitte kurz prüfen (${serious.length})</h4>` + serious.slice(0, 150).map(([s, r, f]) => `<div class="fixit">
+      <div><b>${esc(s.t)}</b> · ${esc(s.a)} (${s.y})<br><span>${r ? "Spotify: „" + esc(r.name) + "“ · " + esc(r.artist) + " · " + esc(r.album) : ""}<br>⚠️ ${esc(f.join(" · "))}</span></div>
+      ${r ? `<button class="btn small sec" data-sync="${s.i}">▶</button>` : ""}</div>`).join("") : "";
+  document.querySelectorAll("[data-sync]").forEach(b => b.onclick = async () => {
+    const s = DB[+b.dataset.sync], r = store.get(syncKey(s), null);
+    try { state.current = { song: s, uri: r.uri, dur: r.dur }; await playCurrent(true); } catch(e) { alert(e.nodevice ? "Spotify schläft – App kurz öffnen." : e.message); }
+  });
+}
+async function syncRun(){
+  if (syncRunning) { syncRunning = false; renderSync(); return; }
+  if (!sp.tok()) { alert("Bitte erst unter „Spiel“ bei Spotify anmelden."); return; }
+  syncRunning = true; renderSync();
+  const todo = DB.filter(s => !s.sid && !store.get(syncKey(s), null) && !store.get("syncmiss:" + s.t + "|" + s.a, false));
+  for (const s of todo) {
+    if (!syncRunning) break;
+    for (let k = 0; k < 6; k++) {
+      try { await resolveTrack(s); break; }
+      catch(e) {
+        if (e.status === 429 || e.status >= 500) { await sleep(5000 * (k + 1)); continue; }
+        if (e.status === 401) { syncRunning = false; alert("Spotify-Anmeldung abgelaufen – bitte neu verbinden."); break; }
+        store.set("syncmiss:" + s.t + "|" + s.a, true); break;   // nicht gefunden
+      }
+    }
+    if (todo.indexOf(s) % 10 === 0) renderSync();
+    await sleep(syncPace);
+  }
+  syncRunning = false; renderSync();
+}
+function syncExport(){
+  const out = {};
+  for (const s of DB) { if (s.sid) continue; const r = store.get(syncKey(s), null);
+    out[s.t + "|" + s.a] = r ? [r.uri.split(":").pop(), r.name, r.artist, r.album, r.date, syncFlags(s, r).join(" · ")] : [null, "", "", "", "", "nicht gefunden"]; }
+  const txt = JSON.stringify(out);
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" })); a.download = "mixtape-spotify-ids.json"; document.body.appendChild(a); a.click(); a.remove();
+    alert(Object.keys(out).length + " Songs als „mixtape-spotify-ids.json“ gespeichert – im Chat hochladen."); }
+  catch(e) { prompt("Kopieren:", txt); }
+}
+
 // ---------- QR-Scanner ----------
 let scanner = null, scanLock = false;
 async function startScanner(){
@@ -1597,7 +1672,7 @@ function renderData(){
     catch(e) { try { await navigator.clipboard.writeText(txt); alert("Korrekturen kopiert."); } catch(e2) { prompt("Korrekturen:", txt); } }
   });
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
-    if (!d.dataset.init && ["spotify", "mb", "check", "plimport"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
+    if (!d.dataset.init && ["spotify", "mb", "check", "plimport", "spsync"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
@@ -1609,7 +1684,7 @@ function renderData(){
     <div class="row" style="margin:10px 0"><label for="allowUnch">Ungeprüfte Songs mitspielen</label><input type="checkbox" id="allowUnch" ${ALLOW_UNCHECKED ? "checked" : ""}></div>
     <table><tr><th>Jahr</th><th>Song</th><th>Grund</th></tr>${pl.map(s => `<tr><td>${s.y}</td><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td class="small">${esc(s.pruefen)}</td></tr>`).join("")}</table>`;
   $("#allowUnch").onchange = e => { store.set("allowUnchecked", e.target.checked); location.reload(); };
-  renderMb();
+  renderMb(); renderSync();
   $("#clientId").value = sp.cid(); $("#redirUri").textContent = REDIRECT;
 }
 
@@ -1717,6 +1792,8 @@ $("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnis
   try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
+$("#syncStart").addEventListener("click", syncRun);
+$("#syncExport").addEventListener("click", syncExport);
 $("#plGo").addEventListener("click", async () => {
   const m = ($("#plUrl").value || "").match(/playlist[\/:]([A-Za-z0-9]{10,})/);
   if (!m) { $("#plMsg").textContent = "Das sieht nicht nach einem Playlist-Link aus."; return; }
