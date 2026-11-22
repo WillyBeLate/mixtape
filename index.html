@@ -450,6 +450,13 @@
     </div></details>
     <details class="fold" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
     <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
+    <details class="fold" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
+    <div class="panel" style="margin-top:6px">
+      <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
+      <input type="text" id="plUrl" placeholder="https://open.spotify.com/playlist/…" style="margin-top:8px">
+      <button class="btn small" id="plGo">📥 Auslesen &amp; speichern</button>
+      <div id="plMsg" class="small"></div>
+    </div></details>
     <details class="fold" data-fold="spotify"><summary><span class="ft">Spotify-Einstellungen</span><span class="fs" id="spSum"></span></summary>
     <div class="panel" style="margin-top:6px">
       <label>Spotify Client-ID</label>
@@ -484,7 +491,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.2";
+const APP_VERSION = "0.9.3";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1590,7 +1597,7 @@ function renderData(){
     catch(e) { try { await navigator.clipboard.writeText(txt); alert("Korrekturen kopiert."); } catch(e2) { prompt("Korrekturen:", txt); } }
   });
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
-    if (!d.dataset.init && ["spotify", "mb", "check"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
+    if (!d.dataset.init && ["spotify", "mb", "check", "plimport"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
@@ -1710,6 +1717,28 @@ $("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnis
   try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
+$("#plGo").addEventListener("click", async () => {
+  const m = ($("#plUrl").value || "").match(/playlist[\/:]([A-Za-z0-9]{10,})/);
+  if (!m) { $("#plMsg").textContent = "Das sieht nicht nach einem Playlist-Link aus."; return; }
+  if (!sp.tok()) { $("#plMsg").textContent = "Bitte erst unter „Spiel“ bei Spotify anmelden."; return; }
+  const out = { playlist: m[1], name: "", tracks: [] };
+  try {
+    $("#plMsg").textContent = "Lese Playlist …";
+    const meta = await sp.api(`/playlists/${m[1]}?fields=name,tracks.total&market=DE`); out.name = meta?.name || "";
+    let url = `/playlists/${m[1]}/tracks?market=DE&limit=100&fields=next,items(track(id,name,artists(name),album(name,release_date),duration_ms,is_local))`;
+    while (url) {
+      const j = await sp.api(url);
+      for (const it of j?.items || []) { const t = it.track; if (!t || t.is_local || !t.id) continue;
+        out.tracks.push([t.id, t.name, t.artists.map(a => a.name).join(", "), t.album?.name || "", t.album?.release_date || ""]); }
+      $("#plMsg").textContent = `${out.tracks.length} Songs gelesen …`;
+      url = j?.next ? j.next.replace("https://api.spotify.com/v1", "") : null;
+    }
+    const txt = JSON.stringify(out);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" }));
+    a.download = "mixtape-playlist.json"; document.body.appendChild(a); a.click(); a.remove();
+    $("#plMsg").innerHTML = `<div class="msg ok">${out.tracks.length} Songs aus „${esc(out.name)}“ als <b>mixtape-playlist.json</b> gespeichert – jetzt im Chat hochladen.</div>`;
+  } catch(e) { $("#plMsg").innerHTML = `<div class="msg err">Fehler: ${esc(e.message || String(e))}${e.status === 404 ? " – ist die Playlist öffentlich?" : ""}</div>`; }
+});
 $("#clearPlayed").addEventListener("click", () => { if (!confirm("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); save(); alert("Verlauf gelöscht."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
 
