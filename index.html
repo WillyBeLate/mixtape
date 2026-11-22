@@ -572,7 +572,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.22";
+const APP_VERSION = "0.9.23";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1581,7 +1581,7 @@ function renderCats(){
   $("#startBtn").disabled = !mains.length && modeDef().app.typ !== "tv" && !modeDef().app.ohneMix;
 }
 // Kategorie-Bild: Künstler = Foto von Spotify (einmal geladen, dann gespeichert), sonst passendes Symbol auf dem Farbkreis
-const CAT_ICON = { global:"🌍", dehits:"🇩🇪", film:"🎬", sommer:"☀️", rock:"🎸", indie:"🎧", hiphop:"🎤", country:"🤠",
+const CAT_ICON = { global:"🌍", dehits:"🇩🇪", film:"🎬", sommer:"☀️", balladen:"💕", rock:"🎸", indie:"🎧", hiphop:"🎤", country:"🤠",
   deutsch:"🗣️", schlager:"💃", ndw:"📻", esc:"🏆", italienisch:"🇮🇹", finnland:"🇫🇮", tuerkei:"🇹🇷", onehit:"⭐", xmas:"🎄" };
 function catDot(c){
   const img = c.typ === "kuenstler" && store.get("artimg:" + c.id, null);
