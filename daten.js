@@ -1282,6 +1282,25 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  // fehlen bei MusicBrainz, Albumjahr bekannt (Trio 1981, 85555 1982, Mit K 2012, Thriller 1982, Planet Punk 1995)
+  "Anna – Lassmichrein Lassmichraus|Trio",
+  "Déjà vu|Spliff",
+  "Song für Liam|Kraftklub",
+  "P.Y.T. (Pretty Young Thing)|Michael Jackson",
+  "Ein Song namens Schunder|Die Ärzte",
+  // MusicBrainz-Treffer früher = Demo/Promo/Fehlzuordnung, erste offizielle Veröffentlichung geprüft
+  "Psycho Killer|Talking Heads",
+  "The Killing Moon|Echo & the Bunnymen",
+  "There Is a Light That Never Goes Out|The Smiths",
+  "Here Comes Your Man|Pixies",
+  "Loser|Beck",
+  "Cannonball|The Breeders",
+  "Last Nite|The Strokes",
+  "Float On|Modest Mouse",
+  "The Rat|The Walkmen",
+  "A-Punk|Vampire Weekend",
+  "Hold My Hand|Michael Jackson",
+  "Friedenspanzer|Die Ärzte",
   // Manuelle Prüfung 22.11.2026
   "It's Only a Paper Moon|Ella Fitzgerald",
   "Lullaby of Broadway|Doris Day",
