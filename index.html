@@ -220,7 +220,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.5.4";
+const APP_VERSION = "0.5.5";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -410,7 +410,8 @@ async function playCurrent(fromStart){
   for (let i = 0; i < 2; i++) {
     await sleep(1200);
     const pl = await sp.api("/me/player").catch(() => null);
-    if (pl?.is_playing && pl.item?.uri === c.uri) { state.paused = false; updatePlayUI(); return; }
+    // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
+    if (pl?.is_playing) { state.paused = false; updatePlayUI(); return; }
     if (i === 0) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
   }
   throw Object.assign(new Error("NOTPLAYING"), { nodevice:true });
