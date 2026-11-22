@@ -221,7 +221,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.5.6";
+const APP_VERSION = "0.5.7";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -476,12 +476,19 @@ async function startScanner(){
       const m = txt.match(/(\d{4})\s*$/);
       if (scanLock) return;                       // Kamera liefert ~10 Treffer/Sek. → nur den ersten nehmen
       if (!txt.startsWith(QR_PREFIX) || !m) { msg("#scanMsg", "warn", "Das ist keine " + APP_NAME + "-Karte."); return; }
-      scanLock = true; handleYear(+m[1]);
+      scanLock = true; handleYear(+m[1]).catch(e => { show("play"); msg("#playMsg", "err", "Fehler: " + (e.message || e)); });
     });
     $("#scanBtn").textContent = "Scanner stoppen";
   } catch(e) { msg("#scanMsg", "err", "Kamera nicht verfügbar: " + (e.message || e)); scanner = null; }
 }
-function stopScanner(){ if (scanner) { try { scanner.pause(true); } catch(e){} scanner.stop().catch(()=>{}).finally(()=>{ try{scanner.clear();}catch(e){} scanner = null; }); } $("#scanBtn").textContent = "📷 Scanner starten"; }
+function stopScanner(){
+  // Scanner sofort "abmelden", damit ein zweiter Aufruf nicht nochmal stop() versucht (das wirft einen Fehler
+  // und hat bisher den ganzen Song-Start abgebrochen)
+  const sc = scanner; scanner = null;
+  if (sc) { try { sc.pause(true); } catch(e){}
+    try { Promise.resolve(sc.stop()).catch(()=>{}).finally(() => { try { sc.clear(); } catch(e){} }); } catch(e){} }
+  $("#scanBtn").textContent = "📷 Scanner starten";
+}
 
 // =====================================================================
 //  UI: Setup
