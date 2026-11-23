@@ -1694,7 +1694,7 @@ const LAENDER = {
 //  Neue Serie = neue Zeile. Findet Spotify den Titel nicht, sucht Mixtape nach "<Serie> Theme".
 // =====================================================================
 const TVTHEMEN = [
-  ["Doctor Who", "Doctor Who", "Ron Grainer", 1963, "GB"],
+  ["Doctor Who", "Doctor Who", "Ron Grainer", 1963, "GB", "5dxWU9epbOtZ0XHv60tydp"],
   ["Die Addams Family", "The Addams Family", "Vic Mizzy", 1964, "US"],
   ["Kobra, übernehmen Sie (Mission: Impossible)", "Mission: Impossible", "Lalo Schifrin", 1966, "US"],
   ["Hawaii Fünf-Null", "Hawaii Five-O", "The Ventures", 1968, "US"],
@@ -1709,7 +1709,7 @@ const TVTHEMEN = [
   ["MacGyver", "MacGyver", "Randy Edelman", 1985, "US"],
   ["DuckTales", "DuckTales", "Jeff Pescetto", 1987, "US"],
   ["Full House", "Everywhere You Look", "Jesse Frederick", 1987, "US"],
-  ["Die Simpsons", "The Simpsons", "Danny Elfman", 1989, "US"],
+  ["Die Simpsons", "The Simpsons", "Danny Elfman", 1989, "US", "4mvuwo6QgnXGupBq0K0PLJ"],
   ["Twin Peaks", "Twin Peaks Theme", "Angelo Badalamenti", 1990, "US"],
   ["Der Prinz von Bel-Air", "The Fresh Prince of Bel-Air", "DJ Jazzy Jeff & The Fresh Prince", 1990, "US", "0UREO3QWbXJW3gOUXpK1am"],
   ["Baywatch", "I'm Always Here", "Jimi Jamison", 1991, "US"],
@@ -1722,7 +1722,7 @@ const TVTHEMEN = [
   ["Charmed – Zauberhafte Hexen", "How Soon Is Now", "Love Spit Love", 1998, "US"],
   ["Die wilden Siebziger", "In the Street", "Cheap Trick", 1998, "US"],
   ["Sex and the City", "Sex and the City", "Douglas J. Cuomo", 1998, "US"],
-  ["Pokémon", "Pokémon Theme", "Jason Paige", 1998, "JP"],
+  ["Pokémon", "Pokémon Theme", "Jason Paige", 1998, "JP", "3OIHgTyQdiAGMmpjQaNxp3"],
   ["Die Sopranos", "Woke Up This Morning", "Alabama 3", 1999, "US"],
   ["Malcolm mittendrin", "Boss of Me", "They Might Be Giants", 2000, "US"],
   ["Gilmore Girls", "Where You Lead I Will Follow", "Carole King", 2000, "US", "5htNlXFlMI6RMBHhJuGJJm"],
@@ -1742,18 +1742,18 @@ const TVTHEMEN = [
   ["Breaking Bad", "Breaking Bad Main Title Theme (Extended)", "Dave Porter", 2008, "US", "2hsLpiKNkWpd4e9QuVdhar"],
   ["True Blood", "Bad Things", "Jace Everett", 2008, "US"],
   ["Sons of Anarchy", "This Life", "Curtis Stigers", 2008, "US"],
-  ["Sherlock", "Sherlock", "David Arnold", 2010, "GB"],
+  ["Sherlock", "Sherlock", "David Arnold", 2010, "GB", "7dgMCxPTzL2QA59rLQfqLe"],
   ["Downton Abbey", "Downton Abbey", "John Lunn", 2010, "GB"],
   ["Game of Thrones", "Main Titles", "Ramin Djawadi", 2011, "US", "4cKmnSLAhwxaWKXQhfz5Ju"],
   ["Peaky Blinders", "Red Right Hand", "Nick Cave & The Bad Seeds", 2013, "GB"],
   ["Vikings", "If I Had a Heart", "Fever Ray", 2013, "CA"],
   ["Brooklyn Nine-Nine", "Brooklyn Nine-Nine", "Dan Marocco", 2013, "US"],
   ["True Detective", "Far from Any Road", "The Handsome Family", 2014, "US"],
-  ["Outlander", "The Skye Boat Song", "Bear McCreary", 2014, "US"],
+  ["Outlander", "The Skye Boat Song", "Bear McCreary", 2014, "US", "10VIsMEvM4K2xgFvh9plJi"],
   ["Narcos", "Tuyo", "Rodrigo Amarante", 2015, "US"],
   ["Stranger Things", "Stranger Things", "Kyle Dixon & Michael Stein", 2016, "US", "0kwuKfWntoGh0EWyYb7Mpf"],
-  ["The Crown", "The Crown", "Hans Zimmer", 2016, "GB"],
-  ["Westworld", "Westworld", "Ramin Djawadi", 2016, "US"],
+  ["The Crown", "The Crown", "Hans Zimmer", 2016, "GB", "21u2gUlh5Iun4ogGGqKVum"],
+  ["Westworld", "Westworld", "Ramin Djawadi", 2016, "US", "2zzdnRWE3z6QP3FoVlnWHO"],
   ["Haus des Geldes", "My Life Is Going On", "Cecilia Krull", 2017, "ES"],
   ["Dark", "Goodbye", "Apparat", 2017, "DE"],
   ["Babylon Berlin", "Zu Asche, zu Staub", "Severija", 2017, "DE"],
@@ -1785,6 +1785,12 @@ const TVTHEMEN = [
   ["Dallas", "Dallas", "The City of Prague Philharmonic Orchestra", 1978, "US", "6DV9dnR9j1j5fCTPvvvKV7"],
   ["Die Waltons", "The Waltons", "The City of Prague Philharmonic Orchestra", 1972, "US", "0ccubaTwmnhiVMei31mGcO"],
   ["Suits", "Greenback Boogie - Suits Main Theme (From \"Suits\")", "Geek Music", 2011, "US", "1X5xwNXjBDJT0O2RTtNHwB"],
+  // ---- aus Playlist „Serien Intros gemischt“ ----
+  ["Fringe – Grenzfälle des FBI", "Fringe Main Title Theme", "J.J. Abrams", 2008, "US", "7mLwS4RXK8W5C0wCzTQRet"],
+  ["Call the Midwife – Ruf des Lebens", "Call the Midwife Theme Tune", "Peter Salem", 2012, "GB", "7luxDARyxnWzkDQjbiFgS3"],
+  ["Supergirl", "Theme from Supergirl", "Blake Neely", 2015, "US", "7q5KUvuVfFCqw22pqGFUnR"],
+  ["Jessica Jones", "Jessica Jones Main Title", "Sean Callery", 2015, "US", "3CyFYCjPynnKTstb7EY0fT"],
+  ["Fuller House", "Everywhere You Look (The Fuller House Theme)", "Carly Rae Jepsen", 2016, "US", "189HvfTbCGUtpKdVNnRHHd"],
 ];
 
 // =====================================================================
@@ -1813,7 +1819,7 @@ const KINDERTHEMEN = [
   ["Thomas, die kleine Lokomotive", "Thomas die kleine Lokomotive und seine Freunde", "Die Sternenkinder", 1984, "GB", "7bzlZSAUDi1Y5BHgGPpCJf"],
   ["Feuerwehrmann Sam", "Feuerwehrmann Sam", "", 1987, "GB", "5wcsYVRQXLfWWYfmKkxfza"],
   ["Die Gummibärenbande", "Gummibärenbande", "Die Sternenkinder", 1985, "US", "3KyjEaQNsw2s5xICHrLKMG"],
-  ["Mila Superstar", "Mila Superstar", "", 1984, "JP"],
+  ["Mila Superstar", "Mila Superstar", "", 1984, "JP", "692s9M9IZuJOD4abMiEIDz"],
   ["Es war einmal … das Leben", "Es war einmal", "", 1987, "FR"],
   ["Teenage Mutant Ninja Turtles", "Teenage Mutant Ninja Turtles", "", 1987, "US", "4QpB8RyVWCAcZ5bWRk14bo"],
   ["Benjamin Blümchen", "Benjamin Blümchen", "", 1988, "DE", "5iE3PXOTikU7vxZGJLuzIH"],
@@ -1836,7 +1842,7 @@ const KINDERTHEMEN = [
   ["Tabaluga", "Tabaluga", "Peter Maffay, Tabaluga", 1997, "DE", "3kuxufXeNOl4MW92OjdLEq"],
   ["Schloss Einstein", "Alles ist relativ - Aus Schloss Einstein", "The Four Tunes", 1998, "DE", "6qXI0biR6tuKNv4cOOYa6O"],
   ["Die Pfefferkörner", "Pfefferkörner", "", 1999, "DE"],
-  ["Bob der Baumeister", "Bob der Baumeister", "", 1998, "GB"],
+  ["Bob der Baumeister", "Bob der Baumeister", "", 1998, "GB", "1AgAG7QifpgEqh2qwvWdhn"],
   ["SpongeBob Schwammkopf", "Spongebob Titelsong", "Simone Sommerland, Karsten Glück, Die Kita-Frösche", 1999, "US", "30V2W11lxufnBwZIPaS64K"],
   ["Digimon", "Digimon", "", 1999, "JP"],
   ["One Piece", "Die Legende (One Piece)", "Anime Allstars", 1999, "JP", "4lrCF4jcwEuLjbC8KGKI3q"],
@@ -1850,7 +1856,7 @@ const KINDERTHEMEN = [
   ["Lizzie McGuire", "Lizzie McGuire", "", 2001, "US"],
   ["Cosmo & Wanda – Wenn Elfen helfen", "Cosmo und Wanda", "", 2001, "US"],
   ["Kim Possible", "Call Me, Beep Me! (The Kim Possible Song) - 2006 Recording", "Christina Milian", 2002, "US", "4gLJSncpK6VnvWLFNy7ejf"],
-  ["Bibi Blocksberg", "Bibi Blocksberg", "", 2002, "DE"],
+  ["Bibi Blocksberg", "Bibi Blocksberg", "", 2002, "DE", "2XsB2PrWF3DfaQ5VwHyqin"],
   ["Lauras Stern", "Lauras Stern - Titelsong zur TV-Serie", "Alf Klimek, Johannes Koeniger", 2002, "DE", "3lyYFteE3p5XiraVLvZoke"],
   ["Jimmy Neutron", "Jimmy Neutron", "", 2002, "US"],
   ["Naruto", "Naruto", "", 2002, "JP"],
@@ -1921,6 +1927,13 @@ const KINDERTHEMEN = [
   ["Lilo & Stitch", "Aloha, E Komo Mai (Theme Song from Lilo & Stitch: The Series) - Extended Version", "Jump5", 2003, "US", "5JVcDjjtezbvIWdb4ZTG4p"],
   ["A.N.T. Farm", "Exceptional", "China Anne McClain", 2011, "US", "6cDQo6MvkQJbp2xlZx6uJc"],
   ["American Dragon", "The Chosen One (From \"American Dragon: Jake Long\")", "Geek Music", 2005, "US", "7ERIGOzpHHDbxg5bjyNZV7"],
+  // ---- aus Playlist „Serien Intros gemischt“ ----
+  ["Popeye", "Popeye", "Die Sternenkinder", 1960, "US", "6LWrMUjue1tLs2oXz0AdM8"],
+  ["Flipper", "Flipper", "Die Sternenkinder", 1964, "US", "1G2C0AoIGXkFd4zDYRMVGa"],
+  ["Die Mumins", "Die Mumins (Das sind die Mumins)", "Die Sternenkinder", 1990, "JP", "2Wgz36R4HGrbYD2hF2eX9H"],
+  ["Jeanne, die Kamikaze-Diebin", "Sie ist nicht zu fassen", "Anime Allstars", 1999, "JP", "5KdtPisrfBGUFZnsK37ixg"],
+  ["Kleine Einsteins", "Kleine Einsteins", "", 2005, "US", "1xVu4CxZ8MDAS36ymrtwG9"],
+  ["My Little Pony – Freundschaft ist Magie", "My Little Pony Theme Song", "", 2010, "US", "7IuqzB9NXVqrum0jaDQ0LY"],
 ];
 
 // =====================================================================
