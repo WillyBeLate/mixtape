@@ -143,6 +143,40 @@
   .sbh .gl{flex:1;text-align:right;font-size:12px;color:#cfc6e8}
   .sbh .ed{background:#ffffff14;border:0;color:#cfc6e8;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
   .sbh .ed.on{background:#fff;color:var(--ink)}
+  .sbh .ed:disabled{opacity:.3;cursor:default}
+  /* Sieg-Popup */
+  #winPop{position:fixed;inset:0;z-index:60;background:#0b0418d9;backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px;animation:wpf .25s ease-out}
+  #winPop .wp{position:relative;width:min(420px,100%);max-height:92vh;overflow:auto;background:linear-gradient(160deg,#3b1f7a,#1d0f3d);border-radius:26px;padding:26px 20px 18px;text-align:center;
+    box-shadow:0 0 0 2px var(--wc,#ffd23f),0 20px 60px #000a,0 0 80px color-mix(in srgb,var(--wc,#ffd23f) 45%,transparent);animation:wpp .5s cubic-bezier(.2,1.6,.4,1)}
+  #winPop .tro{font-size:74px;line-height:1;animation:wpb 1.4s ease-in-out infinite}
+  #winPop .wl{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.75;margin-top:8px}
+  #winPop .wn{font-size:34px;font-weight:900;margin:4px 0 6px;color:var(--wc,#fff);text-shadow:0 2px 0 #0006}
+  #winPop .wt{font-size:14px;opacity:.85}
+  #winPop .wsc{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:14px 0 4px}
+  #winPop .wsc span{background:#ffffff14;border-radius:999px;padding:4px 10px;font-size:13px;border-left:4px solid var(--c)}
+  #winPop .stats{text-align:left;background:#00000033;border-radius:16px;padding:10px 12px;margin:14px 0;font-size:13px}
+  #winPop .stats h4{margin:0 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.7}
+  #winPop .aw1{display:flex;gap:8px;padding:5px 0;border-top:1px solid #ffffff12}
+  #winPop .aw1:first-of-type{border-top:0}
+  #winPop .aw1 i{font-style:normal;font-size:18px}
+  #winPop .aw1 .at{display:block;font-weight:800}
+  #winPop .aw1 span{opacity:.75;font-size:12px}
+  #winPop .btn{margin-top:8px}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:61;overflow:hidden}
+  .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:cf linear forwards}
+  @keyframes cf{to{transform:translateY(110vh) rotate(720deg)}}
+  @keyframes wpf{from{opacity:0}}
+  @keyframes wpp{from{transform:scale(.6);opacity:0}}
+  @keyframes wpb{50%{transform:translateY(-6px) rotate(-6deg)}}
+  /* Song-Verlauf */
+  #histBox{margin-top:12px}
+  #histBox summary{cursor:pointer;font-weight:700;padding:4px 0}
+  .hist{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #ffffff14;font-size:14px}
+  .hist .hy{font-weight:900;min-width:44px;color:#ffd23f}
+  .hist .ht{flex:1;min-width:0}
+  .hist .ht span{display:block;font-size:12px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hist a{flex:none;width:34px;height:34px;border-radius:50%;background:#1db954;display:grid;place-items:center;color:#000;text-decoration:none;font-weight:900}
+  .hday{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.6;margin:10px 0 2px}
   .tiles{display:grid;gap:8px;grid-template-columns:1fr 1fr}
   .tiles.n1{grid-template-columns:1fr}
   .tile{position:relative;border-radius:18px;padding:12px 14px 12px;background:linear-gradient(160deg,#ffffff16,#ffffff08);border:1px solid #ffffff14;overflow:hidden;cursor:pointer;transition:all .2s}
@@ -471,6 +505,7 @@
         <button class="btn small" id="manBtn">OK</button></div>
     </div>
     <button class="btn sec" id="backSetup">Neues Spiel (Modus &amp; Mix wählen)</button>
+    <details class="panel" id="histBox"></details>
   </section>
 
   <!-- ======================= LÄUFT ======================= -->
@@ -594,7 +629,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.41";
+const APP_VERSION = "0.9.42";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -635,10 +670,14 @@ const state = {
   range: store.get("range", [DEFAULT_FROM, DEFAULT_TO]),
   played: new Set(store.get("played", [])),
   current: null,       // {song, uri, from}
+  playedAt: store.get("playedAt", null),   // Song -> laufende Nummer, wann er zuletzt lief
+  playN: store.get("playN", 0),
   paused: false,
   tab: "main",
 };
-const save = () => { store.set("sel", state.sel); store.set("weight", state.weight); store.set("randStart", state.randStart);
+// Alte Merkliste (gespielt ja/nein) einmalig übernehmen
+if (!state.playedAt) { state.playedAt = {}; [...state.played].forEach(i => state.playedAt[i] = ++state.playN); }
+const save = () => { store.set("playedAt", state.playedAt); store.set("playN", state.playN); store.set("sel", state.sel); store.set("weight", state.weight); store.set("randStart", state.randStart);
   store.set("range", state.range); store.set("played", [...state.played]); };
 
 const $ = s => document.querySelector(s);
@@ -665,6 +704,17 @@ function candidates(cats, year, avoidPlayed){
   return out;
 }
 const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
+// Wiederholungen: nicht verboten, nur seltener. Ein gerade gelaufener Song hat ~10 % der Chance eines
+// frischen Songs; die Chance steigt mit jedem weiteren gespielten Song und ist nach REPEAT_BACK Songs wieder voll.
+const REPEAT_BACK = 250, REPEAT_MIN = .1;
+function songW(s){ const at = state.playedAt[s.i]; if (at == null) return 1;
+  return Math.min(1, REPEAT_MIN + (1 - REPEAT_MIN) * (state.playN - at) / REPEAT_BACK); }
+const isRecent = s => state.playedAt[s.i] != null && state.playN - state.playedAt[s.i] < REPEAT_BACK;
+function pickW(arr, w = songW){
+  const ws = arr.map(w), sum = ws.reduce((a, b) => a + b, 0); let r = Math.random() * sum;
+  for (let k = 0; k < arr.length; k++) { r -= ws[k]; if (r <= 0) return arr[k]; }
+  return arr[arr.length - 1];
+}
 
 // Song-Gedächtnis: Sind alle passenden Songs eines Jahres schon gelaufen, kommen genau diese
 // automatisch wieder in den Topf. So muss nie jemand von Hand etwas zurücksetzen.
@@ -673,30 +723,23 @@ function recycle(cats, year){
   if (all.length && all.every(s => state.played.has(s.i))) { all.forEach(s => state.played.delete(s.i)); save(); }
 }
 function pickSong(year, force){
-  if (force) recycle([force], year);
-  else { const ex = state.sel.filter(c => effTyp(c) !== "main"), mn = state.sel.filter(c => effTyp(c) === "main");
-    if (ex.length) recycle(ex, year); recycle(mn, year); }
   // Wunschkonzert: Kategorie vom anderen Team gewählt (es werden nur Kategorien mit Song angeboten)
   if (force) {
-    for (const avoid of [true, false]) {
-      const l = (byYearCat[force]?.[year] || []).filter(s => !avoid || !state.played.has(s.i));
-      if (l.length) return { song: pickRand(l), from: force, repeat: !avoid, forced: true };
-    }
+    const l = byYearCat[force]?.[year] || [];
+    if (l.length) { const s = pickW(l); return { song: s, from: force, repeat: isRecent(s), forced: true }; }
     const p = pickSong(year); if (p) p.fizzle = force; return p;
   }
   const mains  = state.sel.filter(c => effTyp(c) === "main");
   const extras = state.sel.filter(c => effTyp(c) !== "main");
-  for (const avoid of [true, false]) {           // erst ohne Wiederholung, dann mit
-    const ex = candidates(extras, year, avoid);
-    const mn = candidates(mains,  year, avoid);
-    const exCats = Object.keys(ex), mnCats = Object.keys(mn);
-    const useExtra = exCats.length && (!mnCats.length || Math.random() * 100 < state.weight);
-    if (useExtra) { const c = pickRand(exCats); return { song: pickRand(ex[c]), from: c, repeat: !avoid }; }
-    if (mnCats.length) {
-      // Main-Songs gleichmäßig über alle Main-Kategorien des Jahres (ohne Duplikate)
-      const pool = [...new Map(mnCats.flatMap(c => mn[c]).map(s => [s.i, s])).values()];
-      const s = pickRand(pool); return { song: s, from: mnCats.find(c => s.cats.includes(c)), repeat: !avoid };
-    }
+  const ex = candidates(extras, year, false), mn = candidates(mains, year, false);
+  const exCats = Object.keys(ex), mnCats = Object.keys(mn);
+  const useExtra = exCats.length && (!mnCats.length || Math.random() * 100 < state.weight);
+  // Kategorie, deren Songs alle gerade erst liefen, wird entsprechend seltener gewählt
+  if (useExtra) { const c = pickW(exCats, k => Math.max(...ex[k].map(songW))); const s = pickW(ex[c]); return { song: s, from: c, repeat: isRecent(s) }; }
+  if (mnCats.length) {
+    // Main-Songs gleichmäßig über alle Main-Kategorien des Jahres (ohne Duplikate)
+    const pool = [...new Map(mnCats.flatMap(c => mn[c]).map(s => [s.i, s])).values()];
+    const s = pickW(pool); return { song: s, from: mnCats.find(c => s.cats.includes(c)), repeat: isRecent(s) };
   }
   return null;
 }
@@ -926,14 +969,14 @@ async function handleYear(year){
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Song wird geladen …"; msg("#playMsg");
-  const cur = state.current = { ...pick, year, uri: null, dur: null, stage: 0 };
+  const cur = state.current = { ...pick, year, uri: null, dur: null, stage: 0, uid: Date.now(), p0: state.game.teams.map(t => t.p) };
   $("#playHint").textContent = fillText(m.kurz, m.app);
   renderModeBox(); renderScore();
   const start = m.app.typ === "sprint" ? () => sprintPlay(0) : () => playCurrent(false);
   try {
     const tr = await resolveTrack(pick.song);
     if (state.current !== cur) return;                       // inzwischen nächste Karte -> alte Suche verwerfen
-    Object.assign(cur, { uri: tr.uri, dur: tr.dur });
+    Object.assign(cur, { uri: tr.uri, dur: tr.dur }); saveCur();
     await start();
   } catch(e) {
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – Mixtape öffnet Spotify kurz und spielt den Song danach automatisch ab.", m.app.typ === "sprint" ? () => sprintPlay(0) : null);
@@ -954,7 +997,8 @@ function reveal(){
   clearTimeout(sprintTimer);
   if (!c.revealed) {
     c.revealed = true;
-    state.played.add(c.song.i); save();
+    state.played.add(c.song.i); state.playedAt[c.song.i] = ++state.playN; save();
+    addHistory(c);
     if (modeDef().app.runden) state.game.runde++;
     if (modeDef().app.zug === "reihum") state.game.teams[state.game.turn].z++;
     if (c.stage !== 9 && modeDef().app.typ === "sprint") c.sprintStage = c.stage;
@@ -990,6 +1034,7 @@ state.game = store.get("game", null);
 state.forceCat = null;
 state.running = store.get("running", false);
 const saveGame = () => store.set("game", state.game);
+let undoStack = store.get("undo", []);
 function modeDef(){ return SPIELMODI.find(m => m.id === state.game?.mode) || SPIELMODI[0]; }
 function fillText(t, a){
   if (!t) return "";
@@ -1019,13 +1064,152 @@ function newGame(modeId, names){
     const keep = names?.[i] && !/^(Team [A-J]|Spieler \d+|Wir alle)$/.test(names[i]) ? names[i] : defaultName(m, i);
     teams.push({ n: keep, p: m.app.handkarten ? (i === 0 ? m.app.handkarten[0] : m.app.handkarten[1]) : (m.app.startPunkte || 0), m: m.app.markenStart || 0, z: 0, c: oldC[i] ?? TEAM_START[i % 10] });
   }
-  state.game = { mode: m.id, teams, turn: 0, runde: 0, ziel: store.get("ziel:" + m.id, m.app.ziel) };
-  state.forceCat = null; saveGame();
+  state.game = { mode: m.id, teams, turn: 0, runde: 0, ziel: store.get("ziel:" + m.id, m.app.ziel), t0: Date.now(), log: [] };
+  state.forceCat = null; saveGame(); clearUndo();
 }
 if (!state.game || !SPIELMODI.some(m => m.id === state.game.mode)) newGame(SPIELMODI[0].id);
 
+// ---------- Laufende Karte speichern (Fortsetzen nach App-Neustart) ----------
+function serCur(c){ if (!c?.song) return null;
+  const { song, ...rest } = c; return { ...rest, key: song.tv ? song.i : song.t + "|" + song.a, tv: !!song.tv }; }
+function deserCur(o){ if (!o) return null;
+  const song = o.tv ? tvList().find(x => x.i === o.key) : DB.find(s => s.t + "|" + s.a === o.key);
+  if (!song) return null; const { key, tv, ...rest } = o; return { ...rest, song }; }
+const saveCur = () => store.set("cur", serCur(state.current));
+
+// ---------- Rückgängig: Schnappschuss vor jeder Punkte-/Zug-Änderung ----------
+function pushUndo(label){
+  undoStack.push({ g: JSON.stringify(state.game), cur: serCur(state.current), view: curView, label });
+  if (undoStack.length > 40) undoStack.shift(); store.set("undo", undoStack);
+}
+function clearUndo(){ undoStack = []; store.set("undo", undoStack); }
+function doUndo(){
+  const u = undoStack.pop(); if (!u) return; store.set("undo", undoStack);
+  state.game = JSON.parse(u.g); saveGame();
+  const c = state.current;
+  if (c && u.cur && c.uid === u.cur.uid) c.awards = u.cur.awards || {};       // gleiche Karte: nur Vergaben zurück
+  else { state.current = deserCur(u.cur); }                                  // zurück zur vorherigen Karte
+  saveCur();
+  if (state.current && (u.view === "play" || state.current.revealed)) { if (curView !== "play") restorePlay(); else renderScore(); }
+  else if (!state.current && curView === "play") show("game");
+  else renderScore();
+  undoToast("Rückgängig: " + u.label);
+}
+let undoT = 0;
+function undoToast(t){ let el = $("#undoToast"); if (!el) { el = document.createElement("div"); el.id = "undoToast";
+    el.style.cssText = "position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#fff;color:#1b1033;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;z-index:70;box-shadow:0 6px 20px #0006;max-width:90vw;text-align:center";
+    document.body.appendChild(el); }
+  el.textContent = t; el.style.display = "block"; clearTimeout(undoT); undoT = setTimeout(() => el.style.display = "none", 2200); }
+
+// Gespeicherte Karte wieder auf den Spiel-Bildschirm bringen
+function restorePlay(){
+  const c = state.current, m = modeDef(); if (!c) return show("game");
+  show("play");
+  $("#playDev").textContent = ""; msg("#playMsg"); $("#revealBox").innerHTML = "";
+  $("#playHint").textContent = c.song.tv ? tvW(c.song).frage : fillText(m.kurz, m.app);
+  state.paused = true; $("#disc").classList.add("paused"); $("#pauseBtn").textContent = "▶ Weiter";
+  $("#playState").textContent = c.revealed ? "Aufgelöst" : "Pausiert – ↺ spielt den Song nochmal";
+  if (c.revealed) reveal(); else { $("#revealBtn").style.display = "block"; $("#nextBtn").style.display = "none"; renderModeBox(); renderScore(); }
+}
+
+// ---------- Bildschirm bleibt an, solange gespielt wird ----------
+let wakeLock = null, curView = "setup";
+async function keepAwake(on){
+  try {
+    if (on && !wakeLock && "wakeLock" in navigator && document.visibilityState === "visible") {
+      wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => wakeLock = null); }
+    else if (!on && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
+  } catch(e) {}
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") keepAwake(["game", "play"].includes(curView) && state.running); });
+
+// ---------- Karten-Protokoll für die Feierabend-Statistik ----------
+function cardDeltas(c){ const T = state.game.teams, hk = modeDef().app.handkarten;
+  return T.map((t, i) => { const d = t.p - (c.p0?.[i] ?? t.p); return hk ? -d : d; }); }
+function logCard(c){
+  if (!c?.revealed || c.logged) return; c.logged = true;
+  const g = state.game; (g.log ??= []).push({ y: c.song.y, t: c.song.serie || c.song.t, a: c.song.a, turn: g.turn, d: cardDeltas(c) });
+}
+function statsHtml(){
+  const g = state.game, T = g.teams, a = modeDef().app, L = [...(g.log || [])];
+  const c = state.current; if (c?.revealed && !c.logged) L.push({ y: c.song.y, t: c.song.serie || c.song.t, a: c.song.a, turn: g.turn, d: cardDeltas(c) });
+  if (!L.length) return "";
+  const min = g.t0 ? Math.round((Date.now() - g.t0) / 60000) : 0;
+  const ys = L.map(e => e.y).filter(Boolean);
+  const out = [];
+  const nm = i => `<b style="color:${teamCol(i)}">${esc(T[i].n)}</b>`;
+  const hits = T.map((_, i) => L.filter(e => e.d[i] > 0));
+  if (T.length > 1) {
+    const hc = hits.map(h => h.length), best = Math.max(...hc);
+    if (best > 0) { const w = hc.indexOf(best); out.push(["🎯", "Treffsicher", `${nm(w)} hat bei ${best} von ${L.length} Songs gepunktet`]); }
+    if (a.zug === "reihum") {
+      const streak = (i, want) => { let b = 0, k = 0; for (const e of L.filter(e => e.turn === i)) { k = (e.d[i] > 0) === want ? k + 1 : 0; b = Math.max(b, k); } return b; };
+      const hs = T.map((_, i) => streak(i, true)), ms = T.map((_, i) => streak(i, false));
+      const hb = Math.max(...hs); if (hb >= 2) out.push(["🔥", "Längste Serie", `${nm(hs.indexOf(hb))}: ${hb} Treffer am Stück`]);
+      const mb = Math.max(...ms); if (mb >= 3) out.push(["🙈", "Pechsträhne", `${nm(ms.indexOf(mb))}: ${mb}× in Folge leer ausgegangen`]);
+    }
+  }
+  // Jahrzehnt-Profi: meiste Treffer in einem Jahrzehnt
+  let dp = null; T.forEach((_, i) => { const cnt = {}; hits[i].forEach(e => { if (e.y) { const d = Math.floor(e.y / 10) * 10; cnt[d] = (cnt[d] || 0) + 1; } });
+    for (const d in cnt) if (!dp || cnt[d] > dp.n) dp = { i, d, n: cnt[d] }; });
+  if (dp && dp.n >= 2) out.push(["📼", "Jahrzehnt-Profi", `${T.length > 1 ? nm(dp.i) + ": " : ""}${dp.n} Treffer in den ${String(dp.d).slice(2)}ern`]);
+  // Zeitreisender: ältester Song, bei dem gepunktet wurde
+  const old = L.filter(e => e.y && e.d.some(x => x > 0)).sort((p, q) => p.y - q.y)[0];
+  if (old) { const w = old.d.findIndex(x => x > 0); out.push(["🦖", "Zeitreisender", `${T.length > 1 ? nm(w) + " kannte " : ""}„${esc(old.t)}“ von ${old.y}`]); }
+  const head = `${L.length} Songs${min ? ` · ${min} Min.` : ""}${ys.length ? ` · ${Math.min(...ys)}–${Math.max(...ys)}` : ""}`;
+  return `<div class="stats"><h4>Feierabend-Statistik · ${head}</h4>${out.map(([ic, t, x]) => `<div class="aw1"><i>${ic}</i><div><span class="at">${t}</span><span>${x}</span></div></div>`).join("") || '<div class="small">Noch zu wenig gespielt für Auszeichnungen.</div>'}</div>`;
+}
+
+// ---------- Sieg-Popup ----------
+function confetti(){
+  const box = document.createElement("div"); box.className = "confetti";
+  const cols = ["#ff2fa0", "#ffd23f", "#2de2e6", "#9be15d", "#9b5cff", "#ff8a1f", "#fff"];
+  box.innerHTML = Array.from({ length: 90 }, () => `<i style="left:${Math.random() * 100}%;background:${pickRand(cols)};animation-duration:${2.2 + Math.random() * 2.2}s;animation-delay:${Math.random() * .9}s;transform:rotate(${Math.random() * 360}deg)"></i>`).join("");
+  document.body.appendChild(box); setTimeout(() => box.remove(), 5500);
+}
+function showWin(st){
+  $("#winPop")?.remove();
+  const g = state.game, lose = st.typ === "lose", ti = st.team ? g.teams.indexOf(st.team) : -1;
+  const head = lose ? "Knapp vorbei" : ti >= 0 ? esc(st.team.n) : modeDef().app.koop ? "Geschafft!" : "Unentschieden!";
+  const el = document.createElement("div"); el.id = "winPop";
+  el.innerHTML = `<div class="wp" style="--wc:${lose ? "#ff6f61" : ti >= 0 ? teamCol(ti) : "#ffd23f"}">
+    <div class="tro">${lose ? "⏳" : "🏆"}</div><div class="wl">${lose ? "Verloren" : "Gewonnen"}</div><div class="wn">${head}</div><div class="wt">${st.text}</div>
+    ${g.teams.length > 1 ? `<div class="wsc">${g.teams.map((t, i) => `<span style="--c:${teamCol(i)}">${esc(t.n)} <b>${t.p}</b></span>`).join("")}</div>` : ""}
+    ${statsHtml()}
+    <button class="btn" id="wpNew">🔁 Neue Runde – gleiche Teams &amp; Mix</button>
+    <button class="btn sec" id="wpGo">▶ Trotzdem weiterspielen</button>
+    <button class="btn sec small" id="wpSetup">Modus oder Mix ändern</button></div>`;
+  document.body.appendChild(el); if (!lose) confetti();
+  const close = () => el.remove();
+  $("#wpGo").onclick = () => { state.game.endlos = true; saveGame(); close(); };
+  $("#wpSetup").onclick = () => { close(); show("setup"); };
+  $("#wpNew").onclick = () => { close(); newGame(g.mode, g.teams.map(t => t.n)); state.current = null; saveCur(); show("game"); };
+}
+
+// ---------- Song-Verlauf ----------
+function addHistory(c){
+  const s = c.song, h = store.get("verlauf", []);
+  h.unshift({ t: s.tv ? (c.trName || s.t) : s.t, a: s.tv ? (c.trArtist || s.a) : s.a, y: s.y, serie: s.serie || null, uri: c.uri || (s.sid ? "spotify:track:" + s.sid : null), ts: Date.now() });
+  store.set("verlauf", h.slice(0, 200));
+}
+function renderHistory(){
+  const box = $("#histBox"); if (!box) return;
+  const h = store.get("verlauf", []), open = box.open;
+  const day = ts => { const d = new Date(ts), t = new Date(); const diff = Math.floor((new Date(t.toDateString()) - new Date(d.toDateString())) / 864e5);
+    return diff === 0 ? "Heute" : diff === 1 ? "Gestern" : d.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" }); };
+  let last = "", rows = "";
+  for (const e of h.slice(0, 100)) { const d = day(e.ts); if (d !== last) { rows += `<div class="hday">${d}</div>`; last = d; }
+    const id = e.uri?.split(":").pop();
+    rows += `<div class="hist"><span class="hy">${e.y || ""}</span><div class="ht">${esc(e.serie || e.t)}<span>${e.serie ? "„" + esc(e.t) + "“ · " : ""}${esc(e.a || "")}</span></div>
+      ${id ? `<a href="https://open.spotify.com/track/${id}" target="_blank" rel="noopener" title="In Spotify öffnen">▶</a>` : ""}</div>`; }
+  box.innerHTML = `<summary>🎵 Zuletzt gespielt${h.length ? ` (${Math.min(h.length, 100)})` : ""}</summary>${rows || '<div class="small">Noch keine Songs gespielt.</div>'}
+    ${h.length ? '<div class="small" style="margin-top:8px;opacity:.7">▶ öffnet den Song in Spotify – zum Liken oder für eure Playlist.</div>' : ""}`;
+  box.open = open;
+}
+
 const goal = () => state.game.ziel || modeDef().app.ziel;
 const otherIdx = () => (state.game.turn + 1) % state.game.teams.length;
+const SVG_UNDO = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>`;
 const SVG_EDIT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>`;
 
 // Spielstand inkl. Nachziehen & Verlängerung (Regel „Gewinnen & Nachziehen“)
@@ -1079,9 +1263,10 @@ function renderScore(){
   if (st) banner = `<div class="sbn ${st.typ}"><b>${{ win:"Gewonnen", lose:"Verloren", nach:"Nachziehen", verl:"Verlängerung" }[st.typ]}</b><span>${st.text}</span>
     ${st.typ === "win" || st.typ === "lose" ? `<button class="btn small" data-sc="new">Neue Runde</button>` : ""}</div>`;
   document.querySelectorAll(".scoreBox").forEach(el => el.innerHTML = `<div class="sb">
-    <div class="sbh"><span class="mn">${esc(m.name)}</span><span class="gl">${gl}</span><button class="ed ${edit ? "on" : ""}" data-sc="edit" title="Punkte korrigieren">${SVG_EDIT}</button></div>
+    <div class="sbh"><span class="mn">${esc(m.name)}</span><span class="gl">${gl}</span><button class="ed" data-sc="undo" title="Letzte Änderung rückgängig" ${undoStack.length ? "" : "disabled"}>${SVG_UNDO}</button><button class="ed ${edit ? "on" : ""}" data-sc="edit" title="Punkte korrigieren">${SVG_EDIT}</button></div>
     <div class="tiles n${Math.min(g.teams.length, 3)}">${tiles}</div>${banner}</div>`);
-  renderSabotage(); renderAwards();
+  renderSabotage(); renderAwards(); saveCur();
+  if (st && (st.typ === "win" || st.typ === "lose") && !g.endlos && g.winKey !== st.text && state.running) { g.winKey = st.text; saveGame(); setTimeout(() => showWin(st), 350); }
 }
 
 // Punkte vergeben nach dem Auflösen (Knöpfe kommen aus regeln.js → app.aktionen)
@@ -1115,6 +1300,7 @@ function renderAwards(){
   box.querySelectorAll("[data-aw]").forEach(b => b.onclick = () => {
     const x = awardList().find(y => y.key === b.dataset.aw);
     const on = !c.awards[x.key];
+    pushUndo(`${x.label}${x.sub ? " · " + x.sub.replace(/<[^>]+>/g, "") : ""}${on ? "" : " (zurückgenommen)"}`);
     // beim Zurücknehmen exakt das abziehen, was vergeben wurde
     const eff = on ? x.eff : c.awards[x.key];
     eff.forEach(([ti, p, mm]) => applyEff(ti, p, mm, on ? 1 : -1));
@@ -1129,9 +1315,11 @@ document.addEventListener("click", e => {
   const g = state.game, m = modeDef(), i = +b.dataset.i, t = g.teams[i], k = b.dataset.sc;
   if (k === "new") { show("setup"); return; }
   if (k === "edit") { state.sbEdit = !state.sbEdit; renderScore(); return; }
+  if (k === "undo") { e.stopPropagation(); doUndo(); return; }
   if (k === "turn") { if (state.sbEdit || !e.target.closest(".tile") || e.target.closest("button")) return;
-    if (m.app.zug === "reihum" && !state.current?.revealed) { g.turn = i; state.forceCat = null; } }
-  else if (k === "p+") t.p++;
+    if (m.app.zug === "reihum" && !state.current?.revealed && g.turn !== i) { pushUndo("Zug gewechselt"); g.turn = i; state.forceCat = null; } }
+  else if (["p+", "p-", "m+", "m-"].includes(k)) pushUndo(`Korrektur ${t.n}`);
+  if (k === "p+") t.p++;
   else if (k === "p-") t.p = Math.max(0, t.p - 1);
   else if (k === "m+") t.m = m.app.markenMax ? Math.min(m.app.markenMax, t.m + 1) : t.m + 1;
   else if (k === "m-") t.m = Math.max(0, t.m - 1);
@@ -1450,19 +1638,17 @@ async function resolveTV(x){
 async function playTV(){
   if (!sp.tok()) { msg("#scanMsg", "warn", "Bitte erst unter „Spiel“ bei Spotify anmelden."); $("#scanMsg").style.display = ""; return; }
   const TV = tvList();
-  let pool = TV.filter(x => !state.played.has(x.i));
-  if (!pool.length) { TV.forEach(x => state.played.delete(x.i)); pool = TV; }   // alle durch -> von vorn
-  const x = pickRand(pool);
+  const x = pickW(TV);                                    // kürzlich gelaufene Melodien seltener
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Melodie wird geladen …"; msg("#playMsg");
-  const cur = state.current = { song: x, from: null, year: null, uri: null, dur: null, stage: 0 };
+  const cur = state.current = { song: x, from: null, year: null, uri: null, dur: null, stage: 0, uid: Date.now(), p0: state.game.teams.map(t => t.p) };
   $("#playHint").textContent = tvW(x).frage;
   renderModeBox(); renderScore();
   try {
     const tr = await resolveTV(x);
     if (state.current !== cur) return;                      // inzwischen weitergetippt -> alte Suche verwerfen
-    Object.assign(cur, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist });
+    Object.assign(cur, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist }); saveCur();
     await playCurrent(true);
   } catch(e) {
     if (state.current !== cur) return;
@@ -2074,6 +2260,8 @@ function renderData(){
 //  Navigation & Events
 // =====================================================================
 function show(v){
+  curView = v; keepAwake(["game", "play"].includes(v) && state.running);
+  if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
   document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play"].includes(v) && b.dataset.v === "spiel")));
   if (v !== "game") stopScanner();
@@ -2139,7 +2327,7 @@ document.addEventListener("click", e => { if (e.target.closest("#startBtn, #tvNe
 $("#startBtn").addEventListener("click", () => {
   // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
   newGame(state.game.mode, state.game.teams.map(t => t.n));
-  state.current = null; state.running = true; store.set("running", true);
+  state.current = null; saveCur(); state.running = true; store.set("running", true);
   if (sp.tok() && !spReady) openSpotify();   // kein Spotify-Gerät erreichbar -> jetzt unauffällig wecken
   show("game");
 });
@@ -2172,7 +2360,8 @@ $("#restartBtn").addEventListener("click", async () => {
 });
 $("#revealBtn").addEventListener("click", reveal);
 $("#nextBtn").addEventListener("click", () => {
-  nextTurn(); state.current = null;
+  pushUndo("Nächste Karte"); logCard(state.current);
+  nextTurn(); state.current = null; saveCur();
   if (modeDef().app.typ === "tv") { playTV(); return; }
   show("game");
   startScanner();
@@ -2230,7 +2419,7 @@ $("#plGo").addEventListener("click", async () => {
       : e.status === 404 ? " – Link prüfen bzw. ist die Playlist privat?" : "";
     $("#plMsg").innerHTML = `<div class="msg err">Fehler: ${esc(e.message || String(e))}${hint}</div>`; }
 });
-$("#clearPlayed").addEventListener("click", () => { if (!confirm("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); save(); alert("Verlauf gelöscht."); });
+$("#clearPlayed").addEventListener("click", () => { if (!confirm("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); state.playedAt = {}; state.playN = 0; store.del("verlauf"); save(); alert("Verlauf gelöscht."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
 
 // ---------- Installierbare App ----------
@@ -2268,8 +2457,11 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   renderInstall(); updateBadge();
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
+  const fromLogin = /[?&]code=/.test(location.search);
   const err = await sp.handleRedirect();
   renderLogin(err); renderCats(); renderModePanel();
+  // Fortsetzen: lief beim Schließen eine Runde, geht's direkt dort weiter (inkl. aufgedeckter Karte)
+  if (state.running && !fromLogin) { state.current = deserCur(store.get("cur", null)); state.current ? restorePlay() : show("game"); }
 })();
 </script>
 </body>
