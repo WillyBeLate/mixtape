@@ -549,6 +549,7 @@
     </div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
       <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
+      <div class="row" style="margin-top:10px"><label for="fsOn"><b>Vollbild beim Spielen</b><br><span class="small">Blendet die Statusleiste oben aus – dort zeigen neue Handys sonst den laufenden Song an.</span></label><input type="checkbox" id="fsOn"></div>
       <div id="installBox"></div>
       <button class="btn small sec adm" id="admOff" style="margin-top:8px">Daten-Bereich auf diesem Gerät ausblenden</button>
     </div>
@@ -572,7 +573,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.30";
+const APP_VERSION = "0.9.32";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1210,7 +1211,7 @@ function renderModePanel(){
   // nach Spielerzahl gruppiert
   const grp = x => x.app.typ === "tv" ? 4 : x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
   const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extra: ohne Jahreszahlen"];
-  const kurzSp = x => x.app.typ === "tv" ? (x.app.daten === "games" ? "Spiele raten" : "Serien raten") : x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
+  const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele raten", disney: "Filme raten", film: "Filme raten", mix: "alles gemischt" }[x.app.daten] || "Serien raten") : x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
     x.app.teams[0] === x.app.teams[1] ? `${x.app.teams[0]} Teams` : `${x.app.teams[0]}–${x.app.teams[1]} Teams`;
   const sorted = [...SPIELMODI].sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
@@ -1238,6 +1239,15 @@ function renderModePanel(){
     document.querySelectorAll("#zielEd [data-z]").forEach(b => b.onclick = () => setZ(goal() + +b.dataset.z));
     document.querySelectorAll("#zielEd [data-zp]").forEach(b => b.onclick = () => setZ(+b.dataset.zp));
   } else $("#zielEd").innerHTML = "";
+  if (a.daten === "mix") {
+    const sel = sonderSel();
+    $("#zielEd").insertAdjacentHTML("beforeend", `<div class="flab">Welche Sonderkategorien?</div><div class="chips">${SONDER_IDS().map(k =>
+      `<button data-sk="${k}" class="${sel.includes(k) ? "on" : ""}">${esc(TV_DATEN[k].name.replace(/ · .*/, ""))} <small style="opacity:.7">${TV_DATEN[k].liste.filter(x => store.get("tvUnsafe", false) || tvSafe(x)).length}</small></button>`).join("")}</div>`);
+    document.querySelectorAll("[data-sk]").forEach(b => b.onclick = () => {
+      let s2 = sonderSel(); s2 = s2.includes(b.dataset.sk) ? s2.filter(x => x !== b.dataset.sk) : [...s2, b.dataset.sk];
+      if (!s2.length) return;                      // mindestens eine bleibt
+      store.set("sonderSel", s2); renderModePanel(); });
+  }
   if (a.koop) { $("#teamEd").innerHTML = `<div class="small" style="margin:0 2px 10px">Alle spielen zusammen in einem Team.</div>`; return; }
   const word = a.namen === "Spieler" ? "Spieler" : "Teams";
   $("#teamEd").innerHTML = `<div class="flab">${word} <span>${lo === hi ? lo : lo + "–" + hi}</span></div>` +
@@ -1347,15 +1357,26 @@ const TV_DATEN = {
   kids: { name: "Kinderserien-Quiz", liste: mkTv(typeof KINDERTHEMEN !== "undefined" ? KINDERTHEMEN : [], "kids") },
   games:{ name: "Videospiel-Quiz", liste: mkTv(typeof GAMETHEMEN !== "undefined" ? GAMETHEMEN : [], "games"), w: { die: "Das Spiel", viele: "Spiele",
           frage: "Welches Spiel ist das?", seit: "erschienen", next: "Nächste Spielmusik", such: x => [`${x.serie} ${x.t}`, `${x.serie} soundtrack`, `${x.serie} theme`, x.t] } },
+  disney:{ name: "Disney-Quiz", liste: mkTv(typeof DISNEYTHEMEN !== "undefined" ? DISNEYTHEMEN : [], "disney"), w: { die: "Der Film", viele: "Filme",
+          frage: "Welcher Disney-Film ist das?", seit: "Film von", next: "Nächster Disney-Song", such: x => [`${x.t} ${x.serie}`, `${x.t} deutsch`, x.t] } },
+  film: { name: "Filmmusik-Quiz", liste: mkTv(typeof FILMTHEMEN !== "undefined" ? FILMTHEMEN : [], "film"), w: { die: "Der Film", viele: "Filme",
+          frage: "Welcher Film ist das?", seit: "Film von", next: "Nächste Filmmusik", such: x => [`${x.t} ${x.serie}`, `${x.serie} soundtrack`, `${x.serie} theme`] } },
 };
 // Wörter je Quiz (Serie vs. Spiel); Standard = Serien
 const TV_W0 = { die: "Die Serie", viele: "Serien", frage: "Welche Serie ist das?", seit: "Serie seit", next: "Nächste Titelmelodie",
   such: x => [`${x.serie} titellied`, `${x.serie} titelsong`, `${x.serie} intro deutsch`, `${x.t} titelsong`, x.serie] };
-const tvW = x => ({ ...TV_W0, ...(TV_DATEN[(typeof x === "string" ? x : x.i).split(":")[0]]?.w || {}) });
+const TV_W_MIX = { die: "Lösung", viele: "Melodien", frage: "Woher kommt diese Melodie?", seit: "aus dem Jahr", next: "Nächste Melodie" };
+const tvW = x => { const pre = (typeof x === "string" ? x : x.i).split(":")[0];
+  return pre === "mix" ? { ...TV_W0, ...TV_W_MIX } : { ...TV_W0, ...(TV_DATEN[pre]?.w || {}) }; };
 // „Gesichert“ = feste Spotify-ID, eure Korrektur oder bekannter Interpret (strenge Suche).
 // Serien ohne all das spielen nur mit, wenn ihr das unter Daten → Sonderkategorien erlaubt.
 const tvSafe = x => !!(x.sid || tvFix(x) || x.a);
-const tvList = () => { const L = TV_DATEN[modeDef().app.daten || "tv"].liste; return store.get("tvUnsafe", false) ? L : L.filter(tvSafe); };
+// Sonder-Mix: mehrere Sonderkategorien zusammen (Auswahl in store "sonderSel")
+const SONDER_IDS = () => Object.keys(TV_DATEN).filter(k => TV_DATEN[k].liste.length);
+const sonderSel = () => { const s = store.get("sonderSel", null); const ok = (s || SONDER_IDS()).filter(k => TV_DATEN[k]); return ok.length ? ok : SONDER_IDS(); };
+const tvList = () => { const d = modeDef().app.daten || "tv";
+  const L = d === "mix" ? sonderSel().flatMap(k => TV_DATEN[k].liste) : TV_DATEN[d].liste;
+  return store.get("tvUnsafe", false) ? L : L.filter(tvSafe); };
 const tvRange = l => [Math.min(...l.map(x => x.y)), Math.max(...l.map(x => x.y))];
 function renderTvBox(){
   const tv = modeDef().app.typ === "tv";
@@ -2007,6 +2028,15 @@ function goStep(n){
 $("#toMixBtn").addEventListener("click", () => goStep(2));
 $("#stepBack").addEventListener("click", () => { if (stepPushed) history.back(); else goStep(1); });
 window.addEventListener("popstate", () => { stepPushed = false; if (setupStep === 2) goStep(1); });
+// Vollbild: versteckt die Statusleiste (Android zeigt dort sonst Titel/Interpret des Spotify-Songs)
+const fsWanted = () => store.get("fullscreen", true);
+function goFullscreen(){
+  if (!fsWanted() || document.fullscreenElement) return;
+  try { (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)?.call(document.documentElement, { navigationUI: "hide" })?.catch?.(() => {}); } catch(e) {}
+}
+$("#fsOn").checked = fsWanted();
+$("#fsOn").addEventListener("change", e => { store.set("fullscreen", e.target.checked); if (!e.target.checked && document.fullscreenElement) document.exitFullscreen?.(); });
+document.addEventListener("click", e => { if (e.target.closest("#startBtn, #tvNext, #scanBtn, #nextBtn, #manBtn")) goFullscreen(); }, true);
 $("#startBtn").addEventListener("click", () => {
   // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
   newGame(state.game.mode, state.game.teams.map(t => t.n));

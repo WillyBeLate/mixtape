@@ -1983,3 +1983,65 @@ const GAMETHEMEN = [
   ["Doom", "BFG Division", "Mick Gordon", 2016, "US"],
   ["God of War", "God of War", "Bear McCreary", 2018, "US"],
 ];
+
+// =====================================================================
+//  DISNEY-QUIZ: Song hören, Film erraten (bevorzugt deutsche Fassung)
+//  Format wie TVTHEMEN: [Film, Titel, Interpret, Jahr, Land, optional Spotify-ID]
+// =====================================================================
+const DISNEYTHEMEN = [
+  ["Mary Poppins", "Superkalifragilisticexpialegetisch", "Monica Dahlberg", 1964, "US", "02tBGtOmXkjIJWsLEjmW7l"],
+  ["Das Dschungelbuch", "Probier's mal mit Gemütlichkeit", "Edgar Ott", 1967, "US", "4S1vA0mTayFbnHrwdkzPWT"],
+  ["Aristocats", "Katzen brauchen furchtbar viel Musik", "Aristocats", 1970, "US", "5sHlX9vGF3x0KbmyCMfVZD"],
+  ["Arielle, die Meerjungfrau", "Unten im Meer", "Ron Williams", 1989, "US", "4DyDHvHs3tpcdUJMy2z6Yg"],
+  ["Der König der Löwen", "Hakuna Matata", "Manuel Straube", 1994, "US", "1eDcjQteHDjgZ9GpiQ4RDp"],
+  ["Pocahontas", "Das Farbenspiel des Winds", "Alexandra Wilcke", 1995, "US", "6wgLaMdh9tbiqzx7OCM8cq"],
+  ["Toy Story", "Du hast 'nen Freund in mir", "Klaus Lage", 1995, "US", "5LF5Eq6ouBonZgrZRMrAbJ"],
+  ["Der König der Löwen 2", "Upendi", "Joachim Kemmer", 1998, "US", "2MpZ2F4toNIsYcDOZsFZrl"],
+  ["Tarzan", "Dir gehört mein Herz", "Phil Collins", 1999, "US", "08GAxO4JesK4fKSPKMVco5"],
+  ["Lilo & Stitch", "He Mele No Lilo", "Mark Keali'i Ho'omalu", 2002, "US", "45cku3eLTd5hObrNM8q8PA"],
+  ["Findet Nemo", "Nemo Egg (Main Title)", "Thomas Newman", 2003, "US", "0VEf913GDXMlb196o6VOCV"],
+  ["High School Musical", "We're All in This Together", "High School Musical Cast", 2006, "US", "0cqNGWvuukhCiKvEX7utys"],
+  ["Camp Rock", "This Is Me", "Demi Lovato", 2008, "US", "2JQRlt3HpTCpRvcfDsbwic"],
+  ["Rapunzel – Neu verföhnt", "Endlich sehe ich das Licht", "Alexandra Neldel", 2010, "US"],
+  ["Die Eiskönigin", "Lass jetzt los", "Willemijn Verkaik", 2013, "US", "3jBGljc3V74kShKEBSEVYZ"],
+  ["Vaiana", "Ich bin bereit", "Lina Larissa Strahl", 2016, "US"],
+  ["Die Schöne und das Biest (2017)", "Belles Lied: Unsere Stadt", "Julia Scheeser", 2017, "US", "7BWOPbbLJOzHNEzGUGTV50"],
+  ["Aladdin (2019)", "Arabische Nächte", "Manuel Straube", 2019, "US", "19XlRfijttvpthVqdwpzkp"],
+  ["Die Eiskönigin 2", "Wo noch niemand war", "Willemijn Verkaik", 2019, "US"],
+];
+
+// =====================================================================
+//  FILMMUSIK-QUIZ: Score oder Titelmusik hören, Film erraten
+// =====================================================================
+const FILMTHEMEN = [
+  ["James Bond 007 jagt Dr. No", "James Bond Theme", "John Barry Orchestra", 1962, "GB", "0bwsyQC5yRJB3IUK2cGQ6b"],
+  ["Der rosarote Panther", "Pink Panther Theme", "Henry Mancini", 1963, "US", "1QPRmX2e3EZWskuOe5QqxM"],
+  ["Zwei glorreiche Halunken", "The Good, the Bad and the Ugly", "Ennio Morricone", 1966, "IT"],
+  ["Spiel mir das Lied vom Tod", "Man with a Harmonica", "Ennio Morricone", 1968, "IT"],
+  ["Der Pate", "The Godfather Waltz", "Nino Rota", 1972, "US"],
+  ["Drei Haselnüsse für Aschenbrödel", "Einleitung", "Karel Svoboda", 1973, "CZ", "1wW6izAT1QSWPeVUn6UyBX"],
+  ["Rocky", "Gonna Fly Now", "Bill Conti", 1976, "US"],
+  ["Star Wars", "Main Title", "John Williams", 1977, "US", "1PstFiwXVCg01d1cacE30d"],
+  ["Jäger des verlorenen Schatzes", "Raiders March", "John Williams", 1981, "US"],
+  ["Das Boot", "Das Boot", "Klaus Doldinger", 1981, "DE"],
+  ["E.T. – Der Außerirdische", "Flying Theme", "John Williams", 1982, "US"],
+  ["Beverly Hills Cop", "Axel F", "Harold Faltermeyer", 1984, "US"],
+  ["Zurück in die Zukunft", "Back to the Future", "Alan Silvestri", 1985, "US"],
+  ["Top Gun", "Top Gun Anthem", "Harold Faltermeyer", 1986, "US"],
+  ["Jurassic Park", "Theme from Jurassic Park", "John Williams", 1993, "US", "72VjtouKhCbaBol2e7tsaQ"],
+  ["Schindlers Liste", "Theme from Schindler's List", "John Williams", 1993, "US"],
+  ["Forrest Gump", "Feather Theme", "Alan Silvestri", 1994, "US"],
+  ["Titanic", "My Heart Will Go On", "Céline Dion", 1997, "US", "27ncbKwESFYzgBo9RN9IXe"],
+  ["Gladiator", "Now We Are Free", "Hans Zimmer", 2000, "US"],
+  ["Die fabelhafte Welt der Amélie", "Comptine d'un autre été, l'après-midi", "Yann Tiersen", 2001, "FR"],
+  ["Harry Potter und der Stein der Weisen", "Prologue", "John Williams", 2001, "GB", "6CeCOC2zx1qS8mQNYHe6IM"],
+  ["Der Herr der Ringe", "Concerning Hobbits", "Howard Shore", 2001, "NZ"],
+  ["Spirit – Der wilde Mustang", "Here I Am", "Bryan Adams", 2002, "US", "6oOJU64nYMU4ljUiMCGeHe"],
+  ["Fluch der Karibik", "He's a Pirate", "Klaus Badelt", 2003, "US"],
+  ["Das fliegende Klassenzimmer", "Ouvertüre", "Niki Reiser", 2003, "DE", "5Ovy5YoSpbHTmgEvyHHlkg"],
+  ["Mission: Impossible III", "Mission: Impossible Theme", "Michael Giacchino", 2006, "US", "1FL7eUG80aeUeyMO2N4btN"],
+  ["Sherlock Holmes", "Discombobulate", "Hans Zimmer", 2009, "US"],
+  ["Inception", "Time", "Hans Zimmer", 2010, "US"],
+  ["The Avengers", "The Avengers", "Alan Silvestri", 2012, "US", "2exOqFZpfHpQE8E870qz1A"],
+  ["Interstellar", "Cornfield Chase", "Hans Zimmer", 2014, "US"],
+];
