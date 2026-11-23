@@ -5,6 +5,9 @@
 //  Format: "Titel|Interpret": "SpotifyTrackID"
 // =====================================================================
 const SPOTIFY_IDS = {
+  "Psycho Killer|Talking Heads": "1i6N76fftMZhijOzFQ5ZtL",
+  "Lonely Boy|The Black Keys": "6OQWPkRPWVMzTQsHOjIZVD",
+  "Paranoid|Black Sabbath": "3hwuHzRicnu6Ji9i1JLzor",
   "Layla|Derek and the Dominos": "2kkvB3RNRzwjFdGhaUA0tz",
   "Ein bißchen Frieden|Nicole": "5ZSfGGi8OF1vSSVNAWdQT1",
   "Georgia on My Mind|Hoagy Carmichael": "0yoQrdGXBlL5syZ2xzgzMU",

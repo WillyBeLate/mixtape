@@ -1149,7 +1149,7 @@ const SONGS = [
   // ---------------- INDIE & ALTERNATIVE (Support) ----------------
   ["Venus in Furs", "The Velvet Underground", 1967, "US", "indie"],
   ["Sweet Jane", "The Velvet Underground", 1970, "US", "indie"],
-  ["Psycho Killer", "Talking Heads", 1977, "US", "indie"],
+  ["Psycho Killer", "Talking Heads", 1977, "US", "indie rock"],
   ["Marquee Moon", "Television", 1977, "US", "indie"],
   ["Ever Fallen in Love (With Someone You Shouldn't've)", "Buzzcocks", 1978, "GB", "indie"],
   ["Boys Don't Cry", "The Cure", 1979, "GB", "indie"],
@@ -1630,6 +1630,25 @@ const SONGS = [
   ["Bitte bitte", "Die Ärzte", 1988, "DE", "aerzte"],
   ["Quark", "Die Ärzte", 1993, "DE", "aerzte"],
   ["Herr Sorge", "Die Ärzte", 2020, "DE", "aerzte"],
+  // ---- neu: aus Playlist „Rockige Situationen“ ----
+  ["Detroit Rock City", "KISS", 1976, "US", "rock", "0PQ51hZtABYRaXNHkVpAfD"],
+  ["Rebel Yell", "Billy Idol", 1983, "GB", "rock", "4TIJ7zSBNejpoIPaWpWRKc"],
+  ["White Wedding", "Billy Idol", 1982, "GB", "rock"],
+  ["Mother", "Danzig", 1988, "US", "rock", "7txxAtOMwLLnQTpKeBL6bp"],
+  ["Welcome to the Jungle", "Guns N' Roses", 1987, "US", "rock", "0G21yYKMZoHa30cYVi1iA8"],
+  ["Sharp Dressed Man", "ZZ Top", 1983, "US", "rock", "0bRNszTbTFLNlunAeh7eom"],
+  ["Fly Away", "Lenny Kravitz", 1998, "US", "rock", "1OxcIUqVmVYxT6427tbhDW"],
+  ["Juke Box Hero", "Foreigner", 1981, "US", "rock", "00qOE7OjRl0BpYiCiweZB2"],
+  ["Kickstart My Heart", "Mötley Crüe", 1989, "US", "rock", "4Yqy0GpeDEXLibWJCZyQew"],
+  ["La Grange", "ZZ Top", 1973, "US", "rock", "0u6JFVn0KHHlidZxNL9gVE"],
+  ["Come as You Are", "Nirvana", 1991, "US", "rock", "2RsAajgo0g7bMCHxwH3Sk0"],
+  ["Hate to Say I Told You So", "The Hives", 2000, "SE", "rock", "20j7B6mL9gnNvG3ic6Vwh5"],
+  ["Breaking the Habit", "Linkin Park", 2003, "US", "rock", "3dxiWIBVJRlqh9xk144rf4"],
+  ["Rock & Roll Queen", "The Subways", 2005, "GB", "rock", "1uNKzxSXBkPTngkASu10pl"],
+  ["Animal I Have Become", "Three Days Grace", 2006, "CA", "rock", "5eFxwmqKrHpSQDOEIFYlgY"],
+  ["Runnin' Wild", "Airbourne", 2007, "AU", "rock", "5XMnIXqKsjB4tWBYSqfUVm"],
+  ["Fire", "Kasabian", 2009, "GB", "rock", "0Ln5tJyLX5qusquBOtq7wf"],
+  ["Hells Bells", "AC/DC", 1980, "AU", "rock", "69QHm3pustz01CJRwdo20z"],
 ];
 // =====================================================================
 //  PRÜFLISTE: Songs mit unsicherem Jahr.
