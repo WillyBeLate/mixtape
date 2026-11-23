@@ -572,7 +572,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.25";
+const APP_VERSION = "0.9.26";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -785,6 +785,7 @@ async function resolveTrack(song){
   const key = "trk3:" + song.t + "|" + song.a;
   const cached = store.get(key, null); if (cached) return cached;
   const tries = [ `track:${cleanTitle(song.t)} artist:${song.a}`, `${cleanTitle(song.t)} ${song.a}` ];
+  if (/ß/.test(song.t)) tries.push(`${cleanTitle(song.t).replace(/ß/g, "ss")} ${song.a}`);   // alte Schreibung: bißchen -> bisschen
   for (const q of tries) {
     const j = await sp.api(`/search?type=track&limit=10&market=DE&q=${encodeURIComponent(q)}`);
     const own = cleanTitle(song.t).toLowerCase();

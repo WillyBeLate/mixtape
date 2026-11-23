@@ -5,6 +5,7 @@
 //  Format: "Titel|Interpret": "SpotifyTrackID"
 // =====================================================================
 const SPOTIFY_IDS = {
+  "Ein bißchen Frieden|Nicole": "5ZSfGGi8OF1vSSVNAWdQT1",
   "Georgia on My Mind|Hoagy Carmichael": "0yoQrdGXBlL5syZ2xzgzMU",
   "Minnie the Moocher|Cab Calloway": "0auQQCFFUvbXlC0sKYwleI",
   "Brother, Can You Spare a Dime?|Bing Crosby": "7qWiMYeia6zfDybNbYtME4",
