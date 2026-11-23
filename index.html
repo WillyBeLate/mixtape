@@ -145,23 +145,33 @@
   .sbh .ed.on{background:#fff;color:var(--ink)}
   .sbh .ed:disabled{opacity:.3;cursor:default}
   /* Sieg-Popup */
-  #winPop{position:fixed;inset:0;z-index:60;background:#0b0418d9;backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px;animation:wpf .25s ease-out}
-  #winPop .wp{position:relative;width:min(420px,100%);max-height:92vh;overflow:auto;background:linear-gradient(160deg,#3b1f7a,#1d0f3d);border-radius:26px;padding:26px 20px 18px;text-align:center;
+  .pop{position:fixed;inset:0;z-index:60;background:#0b0418d9;backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px;animation:wpf .25s ease-out}
+  .pop .wp{position:relative;width:min(420px,100%);max-height:92vh;overflow:auto;background:linear-gradient(160deg,#3b1f7a,#1d0f3d);border-radius:26px;padding:26px 20px 18px;text-align:center;
     box-shadow:0 0 0 2px var(--wc,#ffd23f),0 20px 60px #000a,0 0 80px color-mix(in srgb,var(--wc,#ffd23f) 45%,transparent);animation:wpp .5s cubic-bezier(.2,1.6,.4,1)}
-  #winPop .tro{font-size:74px;line-height:1;animation:wpb 1.4s ease-in-out infinite}
-  #winPop .wl{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.75;margin-top:8px}
-  #winPop .wn{font-size:34px;font-weight:900;margin:4px 0 6px;color:var(--wc,#fff);text-shadow:0 2px 0 #0006}
-  #winPop .wt{font-size:14px;opacity:.85}
-  #winPop .wsc{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:14px 0 4px}
-  #winPop .wsc span{background:#ffffff14;border-radius:999px;padding:4px 10px;font-size:13px;border-left:4px solid var(--c)}
-  #winPop .stats{text-align:left;background:#00000033;border-radius:16px;padding:10px 12px;margin:14px 0;font-size:13px}
-  #winPop .stats h4{margin:0 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.7}
-  #winPop .aw1{display:flex;gap:8px;padding:5px 0;border-top:1px solid #ffffff12}
-  #winPop .aw1:first-of-type{border-top:0}
-  #winPop .aw1 i{font-style:normal;font-size:18px}
-  #winPop .aw1 .at{display:block;font-weight:800}
-  #winPop .aw1 span{opacity:.75;font-size:12px}
-  #winPop .btn{margin-top:8px}
+  .pop .tro{font-size:74px;line-height:1;animation:wpb 1.4s ease-in-out infinite}
+  .pop .wl{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.75;margin-top:8px}
+  .pop .wn{font-size:34px;font-weight:900;margin:4px 0 6px;color:var(--wc,#fff);text-shadow:0 2px 0 #0006}
+  .pop .wt{font-size:14px;opacity:.85}
+  .pop .wsc{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:14px 0 4px}
+  .pop .wsc span{background:#ffffff14;border-radius:999px;padding:4px 10px;font-size:13px;border-left:4px solid var(--c)}
+  .pop .stats{text-align:left;background:#00000033;border-radius:16px;padding:10px 12px;margin:14px 0;font-size:13px}
+  .pop .stats h4{margin:0 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.7}
+  .pop .aw1{display:flex;gap:8px;padding:5px 0;border-top:1px solid #ffffff12}
+  .pop .aw1:first-of-type{border-top:0}
+  .pop .aw1 i{font-style:normal;font-size:18px}
+  .pop .aw1 .at{display:block;font-weight:800}
+  .pop .aw1 span{opacity:.75;font-size:12px}
+  .pop .btn{margin-top:8px}
+  .pop .xbtn{position:absolute;top:10px;right:12px;background:#ffffff1a;border:0;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
+  .pop ol{margin:0 0 8px;padding-left:18px}.pop ol li{margin:4px 0;line-height:1.4}
+  .pop .stats div{line-height:1.4}
+  .tvimg{margin:4px auto 10px;max-width:260px;min-height:0}
+  .tvimg img{display:block;max-width:100%;max-height:200px;margin:0 auto;border-radius:14px;box-shadow:0 6px 20px #0006;background:#fff1}
+  .errbox{background:#ffffff12;border:1px solid #ffffff22;border-radius:18px;padding:14px;margin:10px 0;text-align:center}
+  .errbox .ei{font-size:34px;line-height:1}
+  .errbox b{display:block;margin:6px 0 4px;font-size:16px}
+  .errbox .small{opacity:.8}
+  .errbox .btn{margin-top:10px}
   .confetti{position:fixed;inset:0;pointer-events:none;z-index:61;overflow:hidden}
   .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:cf linear forwards}
   @keyframes cf{to{transform:translateY(110vh) rotate(720deg)}}
@@ -474,14 +484,12 @@
     <div id="catList"></div>
     <div id="mixInfo"></div>
 
-    <div class="panel">
+    <details class="fold"><summary><span class="ft">Feineinstellung</span><span class="fs">Wie oft Support/Künstler kommen: <b id="wVal2"></b></span></summary>
+    <div style="padding:0 2px 12px">
       <label>Wie oft sollen Support/Künstler bevorzugt werden? <b id="wVal"></b></label>
       <input type="range" id="weight" min="0" max="100" step="5">
       <div class="small">Bei 100 % kommt immer ein Song aus Support/Künstler, sobald es zum Jahr einen gibt. Sonst wird aus dem Main-Mix aufgefüllt.</div>
-    </div>
-    <div class="panel">
-      <div class="row"><label for="randStart">Zufälliger Startpunkt im Song</label><input type="checkbox" id="randStart"></div>
-    </div>
+    </div></details>
 
     </div>
     </div>
@@ -593,19 +601,31 @@
       <button class="btn small" id="plGo">📥 Auslesen &amp; speichern</button>
       <div id="plMsg" class="small"></div>
     </div></details>
-    <details class="fold" data-fold="spotify"><summary><span class="ft">Spotify-Einstellungen</span><span class="fs" id="spSum"></span></summary>
-    <div class="panel" style="margin-top:6px">
-      <label>Spotify Client-ID</label>
-      <input type="text" id="clientId" placeholder="aus dem Spotify Developer Dashboard">
-      <div class="small" style="margin-top:8px">Redirect-URI, die du im Dashboard einträgst:<br><code id="redirUri"></code></div>
-      <button class="btn small" id="saveCid">Speichern</button>
-      <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
-      <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
+    <details class="fold noadm-open" data-fold="spiel" open><summary><span class="ft">🎮 Spiel</span><span class="fs">Vollbild, Songstart</span></summary>
+    <div style="padding:0 2px 12px">
+      <div class="row"><label for="fsOn"><b>Vollbild beim Spielen</b><br><span class="small">Blendet die Statusleiste oben aus – dort zeigen neue Handys sonst den laufenden Song an.</span></label><input type="checkbox" id="fsOn"></div>
+      <div class="row" style="margin-top:12px"><label for="randStart"><b>Zufälliger Startpunkt im Song</b><br><span class="small">Der Song startet irgendwo in der Mitte statt am Anfang – schwerer, weil das bekannte Intro fehlt.</span></label><input type="checkbox" id="randStart"></div>
+    </div></details>
+    <details class="fold" data-fold="spotify"><summary><span class="ft">🎧 Spotify</span><span class="fs" id="spSum"></span></summary>
+    <div style="padding:0 2px 12px">
+      <div id="spState" class="small" style="margin-bottom:8px"></div>
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
+      <details style="margin-top:10px"><summary class="small" style="cursor:pointer">Einrichtung (nur einmal nötig)</summary>
+        <label style="margin-top:8px;display:block">Spotify Client-ID</label>
+        <input type="text" id="clientId" placeholder="aus dem Spotify Developer Dashboard">
+        <div class="small" style="margin-top:8px">Redirect-URI, die du im Dashboard einträgst:<br><code id="redirUri"></code></div>
+        <button class="btn small" id="saveCid">Speichern</button>
+      </details>
+    </div></details>
+    <details class="fold" data-fold="speicher"><summary><span class="ft">🧹 Verlauf &amp; Speicher</span><span class="fs">bei Problemen</span></summary>
+    <div style="padding:0 2px 12px">
+      <div class="small"><b>Song-Verlauf löschen:</b> Kürzlich gespielte Songs kommen danach wieder genauso oft wie alle anderen, und „Zuletzt gespielt“ ist leer.</div>
+      <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
+      <div class="small" style="margin-top:10px"><b>Song-Cache leeren:</b> Vergisst, welche Spotify-Aufnahme für Songs ohne feste ID gefunden wurde. Hilft, wenn ein Song falsch klingt – kostet beim nächsten Spielen aber Spotify-Anfragen.</div>
+      <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
     </div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
       <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
-      <div class="row" style="margin-top:10px"><label for="fsOn"><b>Vollbild beim Spielen</b><br><span class="small">Blendet die Statusleiste oben aus – dort zeigen neue Handys sonst den laufenden Song an.</span></label><input type="checkbox" id="fsOn"></div>
       <div id="installBox"></div>
       <button class="btn small sec adm" id="admOff" style="margin-top:8px">Daten-Bereich auf diesem Gerät ausblenden</button>
     </div>
@@ -629,7 +649,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.48";
+const APP_VERSION = "0.9.49";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -947,6 +967,28 @@ document.addEventListener("visibilitychange", async () => {
   }
   spToast("Spotify ist noch nicht erreichbar – öffne die Spotify-App einmal kurz selbst.");
 });
+// Verständliche Fehlermeldung mit genau einem Knopf zur Lösung (plus ggf. Alternative)
+function friendlyErr(e){
+  const off = !navigator.onLine || e instanceof TypeError || /failed to fetch|network/i.test(e?.message || "");
+  if (off) return { i: "📶", t: "Keine Internetverbindung", d: "Prüf WLAN oder mobile Daten – dann einfach nochmal tippen.", btn: "Nochmal versuchen" };
+  if (e?.quota) return { i: "⏳", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst – Songs mit fester Aufnahme laufen oft trotzdem.", btn: "Nochmal versuchen" };
+  if (e?.status === 429) return { i: "⏳", t: "Spotify bremst kurz", d: "Zu viele Anfragen auf einmal. Ein paar Sekunden warten, dann nochmal tippen.", btn: "Nochmal versuchen" };
+  if (e?.status === 401) return { i: "🔑", t: "Spotify-Anmeldung abgelaufen", d: "Einmal neu anmelden, danach geht's direkt weiter.", btn: "Neu anmelden", act: () => sp.login() };
+  if (e?.status === 403) return { i: "🔒", t: "Spotify lässt nicht abspielen", d: "Abspielen geht nur mit Spotify Premium und wenn dein Konto in der App freigeschaltet ist.", btn: "Nochmal versuchen" };
+  if (e?.status === 404) return { i: "📱", t: "Kein Spotify-Gerät gefunden", d: "Öffne Spotify kurz auf dem Handy oder Lautsprecher, dann nochmal tippen.", btn: "Spotify öffnen", act: r => openSpotify(r) };
+  if (/nicht gefunden|keine passende/i.test(e?.message || "")) return { i: "🔎", t: "Song bei Spotify nicht gefunden", d: e.message, btn: "Anderen Song ziehen", other: true };
+  if (e?.status >= 500) return { i: "🛠", t: "Spotify hat gerade Probleme", d: "Das liegt nicht an euch. Kurz warten, dann nochmal versuchen.", btn: "Nochmal versuchen" };
+  return { i: "😕", t: "Da hat etwas nicht geklappt", d: e?.message || String(e), btn: "Nochmal versuchen" };
+}
+function showErr(e, retry, other){
+  const f = friendlyErr(e), useOther = f.other && other;
+  $("#playMsg").innerHTML = `<div class="errbox"><div class="ei">${f.i}</div><b>${f.t}</b><div class="small">${esc(f.d)}</div>
+    ${retry || useOther || f.act ? `<button class="btn" id="errBtn">${f.btn === "Anderen Song ziehen" && !useOther ? "Nochmal versuchen" : f.btn}</button>` : ""}</div>`;
+  const run = async () => { msg("#playMsg"); $("#playState").textContent = "Song wird geladen …";
+    try { await retry(); } catch(e2) { if (e2.nodevice) showWake("Spotify schläft gerade.", retry); else showErr(e2, retry, other); $("#playState").textContent = "Wiedergabe gestoppt"; } };
+  const b = $("#errBtn"); if (!b) return;
+  b.onclick = () => useOther ? other() : f.act ? f.act(retry ? () => run() : null) : run();
+}
 function showWake(text, retry){
   retry = retry || (() => playCurrent(true));
   $("#playMsg").innerHTML = `<div class="msg warn">${text}</div><button class="btn" id="wakeBtn">Spotify wecken &amp; abspielen</button>`;
@@ -980,8 +1022,8 @@ async function handleYear(year){
     await start();
   } catch(e) {
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – Mixtape öffnet Spotify kurz und spielt den Song danach automatisch ab.", m.app.typ === "sprint" ? () => sprintPlay(0) : null);
-    else if (e.status === 403) msg("#playMsg", "err", "Spotify verweigert die Wiedergabe (Premium nötig bzw. App-Nutzer nicht freigeschaltet).");
-    else msg("#playMsg", "err", e.message);
+    else showErr(e, async () => { if (!cur.uri) { const tr = await resolveTrack(cur.song); Object.assign(cur, { uri: tr.uri, dur: tr.dur }); saveCur(); } await start(); },
+      () => { if (state.current === cur) { state.played.add(cur.song.i); state.playedAt[cur.song.i] = ++state.playN; save(); } state.current = null; handleYear(year); });
     $("#playState").textContent = "Wiedergabe gestoppt";
   }
 }
@@ -1007,12 +1049,13 @@ function reveal(){
   }
   const s = c.song;
   if (s.tv) {
-    $("#revealBox").innerHTML = `<div class="reveal"><div class="meta" style="margin:0 0 6px">${tvW(s).die}</div>
+    $("#revealBox").innerHTML = `<div class="reveal"><div class="tvimg" id="tvImg"></div><div class="meta" style="margin:0 0 6px">${tvW(s).die}</div>
       <div class="t" style="font-size:28px;margin:0">${esc(s.serie)}</div>
       <div class="a" style="margin-top:10px">„${esc(c.trName || s.t)}“${(c.trArtist || s.a) ? " · " + esc(c.trArtist || s.a) : ""}</div>
       <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · ${tvW(s).seit} ${s.y}</div>
       <button class="btn small sec" id="fixBtn" style="margin-top:12px">🎵 Falscher Song? Richtige Version wählen</button></div><div id="fixBox"></div><div id="awardBox"></div>`;
     $("#fixBtn").onclick = () => openTvPicker();
+    tvImage(s, c.uri).then(u => { const box = $("#tvImg"); if (u && box && state.current === c) box.innerHTML = `<img src="${esc(u)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`; });
     $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
     c.stage = 9; c.done = true; renderModeBox(); renderScore(); return;
   }
@@ -1160,6 +1203,24 @@ function statsHtml(){
   return `<div class="stats"><h4>Feierabend-Statistik · ${head}</h4>${out.map(([ic, t, x]) => `<div class="aw1"><i>${ic}</i><div><span class="at">${t}</span><span>${x}</span></div></div>`).join("") || '<div class="small">Noch zu wenig gespielt für Auszeichnungen.</div>'}</div>`;
 }
 
+// ---------- Kurzregeln mitten im Spiel ----------
+function showShortRules(){
+  $("#rulePop")?.remove();
+  const m = modeDef(), f = t => esc(fillText(t, m.app));
+  const el = document.createElement("div"); el.id = "rulePop"; el.className = "pop";
+  el.innerHTML = `<div class="wp" style="text-align:left"><button class="xbtn" aria-label="Schließen">✕</button>
+    <div class="wl">Kurzregeln</div><div class="wn" style="font-size:24px;color:#fff">${esc(m.name)}</div><div class="wt">${f(m.kurz)}</div>
+    <div class="stats"><h4>So läuft ein Zug</h4><ol>${(m.ablauf || []).map(x => `<li>${f(x)}</li>`).join("")}</ol>
+      ${m.ende ? `<h4 style="margin-top:10px">Ziel</h4><div>${f(m.ende)}</div>` : ""}</div>
+    <button class="btn" id="rpOk">Weiterspielen</button>
+    <button class="btn sec small" id="rpAll">Ausführliche Regeln öffnen</button></div>`;
+  document.body.appendChild(el);
+  const close = () => el.remove();
+  el.addEventListener("click", e => { if (e.target === el) close(); });
+  el.querySelector(".xbtn").onclick = close; $("#rpOk").onclick = close;
+  $("#rpAll").onclick = () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + m.id)?.scrollIntoView(), 50); };
+}
+
 // ---------- Sieg-Popup ----------
 function confetti(){
   const box = document.createElement("div"); box.className = "confetti";
@@ -1171,7 +1232,7 @@ function showWin(st){
   $("#winPop")?.remove();
   const g = state.game, lose = st.typ === "lose", ti = st.team ? g.teams.indexOf(st.team) : -1;
   const head = lose ? "Knapp vorbei" : ti >= 0 ? esc(st.team.n) : modeDef().app.koop ? "Geschafft!" : "Unentschieden!";
-  const el = document.createElement("div"); el.id = "winPop";
+  const el = document.createElement("div"); el.id = "winPop"; el.className = "pop";
   el.innerHTML = `<div class="wp" style="--wc:${lose ? "#ff6f61" : ti >= 0 ? teamCol(ti) : "#ffd23f"}">
     <div class="tro">${lose ? "⏳" : "🏆"}</div><div class="wl">${lose ? "Verloren" : "Gewonnen"}</div><div class="wn">${head}</div><div class="wt">${st.text}</div>
     ${g.teams.length > 1 ? `<div class="wsc">${g.teams.map((t, i) => `<span style="--c:${teamCol(i)}">${esc(t.n)} <b>${t.p}</b></span>`).join("")}</div>` : ""}
@@ -1210,6 +1271,7 @@ function renderHistory(){
 const goal = () => state.game.ziel || modeDef().app.ziel;
 const otherIdx = () => (state.game.turn + 1) % state.game.teams.length;
 const SVG_UNDO = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>`;
+const SVG_INFO = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.5" r=".6" fill="currentColor"/></svg>`;
 const SVG_EDIT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>`;
 
 // Spielstand inkl. Nachziehen & Verlängerung (Regel „Gewinnen & Nachziehen“)
@@ -1263,7 +1325,7 @@ function renderScore(){
   if (st) banner = `<div class="sbn ${st.typ}"><b>${{ win:"Gewonnen", lose:"Verloren", nach:"Nachziehen", verl:"Verlängerung" }[st.typ]}</b><span>${st.text}</span>
     ${st.typ === "win" || st.typ === "lose" ? `<button class="btn small" data-sc="new">Neue Runde</button>` : ""}</div>`;
   document.querySelectorAll(".scoreBox").forEach(el => el.innerHTML = `<div class="sb">
-    <div class="sbh"><span class="mn">${esc(m.name)}</span><span class="gl">${gl}</span><button class="ed" data-sc="undo" title="Letzte Änderung rückgängig" ${undoStack.length ? "" : "disabled"}>${SVG_UNDO}</button><button class="ed ${edit ? "on" : ""}" data-sc="edit" title="Punkte korrigieren">${SVG_EDIT}</button></div>
+    <div class="sbh"><span class="mn">${esc(m.name)}</span><button class="ed" data-sc="info" title="Kurzregeln">${SVG_INFO}</button><span class="gl">${gl}</span><button class="ed" data-sc="undo" title="Letzte Änderung rückgängig" ${undoStack.length ? "" : "disabled"}>${SVG_UNDO}</button><button class="ed ${edit ? "on" : ""}" data-sc="edit" title="Punkte korrigieren">${SVG_EDIT}</button></div>
     <div class="tiles n${Math.min(g.teams.length, 3)}">${tiles}</div>${banner}</div>`);
   renderSabotage(); renderAwards(); saveCur();
   if (st && (st.typ === "win" || st.typ === "lose") && !g.endlos && g.winKey !== st.text && state.running) { g.winKey = st.text; saveGame(); setTimeout(() => showWin(st), 350); }
@@ -1316,6 +1378,7 @@ document.addEventListener("click", e => {
   if (k === "new") { show("setup"); return; }
   if (k === "edit") { state.sbEdit = !state.sbEdit; renderScore(); return; }
   if (k === "undo") { e.stopPropagation(); doUndo(); return; }
+  if (k === "info") { e.stopPropagation(); showShortRules(); return; }
   if (k === "turn") { if (state.sbEdit || !e.target.closest(".tile") || e.target.closest("button")) return;
     if (m.app.zug === "reihum" && !state.current?.revealed && g.turn !== i) { pushUndo("Zug gewechselt"); g.turn = i; state.forceCat = null; } }
   else if (["p+", "p-", "m+", "m-"].includes(k)) pushUndo(`Korrektur ${t.n}`);
@@ -1653,10 +1716,30 @@ async function playTV(){
   } catch(e) {
     if (state.current !== cur) return;
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – danach startet die Melodie automatisch.");
-    else { $("#playMsg").innerHTML = `<div class="msg err">${esc(e.message)}</div><button class="btn sec" id="fixNow">🎵 Richtige Version selbst auswählen</button>`;
-      $("#fixNow").onclick = () => openTvPicker(); $("#nextBtn").style.display = "block"; }
+    else if (/keine passende|nicht gefunden/i.test(e.message)) { $("#playMsg").innerHTML = `<div class="errbox"><div class="ei">🔎</div><b>Melodie nicht gefunden</b><div class="small">${esc(e.message)}</div>
+        <button class="btn" id="tvSkip">Andere Melodie</button><button class="btn sec small" id="fixNow">🎵 Richtige Version selbst auswählen</button></div>`;
+      $("#fixNow").onclick = () => openTvPicker(); $("#tvSkip").onclick = () => { state.current = null; playTV(); }; }
+    else showErr(e, async () => { if (!cur.uri) { const tr = await resolveTV(x); Object.assign(cur, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist }); } await playCurrent(true); },
+      () => { state.current = null; playTV(); });
     $("#playState").textContent = "Wiedergabe gestoppt";
   }
+}
+// Bild nach dem Auflösen: Titelbild des Wikipedia-Artikels (frei abrufbar, kein Spotify-Kontingent);
+// sonst das Spotify-Cover der Melodie. Ergebnis wird je Eintrag gemerkt.
+const TV_BILD_HINT = { tv: ["Fernsehserie", "TV series"], kids: ["Fernsehserie", "TV series"], games: ["Computerspiel", "video game"], disney: ["Film", "film"], film: ["Film", "film"] };
+async function wikiImg(lang, q){
+  const u = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(q)}&prop=pageimages&piprop=thumbnail&pithumbsize=480&pilicense=any`;
+  const j = await (await fetch(u)).json(); const p = Object.values(j?.query?.pages || {})[0];
+  return p?.thumbnail?.source || null;
+}
+async function tvImage(x, uri){
+  const key = "tvimg:" + x.i, have = store.get(key, undefined);
+  if (have !== undefined) return have;
+  const h = TV_BILD_HINT[x.i.split(":")[0]] || TV_BILD_HINT.tv; let url = null, failed = false;
+  try { url = await wikiImg("de", `${x.serie} ${h[0]}`) || await wikiImg("en", `${x.serie} ${h[1]}`); } catch(e) { failed = true; }
+  if (!url && uri) try { const r = await fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent("https://open.spotify.com/track/" + uri.split(":").pop())); url = (await r.json())?.thumbnail_url || null; } catch(e) {}
+  if (url || !failed) store.set(key, url);              // Netzfehler nicht als „kein Bild“ merken
+  return url;
 }
 // Falsche oder fehlende Titelmelodie: Spotify-Treffer anzeigen, anhören, richtige festlegen
 async function openTvPicker(q){
@@ -2251,6 +2334,7 @@ function renderData(){
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
+  if ($("#spState")) $("#spState").textContent = sp.tok() ? "✅ Mit Spotify verbunden. Abmelden nur, wenn ihr ein anderes Konto nutzen wollt." : sp.cid() ? "Nicht angemeldet – unter „Spiel“ auf „Mit Spotify verbinden“ tippen." : "Noch nicht eingerichtet – unten unter „Einrichtung“ die Client-ID eintragen.";
   const pl = DB.filter(s => s.pruefen).sort((a, b) => a.y - b.y);
   $("#checkSum").textContent = pl.length ? `${pl.length} Songs offen` : "leer – alles geprüft";
   $("#checkPanel").innerHTML = `
@@ -2302,8 +2386,8 @@ function renderResume(){
 }
 document.querySelectorAll("#catTabs button").forEach(b => b.addEventListener("click", () => {
   state.tab = b.dataset.t; document.querySelectorAll("#catTabs button").forEach(x => x.classList.toggle("on", x === b)); renderCats(); }));
-$("#weight").value = state.weight; $("#wVal").textContent = state.weight + " %";
-$("#weight").addEventListener("input", e => { state.weight = +e.target.value; $("#wVal").textContent = state.weight + " %"; save(); });
+$("#weight").value = state.weight; $("#wVal").textContent = $("#wVal2").textContent = state.weight + " %";
+$("#weight").addEventListener("input", e => { state.weight = +e.target.value; $("#wVal").textContent = $("#wVal2").textContent = state.weight + " %"; save(); });
 $("#randStart").checked = state.randStart;
 $("#randStart").addEventListener("change", e => { state.randStart = e.target.checked; save(); });
 // Neues Spiel in zwei Schritten: 1) Modus & Teams  2) Mix. Zurück per Pfeil oder Zurück-Taste des Handys.
@@ -2357,13 +2441,13 @@ $("#pauseBtn").addEventListener("click", async () => {
       if (!(e.status === 403 || /restriction/i.test(e.message))) throw e;
     }
     state.paused = playing; updatePlayUI(); msg("#playMsg");
-  } catch(e){ msg("#playMsg", "err", e.message); }
+  } catch(e){ showErr(e, async () => $("#pauseBtn").click()); }
 });
 $("#restartBtn").addEventListener("click", async () => {
   if (!state.current) return;
   try { if (!state.current.uri) { const tr = await resolveTrack(state.current.song); Object.assign(state.current, { uri: tr.uri, dur: tr.dur }); }
     await playCurrent(true); msg("#playMsg"); }
-  catch(e){ if (e.nodevice) showWake("Spotify schläft gerade."); else msg("#playMsg", "err", e.message); }
+  catch(e){ if (e.nodevice) showWake("Spotify schläft gerade."); else showErr(e, async () => { if (!state.current.uri) { const tr = await resolveTrack(state.current.song); Object.assign(state.current, { uri: tr.uri, dur: tr.dur }); } await playCurrent(true); }); }
 });
 $("#revealBtn").addEventListener("click", reveal);
 $("#nextBtn").addEventListener("click", () => {
