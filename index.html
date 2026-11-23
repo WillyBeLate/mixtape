@@ -358,6 +358,10 @@
   .hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
   .spchip{position:relative;width:46px;height:46px;border-radius:50%;border:1px solid #ffffff2e;background:#ffffff1a;display:grid;place-items:center;cursor:pointer;flex:none;padding:0}
   .spck{position:absolute;right:-3px;bottom:-3px;width:18px;height:18px;border-radius:50%;background:#fff;color:#1a8f45;font:900 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px #0004}
+  .seg{display:flex;gap:4px;background:#ffffff1f;border:1px solid #ffffff2e;border-radius:16px;padding:4px}
+  .seg button{flex:1;border:0;background:none;color:#e4dcf7;font:600 14px system-ui,sans-serif;padding:11px 8px;border-radius:12px;cursor:pointer;line-height:1.2}
+  .seg button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 14px #ff5fa244}
+  select option{background:#2a1858;color:#fff}
   /* ===== Design-Auffrischung 0.9.18: heller, weicher, besser lesbar =====
      color-scheme: dark verhindert, dass Android/Samsung-Browser die Seite zusätzlich „abdunkeln“ (Force Dark). */
   :root{color-scheme:dark;--bg:#261650;--r:22px;--muted:#7d6fa3}
@@ -506,7 +510,8 @@
         <div style="flex:1" class="cEven"><label>Kopien/Jahr</label><input type="number" id="cCopies" min="1" max="5" value="1"></div>
         <div style="flex:1" class="cMix"><label>Karten gesamt</label><input type="number" id="cTotal" min="12" max="600" step="12" value="120"></div></div>
       <label style="display:block;margin-top:12px">Verteilung</label>
-      <select id="cMode"><option value="even">Jede Jahreszahl gleich oft</option><option value="mix">Nach Jahrzehnten gewichten</option></select>
+      <select id="cMode" hidden><option value="even">Jede Jahreszahl gleich oft</option><option value="mix">Nach Jahrzehnten gewichten</option></select>
+      <div class="seg" id="cModeSeg"><button data-cm="even">Jedes Jahr gleich oft</button><button data-cm="mix">Nach Jahrzehnten gewichten</button></div>
       <div class="cMix" id="cMixBox" style="margin-top:10px"></div>
       <div class="small" style="margin-top:10px">Drucken: beidseitig, <b>an langer Kante spiegeln</b>, 100 % Größe (nicht „an Seite anpassen“). Rückseiten sind schon passend gespiegelt angeordnet.</div>
     </div>
@@ -585,7 +590,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.39";
+const APP_VERSION = "0.9.40";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1799,6 +1804,7 @@ function refreshMixLabels(){
 function renderCardInfo(){
   const from = +$("#cFrom").value, to = +$("#cTo").value, copies = +$("#cCopies").value || 1;
   const mix = $("#cMode").value === "mix"; store.set("cardMode", mix ? "mix" : "even");
+  document.querySelectorAll("#cModeSeg [data-cm]").forEach(b => b.classList.toggle("on", b.dataset.cm === $("#cMode").value));
   document.querySelectorAll(".cMix").forEach(e => e.style.display = mix ? "" : "none");
   document.querySelectorAll(".cEven").forEach(e => e.style.display = mix ? "none" : "");
   if (mix) { const a = document.activeElement; if (!(a && a.dataset && a.dataset.dec)) renderCardMix(); else refreshMixLabels(); }
@@ -2096,6 +2102,7 @@ $("#cFrom").value = state.range[0]; $("#cTo").value = state.range[1];
 $("#cMode").value = store.get("cardMode", "even"); $("#cTotal").value = store.get("cardTotal", 120);
 $("#cTotal").addEventListener("input", () => store.set("cardTotal", +$("#cTotal").value));
 ["#cFrom", "#cTo", "#cCopies", "#cTotal", "#cMode"].forEach(s => $(s).addEventListener("input", renderCardInfo));
+document.querySelectorAll("#cModeSeg [data-cm]").forEach(b => b.addEventListener("click", () => { $("#cMode").value = b.dataset.cm; renderCardInfo(); }));
 $("#printBtn").addEventListener("click", () => { document.getElementById("pgRules")?.remove(); buildPrint(); setTimeout(() => window.print(), 300); });
 $("#mbStart").addEventListener("click", mbRun);
 $("#mbCopy").addEventListener("click", async () => { const t = mbReport();
