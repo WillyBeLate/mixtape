@@ -629,7 +629,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.45";
+const APP_VERSION = "0.9.46";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1686,7 +1686,7 @@ async function openTvPicker(q){
 // =====================================================================
 //  SPOTIFY-ABGLEICH: alle Songs einmal auflösen, Auffälliges markieren, exportieren
 // =====================================================================
-const SYNC_PER_DAY = 120;
+const SYNC_PER_DAY = 200;
 // Treffer aus dem Abgleich, die falsch waren (Cover, Live, Remix, falscher Song) – lokal gemerkte Version verwerfen
 const SYNC_VERWORFEN = ["Bei Mir Bist Du Schön|The Andrews Sisters", "Caravan|Duke Ellington", "Chattahoochee|Alan Jackson", "Don't Fence Me In|Bing Crosby", "Don't You Want Me|The Human League", "Dragostea din tei|O-Zone", "Dream a Little Dream of Me|Ozzie Nelson", "Everyway That I Can|Sertab Erener", "Flowers|Miley Cyrus", "Fly on the Wings of Love|Olsen Brothers", "Friends in Low Places|Garth Brooks", "Hold Me Now|Johnny Logan", "It Don't Mean a Thing (If It Ain't Got That Swing)|Duke Ellington", "Junge|Die Ärzte", "Love the Way You Lie|Eminem", "Lovesick Blues|Hank Williams", "MMMBop|Hanson", "Marmor, Stein und Eisen bricht|Drafi Deutscher", "Moves like Jagger|Maroon 5", "Music|Madonna", "Non ho l'età|Gigliola Cinquetti", "Oh, Pretty Woman|Roy Orbison", "Okie from Muskogee|Merle Haggard", "On the Road Again|Willie Nelson", "Poupée de cire, poupée de son|France Gall", "Rhythm Is a Dancer|Snap!", "Runaround Sue|Dion", "Take My Breath Away|Berlin", "The House of the Rising Sun|The Animals", "The Twist|Chubby Checker", "Waka Waka (This Time for Africa)|Shakira"];
 if (store.get("syncVerworfen", 0) < 1) { SYNC_VERWORFEN.forEach(k => store.del("trk3:" + k)); store.set("syncVerworfen", 1); }
