@@ -5,6 +5,7 @@
 //  Format: "Titel|Interpret": "SpotifyTrackID"
 // =====================================================================
 const SPOTIFY_IDS = {
+  "Layla|Derek and the Dominos": "2kkvB3RNRzwjFdGhaUA0tz",
   "Ein bißchen Frieden|Nicole": "5ZSfGGi8OF1vSSVNAWdQT1",
   "Georgia on My Mind|Hoagy Carmichael": "0yoQrdGXBlL5syZ2xzgzMU",
   "Minnie the Moocher|Cab Calloway": "0auQQCFFUvbXlC0sKYwleI",
