@@ -5,6 +5,19 @@
 //  Format: "Titel|Interpret": "SpotifyTrackID"
 // =====================================================================
 const SPOTIFY_IDS = {
+  "Call Me Maybe|Carly Rae Jepsen": "20I6sIOMTCkB6w7ryavxtO",
+  "Pink Pony Club|Chappell Roan": "1k2pQc5i348DCHwbn5KTdc",
+  "Shake It Off|Taylor Swift": "0cqRj7pUJDkTCEsJkx8snD",
+  "California Gurls|Katy Perry": "6tS3XVuOyu10897O3ae7bi",
+  "Manchild|Sabrina Carpenter": "2BwO5K8Q7EPAJSGze3AAh9",
+  "New Rules|Dua Lipa": "4drviHU6vP0yDFS6polxKI",
+  "Golden|HUNTR/X": "1CPZ5BxNNd0n0nF4Orb9JS",
+  "Blank Space|Taylor Swift": "1u8c2t2Cy7UBoG4ArRcF5g",
+  "good 4 u|Olivia Rodrigo": "4ZtFanR9U6ndgddUvNcjcG",
+  "End of Beginning|Djo": "3qhlB30KknSejmIvZZLjOD",
+  "We Are Never Ever Getting Back Together|Taylor Swift": "5YqltLsjdqFtvqE7Nrysvs",
+  "Watermelon Sugar|Harry Styles": "6UelLqGlWMcVH1E5c4H7lY",
+  "I Knew You Were Trouble|Taylor Swift": "6AtZLIzUINvExIUy4QhdjP",
   "Psycho Killer|Talking Heads": "1i6N76fftMZhijOzFQ5ZtL",
   "Lonely Boy|The Black Keys": "6OQWPkRPWVMzTQsHOjIZVD",
   "Paranoid|Black Sabbath": "3hwuHzRicnu6Ji9i1JLzor",
