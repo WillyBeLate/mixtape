@@ -7,8 +7,8 @@
 <meta name="color-scheme" content="dark">
 <title>Mixtape – Das Musik-Zeitreise-Spiel</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon2-192.png">
+<link rel="apple-touch-icon" href="icons/icon2-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -649,7 +649,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.50";
+const APP_VERSION = "0.9.51";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1109,6 +1109,9 @@ function newGame(modeId, names){
   }
   state.game = { mode: m.id, teams, turn: 0, runde: 0, ziel: store.get("ziel:" + m.id, m.app.ziel), t0: Date.now(), log: [] };
   state.forceCat = null; saveGame(); clearUndo();
+  // Neue Runde gewählt = alte Runde verwerfen (Start-Knopf setzt "running" danach wieder)
+  state.running = false; store.set("running", false); state.current = null; store.del("cur");
+  if (document.getElementById("resumeBox")) renderResume();
 }
 if (!state.game || !SPIELMODI.some(m => m.id === state.game.mode)) newGame(SPIELMODI[0].id);
 
@@ -1244,7 +1247,7 @@ function showWin(st){
   const close = () => el.remove();
   $("#wpGo").onclick = () => { state.game.endlos = true; saveGame(); close(); };
   $("#wpSetup").onclick = () => { close(); show("setup"); };
-  $("#wpNew").onclick = () => { close(); newGame(g.mode, g.teams.map(t => t.n)); state.current = null; saveCur(); show("game"); };
+  $("#wpNew").onclick = () => { close(); newGame(g.mode, g.teams.map(t => t.n)); state.running = true; store.set("running", true); show("game"); };
 }
 
 // ---------- Song-Verlauf ----------
@@ -2376,7 +2379,7 @@ function renderMixLine(){
 $("#mixEye").addEventListener("click", () => { store.set("hideMix", !store.get("hideMix", false)); renderMixLine(); });
 
 // Reiter „Spiel“: läuft eine Runde, geht's dorthin zurück – sonst zur Auswahl von Modus & Mix
-function openSpiel(){ if (!state.running) return show("setup"); show(state.current && !state.current.done ? "play" : "game"); }
+function openSpiel(){ if (!state.running) return show("setup"); state.current ? restorePlay() : show("game"); }
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => b.dataset.v === "spiel" ? openSpiel() : show(b.dataset.v)));
 function renderResume(){
   const g = state.game;
@@ -2548,11 +2551,11 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   renderInstall(); updateBadge();
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
-  const fromLogin = /[?&]code=/.test(location.search);
   const err = await sp.handleRedirect();
   renderLogin(err); renderCats(); renderModePanel();
-  // Fortsetzen: lief beim Schließen eine Runde, geht's direkt dort weiter (inkl. aufgedeckter Karte)
-  if (state.running && !fromLogin) { state.current = deserCur(store.get("cur", null)); state.current ? restorePlay() : show("game"); }
+  // App startet immer auf dem Hauptbildschirm; eine offene Runde lässt sich dort mit „Weiterspielen“ fortsetzen
+  if (state.running) state.current = deserCur(store.get("cur", null));
+  renderResume();
 })();
 </script>
 </body>
