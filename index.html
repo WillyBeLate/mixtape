@@ -629,7 +629,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.44";
+const APP_VERSION = "0.9.45";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -854,7 +854,7 @@ async function resolveTrack(song){
   for (const q of tries) {
     const j = await sp.api(`/search?type=track&limit=10&market=DE&q=${encodeURIComponent(q)}`);
     const own = cleanTitle(song.t).toLowerCase();
-    const items = (j?.tracks?.items || []).filter(tr =>
+    const items = (j?.tracks?.items || []).filter(tr => !(typeof SYNC_FALSCH !== "undefined" && SYNC_FALSCH.has(tr.id)) &&
       !BAD.test(tr.name.toLowerCase().replace(own, "")) &&          // eigener Titel darf "Live" enthalten
       !BAD.test((tr.album?.name || "").toLowerCase().replace(own, "")) &&
       tr.artists.some(ar => norm(ar.name).includes(norm(song.a)) || norm(song.a).includes(norm(ar.name))) &&
@@ -1690,6 +1690,9 @@ const SYNC_PER_DAY = 120;
 // Treffer aus dem Abgleich, die falsch waren (Cover, Live, Remix, falscher Song) – lokal gemerkte Version verwerfen
 const SYNC_VERWORFEN = ["Bei Mir Bist Du Schön|The Andrews Sisters", "Caravan|Duke Ellington", "Chattahoochee|Alan Jackson", "Don't Fence Me In|Bing Crosby", "Don't You Want Me|The Human League", "Dragostea din tei|O-Zone", "Dream a Little Dream of Me|Ozzie Nelson", "Everyway That I Can|Sertab Erener", "Flowers|Miley Cyrus", "Fly on the Wings of Love|Olsen Brothers", "Friends in Low Places|Garth Brooks", "Hold Me Now|Johnny Logan", "It Don't Mean a Thing (If It Ain't Got That Swing)|Duke Ellington", "Junge|Die Ärzte", "Love the Way You Lie|Eminem", "Lovesick Blues|Hank Williams", "MMMBop|Hanson", "Marmor, Stein und Eisen bricht|Drafi Deutscher", "Moves like Jagger|Maroon 5", "Music|Madonna", "Non ho l'età|Gigliola Cinquetti", "Oh, Pretty Woman|Roy Orbison", "Okie from Muskogee|Merle Haggard", "On the Road Again|Willie Nelson", "Poupée de cire, poupée de son|France Gall", "Rhythm Is a Dancer|Snap!", "Runaround Sue|Dion", "Take My Breath Away|Berlin", "The House of the Rising Sun|The Animals", "The Twist|Chubby Checker", "Waka Waka (This Time for Africa)|Shakira"];
 if (store.get("syncVerworfen", 0) < 1) { SYNC_VERWORFEN.forEach(k => store.del("trk3:" + k)); store.set("syncVerworfen", 1); }
+// Spotify-Treffer, die nachweislich falsch sind (Cover, Remix, Neuaufnahme, falscher Song) – werden nie wieder genommen
+const SYNC_FALSCH = new Set(["5LFSK7UFyXQvM8MZ5ABIGs", "01jOnfF6OMQx2ZgC3nKi3o", "63Tl9k1sH8tznn3bqoMuyF", "4L0rxWhjyX0VhNbK4U9oK6", "07rZol7bEXJSUHIcwah0eq", "1nADUWEBc0TpiXYsimFFIj", "1NoBp6XGAKRFtx0djrWucn", "5QbZ2liHjmV27XMmRoEquv", "7yr5r5YkJdpdAyx70qEIXU", "5IUSvXnhiIxc0fAscMRkj2", "3r9E51LlXbQ29NIsmwEntj", "4M5Mnz9ORqaMMUAgKtv3bI", "1xdv6tmmDVa8hrmrkgtjPL", "7kzZ2NzhoS2T3dCVpDtTaA", "6uzAorm9rlMshQ9rjKviNl", "5Klgx19dxRpzMlNusBv2r0", "7kOCe5hY2YMUnmkq4DGxhk", "30gux5mcQNtDSg7fZDkHRF", "25gYG5fHSt6Fmsz3M5ns6C", "1BbV38AcrkXbartPq74Kgn", "7zhtLp2V3lNXdllknAqbKk", "1hZJcuz9iMoz6tLkFlIaUy", "6ePGjP38OpRDuBxJzbfw11", "55vAraLCIsYMnakMHUUgvB", "4bdSlVSykHJOGikz9cblCH", "1mX96thG2hGyuyAz94Q5tk", "1M5UFjoTyGNYWM74HWsaZ4", "1Z2hvETizj8ZtytikiQUzK", "4p2newrzzjPdXIENDqlCCW"]);
+if (store.get("syncVerworfen", 0) < 2) { SYNC_VERWORFEN.forEach(k => { const c = store.get("trk3:" + k, null); if (c && SYNC_FALSCH.has(c.uri.split(":").pop())) store.del("trk3:" + k); }); store.set("syncVerworfen", 2); }
 let syncRunning = false, syncPace = 700;   // gemächlich, damit das Spotify-Limit für das Spiel frei bleibt
 const syncKey = s => "trk3:" + s.t + "|" + s.a;
 function syncFlags(s, r){
@@ -1760,7 +1763,9 @@ async function syncRun(){
 function syncExport(){
   const out = {};
   for (const s of DB) { if (s.sid) continue; const r = store.get(syncKey(s), null);
-    out[s.t + "|" + s.a] = r ? [r.uri.split(":").pop(), r.name, r.artist, r.album, r.date, syncFlags(s, r).join(" · ")] : [null, "", "", "", "", "nicht gefunden"]; }
+    out[s.t + "|" + s.a] = r ? [r.uri.split(":").pop(), r.name, r.artist, r.album, r.date, syncFlags(s, r).join(" · ")]
+      : store.get("syncmiss:" + s.t + "|" + s.a, false) ? [null, "", "", "", "", "nicht gefunden"] : null;
+    if (!out[s.t + "|" + s.a]) delete out[s.t + "|" + s.a]; }   // noch nicht abgeglichene Songs nicht als „nicht gefunden“ ausgeben
   const txt = JSON.stringify(out);
   try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" })); a.download = "mixtape-spotify-ids.json"; document.body.appendChild(a); a.click(); a.remove();
     alert(Object.keys(out).length + " Songs als „mixtape-spotify-ids.json“ gespeichert – im Chat hochladen."); }
