@@ -239,6 +239,7 @@ const SONGS = [
   ["Major Tom (Völlig losgelöst)", "Peter Schilling", 1982, "DE", "deutsch dehits ndw onehit"],
   ["Männer", "Herbert Grönemeyer", 1984, "DE", "deutsch groenemeyer"],
   ["1000 und 1 Nacht (Zoom!)", "Klaus Lage", 1984, "DE", "deutsch"],
+  ["Monopoli", "Klaus Lage", 1984, "DE", "deutsch", "7qiEd0MXSVu9yW5RIW44qJ"],
   ["Rock Me Amadeus", "Falco", 1985, "AT", "deutsch dehits"],
   ["Die da!?!", "Die Fantastischen Vier", 1992, "DE", "deutsch hiphop"],
   ["Alles nur geklaut", "Die Prinzen", 1993, "DE", "deutsch"],
@@ -1864,6 +1865,7 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  "Monopoli|Klaus Lage",
   "Won't Forget These Days|Fury in the Slaughterhouse",
   "Ein ehrenwertes Haus|Udo Jürgens", "Laura non c'è|Nek", "Ab in den Süden|Buddy", "We No Speak Americano|Yolanda Be Cool", "Tarzan Boy|Baltimora", "Wer Liebe lebt|Michelle", "My Songs Know What You Did in the Dark (Light Em Up)|Fall Out Boy", "Would You Love a Monsterman?|Lordi", "Just a Notion|ABBA", "Seven Seas of Rhye|Queen", "Ich dreh mich um dich|Herbert Grönemeyer", "Welcome to the Jungle|Guns N' Roses", "Kickstart My Heart|Mötley Crüe", "A Thousand Miles|Vanessa Carlton", "Only Girl (In the World)|Rihanna", "Say My Name|Destiny's Child", "American Boy|Estelle", "Bye Bye|Cro",
   "You Look Like You Love Me|Ella Langley & Riley Green", "Weren't for the Wind|Ella Langley", "Be Her|Ella Langley",
