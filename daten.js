@@ -731,7 +731,10 @@ const SONGS = [
   ["Abracadabra", "Lady Gaga", 2025, "US", "global"],
   ["Manchild", "Sabrina Carpenter", 2025, "US", "global sommer"],
   ["The Fate of Ophelia", "Taylor Swift", 2025, "US", "global tswift"],
+  ["You Look Like You Love Me", "Ella Langley & Riley Green", 2024, "US", "country", "2PyJAiQjp1OPkow2FJZKHR"],
+  ["Weren't for the Wind", "Ella Langley", 2024, "US", "country", "2A22iI0x4EYAVXNpKPhNEM"],
   ["Choosin' Texas", "Ella Langley", 2025, "US", "country"],
+  ["Be Her", "Ella Langley", 2026, "US", "country", "13HD3tYTiz8oSRxWzXEq7g"],
   ["American Girls", "Harry Styles", 2026, "GB", "global"],
   ["Hate That I Made You Love Me", "Ariana Grande", 2026, "US", "global"],
 
@@ -1860,6 +1863,7 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  "You Look Like You Love Me|Ella Langley & Riley Green", "Weren't for the Wind|Ella Langley", "Be Her|Ella Langley",
   // von Willy entschieden: MTV-Unplugged-Fassungen (2011) statt Original – Jahr = Unplugged
   "Mein Ding|Udo Lindenberg",
   "Cello|Udo Lindenberg",
