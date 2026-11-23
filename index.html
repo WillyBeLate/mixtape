@@ -287,6 +287,18 @@
     .pc.back .bar{position:absolute;left:9mm;right:9mm;bottom:10mm;height:1.6mm;border-radius:1mm;background:rgba(255,255,255,.3);overflow:hidden}
     .pc.back .bar i{position:absolute;top:0;bottom:0;width:10%;background:#fff;border-radius:1mm}
     .pc.back .brand{position:absolute;bottom:4mm;font:800 2.5mm system-ui,sans-serif;letter-spacing:1mm;opacity:.85}
+    /* Seitenrahmen der Anleitung: zarter Verlauf, Regenbogen-Kanten oben/unten, seitlicher Farbstreifen, Logo im Kopf */
+    .rbpage{position:fixed;inset:0;width:210mm;height:297mm;z-index:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+      background:radial-gradient(120mm 90mm at 100% 0%,#ffe1f0 0%,transparent 70%),radial-gradient(130mm 100mm at 0% 100%,#dff7fb 0%,transparent 70%),linear-gradient(#fbf8ff,#f4efff)}
+    .rbpage::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4.5mm;background:linear-gradient(#ff2f8f,#ffb23d 33%,#2de2e6 66%,#7c5cff)}
+    .rbpage::after{content:"";position:absolute;right:0;top:0;bottom:0;width:1.4mm;background:linear-gradient(#7c5cff,#2de2e6 33%,#ffb23d 66%,#ff2f8f);opacity:.7}
+    .rbpage .rbtop,.rbpage .rbbot{position:absolute;left:0;right:0;height:2.4mm;background:linear-gradient(90deg,#ff2f8f 0 33%,#ffb23d 33% 66%,#2de2e6 66%)}
+    .rbpage .rbtop{top:0}.rbpage .rbbot{bottom:0}
+    .rbpage .rbbrand{position:absolute;top:6mm;right:14mm;font:900 9pt system-ui,sans-serif;letter-spacing:1.6mm}
+    .rbpage .rbfoot{position:absolute;bottom:6mm;right:14mm;font:600 7.5pt system-ui,sans-serif;color:#8a7fa8;letter-spacing:.3mm}
+    .rbwrap{width:100%;border-collapse:collapse;position:relative;z-index:1}
+    .rbwrap td{padding:0 16mm 0 19mm;border:0}
+    .rbwrap .rbsp{height:15mm}.rbwrap .rbsp2{height:14mm}
     /* Spielanleitung als PDF – bunt wie eine echte Spielanleitung */
     .rulebook{color:#1b1033;font:10.5pt/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
     .rulebook *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -573,7 +585,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.37";
+const APP_VERSION = "0.9.38";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1339,9 +1351,11 @@ function renderRules(){
   document.querySelectorAll("#rulesBox [data-go]").forEach(a => a.onclick = () => document.getElementById(a.dataset.go)?.scrollIntoView({ behavior:"smooth" }));
 }
 function printRules(){
-  $("#printArea").innerHTML = `<div class="rulebook">${rulesHtml()}</div>`;
+  // Seitenrahmen: fester Hintergrund wiederholt sich auf jeder Druckseite; thead/tfoot = Abstand oben/unten auf jeder Seite
+  const pageDeco = `<div class="rbpage" aria-hidden="true"><i class="rbtop"></i><span class="rbbrand">${BRAND_LETTERS}</span><span class="rbfoot">Spielanleitung · v${APP_VERSION}</span><i class="rbbot"></i></div>`;
+  $("#printArea").innerHTML = `${pageDeco}<table class="rbwrap"><thead><tr><td class="rbsp"></td></tr></thead><tbody><tr><td><div class="rulebook">${rulesHtml()}</div></td></tr></tbody><tfoot><tr><td class="rbsp2"></td></tr></tfoot></table>`;
   let st = document.getElementById("pgRules");
-  if (!st) { st = document.createElement("style"); st.id = "pgRules"; st.textContent = "@page{size:A4 portrait;margin:14mm 16mm}"; document.head.appendChild(st); }
+  if (!st) { st = document.createElement("style"); st.id = "pgRules"; st.textContent = "@page{size:A4 portrait;margin:0}"; document.head.appendChild(st); }
   const done = () => { st.remove(); window.removeEventListener("afterprint", done); };
   window.addEventListener("afterprint", done);
   document.title = APP_NAME + " – Spielanleitung";
