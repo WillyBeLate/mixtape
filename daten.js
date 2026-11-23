@@ -1823,7 +1823,9 @@ const SONGS = [
   ["Dieses Leben", "Juli", 2006, "DE", "deutsch", "138of8Or62lWDzlT6C5i7I"],
   ["Tanz der Moleküle", "Mia.", 2006, "DE", "deutsch", "1mp5PVgUpnHflPu9URvsCk"],
   ["Klar", "Jan Delay", 2006, "DE", "deutsch", "01y4v0GVDAFwj9hjxTMshg"],
-  ["Mein Ding", "Udo Lindenberg", 2008, "DE", "deutsch", "2LJQHkTucSOJf9hQL0Q8ae"],
+  ["Mein Ding", "Udo Lindenberg", 2011, "DE", "deutsch", "20GunjFh7jFc6q6bIKslSB"],
+  ["Cello", "Udo Lindenberg", 2011, "DE", "deutsch dehits", "62BukCU8nVt44KQXm0LUff"],
+  ["Ein Herz kann man nicht reparieren", "Udo Lindenberg", 2011, "DE", "deutsch balladen", "2ATThRqL1YQejcpZWABHHa"],
   ["Hungriges Herz", "Mia.", 2004, "DE", "deutsch", "6RB1fEznHzr1TITfnnyitI"],
   ["Keinen Zentimeter", "Clueso", 2008, "DE", "deutsch", "5v64DycnnkiEtJXiuObYhO"],
   ["Abenteuerland", "Pur", 1995, "DE", "deutsch dehits"],
@@ -1858,6 +1860,10 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  // von Willy entschieden: MTV-Unplugged-Fassungen (2011) statt Original – Jahr = Unplugged
+  "Mein Ding|Udo Lindenberg",
+  "Cello|Udo Lindenberg",
+  "Ein Herz kann man nicht reparieren|Udo Lindenberg",
   // fehlen bei MusicBrainz, Albumjahr bekannt (Trio 1981, 85555 1982, Mit K 2012, Thriller 1982, Planet Punk 1995)
   "Anna – Lassmichrein Lassmichraus|Trio",
   "Déjà vu|Spliff",
