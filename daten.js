@@ -543,6 +543,7 @@ const SONGS = [
   ["Nothing Compares 2 U", "Sinéad O'Connor", 1990, "IE", "global balladen"],
   ["U Can't Touch This", "MC Hammer", 1990, "US", "hiphop"],
   ["Wind of Change", "Scorpions", 1990, "DE", "global rock dehits balladen"],
+  ["Won't Forget These Days", "Fury in the Slaughterhouse", 1990, "DE", "rock dehits", "6pZbFWNVNl51rCcGIuHOde"],
   ["Thunderstruck", "AC/DC", 1990, "AU", "rock"],
   ["Unbelievable", "EMF", 1990, "GB", "onehit"],
   ["Friends in Low Places", "Garth Brooks", 1990, "US", "country"],
@@ -1863,6 +1864,7 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  "Won't Forget These Days|Fury in the Slaughterhouse",
   "Ein ehrenwertes Haus|Udo Jürgens", "Laura non c'è|Nek", "Ab in den Süden|Buddy", "We No Speak Americano|Yolanda Be Cool", "Tarzan Boy|Baltimora", "Wer Liebe lebt|Michelle", "My Songs Know What You Did in the Dark (Light Em Up)|Fall Out Boy", "Would You Love a Monsterman?|Lordi", "Just a Notion|ABBA", "Seven Seas of Rhye|Queen", "Ich dreh mich um dich|Herbert Grönemeyer", "Welcome to the Jungle|Guns N' Roses", "Kickstart My Heart|Mötley Crüe", "A Thousand Miles|Vanessa Carlton", "Only Girl (In the World)|Rihanna", "Say My Name|Destiny's Child", "American Boy|Estelle", "Bye Bye|Cro",
   "You Look Like You Love Me|Ella Langley & Riley Green", "Weren't for the Wind|Ella Langley", "Be Her|Ella Langley",
   // von Willy entschieden: MTV-Unplugged-Fassungen (2011) statt Original – Jahr = Unplugged
