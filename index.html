@@ -470,6 +470,7 @@
   .rsOpt .tx .rsWho{display:inline-block;margin:4px 4px 0 0;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--c) 30%,transparent);color:#fff;border:1px solid var(--c)}
   .rsPrev{font-size:13px;text-align:center;color:#d3c8ef;background:#ffffff10;border-radius:12px;padding:7px 10px;margin:-4px 0 6px}
   #rsOpts .rsOpt.on{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 18%,transparent)}
+  .homebtn{display:inline-flex;align-items:center;gap:6px;border:1px solid #ffffff2e;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 13px 7px 10px;font:600 13px system-ui,sans-serif;cursor:pointer;margin:2px 0 6px}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
@@ -545,6 +546,7 @@
 
   <!-- ======================= SPIEL ======================= -->
   <section class="view" id="v-game">
+    <button class="homebtn" data-home aria-label="Zum Hauptmenü"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Hauptmenü</button>
     <h1><span>Karte scannen</span></h1>
     <div class="mixline"><span id="gameMix"></span><button id="mixEye" class="eye" title="Mix ausblenden"></button></div>
     <div class="scoreBox"></div>
@@ -564,7 +566,7 @@
 
   <!-- ======================= LÄUFT ======================= -->
   <section class="view" id="v-play">
-    <div class="small" style="text-align:right;opacity:.35">v<span class="verTag"></span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><button class="homebtn" data-home aria-label="Zum Hauptmenü"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Hauptmenü</button><span class="small" style="opacity:.35">v<span class="verTag"></span></span></div>
     <div class="stage">
       <div class="disc" id="disc"></div>
       <h2 id="playState">Song läuft …</h2>
@@ -714,7 +716,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.78";
+const APP_VERSION = "0.9.79";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2605,6 +2607,8 @@ $("#mixEye").addEventListener("click", () => { store.set("hideMix", !store.get("
 // Reiter „Spiel“: läuft eine Runde, geht's dorthin zurück – sonst zur Auswahl von Modus & Mix
 function openSpiel(){ if (!state.running) return show("setup"); state.current ? restorePlay() : show("game"); }
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => b.dataset.v === "spiel" ? openSpiel() : show(b.dataset.v)));
+// Hauptmenü: Runde bleibt erhalten und lässt sich dort mit „Weiterspielen“ fortsetzen
+document.addEventListener("click", e => { if (!e.target.closest("[data-home]")) return; stopScanner(); show("setup"); });
 function renderResume(){
   const g = state.game;
   $("#resumeBox").innerHTML = state.running ? `<div class="panel"><div class="small">Laufende Runde: <b>${esc(modeDef().name)}</b> · ${g.teams.map(t => esc(t.n) + " " + t.p).join(" : ")}</div>
