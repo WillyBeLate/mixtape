@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.83", d: "2026-11-25", e: [
+    ["fix", "iPhone: Mixtape musste Spotify nach jedem Song neu öffnen, wenn sich die Geräte-Kennung des Handys geändert hatte. Das Handy wird jetzt wiedererkannt."],
+  ]},
   { v: "0.9.82", d: "2026-11-25", e: [
     ["fix", "Jahr korrigiert: „Ich find dich scheiße“ (Tic Tac Toe) ist von 1995."],
     ["neu", "„Verpiss' dich“ (Tic Tac Toe, 1996) – auch bei Rette einen Song."],

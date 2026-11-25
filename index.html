@@ -726,7 +726,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.82";
+const APP_VERSION = "0.9.83";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1017,11 +1017,16 @@ async function getDevice(){
   }
   const me = store.get("myPhone", null);
   let p = me && (d.find(x => x.id === me.id) || d.find(x => x.name === me.name));
-  if (!p && !me) {
-    const ios = /iphone|ipad/i.test(navigator.userAgent);
-    let ph = d.filter(isMob); const hint = ph.filter(x => /iphone|ipad/i.test(x.name) === ios); if (hint.length) ph = hint;
-    p = ph.length === 1 ? ph[0] : ph.find(x => x.is_active) || null;
-    if (p && ph.length === 1) store.set("myPhone", { id: p.id, name: p.name });   // eindeutig → merken
+  if (!p) {
+    // gemerktes Handy nicht in der Liste (iPhone vergibt teils neue Geräte-IDs) → passendes Handy suchen
+    const ios = /iphone|ipad/i.test(navigator.userAgent), isI = x => /iphone|ipad/i.test(x.name);
+    let ph = d.filter(isMob);
+    const hint = ph.filter(x => isI(x) === ios);               // iPhone-Namen auf dem iPhone, sonst die anderen
+    const sure = ios ? hint.length > 0 : hint.length > 0 && hint.length < ph.length;
+    if (hint.length) ph = hint;
+    const guess = !me && !(ios && !hint.length);              // iPhone ohne iPhone-Namen in der Liste: nicht raten
+    p = ph.length === 1 && (guess || sure) ? ph[0] : ph.find(x => x.is_active) || null;
+    if (p && ph.length === 1 && (guess || sure)) store.set("myPhone", { id: p.id, name: p.name });   // eindeutig → (neu) merken
   }
   if (!p && !d.some(isMob)) { const pc = d.find(x => x.type === "Computer"); if (pc && !/android|iphone|ipad/i.test(navigator.userAgent)) p = pc; }  // am PC: der PC
   return p || null;              // Handy gerade nicht erreichbar → Mixtape bietet „Spotify wecken“ an (öffnet Spotify auf diesem Handy)
@@ -1109,7 +1114,7 @@ function spToast(t){ const el = $("#spToast"); if (!el) return; el.textContent =
 let preWake = null;          // Geräte vor dem Wecken – das neu auftauchende Handy ist „dieses Handy“
 function openSpotify(after){
   pendingRetry = after || null; spWaking = true; preWake = null;
-  if (sp.tok() && !store.get("myPhone", null)) sp.api("/me/player/devices").then(j => preWake = (j?.devices || []).map(x => x.id)).catch(() => {});
+  if (sp.tok()) sp.api("/me/player/devices").then(j => preWake = (j?.devices || []).map(x => x.id)).catch(() => {});
   spToast("Spotify wird geweckt … danach einfach zurück zu Mixtape wechseln.");
   location.href = spotifyLink();
 }
@@ -1117,9 +1122,9 @@ document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState !== "visible" || !spWaking) return;
   spWaking = false; spToast("Verbinde mit Spotify …");
   for (let i = 0; i < 12; i++) {
-    if (preWake && !store.get("myPhone", null)) try {
+    if (preWake) try {
       const nw = ((await sp.api("/me/player/devices"))?.devices || []).filter(x => isMob(x) && !preWake.includes(x.id));
-      if (nw.length === 1) store.set("myPhone", { id: nw[0].id, name: nw[0].name });
+      if (nw.length === 1) store.set("myPhone", { id: nw[0].id, name: nw[0].name });   // nach dem Wecken neu aufgetaucht = dieses Handy
     } catch(e) {}
     const d = await spCheck(true);
     if (d) {
