@@ -561,7 +561,7 @@
     <div id="cardInfo"></div>
     <button class="btn" id="printBtn">🖨 Druckansicht öffnen</button>
     <div class="panel"><b>Profi-Druck (z. B. MakePlayingCards)</b>
-      <div class="small" style="margin-top:4px">Erzeugt jede Kartenseite als einzelnes Bild – quadratisch 2,5″ (63,5 mm), 300 dpi, mit 3 mm Beschnittzugabe, wichtige Inhalte im Sicherheitsbereich. Es zählt dieselbe Auswahl wie oben (Zeitraum bzw. Jahrzehnt-Verteilung). Ergebnis: eine ZIP-Datei mit „vorne“ und „hinten“ je Karte.</div>
+      <div class="small" style="margin-top:4px">Erzeugt jede Kartenseite als einzelnes Bild – quadratisch 2,5″ (63,5 mm), 300 dpi (897 × 897 px), mit Beschnittzugabe, wichtige Inhalte im Sicherheitsbereich. Es zählt dieselbe Auswahl wie oben (Zeitraum bzw. Jahrzehnt-Verteilung). Ergebnis: eine ZIP-Datei mit „vorne“ und „hinten“ je Karte.</div>
       <button class="btn small" id="mpcBtn" style="margin-top:8px">📦 Bilder für Kartendruckerei (ZIP)</button>
       <div id="mpcMsg" class="small"></div></div>
   </section>
@@ -649,7 +649,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.58";
+const APP_VERSION = "0.9.59";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2023,8 +2023,9 @@ const FRONT_SVG = `<svg class="bgart" viewBox="0 0 65 65" preserveAspectRatio="n
 const BRAND_LETTERS = [...APP_NAME.toUpperCase()].map((ch, i) => `<span style="color:${["#ff2fa0","#ff6f61","#ffd23f","#9be15d","#2de2e6","#9b5cff"][i % 6]}">${ch}</span>`).join("");
 function qrSvg(text){ const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({ cellSize:4, margin:0, scalable:true }); }
 // ---------- Export für Kartendruckereien (MPC „Square 2.5 inch“) ----------
-// Einheit mm: Endformat 63,5 × 63,5, rundum 3,175 mm (1/8″) Beschnitt -> 69,85 mm = 825 px bei 300 dpi
-const MPC = { trim: 63.5, bleed: 3.175, px: 825 };
+// Einheit mm: Endformat 63,5 × 63,5; MPC verlangt für „Square 2.5“ mind. 897 × 897 px bei 300 dpi
+// -> Gesamtbild 75,95 mm, also rundum ca. 6,2 mm Beschnitt (wird abgeschnitten)
+const MPC = { trim: 63.5, bleed: (897 / 300 * 25.4 - 63.5) / 2, px: 897 };
 function qrPath(text){ const q = qrcode(0, "M"); q.addData(text); q.make(); const n = q.getModuleCount(); let d = "";
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`; return { d, n }; }
 function cardSvgMpc(side, y){
@@ -2085,10 +2086,10 @@ async function exportMpc(){
       zip.file(`hinten/${pad(i + 1)}_${ys[i]}_hinten.png`, await svgToPng(cardSvgMpc("back", ys[i])));
     }
     zip.file("LIESMICH.txt", [`${APP_NAME} – Kartenbilder für den Profi-Druck`, ``,
-      `${ys.length} Karten · je Seite 825 × 825 px (2,75″ = 2,5″ Endformat + 1/8″ Beschnitt rundum, 300 dpi)`, ``,
+      `${ys.length} Karten · je Seite 897 × 897 px (2,5″ Endformat + Beschnitt rundum, 300 dpi – genau die MPC-Vorgabe)`, ``,
       `MakePlayingCards: Produkt „Custom Square 2.5 inch Game Cards“ wählen, Anzahl ${ys.length} (falls nicht wählbar: nächstgrößere Zahl und Rest leer/doppelt).`,
       `„Different images“ für Vorder- und Rückseite wählen, die Bilder aus „vorne“ als Front, aus „hinten“ als Back hochladen.`,
-      `Gleiche Nummer = gleiche Karte (001_vorne gehört zu 001_hinten). Bilder auf „Fit“ belassen, nicht zoomen.`,
+      `Gleiche Nummer = gleiche Karte (001_vorne gehört zu 001_hinten). Upload: ZIP entpacken, bei „Upload images“ alle Bilder aus „vorne“ markieren (Strg+A), dann „Help me autofill images“ – die Reihenfolge folgt den Nummern. Bei „Customize Back“ dasselbe mit „hinten“. Bilder nicht zoomen.`,
       `Empfehlung: Kartenmaterial S30/S33 (Karton) oder Plastik (wasserfest, kein Laminieren nötig) und passende Box.`].join("\n"));
     m.textContent = "Packe ZIP …";
     const blob = await zip.generateAsync({ type: "blob" });
