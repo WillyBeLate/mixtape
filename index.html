@@ -482,6 +482,21 @@
   .cl.fresh .clv::after{content:"NEU";margin-left:6px;font-size:9px;padding:1px 6px;border-radius:999px;background:var(--accent);vertical-align:3px}
   .trashbtn{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;border:1px solid #ffffff24;background:#ffffff10;color:#d3c8ef;display:grid;place-items:center;cursor:pointer;padding:0}
   .trashbtn:hover,.trashbtn:active{background:#ff4d4d33;color:#fff;border-color:#ff4d4d88}
+  .zsPl{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+  .zsP{flex:1;min-width:92px;background:#ffffff10;border:1px solid #ffffff1f;border-radius:14px;padding:7px 9px;display:flex;flex-direction:column;gap:2px}
+  .zsP.on{border:2px solid var(--c);background:color-mix(in srgb,var(--c) 18%,transparent)}.zsP.out{opacity:.4}
+  .zsP b{font-size:14px}.zsP span{color:#ff4d6d;font-size:14px;letter-spacing:1px}.zsP span i{color:#ffffff33;font-style:normal}.zsP small{font-size:11px;color:#cfc6e8}
+  .zsLbl{margin:10px 2px 4px;color:#d3c8ef}
+  .zsCard{display:flex;align-items:center;gap:12px;background:#ffffff14;border-radius:18px;padding:10px}
+  .zsCard .cv{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#ff5fa2,#7c5cff);background-size:cover;background-position:center;display:grid;place-items:center;font-size:22px}
+  .zsCard .tx{flex:1;min-width:0}.zsCard .tx b{display:block;font-size:16px;line-height:1.2}.zsCard .tx span{font-size:13px;color:#d3c8ef}
+  .zsY{font-size:30px;font-weight:900;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .zsCard.hid{border:2px dashed #ffffff40;background:#ffffff08}
+  .zsQ{width:56px;height:56px;border-radius:10px;background:#ffffff14;display:grid;place-items:center;font-size:30px;font-weight:900;color:#ffd23f}
+  .zsBtns{display:flex;gap:8px}.zsBtns .btn{flex:1;font-size:18px;padding:18px 10px}
+  #zsEarlier{background:linear-gradient(90deg,#7c5cff,#38d6ff)}
+  .zsRes{border-radius:20px;padding:12px;margin:6px 0}.zsRes.ok{background:#2ecc7122;border:1px solid #2ecc7188}.zsRes.no{background:#ff4d4d22;border:1px solid #ff4d4d88}
+  .zsV{font-size:20px;font-weight:900;text-align:center;margin-bottom:8px}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
@@ -596,6 +611,7 @@
 
   <!-- ======================= RETTE EINEN SONG ======================= -->
   <section class="view" id="v-rette"><div id="rsBox"></div></section>
+  <section class="view" id="v-zeitsprung"><div id="zsBox"></div></section>
 
   <!-- ======================= REGELN ======================= -->
   <section class="view" id="v-rules">
@@ -738,7 +754,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.90";
+const APP_VERSION = "0.9.91";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1784,6 +1800,8 @@ const MODE_ICON = {
     ${SPARK(42, 9, 1.4, "#ffd23f")}${SPARK(6, 12, 1.3, "#ff6fb5")}`, "#ff6fb5"),
   film: MI(`<rect x="6" y="20" width="36" height="22" rx="3" stroke="url(#miC)" stroke-width="2.4"/><path d="M6 13l34-7 1.4 6-34 7z" stroke="url(#miA)" stroke-width="2.2"/>
     <path d="M14 11.4l4 5.6M23 9.6l4 5.6M32 7.8l4 5.6" stroke="#ff4fb0" stroke-width="2"/><path d="M6 27h36" stroke="#3ee8ff" stroke-width="1.4"/><path d="M21 31v7l6-3.5z" fill="#ffd23f" stroke="none"/>`, "#3ee8ff"),
+  zeitsprung: MI(`<circle cx="24" cy="26" r="15" stroke="url(#miC)" stroke-width="2.4"/><path d="M24 17v9l6 4" stroke="#b06cff" stroke-width="2.2"/><path d="M20 6h8M24 6v5" stroke="#3ee8ff" stroke-width="2.2"/>
+    <path d="M42 14v12M38 18l4-4 4 4" stroke="#9be15d" stroke-width="2.4"/><path d="M6 24v12M2 32l4 4 4-4" stroke="#ff4fb0" stroke-width="2.4"/>`, "#3ee8ff"),
   rette: MI(`<path d="M8 6h26l7 7v29H8z" stroke="url(#miB)" stroke-width="2.4"/><path d="M15 6v10h16V6" stroke="#ffd23f" stroke-width="2"/><path d="M26 9v4" stroke="#ffd23f" stroke-width="2"/>
     <rect x="13" y="24" width="23" height="14" rx="2" stroke="#ff6f61" stroke-width="1.8"/><path d="M26 27v7" stroke="#ff4fb0" stroke-width="1.8"/><circle cx="24" cy="34.5" r="2" fill="#ff4fb0" stroke="none"/><path d="M26 27l3.5 1.2" stroke="#ff4fb0" stroke-width="1.8"/>
     ${SPARK(44, 6, 1.4, "#ffd23f")}`, "#ffb23d"),
@@ -1804,12 +1822,13 @@ const MODE_TWIST = {
   games: ["Keine Jahreszahlen und keine Karten.", "Erkennt das Videospiel an der Musik. Mit anderen Extras mischbar."],
   disney: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Disney-Film am Song. Mit anderen Extras mischbar."],
   film: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Film an der Musik. Mit anderen Extras mischbar."],
+  zeitsprung: ["Higher or Lower mit Jahren – ganz ohne Karten.", "Ein Song ist bekannt, der nächste läuft: früher oder später? Die Serie wächst, die Jahre rücken näher zusammen. 3 Leben pro Person."],
   rette: ["Kein Wettkampf, sondern Geschmack.", "Pro Jahr rettest du einen von 10 Songs. Am Ende steht dein Lebens-Mixtape – zu zweit mit Vergleich, wie gut ihr zusammenpasst."],
 };
 function showModeInfo(id){
   $("#modePop")?.remove();
   const m = SPIELMODI.find(x => x.id === id), t = MODE_TWIST[id] || [m?.kurz || ""];
-  const name = m ? m.name : "Rette einen Song", wer = m ? m.spieler : "1–2 Personen";
+  const name = m ? m.name : id === "zeitsprung" ? "Zeitsprung" : "Rette einen Song", wer = m ? m.spieler : id === "zeitsprung" ? "1–6 Personen" : "1–2 Personen";
   const f = x => esc(m ? fillText(x, m.app) : x);
   const el = document.createElement("div"); el.id = "modePop"; el.className = "pop";
   el.innerHTML = `<div class="wp" style="text-align:left"><button class="xbtn" aria-label="Schließen">✕</button>
@@ -1822,7 +1841,7 @@ function showModeInfo(id){
   const close = () => el.remove();
   el.addEventListener("click", e => { if (e.target === el) close(); });
   el.querySelector(".xbtn").onclick = close;
-  $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : `#modeGrid [data-mode="${id}"]`)?.click(); };
+  $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : id === "zeitsprung" ? "#zsOpen" : `#modeGrid [data-mode="${id}"]`)?.click(); };
   $("#mpRules")?.addEventListener("click", () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + id)?.scrollIntoView(), 50); });
 }
 // ---------- Modus-Auswahl im Mix ----------
@@ -1830,7 +1849,7 @@ function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
   // nach Spielerzahl gruppiert
   const grp = x => x.app.typ === "tv" ? 4 : x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
-  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extra: ohne Jahreszahlen"];
+  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extras: ohne Karten"];
   const GC = ["#ff5fa2", "#ffb020", "#2dc8e6", "#5fd36b", "#9b5cff"];
   // kleine Figuren: eine Person, zwei Personen, Gruppe
   const P1 = `<svg viewBox="0 0 10 14"><circle cx="5" cy="3.2" r="2.6"/><path d="M0.6 14v-2.6C0.6 8.8 2.6 7.4 5 7.4s4.4 1.4 4.4 4V14z"/></svg>`;
@@ -1849,9 +1868,11 @@ function renderModePanel(){
   const mixOn = m.app.daten === "mix", exSel = mixOn ? sonderSel() : m.app.typ === "tv" ? [m.app.daten] : [];
   const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
   $("#modeGrid").innerHTML = MI_DEFS + GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
-    `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
+    `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Lebens-Mixtape</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
+  $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
     const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;
@@ -2714,7 +2735,7 @@ function show(v){
   curView = v; store.set("lastView", v); keepAwake(["game", "play"].includes(v) && state.running);
   if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play","rette"].includes(v) && b.dataset.v === "spiel")));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play","rette","zeitsprung"].includes(v) && b.dataset.v === "spiel")));
   if (v !== "game") stopScanner();
   if (v === "setup") { setupStep = 1; renderCats(); renderModePanel(); renderResume(); spCheck(false); }
   if (v === "game" || v === "play") renderScore();
@@ -2723,6 +2744,7 @@ function show(v){
   if (v === "data") { renderNews(); renderSilent(); renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
   if (v === "rette") rsRender();
+  if (v === "zeitsprung") zsRender();
   if (v === "game") { renderMixLine(); renderTvBox(); }
   window.scrollTo(0, 0);
 }
@@ -3145,6 +3167,159 @@ async function rsPlaylist(r, i, btn){
   } finally { btn.disabled = false; }
 }
 
+// =====================================================================
+//  ZEITSPRUNG (Higher or Lower mit Jahren) – ohne Karten
+//  Ein Song ist mit Jahr bekannt, der nächste läuft: früher oder später?
+//  Richtig → der neue Song ist der nächste Vergleich. Jede Person hat 3 Leben.
+//  Je länger die Serie, desto näher liegen die Jahre beieinander.
+// =====================================================================
+const ZS_LIVES = 3;
+const ZS_COL = ["#ff5fa2", "#2de2e6", "#ffd23f", "#9be15d", "#b06cff", "#ff8a3d"];
+let zs = store.get("zs", null), zsNow = false;
+const zsSave = () => store.set("zs", zs);
+const zsKey = s => s.t + "|" + s.a;
+const zsSong = k => RS_BY.get(k) || null;
+function zsPool(cats){ return [...new Map(cats.flatMap(c => Object.values(byYearCat[c] || {}).flat()).filter(s => !s.tv && s.y).map(s => [s.i, s])).values()]; }
+// Abstand der Jahre je nach Serie: erst Jahrzehnte, später nur noch wenige Jahre
+function zsGap(n){ return n < 3 ? [15, 80] : n < 6 ? [8, 25] : n < 10 ? [4, 14] : n < 15 ? [2, 8] : [0, 4]; }
+function zsDraw(){
+  const pool = zsPool(zs.cats), used = new Set(zs.used), ref = zsSong(zs.ref);
+  let cand = pool.filter(s => !used.has(zsKey(s)));
+  if (cand.length < 5) { zs.used = [zs.ref]; cand = pool.filter(s => zsKey(s) !== zs.ref); }
+  if (!ref) return cand.length ? zsKey(pickRand(cand)) : null;
+  for (let widen = 0; widen < 4; widen++) {
+    let [lo, hi] = zsGap(zs.n); lo = Math.max(0, lo - widen * 3); hi += widen * 6;
+    const c = cand.filter(s => { const d = Math.abs(s.y - ref.y); return d >= lo && d <= hi && (d > 0 || zs.n >= 15); });
+    if (c.length) return zsKey(pickW(c, x => (x.sid ? 2 : 1) * songW(x)));
+  }
+  return cand.length ? zsKey(pickRand(cand)) : null;
+}
+async function zsPlay(restart){
+  const m = $("#zsMsg"); if (m) m.innerHTML = "";
+  if (!sp.tok()) { if (m) m.innerHTML = `<div class="msg warn">Zum Abspielen erst unter „Spiel“ bei Spotify anmelden.</div>`; return; }
+  if (zsNow && !restart) { zsNow = false; zsMark(); try { await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} return; }
+  const k = zs.cur; zsNow = true; zsMark();
+  try {
+    const tr = await resolveTrack(zsSong(k)); if (zs.cur !== k) return;
+    const dev = await getDevice();
+    if (!dev) { zsNow = false; zsMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="zsWake">Spotify wecken &amp; abspielen</button>`; $("#zsWake").onclick = () => openSpotify(() => zsPlay(true)); } return; }
+    if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
+    const pos = state.randStart && tr.dur ? Math.floor(tr.dur * (0.2 + Math.random() * 0.35)) : 0;
+    const sil = await silentList().catch(() => null);
+    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
+    store.set("lastDev", { id: dev.id, t: Date.now() });
+  } catch(e) {
+    zsNow = false; zsMark(); const f = friendlyErr(e);
+    if (m) { m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>${/nicht gefunden/i.test(e.message || "") ? `<button class="btn sec" id="zsSkip">Anderen Song nehmen</button>` : ""}`;
+      $("#zsSkip")?.addEventListener("click", () => { zs.used.push(zs.cur); zs.cur = zsDraw(); zsSave(); zsRender(); zsPlay(true); }); }
+  }
+}
+function zsMark(){ const b = $("#zsPl"); if (b) b.textContent = zsNow ? "⏸ Pause" : "▶ Abspielen"; }
+const zsTop = sub => `<div class="topbar"><button class="backbtn" id="zsBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div><div class="tbt">⏳ Zeitsprung</div><div class="tbs">${sub || ""}</div></div></div>`;
+function zsRender(){
+  const box = $("#zsBox");
+  if (!zs || zs.view === "setup") return zsSetup(box);
+  if (zs.done) return zsEnd(box);
+  return zsGame(box);
+}
+function zsSetup(box){
+  const o = { cats: ["global", "dehits"], names: [""], ...store.get("zsOpt", {}) };
+  const rek = store.get("zsRekord", {});
+  const open = zs && !zs.done ? zs : null;
+  const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
+  box.innerHTML = zsTop("Song gegen Song – früher oder später?") + `
+    ${open ? `<div class="panel"><div class="small">Laufende Runde: ${open.players.map(p => esc(p.n) + " " + "♥".repeat(p.l)).join(" · ")}</div><button class="btn" id="zsCont">↩ Weiterspielen</button></div>` : ""}
+    <p class="sub" style="margin-top:4px">Ein Song ist mit Jahr bekannt, der nächste läuft. Ist er <b>früher</b> oder <b>später</b>? Richtig geraten wird er zum nächsten Vergleich – je länger die Serie, desto enger liegen die Jahre. Jede Person hat 3 Leben. Gleiches Jahr zählt immer als richtig.</p>
+    <div class="panel"><b>Wer spielt?</b> <span class="small">(reihum)</span>
+      <div id="zsNames" style="margin-top:8px">${o.names.map((n, i) => `<div class="row" style="margin-bottom:6px"><input type="text" data-zn="${i}" value="${esc(n)}" placeholder="Name ${i + 1}" maxlength="16">${o.names.length > 1 ? `<button class="btn sec small" data-zdel="${i}" aria-label="Entfernen">✕</button>` : ""}</div>`).join("")}</div>
+      ${o.names.length < 6 ? `<button class="lk" id="zsAdd" style="background:none;border:0;color:#ffd1e6;font-weight:700;cursor:pointer;padding:4px 0">+ Person hinzufügen</button>` : ""}</div>
+    <div class="panel"><b>Welche Songs?</b> <span class="small">(${zsPool(o.cats).length} Songs im Mix)</span>
+      ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-zc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}</div>
+    ${Object.keys(rek).length ? `<div class="panel"><b>🏆 Rekorde</b>${Object.entries(rek).sort((a, b) => b[1].serie - a[1].serie).slice(0, 8).map(([n, r]) => `<div class="row small" style="margin-top:6px"><span>${esc(n)}</span><span>längste Serie <b>${r.serie}</b> · beste Runde <b>${r.punkte}</b></span></div>`).join("")}</div>` : ""}
+    <div id="zsMsg"></div>
+    <button class="btn" id="zsGo">${open ? "Neue Runde starten" : "Los geht's"}</button>`;
+  const names = () => [...box.querySelectorAll("[data-zn]")].map(el => el.value.trim());
+  const saveO = () => store.set("zsOpt", { ...o, names: names() });
+  $("#zsBack").onclick = () => { saveO(); show("setup"); };
+  $("#zsCont")?.addEventListener("click", () => { zs.view = "play"; zsSave(); zsRender(); });
+  box.querySelectorAll("[data-zc]").forEach(b => b.onclick = () => { const c = b.dataset.zc; o.names = names();
+    o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c]; if (!o.cats.length) o.cats = [c]; store.set("zsOpt", o); zsSetup(box); });
+  $("#zsAdd")?.addEventListener("click", () => { o.names = [...names(), ""]; store.set("zsOpt", o); zsSetup(box); });
+  box.querySelectorAll("[data-zdel]").forEach(b => b.onclick = () => { o.names = names().filter((_, i) => i !== +b.dataset.zdel); store.set("zsOpt", o); zsSetup(box); });
+  box.querySelectorAll("[data-zn]").forEach(el => el.oninput = saveO);
+  $("#zsGo").onclick = () => {
+    const ns = names().map((n, i) => n || (names().length > 1 ? "Person " + (i + 1) : "Ich")); saveO();
+    if (zsPool(o.cats).length < 20) { $("#zsMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`; return; }
+    if (open && !confirm("Die laufende Runde wird beendet. Neue Runde starten?")) return;
+    zs = { id: Date.now(), cats: o.cats, players: ns.map(n => ({ n, l: ZS_LIVES, p: 0, s: 0, best: 0 })), turn: 0, n: 0, used: [], ref: null, cur: null, last: null, view: "play", done: false };
+    zs.ref = zsDraw(); zs.used.push(zs.ref); zs.cur = zsDraw(); zs.used.push(zs.cur);
+    zsSave(); zsRender(); window.scrollTo(0, 0); zsPlay(true);
+  };
+}
+const zsCard = (s, hide, extra = "") => `<div class="zsCard ${hide ? "hid" : ""}">${hide ? `<div class="zsQ">?</div><div class="tx"><b>Neuer Song läuft …</b><span>Titel und Jahr bleiben geheim</span></div>`
+  : `<div class="cvw"><div class="cv" data-cov="${esc(zsKey(s))}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(s.t)}</b><span>${esc(s.a)}</span></div><div class="zsY">${s.y}</div>`}${extra}</div>`;
+function zsGame(box){
+  const P = zs.players, act = P[zs.turn], ref = zsSong(zs.ref), cur = zsSong(zs.cur), L = zs.last;
+  const multi = P.length > 1;
+  const lvl = zs.n < 3 ? 1 : zs.n < 6 ? 2 : zs.n < 10 ? 3 : zs.n < 15 ? 4 : 5;
+  box.innerHTML = zsTop(`Schwierigkeit ${"●".repeat(lvl)}${"○".repeat(5 - lvl)}${multi ? " · " + esc(act.n) + " ist dran" : ""}`) + `
+    <div class="zsPl">${P.map((p, i) => `<div class="zsP ${i === zs.turn && !L ? "on" : ""} ${p.l <= 0 ? "out" : ""}" style="--c:${ZS_COL[i % 6]}"><b>${esc(p.n)}</b><span>${"♥".repeat(Math.max(0, p.l))}<i>${"♥".repeat(ZS_LIVES - Math.max(0, p.l))}</i></span><small>${p.p} richtig</small></div>`).join("")}</div>
+    ${L ? `<div class="zsRes ${L.ok ? "ok" : "no"}"><div class="zsV">${L.ok ? (L.same ? "🎯 Gleiches Jahr – zählt!" : "✓ Richtig!") : "✗ Daneben" + (L.leben === 0 ? " – " + esc(P[L.who].n) + " ist raus" : "")}</div>
+        ${zsCard(cur, false)}<div class="small" style="text-align:center;margin-top:4px">${cur.y === ref.y ? "Gleiches Jahr wie" : cur.y > ref.y ? "Später als" : "Früher als"} ${esc(ref.t)} (${ref.y})</div></div>
+      <button class="btn" id="zsNext">Nächster Song →</button>`
+    : `<div class="small zsLbl">Bekannt</div>${zsCard(ref, false)}
+      <div class="small zsLbl">${multi ? `<b style="color:${ZS_COL[zs.turn % 6]}">${esc(act.n)}</b>: ` : ""}Ist dieser Song früher oder später?</div>${zsCard(cur, true)}
+      <div id="zsMsg"></div>
+      <div class="zsBtns"><button class="btn" id="zsLater">⬆ Später</button><button class="btn" id="zsEarlier">⬇ Früher</button></div>
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap"><button class="btn sec small" id="zsPl">${zsNow ? "⏸ Pause" : "▶ Abspielen"}</button><button class="btn sec small" id="zsAgain">↺ Von vorn</button></div>`}
+    <button class="btn sec small" id="zsEnd" style="display:block;margin:14px auto 0">Runde beenden</button>`;
+  rsCovers(box);
+  $("#zsBack").onclick = () => { zs.view = "setup"; zsSave(); show("setup"); };
+  $("#zsEnd").onclick = () => { if (confirm("Runde jetzt beenden?")) zsFinish(); };
+  $("#zsPl")?.addEventListener("click", () => zsPlay(false));
+  $("#zsAgain")?.addEventListener("click", () => zsPlay(true));
+  const answer = later => {
+    const same = cur.y === ref.y, ok = same || (later ? cur.y > ref.y : cur.y < ref.y), p = P[zs.turn];
+    if (ok) { p.p++; p.s++; p.best = Math.max(p.best, p.s); zs.n++; } else { p.l--; p.s = 0; }
+    zs.last = { ok, same, who: zs.turn, leben: p.l }; zsSave(); zsRender(); window.scrollTo(0, 0);
+  };
+  $("#zsLater")?.addEventListener("click", () => answer(true));
+  $("#zsEarlier")?.addEventListener("click", () => answer(false));
+  $("#zsNext")?.addEventListener("click", () => {
+    // der aufgelöste Song wird zum neuen Vergleich; nächste Person, die noch Leben hat
+    zs.ref = zs.cur; zs.last = null;
+    const alive = P.filter(p => p.l > 0);
+    if (!alive.length || (P.length > 1 && alive.length < 2)) return zsFinish();
+    do { zs.turn = (zs.turn + 1) % P.length; } while (P[zs.turn].l <= 0);
+    zs.cur = zsDraw(); zs.used.push(zs.cur); zsSave(); zsRender(); window.scrollTo(0, 0); zsPlay(true);
+  });
+}
+function zsFinish(){
+  const rek = store.get("zsRekord", {}), neu = [];
+  zs.players.forEach(p => { const r = rek[p.n] || { serie: 0, punkte: 0, runden: 0 };
+    if (p.best > r.serie) { r.serie = p.best; neu.push(p.n + ": längste Serie " + p.best); }
+    if (p.p > r.punkte) { r.punkte = p.p; if (!neu.some(x => x.startsWith(p.n + ":"))) neu.push(p.n + ": beste Runde " + p.p); }
+    r.runden++; rek[p.n] = r; });
+  store.set("zsRekord", rek); zs.done = true; zs.neu = neu; zsSave(); zsRender(); window.scrollTo(0, 0);
+  if (neu.length) confetti();
+  try { sp.api("/me/player/pause", { method: "PUT" }).catch(() => {}); } catch(e) {}
+}
+function zsEnd(box){
+  const P = [...zs.players].sort((a, b) => b.p - a.p || b.l - a.l), multi = P.length > 1, win = multi ? P[0] : null;
+  box.innerHTML = zsTop("Runde vorbei") + `
+    <div class="panel" style="text-align:center"><div style="font-size:44px">${multi ? "🏆" : "⏳"}</div>
+      <h2 style="margin:6px 0">${multi ? esc(win.n) + " gewinnt!" : P[0].p + " richtig"}</h2>
+      <div class="small">${multi ? `Zusammen ${zs.n} richtig · ` : ""}erreichte Schwierigkeit ${zs.n < 3 ? 1 : zs.n < 6 ? 2 : zs.n < 10 ? 3 : zs.n < 15 ? 4 : 5} von 5</div></div>
+    ${zs.neu?.length ? `<div class="panel" style="border:1px solid #ffd23f88"><b>🎉 Neuer Rekord</b>${zs.neu.map(x => `<div class="small" style="margin-top:4px">${esc(x)}</div>`).join("")}</div>` : ""}
+    <div class="panel">${P.map((p, i) => `<div class="row" style="padding:6px 0"><span><b>${i + 1}. ${esc(p.n)}</b></span><span class="small">${p.p} richtig · beste Serie ${p.best}</span></div>`).join("")}</div>
+    <button class="btn" id="zsAgainGame">🔁 Nochmal – gleiche Leute</button>
+    <button class="btn sec" id="zsSetupBtn">Leute oder Songs ändern</button>`;
+  $("#zsBack").onclick = () => { zs.view = "setup"; zsSave(); show("setup"); };
+  $("#zsSetupBtn").onclick = () => { zs = null; store.del("zs"); zsRender(); };
+  $("#zsAgainGame").onclick = () => { zs = null; store.del("zs"); zsRender(); $("#zsGo")?.click(); };
+}
+
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
 const isAdmin = () => store.get("admin", false);
 function applyAdmin(){ document.body.classList.toggle("admin", isAdmin()); }
@@ -3210,7 +3385,7 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   if (state.running) state.current = deserCur(store.get("cur", null));
   renderResume();
   // Nach Neuladen im zuletzt offenen Reiter bleiben – außer im Spiel selbst (dort Hauptbildschirm + „Weiterspielen“)
-  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards", "rette"].includes(lv)) show(lv);
+  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards", "rette", "zeitsprung"].includes(lv)) show(lv);
 })();
 </script>
 </body>
