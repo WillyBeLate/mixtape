@@ -2067,7 +2067,7 @@ function cardSvgMpc(side, y){
 function svgToPng(svg){
   return new Promise((ok, bad) => { const img = new Image();
     img.onload = () => { const cv = document.createElement("canvas"); cv.width = cv.height = MPC.px; const g = cv.getContext("2d");
-      g.drawImage(img, 0, 0, MPC.px, MPC.px); cv.toBlob(b => b ? ok(b) : bad(new Error("PNG fehlgeschlagen")), "image/png"); };
+      g.drawImage(img, 0, 0, MPC.px, MPC.px); cv.toBlob(b => b ? ok(b) : bad(new Error("Bild fehlgeschlagen")), "image/jpeg", 0.95); };
     img.onerror = () => bad(new Error("Bild konnte nicht erzeugt werden"));
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); });
 }
@@ -2082,8 +2082,8 @@ async function exportMpc(){
     const zip = new JSZip(), pad = n => String(n).padStart(3, "0");
     for (let i = 0; i < ys.length; i++) {
       m.textContent = `Erzeuge Karte ${i + 1} von ${ys.length} …`;
-      zip.file(`vorne/${pad(i + 1)}_${ys[i]}_vorne.png`, await svgToPng(cardSvgMpc("front", ys[i])));
-      zip.file(`hinten/${pad(i + 1)}_${ys[i]}_hinten.png`, await svgToPng(cardSvgMpc("back", ys[i])));
+      zip.file(`vorne/${pad(i + 1)}_${ys[i]}_vorne.jpg`, await svgToPng(cardSvgMpc("front", ys[i])));
+      zip.file(`hinten/${pad(i + 1)}_${ys[i]}_hinten.jpg`, await svgToPng(cardSvgMpc("back", ys[i])));
     }
     zip.file("LIESMICH.txt", [`${APP_NAME} – Kartenbilder für den Profi-Druck`, ``,
       `${ys.length} Karten · je Seite 1794 × 1794 px (2,5″ Endformat + Beschnitt rundum, 600 dpi – doppelt so viel wie MPCs Minimum von 897 px)`, ``,
