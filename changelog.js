@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.94", d: "2026-11-26", e: [
+    ["change", "213 weitere Songs spielen jetzt immer die richtige Aufnahme (Spotify-Abgleich), 35 falsche Treffer gesperrt."],
+    ["fix", "„Bauch Beine Po“ ist von 2024, nicht 2023."],
+  ]},
   { v: "0.9.93", d: "2026-11-26", e: [
     ["change", "Zeitsprung: Schon am Anfang gemischt – auch mal nur wenige Jahre Abstand. Mit jeder Stufe wird es öfter knapp, 20+ Jahre kommen nur noch selten vor."],
   ]},

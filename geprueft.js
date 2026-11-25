@@ -1377,7 +1377,7 @@ const MB_GEPRUEFT = {
   "Übermorgen|Mark Forster": [2020, 2020],
   "Wildberry Lillet|Nina Chuba": [2022, 2022],
   "Zukunft Pink|Peter Fox": [2022, 2022],
-  "Bauch Beine Po|Shirin David": [2023, 2024],
+  "Bauch Beine Po|Shirin David": [2024, 2024],
   "Tretboot in Seenot|Frl. Menke": [1982, 1983],
   "Sommersprossen|UKW": [1983, 1998],
   "Computerliebe|Paso Doble": [1984, 1984],
