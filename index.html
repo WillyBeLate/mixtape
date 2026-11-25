@@ -561,7 +561,7 @@
     <div id="cardInfo"></div>
     <button class="btn" id="printBtn">🖨 Druckansicht öffnen</button>
     <div class="panel"><b>Profi-Druck (z. B. MakePlayingCards)</b>
-      <div class="small" style="margin-top:4px">Erzeugt jede Kartenseite als einzelnes Bild – quadratisch 2,5″ (63,5 mm), 300 dpi (897 × 897 px), mit Beschnittzugabe, wichtige Inhalte im Sicherheitsbereich. Es zählt dieselbe Auswahl wie oben (Zeitraum bzw. Jahrzehnt-Verteilung). Ergebnis: eine ZIP-Datei mit „vorne“ und „hinten“ je Karte.</div>
+      <div class="small" style="margin-top:4px">Erzeugt jede Kartenseite als einzelnes Bild – quadratisch 2,5″ (63,5 mm), 600 dpi (1794 × 1794 px), mit Beschnittzugabe, wichtige Inhalte im Sicherheitsbereich. Es zählt dieselbe Auswahl wie oben (Zeitraum bzw. Jahrzehnt-Verteilung). Ergebnis: eine ZIP-Datei mit „vorne“ und „hinten“ je Karte.</div>
       <button class="btn small" id="mpcBtn" style="margin-top:8px">📦 Bilder für Kartendruckerei (ZIP)</button>
       <div id="mpcMsg" class="small"></div></div>
   </section>
@@ -649,7 +649,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.59";
+const APP_VERSION = "0.9.60";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2025,7 +2025,7 @@ function qrSvg(text){ const q = qrcode(0, "M"); q.addData(text); q.make(); retur
 // ---------- Export für Kartendruckereien (MPC „Square 2.5 inch“) ----------
 // Einheit mm: Endformat 63,5 × 63,5; MPC verlangt für „Square 2.5“ mind. 897 × 897 px bei 300 dpi
 // -> Gesamtbild 75,95 mm, also rundum ca. 6,2 mm Beschnitt (wird abgeschnitten)
-const MPC = { trim: 63.5, bleed: (897 / 300 * 25.4 - 63.5) / 2, px: 897 };
+const MPC = { trim: 63.5, bleed: (897 / 300 * 25.4 - 63.5) / 2, px: 1794 };   // doppelte Auflösung (600 dpi) – sicher über MPCs Minimum
 function qrPath(text){ const q = qrcode(0, "M"); q.addData(text); q.make(); const n = q.getModuleCount(); let d = "";
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`; return { d, n }; }
 function cardSvgMpc(side, y){
@@ -2086,14 +2086,14 @@ async function exportMpc(){
       zip.file(`hinten/${pad(i + 1)}_${ys[i]}_hinten.png`, await svgToPng(cardSvgMpc("back", ys[i])));
     }
     zip.file("LIESMICH.txt", [`${APP_NAME} – Kartenbilder für den Profi-Druck`, ``,
-      `${ys.length} Karten · je Seite 897 × 897 px (2,5″ Endformat + Beschnitt rundum, 300 dpi – genau die MPC-Vorgabe)`, ``,
+      `${ys.length} Karten · je Seite 1794 × 1794 px (2,5″ Endformat + Beschnitt rundum, 600 dpi – doppelt so viel wie MPCs Minimum von 897 px)`, ``,
       `MakePlayingCards: Produkt „Custom Square 2.5 inch Game Cards“ wählen, Anzahl ${ys.length} (falls nicht wählbar: nächstgrößere Zahl und Rest leer/doppelt).`,
       `„Different images“ für Vorder- und Rückseite wählen, die Bilder aus „vorne“ als Front, aus „hinten“ als Back hochladen.`,
       `Gleiche Nummer = gleiche Karte (001_vorne gehört zu 001_hinten). Upload: ZIP entpacken, bei „Upload images“ alle Bilder aus „vorne“ markieren (Strg+A), dann „Help me autofill images“ – die Reihenfolge folgt den Nummern. Bei „Customize Back“ dasselbe mit „hinten“. Bilder nicht zoomen.`,
       `Empfehlung: Kartenmaterial S30/S33 (Karton) oder Plastik (wasserfest, kein Laminieren nötig) und passende Box.`].join("\n"));
     m.textContent = "Packe ZIP …";
     const blob = await zip.generateAsync({ type: "blob" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mixtape-karten-${ys.length}-mpc.zip`; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mixtape-karten-${ys.length}-mpc-v2.zip`; document.body.appendChild(a); a.click(); a.remove();
     m.textContent = `Fertig: ${ys.length} Karten (${ys.length * 2} Bilder) als ZIP gespeichert.`;
   } catch(e) { m.textContent = "Fehler: " + e.message; }
   btn.disabled = false;
