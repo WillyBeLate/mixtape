@@ -708,7 +708,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.73";
+const APP_VERSION = "0.9.74";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2726,7 +2726,7 @@ function renderInstall(){
 // =====================================================================
 const rsKey = s => s.t + "|" + s.a;
 const RS_BY = new Map(DB.map(s => [rsKey(s), s]));
-// Feste Auswahl: 8 prägende Songs pro Jahr (RETTE_8 in daten.js)
+// Feste Auswahl: 10 prägende Songs pro Jahr (RETTE_8 in daten.js)
 const RS_YEARS = Object.keys(typeof RETTE_8 !== "undefined" ? RETTE_8 : {}).map(Number).sort((a, b) => a - b);
 const RS_MINY = RS_YEARS[0] || 1960, RS_MAXY = RS_YEARS[RS_YEARS.length - 1] || 2025;
 const rsOpts = y => (RETTE_8[y] || []).filter(k => RS_BY.has(k)).map(k => ({ k, r: Math.random() })).sort((a, b) => a.r - b.r).map(x => x.k);
@@ -2786,7 +2786,7 @@ function rsSetup(box){
   box.innerHTML = rsTop("💾 Rette einen Song", "Pro Jahr ein Song – dein Lebens-Mixtape") + `
     ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${open.from}–${open.to}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} Jahren gewählt</div>
       <button class="btn" id="rsCont">↩ Weitermachen</button></div>` : ""}
-    <p class="sub" style="margin-top:4px">Für jedes Jahr zeigt Mixtape 8 prägende Songs – die großen Hits, quer durch die Genres. Du darfst nur einen retten, die anderen sind weg. ▶ zum Reinhören.</p>
+    <p class="sub" style="margin-top:4px">Für jedes Jahr zeigt Mixtape 10 prägende Songs – die großen Hits, quer durch die Genres, mit deutschen Hits dazwischen. Du darfst nur einen retten, die anderen sind weg. ▶ zum Reinhören.</p>
     <div class="panel"><b>Zeitraum</b>
       <div class="row" style="margin-top:8px"><input type="number" id="rsFrom" value="${o.from}" min="${RS_MINY}" max="${RS_MAXY}"><span>bis</span><input type="number" id="rsTo" value="${o.to}" min="${RS_MINY}" max="${RS_MAXY}"></div>
       <div class="small" style="margin-top:6px">Möglich: ${RS_MINY}–${RS_MAXY}. Tipp: Ab deinem Geburtsjahr wird's persönlich.</div></div>
