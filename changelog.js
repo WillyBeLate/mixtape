@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.93", d: "2026-11-26", e: [
+    ["change", "Zeitsprung: Schon am Anfang gemischt – auch mal nur wenige Jahre Abstand. Mit jeder Stufe wird es öfter knapp, 20+ Jahre kommen nur noch selten vor."],
+  ]},
   { v: "0.9.92", d: "2026-11-26", e: [
     ["change", "Zeitsprung: „Später“ ist jetzt grün, „Früher“ rot – besser zu unterscheiden."],
   ]},

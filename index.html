@@ -755,7 +755,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.92";
+const APP_VERSION = "0.9.93";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -3181,16 +3181,22 @@ const zsSave = () => store.set("zs", zs);
 const zsKey = s => s.t + "|" + s.a;
 const zsSong = k => RS_BY.get(k) || null;
 function zsPool(cats){ return [...new Map(cats.flatMap(c => Object.values(byYearCat[c] || {}).flat()).filter(s => !s.tv && s.y).map(s => [s.i, s])).values()]; }
-// Abstand der Jahre je nach Serie: erst Jahrzehnte, später nur noch wenige Jahre
-function zsGap(n){ return n < 3 ? [15, 80] : n < 6 ? [8, 25] : n < 10 ? [4, 14] : n < 15 ? [2, 8] : [0, 4]; }
+// Abstand der Jahre: von Anfang an gut gemischt (auch knappe Fälle), mit jeder Stufe öfter knapp.
+// Töpfe: knapp 0–3 · mittel 4–9 · weit 10–20 · sehr weit 21+ Jahre
+const ZS_BUCKETS = [[0, 3], [4, 9], [10, 20], [21, 80]];
+const ZS_MIX = [[.30, .40, .25, .05], [.40, .38, .20, .02], [.50, .35, .15, 0], [.62, .30, .08, 0], [.75, .25, 0, 0]];
+const zsLvl = n => n < 3 ? 1 : n < 6 ? 2 : n < 10 ? 3 : n < 15 ? 4 : 5;
 function zsDraw(){
   const pool = zsPool(zs.cats), used = new Set(zs.used), ref = zsSong(zs.ref);
   let cand = pool.filter(s => !used.has(zsKey(s)));
   if (cand.length < 5) { zs.used = [zs.ref]; cand = pool.filter(s => zsKey(s) !== zs.ref); }
   if (!ref) return cand.length ? zsKey(pickRand(cand)) : null;
-  for (let widen = 0; widen < 4; widen++) {
-    let [lo, hi] = zsGap(zs.n); lo = Math.max(0, lo - widen * 3); hi += widen * 6;
-    const c = cand.filter(s => { const d = Math.abs(s.y - ref.y); return d >= lo && d <= hi && (d > 0 || zs.n >= 15); });
+  const w = ZS_MIX[zsLvl(zs.n) - 1]; let r = Math.random(), b = 0;
+  for (; b < 3 && r > w[b]; b++) r -= w[b];
+  // gewählten Topf versuchen, sonst die Nachbartöpfe
+  for (const k of [b, b + 1, b - 1, b + 2, b - 2, 3, 0]) {
+    const bk = ZS_BUCKETS[k]; if (!bk) continue;
+    const c = cand.filter(s => { const d = Math.abs(s.y - ref.y); return d >= bk[0] && d <= bk[1] && (d > 0 || zsLvl(zs.n) >= 3); });
     if (c.length) return zsKey(pickW(c, x => (x.sid ? 2 : 1) * songW(x)));
   }
   return cand.length ? zsKey(pickRand(cand)) : null;
@@ -3231,7 +3237,7 @@ function zsSetup(box){
   const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
   box.innerHTML = zsTop("Song gegen Song – früher oder später?") + `
     ${open ? `<div class="panel"><div class="small">Laufende Runde: ${open.players.map(p => esc(p.n) + " " + "♥".repeat(p.l)).join(" · ")}</div><button class="btn" id="zsCont">↩ Weiterspielen</button></div>` : ""}
-    <p class="sub" style="margin-top:4px">Ein Song ist mit Jahr bekannt, der nächste läuft. Ist er <b>früher</b> oder <b>später</b>? Richtig geraten wird er zum nächsten Vergleich – je länger die Serie, desto enger liegen die Jahre. Jede Person hat 3 Leben. Gleiches Jahr zählt immer als richtig.</p>
+    <p class="sub" style="margin-top:4px">Ein Song ist mit Jahr bekannt, der nächste läuft. Ist er <b>früher</b> oder <b>später</b>? Richtig geraten wird er zum nächsten Vergleich. Knappe und weite Abstände sind von Anfang an gemischt – je länger ihr durchhaltet, desto öfter wird es knapp. Jede Person hat 3 Leben. Gleiches Jahr zählt immer als richtig.</p>
     <div class="panel"><b>Wer spielt?</b> <span class="small">(reihum)</span>
       <div id="zsNames" style="margin-top:8px">${o.names.map((n, i) => `<div class="row" style="margin-bottom:6px"><input type="text" data-zn="${i}" value="${esc(n)}" placeholder="Name ${i + 1}" maxlength="16">${o.names.length > 1 ? `<button class="btn sec small" data-zdel="${i}" aria-label="Entfernen">✕</button>` : ""}</div>`).join("")}</div>
       ${o.names.length < 6 ? `<button class="lk" id="zsAdd" style="background:none;border:0;color:#ffd1e6;font-weight:700;cursor:pointer;padding:4px 0">+ Person hinzufügen</button>` : ""}</div>
@@ -3263,7 +3269,7 @@ const zsCard = (s, hide, extra = "") => `<div class="zsCard ${hide ? "hid" : ""}
 function zsGame(box){
   const P = zs.players, act = P[zs.turn], ref = zsSong(zs.ref), cur = zsSong(zs.cur), L = zs.last;
   const multi = P.length > 1;
-  const lvl = zs.n < 3 ? 1 : zs.n < 6 ? 2 : zs.n < 10 ? 3 : zs.n < 15 ? 4 : 5;
+  const lvl = zsLvl(zs.n);
   box.innerHTML = zsTop(`Schwierigkeit ${"●".repeat(lvl)}${"○".repeat(5 - lvl)}${multi ? " · " + esc(act.n) + " ist dran" : ""}`) + `
     <div class="zsPl">${P.map((p, i) => `<div class="zsP ${i === zs.turn && !L ? "on" : ""} ${p.l <= 0 ? "out" : ""}" style="--c:${ZS_COL[i % 6]}"><b>${esc(p.n)}</b><span>${"♥".repeat(Math.max(0, p.l))}<i>${"♥".repeat(ZS_LIVES - Math.max(0, p.l))}</i></span><small>${p.p} richtig</small></div>`).join("")}</div>
     ${L ? `<div class="zsRes ${L.ok ? "ok" : "no"}"><div class="zsV">${L.ok ? (L.same ? "🎯 Gleiches Jahr – zählt!" : "✓ Richtig!") : "✗ Daneben" + (L.leben === 0 ? " – " + esc(P[L.who].n) + " ist raus" : "")}</div>
@@ -3311,7 +3317,7 @@ function zsEnd(box){
   box.innerHTML = zsTop("Runde vorbei") + `
     <div class="panel" style="text-align:center"><div style="font-size:44px">${multi ? "🏆" : "⏳"}</div>
       <h2 style="margin:6px 0">${multi ? esc(win.n) + " gewinnt!" : P[0].p + " richtig"}</h2>
-      <div class="small">${multi ? `Zusammen ${zs.n} richtig · ` : ""}erreichte Schwierigkeit ${zs.n < 3 ? 1 : zs.n < 6 ? 2 : zs.n < 10 ? 3 : zs.n < 15 ? 4 : 5} von 5</div></div>
+      <div class="small">${multi ? `Zusammen ${zs.n} richtig · ` : ""}erreichte Schwierigkeit ${zsLvl(zs.n)} von 5</div></div>
     ${zs.neu?.length ? `<div class="panel" style="border:1px solid #ffd23f88"><b>🎉 Neuer Rekord</b>${zs.neu.map(x => `<div class="small" style="margin-top:4px">${esc(x)}</div>`).join("")}</div>` : ""}
     <div class="panel">${P.map((p, i) => `<div class="row" style="padding:6px 0"><span><b>${i + 1}. ${esc(p.n)}</b></span><span class="small">${p.p} richtig · beste Serie ${p.best}</span></div>`).join("")}</div>
     <button class="btn" id="zsAgainGame">🔁 Nochmal – gleiche Leute</button>
