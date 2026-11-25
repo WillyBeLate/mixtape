@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.90", d: "2026-11-25", e: [
+    ["change", "Der Neuigkeiten-Hinweis im Hauptmenü ist eingeklappt – antippen zeigt die Details."],
+  ]},
   { v: "0.9.89", d: "2026-11-25", e: [
     ["neu", "Kleines „i“ an jeder Spielmodus-Kachel: In zwei Sätzen, was diesen Modus von den anderen unterscheidet."],
   ]},

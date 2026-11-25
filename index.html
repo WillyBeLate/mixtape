@@ -738,7 +738,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.89";
+const APP_VERSION = "0.9.90";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -3185,13 +3185,16 @@ function showNewsBanner(){
   const show = fresh.slice(0, 5), more = fresh.length - show.length, vers = [...new Set(fresh.map(e => e.v))];
   const el = document.createElement("div"); el.className = "panel"; el.id = "newsBanner"; el.style.border = "1px solid #ff5fa266"; el.style.position = "relative";
   el.innerHTML = `<button class="xbtn" id="nbX" aria-label="Schließen" style="position:absolute;right:10px;top:8px;background:none;border:0;color:#d3c8ef;font-size:18px;cursor:pointer">✕</button>
-    <b>✨ Neu für dich${vers.length === 1 ? ` in Version ${esc(vers[0])}` : ` seit Version ${esc(vers[vers.length - 1])}`}</b>
+    <div id="nbHead" style="cursor:pointer;padding-right:28px"><b>✨ Neu für dich${vers.length === 1 ? ` in Version ${esc(vers[0])}` : ` seit Version ${esc(vers[vers.length - 1])}`}</b>
+      <span class="small" style="opacity:.8;white-space:nowrap"> (${fresh.length}) <span id="nbArr" style="display:inline-block;transition:transform .2s">▾</span></span></div>
+    <div id="nbBody" hidden>
     ${show.map(e => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${e.t}">${CL_LBL[e.t]}</span><span>${esc(e.txt)}</span></div>`).join("")}
     ${more > 0 ? `<div class="small" style="margin-top:6px">… und ${more} weitere</div>` : ""}
-    <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay, gesehen</button></div>`;
+    <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay, gesehen</button></div></div>`;
   $("#newsBanner")?.remove(); $("#resumeBox").before(el);
   const done = () => { markNewsSeen(fresh.map(e => e.id)); el.remove(); };
   $("#nbOk").onclick = done; $("#nbX").onclick = done;
+  $("#nbHead").onclick = () => { const b = $("#nbBody"); b.hidden = !b.hidden; $("#nbArr").style.transform = b.hidden ? "" : "rotate(180deg)"; };
   $("#nbAll").onclick = () => { done(); show("data"); const f = $("#newsFold"); f.open = true; renderNews(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
 }
 $("#newsFold").addEventListener("toggle", e => { if (e.target.open) { const L = typeof CHANGELOG !== "undefined" ? CHANGELOG : []; markNewsSeen(L.flatMap(x => x.e.map((_, k) => newsId(x, k)))); $("#newsBanner")?.remove(); } });
