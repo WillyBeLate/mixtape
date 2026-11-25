@@ -735,7 +735,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.86";
+const APP_VERSION = "0.9.87";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -3104,26 +3104,42 @@ $("#admOff").addEventListener("click", () => { if (!confirm("Daten-Bereich auf d
 const CL_LBL = { neu: "Neu", change: "Geändert", fix: "Fix" };
 const verNum = v => String(v).split(/[–-]/).pop().split(".").map(Number).reduce((a, x) => a * 1000 + (x || 0), 0);
 function renderNews(){
-  const seen = store.get("seenVer", null), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
+  const seenSet = newsSeen(), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
   $("#newsSum").textContent = L[0] ? `zuletzt: Version ${L[0].v}` : "";
   $("#newsBox").innerHTML = `<div class="small" style="margin-bottom:4px"><span class="clt neu">Neu</span> neue Funktion · <span class="clt change">Geändert</span> anders als vorher · <span class="clt fix">Fix</span> Fehler behoben</div>` +
-    L.map(x => `<div class="cl ${seen && verNum(x.v) > verNum(seen) ? "fresh" : ""}"><div class="clh"><span class="clv">Version ${esc(x.v)}</span><span class="cld">${new Date(x.d).toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" })}</span></div>
+    L.map(x => `<div class="cl ${x.e.some((_, k) => !seenSet.has(newsId(x, k))) ? "fresh" : ""}"><div class="clh"><span class="clv">Version ${esc(x.v)}</span><span class="cld">${new Date(x.d).toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" })}</span></div>
       ${x.e.map(([t, txt]) => `<div class="cle"><span class="clt ${t}">${CL_LBL[t] || t}</span><span>${esc(txt)}</span></div>`).join("")}</div>`).join("");
 }
-// Nach einem Update einmal kurz zeigen, was neu ist
-function showNewsBanner(){
-  const seen = store.get("seenVer", null), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
-  if (!seen) { store.set("seenVer", APP_VERSION); return; }           // Erstinstallation: nichts aufdrängen
-  const fresh = L.filter(x => verNum(x.v) > verNum(seen)); if (!fresh.length) { store.set("seenVer", APP_VERSION); return; }
-  const items = fresh.flatMap(x => x.e).slice(0, 3);
-  const el = document.createElement("div"); el.className = "panel"; el.id = "newsBanner"; el.style.border = "1px solid #ff5fa266";
-  el.innerHTML = `<b>✨ Neu in Version ${esc(APP_VERSION)}</b>${items.map(([t, txt]) => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${t}">${CL_LBL[t]}</span><span>${esc(txt)}</span></div>`).join("")}
-    <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay</button></div>`;
-  $("#resumeBox").before(el);
-  const done = () => { store.set("seenVer", APP_VERSION); el.remove(); };
-  $("#nbOk").onclick = done;
-  $("#nbAll").onclick = () => { show("data"); const f = $("#newsFold"); f.open = true; renderNews(); store.set("seenVer", APP_VERSION); el.remove(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
+// Nach einem Update zeigen, was für DIESES Gerät noch neu ist. Jeder Eintrag wird einzeln als „gesehen“ gemerkt:
+// einmal weggeklickt (oder in den Neuigkeiten angeschaut) kommt er nie wieder – neue Einträge später aber schon.
+const newsId = (x, k) => x.v + "#" + k;
+function newsSeen(){
+  let seen = store.get("seenNews", null);
+  if (!seen) {                                               // Umstieg von der alten Merkweise (eine Versionsnummer)
+    const sv = store.get("seenVer", null), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
+    seen = sv ? L.filter(x => verNum(x.v) <= verNum(sv)).flatMap(x => x.e.map((_, k) => newsId(x, k))) : L.flatMap(x => x.e.map((_, k) => newsId(x, k)));
+    store.set("seenNews", seen);                             // Erstinstallation: alles gilt als gesehen
+  }
+  return new Set(seen);
 }
+function markNewsSeen(ids){ const s = newsSeen(); ids.forEach(i => s.add(i)); store.set("seenNews", [...s]); store.set("seenVer", APP_VERSION); }
+function showNewsBanner(){
+  const L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [], seen = newsSeen();
+  const fresh = L.flatMap(x => x.e.map((e, k) => ({ id: newsId(x, k), v: x.v, t: e[0], txt: e[1] }))).filter(e => !seen.has(e.id));
+  if (!fresh.length) return;
+  const show = fresh.slice(0, 5), more = fresh.length - show.length, vers = [...new Set(fresh.map(e => e.v))];
+  const el = document.createElement("div"); el.className = "panel"; el.id = "newsBanner"; el.style.border = "1px solid #ff5fa266"; el.style.position = "relative";
+  el.innerHTML = `<button class="xbtn" id="nbX" aria-label="Schließen" style="position:absolute;right:10px;top:8px;background:none;border:0;color:#d3c8ef;font-size:18px;cursor:pointer">✕</button>
+    <b>✨ Neu für dich${vers.length === 1 ? ` in Version ${esc(vers[0])}` : ` seit Version ${esc(vers[vers.length - 1])}`}</b>
+    ${show.map(e => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${e.t}">${CL_LBL[e.t]}</span><span>${esc(e.txt)}</span></div>`).join("")}
+    ${more > 0 ? `<div class="small" style="margin-top:6px">… und ${more} weitere</div>` : ""}
+    <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay, gesehen</button></div>`;
+  $("#newsBanner")?.remove(); $("#resumeBox").before(el);
+  const done = () => { markNewsSeen(fresh.map(e => e.id)); el.remove(); };
+  $("#nbOk").onclick = done; $("#nbX").onclick = done;
+  $("#nbAll").onclick = () => { done(); show("data"); const f = $("#newsFold"); f.open = true; renderNews(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
+}
+$("#newsFold").addEventListener("toggle", e => { if (e.target.open) { const L = typeof CHANGELOG !== "undefined" ? CHANGELOG : []; markNewsSeen(L.flatMap(x => x.e.map((_, k) => newsId(x, k)))); $("#newsBanner")?.remove(); } });
 $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);
 
 (async () => {

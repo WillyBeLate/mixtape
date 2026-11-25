@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.87", d: "2026-11-25", e: [
+    ["change", "Der Neuigkeiten-Hinweis merkt sich pro Gerät jeden Eintrag einzeln: Einmal weggeklickt oder in den Neuigkeiten angeschaut, kommt er nicht wieder – du siehst nur, was für dich wirklich noch neu ist."],
+  ]},
   { v: "0.9.86", d: "2026-11-25", e: [
     ["neu", "Sicherung: Unter Einstellungen alles in eine Datei speichern und auf einem neuen Gerät oder nach Neuinstallation wieder laden."],
   ]},
