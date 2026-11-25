@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.82", d: "2026-11-25", e: [
+    ["fix", "Jahr korrigiert: „Ich find dich scheiße“ (Tic Tac Toe) ist von 1995."],
+    ["neu", "„Verpiss' dich“ (Tic Tac Toe, 1996) – auch bei Rette einen Song."],
+  ]},
   { v: "0.9.81", d: "2026-11-25", e: [
     ["neu", "Papierkorb bei „Laufende Runde“ im Hauptmenü: angefangene Runde mit einem Tipp verwerfen."],
     ["change", "Beim Zeitstrahl zeigt „Laufende Runde“ keine Punkte mehr an."],
