@@ -113,15 +113,21 @@
   .mt{--gc:#ff5fa2;position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--gc) 35%,transparent);background:linear-gradient(150deg,color-mix(in srgb,var(--gc) 20%,transparent),#ffffff08 70%);
     border-radius:16px;padding:10px 11px 11px;text-align:left;color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:7px;transition:all .15s;font:inherit;min-width:0}
   .mt .mhd{display:flex;align-items:center;justify-content:space-between;gap:6px}
-  .mt .mic{width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:18px;background:color-mix(in srgb,var(--gc) 30%,#ffffff10)}
+  .mt .mic{width:50px;height:50px;flex:none;display:grid;place-items:center;font-size:26px}
+  .mt .mic svg{width:100%;height:100%;overflow:visible}
+  .mt.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;padding:12px 14px}
+  .mt.wide .mhd{order:0}.mt.wide .mic{width:66px;height:66px}.mt.wide .mtx{flex:1}.mt.wide .mtn{font-size:17px}
+  .mt.wide .tag{position:absolute;top:10px;right:12px}
   .mt .mtx{display:flex;flex-direction:column;gap:5px;min-width:0}
   .mt .mtn{font-weight:800;font-size:15px;line-height:1.15}
   .mt .mts{font-size:12px;color:#e4dcf7;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
   .mt .ppl{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;border-radius:999px;background:color-mix(in srgb,var(--gc) 26%,transparent);color:#fff;font-weight:700;font-size:11.5px}
   .mt .ppl svg{height:13px;width:auto;fill:currentColor}
   .mt .tag{margin-left:0;font-size:9px;padding:1px 6px}
-  .mt.on{border-color:transparent;background:linear-gradient(135deg,var(--gc),#7c5cff);box-shadow:0 4px 18px color-mix(in srgb,var(--gc) 45%,transparent)}
-  .mt.on .mic,.mt.on .ppl{background:#ffffff33}
+  .mt.on{border:2px solid var(--gc);padding:9px 10px 10px;background:linear-gradient(150deg,color-mix(in srgb,var(--gc) 38%,#1b1033),#1b103399 75%);box-shadow:0 0 0 3px color-mix(in srgb,var(--gc) 25%,transparent),0 6px 22px color-mix(in srgb,var(--gc) 45%,transparent)}
+  .mt.wide.on{padding:11px 13px}
+  .mt.on .ppl{background:var(--gc);color:#1b1033}
+  .mt.on::after{content:"✓";position:absolute;right:10px;bottom:9px;width:22px;height:22px;border-radius:50%;background:var(--gc);color:#1b1033;font:900 13px/22px system-ui;text-align:center}
   .mgh{display:flex;align-items:center;gap:6px}.mgh .gd{width:8px;height:8px;border-radius:50%;flex:none}
   /* Team-Namen */
   .tin{display:flex;align-items:center;gap:10px;margin:7px 0}
@@ -702,7 +708,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.72";
+const APP_VERSION = "0.9.73";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1588,6 +1594,63 @@ function renderModeBox(){
   $("#stfDrop")?.addEventListener("click", reveal);
 }
 
+// ---------- Modus-Icons (Neon-Linien im Mixtape-Stil, statt Emojis) ----------
+const MI_DEFS = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="miA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4fb0"/><stop offset="1" stop-color="#3ee8ff"/></linearGradient>
+  <linearGradient id="miB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ff6f61"/></linearGradient>
+  <linearGradient id="miC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ee8ff"/><stop offset="1" stop-color="#b06cff"/></linearGradient>
+  <linearGradient id="miD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6fb5"/><stop offset=".5" stop-color="#ffd23f"/><stop offset="1" stop-color="#3ee8ff"/></linearGradient>
+  <linearGradient id="miE" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9be15d"/><stop offset="1" stop-color="#2de2e6"/></linearGradient>
+  <radialGradient id="miR" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ff9f1c"/></radialGradient>
+</defs></svg>`;
+const MI = (inner, glow = "#ff4fb0") => `<svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 4px ${glow}66)">${inner}</svg>`;
+const SPARK = (x, y, s = 1.6, c = "#3ee8ff") => `<path d="M${x} ${y - s * 2}v${s * 4}M${x - s * 2} ${y}h${s * 4}" stroke="${c}" stroke-width="1.2"/>`;
+const NOTE = (x, y, c = "#ffd23f", k = 1) => `<g transform="translate(${x} ${y}) scale(${k})" stroke="${c}" stroke-width="1.6"><path d="M2 0v7"/><circle cx="0" cy="7.5" r="2" fill="${c}" stroke="none"/><path d="M2 0l4 1.4"/></g>`;
+const MODE_ICON = {
+  duell: MI(`<circle cx="24" cy="25" r="15" stroke="url(#miC)" stroke-width="2"/><circle cx="24" cy="25" r="10" stroke="#b06cff" stroke-width="1" opacity=".6"/><circle cx="24" cy="25" r="3" fill="#3ee8ff" stroke="none" opacity=".7"/>
+    <path d="M10 39L34 10" stroke="#ff4fb0" stroke-width="3"/><path d="M34 10l3-2-1 3.6" stroke="#ff4fb0" stroke-width="2"/><path d="M11 32l6 6" stroke="#ff4fb0" stroke-width="2.4"/><path d="M8 41l3-3" stroke="#ff4fb0" stroke-width="3.4"/>
+    <path d="M38 39L14 10" stroke="#3ee8ff" stroke-width="3"/><path d="M14 10l-3-2 1 3.6" stroke="#3ee8ff" stroke-width="2"/><path d="M37 32l-6 6" stroke="#3ee8ff" stroke-width="2.4"/><path d="M40 41l-3-3" stroke="#3ee8ff" stroke-width="3.4"/>
+    ${SPARK(6, 12, 1.5, "#ff4fb0")}${SPARK(43, 14, 1.5)}`, "#ff4fb0"),
+  frueher: MI(`<path d="M27 8v6c0 4-3 7-7 7H11" stroke="url(#miB)" stroke-width="3.2"/><path d="M15 15l-6 6 6 6" stroke="#ffd23f" stroke-width="3.2"/>
+    <path d="M21 40v-6c0-4 3-7 7-7h9" stroke="#ff6f61" stroke-width="3.2"/><path d="M33 21l6 6-6 6" stroke="#ff6f61" stroke-width="3.2"/>
+    <path d="M5 33v4M8 31v8M38 11v4M41 9v8M44 11v4" stroke="#ff9f6b" stroke-width="1.2" opacity=".8"/>`, "#ffb23d"),
+  staffel: MI(`<circle cx="29" cy="8" r="4" fill="#3ee8ff" stroke="none"/><path d="M27 14l-5 11 7 5-2 11" stroke="url(#miC)" stroke-width="3.4"/><path d="M22 25l-7 7-4-1" stroke="url(#miC)" stroke-width="3.4"/>
+    <path d="M26 16l-7 1-4 5M28 16l5 5 5-2" stroke="#7fd8ff" stroke-width="2.6"/><circle cx="40" cy="17" r="2.2" stroke="#b06cff" stroke-width="1.8"/><path d="M41 19l1 4" stroke="#b06cff" stroke-width="1.8"/>
+    <path d="M3 22h8M5 27h7M2 32h6" stroke="#b06cff" stroke-width="1.6" opacity=".8"/>${NOTE(8, 6, "#3ee8ff", .8)}${NOTE(38, 30, "#b06cff", .8)}`, "#3ee8ff"),
+  wunsch: MI(`<path d="M10 22l14 6 14-6v16l-14 6-14-6z" stroke="url(#miD)" stroke-width="1.8"/><path d="M24 28v16" stroke="url(#miD)" stroke-width="1.8"/><path d="M10 22l-5-5 14-5 5 5M38 22l5-5-14-5" stroke="url(#miD)" stroke-width="1.8"/>
+    <circle cx="24" cy="18" r="8" stroke="#ff6fb5" stroke-width="1.6"/><circle cx="24" cy="18" r="2.6" fill="#ffd23f" stroke="none"/>
+    ${NOTE(12, 2, "#ffd23f", .8)}${NOTE(34, 3, "#ffd23f", .8)}${SPARK(42, 8, 1.4, "#ff6fb5")}${SPARK(5, 9, 1.3, "#ffd23f")}`, "#ffd23f"),
+  zeitstrahl: MI(`<rect x="4" y="28" width="40" height="8" rx="2" stroke="url(#miC)" stroke-width="2"/><path d="M9 28v4M14 28v2M19 28v4M24 28v6M29 28v4M34 28v2M39 28v4" stroke="#3ee8ff" stroke-width="1.2"/>
+    <path d="M8 24v-4M12 24v-7M16 24v-3M20 24v-10M24 24v-14M28 24v-8M32 24v-11M36 24v-5M40 24v-8" stroke="url(#miC)" stroke-width="1.8"/>
+    <path d="M24 36l-2.5 3h5z" fill="#ff4fb0" stroke="none"/><text x="4" y="46" font-size="5.6" font-weight="700" fill="#3ee8ff" stroke="none" font-family="system-ui">1990</text><text x="31" y="46" font-size="5.6" font-weight="700" fill="#b06cff" stroke="none" font-family="system-ui">2000</text>`, "#3ee8ff"),
+  punktejagd: MI(`<circle cx="22" cy="26" r="16" stroke="url(#miE)" stroke-width="3.2"/><circle cx="22" cy="26" r="10" stroke="#ff4fb0" stroke-width="3"/><circle cx="22" cy="26" r="4.4" fill="url(#miR)" stroke="none"/>
+    <path d="M22 26L41 7" stroke="#ffd23f" stroke-width="2"/><path d="M41 7l-1 5M41 7l-5 1M38 4l3 3 3-1" stroke="#ffd23f" stroke-width="1.8"/>
+    <path d="M4 9l3 3M8 5l1 4M3 44l3-3M7 47l1-3" stroke="#ff9f1c" stroke-width="1.6"/>`, "#2de2e6"),
+  sprint: MI(`<circle cx="28" cy="27" r="14" stroke="url(#miC)" stroke-width="2.4"/><circle cx="28" cy="27" r="10.5" stroke="#b06cff" stroke-width="1" opacity=".7"/><path d="M25 8h6M28 8v5M39 14l2.5-2.5" stroke="#b06cff" stroke-width="2.2"/>
+    <path d="M25 21v12l9-6z" fill="url(#miC)" stroke="none"/><path d="M2 21h10M4 27h8M2 33h10M6 39h8" stroke="#3ee8ff" stroke-width="1.8"/>`, "#3ee8ff"),
+  gemeinsam: MI(`<circle cx="24" cy="12" r="4.4" stroke="#9be15d" stroke-width="2.2"/><path d="M16 26c0-5 3.6-8 8-8s8 3 8 8" stroke="#9be15d" stroke-width="2.4"/>
+    <circle cx="10" cy="20" r="3.6" stroke="#2de2e6" stroke-width="2"/><path d="M3 32c0-4 3-7 7-7 2.4 0 4.4 1 5.6 2.8" stroke="#2de2e6" stroke-width="2.2"/>
+    <circle cx="38" cy="20" r="3.6" stroke="#2de2e6" stroke-width="2"/><path d="M45 32c0-4-3-7-7-7-2.4 0-4.4 1-5.6 2.8" stroke="#2de2e6" stroke-width="2.2"/>
+    <path d="M24 44s-9-5.4-9-11a4.6 4.6 0 0 1 9-1.6 4.6 4.6 0 0 1 9 1.6c0 5.6-9 11-9 11z" stroke="#ff4fb0" stroke-width="2.2" fill="#ff4fb022"/>`, "#9be15d"),
+  tv: MI(`<rect x="5" y="15" width="38" height="26" rx="5" stroke="url(#miA)" stroke-width="2.4"/><rect x="10" y="20" width="24" height="16" rx="3" stroke="#b06cff" stroke-width="1.4"/>
+    <path d="M19 24v8l7-4z" fill="#3ee8ff" stroke="none"/><circle cx="38.5" cy="23" r="1.6" fill="#ff4fb0" stroke="none"/><circle cx="38.5" cy="29" r="1.6" fill="#ffd23f" stroke="none"/>
+    <path d="M17 6l7 8 7-8" stroke="url(#miA)" stroke-width="2"/><path d="M15 41l-2 4M33 41l2 4" stroke="#b06cff" stroke-width="2"/>`, "#b06cff"),
+  kids: MI(`<circle cx="13" cy="12" r="5" stroke="#ffb23d" stroke-width="2.2"/><circle cx="35" cy="12" r="5" stroke="#ffb23d" stroke-width="2.2"/><circle cx="24" cy="25" r="14" stroke="url(#miB)" stroke-width="2.6"/>
+    <circle cx="19" cy="22" r="1.8" fill="#fff" stroke="none"/><circle cx="29" cy="22" r="1.8" fill="#fff" stroke="none"/><ellipse cx="24" cy="30" rx="5.5" ry="4.2" stroke="#ff6f61" stroke-width="1.8"/><path d="M22.5 28.6h3" stroke="#ff6f61" stroke-width="2"/>
+    ${SPARK(43, 30, 1.4, "#ff6fb5")}${SPARK(5, 31, 1.3, "#3ee8ff")}`, "#ffb23d"),
+  games: MI(`<path d="M14 14h20c6 0 10 5 10 12 0 7-2 12-6 12-3 0-5-4-8-6h-12c-3 2-5 6-8 6-4 0-6-5-6-12 0-7 4-12 10-12z" stroke="url(#miA)" stroke-width="2.4"/>
+    <path d="M14 21v8M10 25h8" stroke="#3ee8ff" stroke-width="2.4"/><circle cx="32" cy="22" r="2" fill="#ff4fb0" stroke="none"/><circle cx="37" cy="27" r="2" fill="#ffd23f" stroke="none"/><circle cx="32" cy="30" r="2" fill="#9be15d" stroke="none"/>
+    ${SPARK(24, 6, 1.6, "#ffd23f")}`, "#ff4fb0"),
+  disney: MI(`<path d="M8 44V24l4-5 4 5v20M32 44V24l4-5 4 5v20M16 44V18l8-9 8 9v26" stroke="url(#miD)" stroke-width="2"/><path d="M4 44h40" stroke="url(#miD)" stroke-width="2"/>
+    <path d="M20 44v-7a4 4 0 0 1 8 0v7" stroke="#ff6fb5" stroke-width="1.8"/><path d="M24 9V3l4 1.6-4 1.6" stroke="#ffd23f" stroke-width="1.6"/><path d="M12 19v-4M36 19v-4" stroke="#3ee8ff" stroke-width="1.6"/>
+    ${SPARK(42, 9, 1.4, "#ffd23f")}${SPARK(6, 12, 1.3, "#ff6fb5")}`, "#ff6fb5"),
+  film: MI(`<rect x="6" y="20" width="36" height="22" rx="3" stroke="url(#miC)" stroke-width="2.4"/><path d="M6 13l34-7 1.4 6-34 7z" stroke="url(#miA)" stroke-width="2.2"/>
+    <path d="M14 11.4l4 5.6M23 9.6l4 5.6M32 7.8l4 5.6" stroke="#ff4fb0" stroke-width="2"/><path d="M6 27h36" stroke="#3ee8ff" stroke-width="1.4"/><path d="M21 31v7l6-3.5z" fill="#ffd23f" stroke="none"/>`, "#3ee8ff"),
+  rette: MI(`<path d="M8 6h26l7 7v29H8z" stroke="url(#miB)" stroke-width="2.4"/><path d="M15 6v10h16V6" stroke="#ffd23f" stroke-width="2"/><path d="M26 9v4" stroke="#ffd23f" stroke-width="2"/>
+    <rect x="13" y="24" width="23" height="14" rx="2" stroke="#ff6f61" stroke-width="1.8"/><path d="M26 27v7" stroke="#ff4fb0" stroke-width="1.8"/><circle cx="24" cy="34.5" r="2" fill="#ff4fb0" stroke="none"/><path d="M26 27l3.5 1.2" stroke="#ff4fb0" stroke-width="1.8"/>
+    ${SPARK(44, 6, 1.4, "#ffd23f")}`, "#ffb23d"),
+};
+
 // ---------- Modus-Auswahl im Mix ----------
 function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
@@ -1605,14 +1668,14 @@ function renderModePanel(){
     if (a.namen === "Spieler") return `<span class="ppl">${lo2 === 2 && hi2 === 2 ? P2 : PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Personen</span>`;
     return `<span class="ppl">${PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Teams</span>`; };
   const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele", disney: "Filme", film: "Filme", mix: "alles" }[x.app.daten] || "Serien") + " raten" : "";
-  const tile = (x, gi) => `<button class="mt ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MIC[x.id] || "🎵"}</span>${x.neu ? '<span class="tag">NEU</span>' : ""}</span>
+  const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "🎵"}</span>${x.neu ? '<span class="tag">NEU</span>' : ""}</span>
       <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span></button>`;
   const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
   const mixOn = m.app.daten === "mix", exSel = mixOn ? sonderSel() : m.app.typ === "tv" ? [m.app.daten] : [];
   const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
-  $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
-    `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi)).join("")}${gi === 4 ? `<button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">💾</span><span class="tag">NEU</span></span>
+  $("#modeGrid").innerHTML = MI_DEFS + GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
+    `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Lebens-Mixtape</span></span></span></button>` : ""}</div>`; }).join("");
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
