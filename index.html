@@ -128,6 +128,9 @@
   .mt.on{border:2px solid var(--gc);padding:9px 10px 10px;background:linear-gradient(150deg,color-mix(in srgb,var(--gc) 38%,#1b1033),#1b103399 75%);box-shadow:0 0 0 3px color-mix(in srgb,var(--gc) 25%,transparent),0 6px 22px color-mix(in srgb,var(--gc) 45%,transparent)}
   .mt.wide.on{padding:11px 13px}
   .mt.on .ppl{background:var(--gc);color:#1b1033}
+  .mt .minfo{position:absolute;right:9px;bottom:9px;width:22px;height:22px;border-radius:50%;border:1.5px solid #ffffff59;color:#e4dcf7;font:800 italic 12px/19px Georgia,serif;text-align:center;background:#1b103355;cursor:pointer;z-index:2}
+  .mt .minfo:active{background:#ffffff33}
+  .mt.on .minfo{right:38px}
   .mt.on::after{content:"✓";position:absolute;right:10px;bottom:9px;width:22px;height:22px;border-radius:50%;background:var(--gc);color:#1b1033;font:900 13px/22px system-ui;text-align:center}
   .mgh{display:flex;align-items:center;gap:6px}.mgh .gd{width:8px;height:8px;border-radius:50%;flex:none}
   /* Team-Namen */
@@ -735,7 +738,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.88";
+const APP_VERSION = "0.9.89";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1786,6 +1789,42 @@ const MODE_ICON = {
     ${SPARK(44, 6, 1.4, "#ffd23f")}`, "#ffb23d"),
 };
 
+// ---------- Kurz erklärt: was diesen Modus von den anderen unterscheidet ----------
+const MODE_TWIST = {
+  duell: ["Jeder hat seinen eigenen Zeitstrahl.", "Der Twist: Liegt der andere falsch, klaust du ihm mit einer Klau-Marke die Karte."],
+  frueher: ["Kein Zeitstrahl, nur ein Duell um jede Karte.", "Ein Team nennt ein Jahr, das andere wettet: früher oder später?"],
+  staffel: ["Teamarbeit in drei Etappen: Jahrzehnt → Jahr → Titel.", "Jede Person übernimmt eine Etappe. Ein Fehler, und der Zug ist vorbei."],
+  wunsch: ["Ein gemeinsamer Zeitstrahl für alle.", "Der Twist: Ihr sucht dem nächsten Team die Kategorie aus – nett oder fies."],
+  zeitstrahl: ["Ihr spielt mit Handkarten und scannt sie für das nächste Team.", "Wer zuerst keine Karten mehr hat, gewinnt. Keine Punkte nötig."],
+  punktejagd: ["Alle raten jeden Song gleichzeitig.", "Jedes Team setzt seinen Marker in den Zeitstrahl – keiner wartet, alle sind immer dran."],
+  sprint: ["Es geht um Tempo, nicht um den Zeitstrahl.", "Der Song läuft erst {s1}, dann {s2}, dann {s3} Sekunden. Wer früher richtig liegt, bekommt mehr Punkte."],
+  gemeinsam: ["Kooperativ: Ihr spielt zusammen gegen das Spiel.", "Gemeinsam schafft ihr Level für Level – niemand verliert gegen den anderen."],
+  tv: ["Keine Jahreszahlen und keine Karten.", "Erkennt die Serie an der Titelmelodie. Mit anderen Extras mischbar."],
+  kids: ["Keine Jahreszahlen und keine Karten.", "Erkennt die Kinderserie an der Titelmelodie. Mit anderen Extras mischbar."],
+  games: ["Keine Jahreszahlen und keine Karten.", "Erkennt das Videospiel an der Musik. Mit anderen Extras mischbar."],
+  disney: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Disney-Film am Song. Mit anderen Extras mischbar."],
+  film: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Film an der Musik. Mit anderen Extras mischbar."],
+  rette: ["Kein Wettkampf, sondern Geschmack.", "Pro Jahr rettest du einen von 10 Songs. Am Ende steht dein Lebens-Mixtape – zu zweit mit Vergleich, wie gut ihr zusammenpasst."],
+};
+function showModeInfo(id){
+  $("#modePop")?.remove();
+  const m = SPIELMODI.find(x => x.id === id), t = MODE_TWIST[id] || [m?.kurz || ""];
+  const name = m ? m.name : "Rette einen Song", wer = m ? m.spieler : "1–2 Personen";
+  const f = x => esc(m ? fillText(x, m.app) : x);
+  const el = document.createElement("div"); el.id = "modePop"; el.className = "pop";
+  el.innerHTML = `<div class="wp" style="text-align:left"><button class="xbtn" aria-label="Schließen">✕</button>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span style="width:54px;height:54px;flex:none">${MODE_ICON[id] || ""}</span>
+      <div><div class="wn" style="font-size:22px;color:#fff;margin:0">${esc(name)}</div><div class="small">${esc(wer)}</div></div></div>
+    <div style="font-size:16px;line-height:1.45"><b>${f(t[0])}</b>${t[1] ? `<br>${f(t[1])}` : ""}</div>
+    <button class="btn" id="mpGo">Diesen Modus wählen</button>
+    ${m ? `<button class="btn sec small" id="mpRules">Ausführliche Regeln</button>` : ""}</div>`;
+  document.body.appendChild(el);
+  const close = () => el.remove();
+  el.addEventListener("click", e => { if (e.target === el) close(); });
+  el.querySelector(".xbtn").onclick = close;
+  $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : `#modeGrid [data-mode="${id}"]`)?.click(); };
+  $("#mpRules")?.addEventListener("click", () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + id)?.scrollIntoView(), 50); });
+}
 // ---------- Modus-Auswahl im Mix ----------
 function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
@@ -1804,14 +1843,15 @@ function renderModePanel(){
     return `<span class="ppl">${PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Teams</span>`; };
   const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele", disney: "Filme", film: "Filme", mix: "alles" }[x.app.daten] || "Serien") + " raten" : "";
   const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "🎵"}</span>${x.neu ? '<span class="tag">NEU</span>' : ""}</span>
-      <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span></button>`;
+      <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span><span class="minfo" data-info="${x.id}" role="button" aria-label="Kurz erklärt">i</span></button>`;
   const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
   const mixOn = m.app.daten === "mix", exSel = mixOn ? sonderSel() : m.app.typ === "tv" ? [m.app.daten] : [];
   const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
   $("#modeGrid").innerHTML = MI_DEFS + GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Lebens-Mixtape</span></span></span></button>` : ""}</div>`; }).join("");
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Lebens-Mixtape</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
+  document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
     const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;

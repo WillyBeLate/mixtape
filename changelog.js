@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.89", d: "2026-11-25", e: [
+    ["neu", "Kleines „i“ an jeder Spielmodus-Kachel: In zwei Sätzen, was diesen Modus von den anderen unterscheidet."],
+  ]},
   { v: "0.9.88", d: "2026-11-25", e: [
     ["fix", "iPhone: „Spotify wachhalten“ fand oft keinen langen stillen Track und war dadurch wirkungslos. Jetzt werden auch kurze Stille-Tracks genommen und hintereinander gehängt."],
   ]},
