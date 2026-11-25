@@ -331,6 +331,7 @@
     .pc.back .bar{position:absolute;left:9mm;right:9mm;bottom:10mm;height:1.6mm;border-radius:1mm;background:rgba(255,255,255,.3);overflow:hidden}
     .pc.back .bar i{position:absolute;top:0;bottom:0;width:10%;background:#fff;border-radius:1mm}
     .pc.back .brand{position:absolute;bottom:4mm;font:800 2.5mm system-ui,sans-serif;letter-spacing:1mm;opacity:.85}
+    .pc.back .brand .own{font:600 1.5mm system-ui,sans-serif;letter-spacing:.2mm;margin-left:1mm;opacity:.8;vertical-align:.6mm}
     /* Seitenrahmen der Anleitung: zarter Verlauf, Regenbogen-Kanten oben/unten, seitlicher Farbstreifen, Logo im Kopf */
     .rbpage{position:fixed;inset:0;width:210mm;height:297mm;z-index:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;
       background:radial-gradient(120mm 90mm at 100% 0%,#ffe1f0 0%,transparent 70%),radial-gradient(130mm 100mm at 0% 100%,#dff7fb 0%,transparent 70%),linear-gradient(#fbf8ff,#f4efff)}
@@ -627,7 +628,7 @@
       <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
     </div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
-      <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
+      <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · © Willy · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
       <div id="installBox"></div>
       <button class="btn small sec adm" id="admOff" style="margin-top:8px">Daten-Bereich auf diesem Gerät ausblenden</button>
     </div>
@@ -651,7 +652,8 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.61";
+const APP_OWNER = "© Willy";
+const APP_VERSION = "0.9.62";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1617,7 +1619,7 @@ function renderRules(){
 }
 function printRules(){
   // Seitenrahmen: fester Hintergrund wiederholt sich auf jeder Druckseite; thead/tfoot = Abstand oben/unten auf jeder Seite
-  const pageDeco = `<div class="rbpage" aria-hidden="true"><i class="rbtop"></i><span class="rbbrand">${BRAND_LETTERS}</span><span class="rbfoot">Spielanleitung · v${APP_VERSION}</span><i class="rbbot"></i></div>`;
+  const pageDeco = `<div class="rbpage" aria-hidden="true"><i class="rbtop"></i><span class="rbbrand">${BRAND_LETTERS}</span><span class="rbfoot">Spielanleitung · v${APP_VERSION} · ${APP_OWNER}</span><i class="rbbot"></i></div>`;
   $("#printArea").innerHTML = `${pageDeco}<table class="rbwrap"><thead><tr><td class="rbsp"></td></tr></thead><tbody><tr><td><div class="rulebook">${rulesHtml()}</div></td></tr></tbody><tfoot><tr><td class="rbsp2"></td></tr></tfoot></table>`;
   let st = document.getElementById("pgRules");
   if (!st) { st = document.createElement("style"); st.id = "pgRules"; st.textContent = "@page{size:A4 portrait;margin:0}"; document.head.appendChild(st); }
@@ -2063,7 +2065,7 @@ function cardSvgMpc(side, y){
     <text x="${cx}" y="${W/2 + 5}" text-anchor="middle" ${font} font-weight="900" font-size="${16.5*f}" letter-spacing="${-.6*f}" fill="#fff">${y}</text>
     <rect x="${B + 9*f}" y="${B + MPC.trim - 11.6*f}" width="${MPC.trim - 18*f}" height="${1.6*f}" rx="${.8*f}" fill="#fff" opacity=".3"/>
     <rect x="${B + 9*f + t * .9 * (MPC.trim - 18*f)}" y="${B + MPC.trim - 11.6*f}" width="${.1 * (MPC.trim - 18*f)}" height="${1.6*f}" rx="${.8*f}" fill="#fff"/>
-    <text x="${cx}" y="${B + MPC.trim - 5}" text-anchor="middle" ${font} font-weight="800" font-size="${2.5*f}" letter-spacing="${1*f}" fill="#fff" opacity=".85">${brand}</text>
+    <text x="${cx}" y="${B + MPC.trim - 5}" text-anchor="middle" ${font} font-weight="800" font-size="${2.5*f}" letter-spacing="${1*f}" fill="#fff" opacity=".85">${brand}<tspan font-weight="600" font-size="${1.5*f}" letter-spacing="${.2*f}" dx="${.8*f}" dy="${-.6*f}">${APP_OWNER}</tspan></text>
   </svg>`;
 }
 function svgToPng(svg){
@@ -2116,7 +2118,7 @@ function buildPrint(custom){
     for (let r = 0; r < 4; r++) back.push(...chunk.slice(r*3, r*3+3).reverse());
     html += `<div class="sheet">` + back.map(y => y === null ? `<div></div>` :
       (st => `<div class="pc back" style="background:${st.bg}"><div class="dec">${st.name}</div><div class="y">${y}</div>
-        <div class="bar"><i style="left:${st.t*90}%"></i></div><div class="brand">${APP_NAME.toUpperCase()}</div></div>`)(decadeStyle(y))).join("") + `</div>`;
+        <div class="bar"><i style="left:${st.t*90}%"></i></div><div class="brand">${APP_NAME.toUpperCase()}<small class="own">${APP_OWNER}</small></div></div>`)(decadeStyle(y))).join("") + `</div>`;
   }
   $("#printArea").innerHTML = html;
   return ys.length;
