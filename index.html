@@ -17,6 +17,7 @@
 <script src="lib/qrcode.js"></script>
 <script src="daten.js"></script>
 <script src="regeln.js"></script>
+<script src="changelog.js"></script>
 <script src="geprueft.js"></script>
 <script src="ids.js"></script>
 <style>
@@ -471,6 +472,11 @@
   .rsPrev{font-size:13px;text-align:center;color:#d3c8ef;background:#ffffff10;border-radius:12px;padding:7px 10px;margin:-4px 0 6px}
   #rsOpts .rsOpt.on{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 18%,transparent)}
   .homebtn{display:inline-flex;align-items:center;gap:6px;border:1px solid #ffffff2e;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 13px 7px 10px;font:600 13px system-ui,sans-serif;cursor:pointer;margin:2px 0 6px}
+  .cl{margin:10px 0 14px}.cl .clh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.cl .clv{font-weight:900;font-size:16px}.cl .cld{font-size:12px;color:#a99cc9}
+  .cl .cle{display:flex;gap:8px;align-items:flex-start;margin:5px 0;font-size:14px;line-height:1.35}
+  .clt{flex:none;align-self:flex-start;height:18px;font:800 10px/18px system-ui,sans-serif;letter-spacing:.5px;padding:0 7px;border-radius:999px;text-transform:uppercase;min-width:66px;text-align:center}
+  .clt.neu{background:#2ecc7133;color:#7dffb0;border:1px solid #2ecc7188}.clt.change{background:#38d6ff26;color:#9fe9ff;border:1px solid #38d6ff77}.clt.fix{background:#ffb02026;color:#ffd27a;border:1px solid #ffb02077}
+  .cl.fresh .clv::after{content:"NEU";margin-left:6px;font-size:9px;padding:1px 6px;border-radius:999px;background:var(--accent);vertical-align:3px}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
@@ -632,8 +638,8 @@
 
   <!-- ======================= DATEN ======================= -->
   <section class="view" id="v-data">
-    <h1 class="noadm"><span>Einstellungen</span></h1>
-    <h1 class="adm"><span>Datenbank-Check</span></h1>
+    <h1><span>Einstellungen</span></h1>
+    <h2 class="adm" style="margin-top:6px">Datenbank-Check</h2>
     <p class="sub adm">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
     <div id="dataBox" class="adm"></div>
     <details class="fold adm" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
@@ -690,6 +696,8 @@
       <div class="small" style="margin-top:10px"><b>Song-Cache leeren:</b> Vergisst, welche Spotify-Aufnahme für Songs ohne feste ID gefunden wurde. Hilft, wenn ein Song falsch klingt – kostet beim nächsten Spielen aber Spotify-Anfragen.</div>
       <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
     </div></details>
+    <details class="fold" data-fold="news" id="newsFold"><summary><span class="ft">📝 Neuigkeiten</span><span class="fs" id="newsSum"></span></summary>
+    <div id="newsBox" style="padding:0 2px 12px"></div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
       <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · © Willy · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
       <div id="installBox"></div>
@@ -705,7 +713,7 @@
   <button data-v="spiel" class="on"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
   <button data-v="rules"><svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><line x1="12" y1="6.5" x2="12" y2="20"/><circle class="f" cx="16.2" cy="10" r="1.6"/><path d="M14.6 14.2h3.4"/></svg>Regeln</button>
   <button data-v="cards"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="11" height="15" rx="2" transform="rotate(-10 9 12.5)"/><rect x="9.5" y="4" width="11" height="15" rx="2"/><line x1="12" y1="14.5" x2="18" y2="14.5"/><line x1="12" y1="16.5" x2="18" y2="16.5"/><circle class="f" cx="15" cy="9" r="2.2"/></svg>Karten</button>
-  <button data-v="data" style="position:relative"><span id="dataBadge" class="badge adm"></span><svg class="noadm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg><svg class="adm" viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="14" y1="20" x2="14" y2="15"/><circle cx="16.5" cy="7.5" r="3.5"/><line x1="19" y1="10" x2="21.5" y2="12.5"/></svg><span class="adm">Daten</span><span class="noadm">Einstellungen</span></button>
+  <button data-v="data" style="position:relative"><span id="dataBadge" class="badge adm"></span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg>Einstellungen</button>
 </nav>
 
 <div id="printArea"></div>
@@ -716,7 +724,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.79";
+const APP_VERSION = "0.9.80";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2588,7 +2596,7 @@ function show(v){
   if (v === "game" || v === "play") renderScore();
   if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
-  if (v === "data") { renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
+  if (v === "data") { renderNews(); renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
   if (v === "rette") rsRender();
   if (v === "game") { renderMixLine(); renderTvBox(); }
@@ -3016,10 +3024,34 @@ $("#verTap").addEventListener("click", () => {
   if (verTaps >= 7 && !isAdmin()) { verTaps = 0; store.set("admin", true); applyAdmin(); renderData(); alert("Daten-Bereich auf diesem Gerät freigeschaltet."); }
 });
 $("#admOff").addEventListener("click", () => { if (!confirm("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; syncRunning = false; mbRunning = false; store.set("admin", false); applyAdmin(); });
+// ---------- Neuigkeiten ----------
+const CL_LBL = { neu: "Neu", change: "Geändert", fix: "Fix" };
+const verNum = v => String(v).split(/[–-]/).pop().split(".").map(Number).reduce((a, x) => a * 1000 + (x || 0), 0);
+function renderNews(){
+  const seen = store.get("seenVer", null), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
+  $("#newsSum").textContent = L[0] ? `zuletzt: Version ${L[0].v}` : "";
+  $("#newsBox").innerHTML = `<div class="small" style="margin-bottom:4px"><span class="clt neu">Neu</span> neue Funktion · <span class="clt change">Geändert</span> anders als vorher · <span class="clt fix">Fix</span> Fehler behoben</div>` +
+    L.map(x => `<div class="cl ${seen && verNum(x.v) > verNum(seen) ? "fresh" : ""}"><div class="clh"><span class="clv">Version ${esc(x.v)}</span><span class="cld">${new Date(x.d).toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" })}</span></div>
+      ${x.e.map(([t, txt]) => `<div class="cle"><span class="clt ${t}">${CL_LBL[t] || t}</span><span>${esc(txt)}</span></div>`).join("")}</div>`).join("");
+}
+// Nach einem Update einmal kurz zeigen, was neu ist
+function showNewsBanner(){
+  const seen = store.get("seenVer", null), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
+  if (!seen) { store.set("seenVer", APP_VERSION); return; }           // Erstinstallation: nichts aufdrängen
+  const fresh = L.filter(x => verNum(x.v) > verNum(seen)); if (!fresh.length) { store.set("seenVer", APP_VERSION); return; }
+  const items = fresh.flatMap(x => x.e).slice(0, 3);
+  const el = document.createElement("div"); el.className = "panel"; el.id = "newsBanner"; el.style.border = "1px solid #ff5fa266";
+  el.innerHTML = `<b>✨ Neu in Version ${esc(APP_VERSION)}</b>${items.map(([t, txt]) => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${t}">${CL_LBL[t]}</span><span>${esc(txt)}</span></div>`).join("")}
+    <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay</button></div>`;
+  $("#resumeBox").before(el);
+  const done = () => { store.set("seenVer", APP_VERSION); el.remove(); };
+  $("#nbOk").onclick = done;
+  $("#nbAll").onclick = () => { show("data"); const f = $("#newsFold"); f.open = true; renderNews(); store.set("seenVer", APP_VERSION); el.remove(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
+}
 $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);
 
 (async () => {
-  renderInstall(); updateBadge();
+  renderInstall(); updateBadge(); showNewsBanner();
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
   const err = await sp.handleRedirect();
