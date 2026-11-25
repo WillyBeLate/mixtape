@@ -455,6 +455,9 @@
   .rsRow .tx{flex:1;min-width:0;font-size:14px;line-height:1.25}.rsRow .tx span{color:#bfb3df;font-size:12px}
   .rsRow .tx .p2{margin-top:4px;padding-top:4px;border-top:1px dashed #ffffff1f}
   .rsRow .m{flex:none;font-size:18px}
+  .devpk .dv.on{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  #playDev a{color:#fff;text-decoration:underline}
+  #playDev{opacity:.75!important}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
@@ -656,7 +659,9 @@
     <details class="fold" data-fold="spotify"><summary><span class="ft">🎧 Spotify</span><span class="fs" id="spSum"></span></summary>
     <div style="padding:0 2px 12px">
       <div id="spState" class="small" style="margin-bottom:8px"></div>
+      <button class="btn small sec" id="devPickBtn">🔊 Wiedergabegerät wählen</button>
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
+      <div id="devPickBox"></div>
       <details style="margin-top:10px"><summary class="small" style="cursor:pointer">Einrichtung (nur einmal nötig)</summary>
         <label style="margin-top:8px;display:block">Spotify Client-ID</label>
         <input type="text" id="clientId" placeholder="aus dem Spotify Developer Dashboard">
@@ -697,7 +702,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.70";
+const APP_VERSION = "0.9.71";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -941,11 +946,45 @@ async function resolveTrack(song){
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// Wiedergabegerät: Wer auf DIESEM Handy ein Gerät festgelegt hat, spielt immer dort (Merker gilt nur für dieses Handy).
+// Ohne Festlegung: das gerade aktive Gerät, sonst ein Smartphone.
 async function getDevice(){
   const j = await sp.api("/me/player/devices");
-  const d = j?.devices || [];
+  const d = j?.devices || [], pref = store.get("devPref", null);
+  if (pref) {
+    const p = d.find(x => x.id === pref.id) || d.find(x => x.name === pref.name);
+    if (p) return p;
+    // festgelegtes Gerät gerade nicht erreichbar → nicht auf ein fremdes Gerät (z. B. Lautsprecher woanders) ausweichen
+    return d.find(x => x.type === "Smartphone" && x.is_active) || null;
+  }
   return d.find(x => x.is_active) || d.find(x => x.type === "Smartphone") || d[0] || null;
 }
+const DEV_IC = { Smartphone: "📱", Computer: "💻", Speaker: "🔊", TV: "📺", Tablet: "📱", CastVideo: "📺", CastAudio: "🔊", AVR: "🔊", Automobile: "🚗" };
+async function openDevPicker(el){
+  el = typeof el === "string" ? $(el) : el; if (!el) return;
+  el.innerHTML = `<div class="msg ok">Suche Spotify-Geräte …</div>`;
+  try {
+    const all = (await sp.api("/me/player/devices"))?.devices || [], pref = store.get("devPref", null);
+    const cur = await getDevice().catch(() => null);
+    el.innerHTML = `<div class="panel devpk"><b>Wo soll die Musik laufen?</b>
+      <div class="small" style="margin:4px 0 8px">Gilt nur für dieses Handy. Fehlt ein Gerät, dort kurz die Spotify-App öffnen und neu laden.</div>
+      ${all.map(x => `<button class="btn sec small dv ${cur?.id === x.id ? "on" : ""}" data-dv="${esc(x.id)}" style="display:flex;width:100%;align-items:center;gap:8px;text-align:left">
+        <span>${DEV_IC[x.type] || "🔈"}</span><span style="flex:1">${esc(x.name)}${x.is_active ? ' <span class="small" style="opacity:.7">· gerade aktiv</span>' : ""}</span>${pref?.id === x.id ? "📌" : ""}</button>`).join("") || `<div class="msg warn">Kein Gerät gefunden – öffne Spotify auf diesem Handy und tippe auf „Neu laden“.</div>`}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn sec small" id="dvReload">↻ Neu laden</button>${pref ? `<button class="btn sec small" id="dvAuto">Automatisch wählen</button>` : ""}<button class="btn sec small" id="dvClose">Schließen</button></div></div>`;
+    el.querySelectorAll("[data-dv]").forEach(b => b.onclick = async () => {
+      const d = all.find(x => x.id === b.dataset.dv); store.set("devPref", { id: d.id, name: d.name });
+      const pl = await sp.api("/me/player").catch(() => null);
+      await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [d.id], play: !!pl?.is_playing }) }).catch(() => {});
+      el.innerHTML = `<div class="msg ok">${DEV_IC[d.type] || "🔈"} Musik läuft ab jetzt auf <b>${esc(d.name)}</b>.</div>`;
+      if ($("#playDev")?.textContent) $("#playDev").innerHTML = `🔊 Läuft auf: ${esc(d.name)} · <a href="#" class="devchg">ändern</a>`;
+    });
+    $("#dvReload").onclick = () => openDevPicker(el);
+    $("#dvAuto")?.addEventListener("click", () => { store.del("devPref"); openDevPicker(el); });
+    $("#dvClose").onclick = () => { el.innerHTML = ""; };
+  } catch(e) { const f = friendlyErr(e); el.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
+}
+$("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
+document.addEventListener("click", e => { const a = e.target.closest(".devchg"); if (!a) return; e.preventDefault(); openDevPicker(curView === "play" ? "#playMsg" : "#devMsg"); });
 
 async function playCurrent(fromStart){
   const c = state.current;
@@ -965,7 +1004,7 @@ async function playCurrent(fromStart){
     const pl = await sp.api("/me/player").catch(() => null);
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
     if (pl?.is_playing) {
-      $("#playDev").textContent = "🔊 Läuft auf: " + (pl.device?.name || "?") + (pl.device?.volume_percent != null ? ` · Lautstärke ${pl.device.volume_percent} %` : "");
+      $("#playDev").innerHTML = "🔊 Läuft auf: " + esc(pl.device?.name || "?") + (pl.device?.volume_percent != null ? ` · ${pl.device.volume_percent} %` : "") + ` · <a href="#" class="devchg">ändern</a>`;
       state.paused = false; updatePlayUI(); return;
     }
     if (i === 0) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
@@ -1957,11 +1996,7 @@ function renderLogin(err){
   if (on) box.innerHTML = "";
   else box.innerHTML = `${err ? `<div class="msg err">${err}</div>` : ""}<div class="small">Spotify Premium nötig. Die App steuert Spotify im Hintergrund – Titel und Cover bleiben verborgen.</div><button class="btn" id="loginBtn">Mit Spotify verbinden</button>`;
   $("#loginBtn")?.addEventListener("click", sp.login);
-  chip.onclick = async () => {
-    try { const all = (await sp.api("/me/player/devices"))?.devices || []; const d = await getDevice();
-      msg("#devMsg", d ? "ok" : "warn", d ? `Gerät bereit: ${esc(d.name)}<br><span class="small">Alle: ${all.map(x => esc(x.name) + " (" + x.type + (x.is_active ? ", aktiv" : "") + ")").join(", ")}</span>` : "Kein Gerät aktiv – Spotify-App kurz öffnen."); }
-    catch(e){ msg("#devMsg", "err", e.message); }
-  };
+  chip.onclick = () => openDevPicker("#devMsg");
 }
 // Spotify-Symbol (grüner Kreis mit drei Bögen) für den Verbunden-Haken oben rechts
 const SPOTIFY_SVG = `<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="12" r="12" fill="#1ed760"/><g fill="none" stroke="#000" stroke-linecap="round"><path d="M6.2 9.3c4-1.2 8.3-.9 11.8 1" stroke-width="1.9"/><path d="M6.9 12.6c3.3-.9 6.8-.6 9.6.9" stroke-width="1.6"/><path d="M7.5 15.6c2.6-.6 5.2-.4 7.4.7" stroke-width="1.3"/></g></svg>`;
