@@ -1378,11 +1378,11 @@ const SONGS = [
   ["Mniej niż zero", "Lady Pank", 1983, "PL", "polen"],
   ["Kryzysowa narzeczona", "Lady Pank", 1983, "PL", "polen"],
   ["Niech żyje bal", "Maryla Rodowicz", 1984, "PL", "polen"],
-  ["Słodkiego miłego życia", "Kombi", 1985, "PL", "polen"],
+  ["Słodkiego miłego życia", "Kombi", 1984, "PL", "polen"],
   ["Arahja", "Kult", 1987, "PL", "polen"],
   ["Polska", "Kult", 1987, "PL", "polen"],
   ["Nie pytaj o Polskę", "Obywatel G.C.", 1988, "PL", "polen"],
-  ["Co mi Panie dasz", "Bajm", 1990, "PL", "polen"],
+  ["Co mi Panie dasz", "Bajm", 1982, "PL", "polen"],
   ["Baśka", "Wilki", 1992, "PL", "polen"],
   ["Teksański", "Hey", 1993, "PL", "polen"],
   ["To nie ja!", "Edyta Górniak", 1994, "PL", "polen esc"],
@@ -1901,6 +1901,7 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  "Biała flaga|Republika",
   "Das ist die Liebe der Matrosen|Comedian Harmonists",
   "Monopoli|Klaus Lage",
   "Won't Forget These Days|Fury in the Slaughterhouse",
