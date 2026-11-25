@@ -702,7 +702,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.71";
+const APP_VERSION = "0.9.72";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -946,40 +946,55 @@ async function resolveTrack(song){
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-// Wiedergabegerät: Wer auf DIESEM Handy ein Gerät festgelegt hat, spielt immer dort (Merker gilt nur für dieses Handy).
-// Ohne Festlegung: das gerade aktive Gerät, sonst ein Smartphone.
+// Wiedergabegerät – Grundsatz: Es spielt LOKAL auf dem Handy, auf dem Mixtape gerade läuft.
+// Ausnahme: Läuft die Musik gerade sowieso über einen Lautsprecher (z. B. Alexa zu Hause), bleibt sie dort –
+// auch in den Pausen zwischen den Songs derselben Spielrunde (30 Min. nach dem letzten Song).
+// Welches Gerät „dieses Handy“ ist, merkt sich jedes Handy selbst (store "myPhone").
+const isMob = x => ["Smartphone", "Tablet"].includes(x?.type);
 async function getDevice(){
-  const j = await sp.api("/me/player/devices");
-  const d = j?.devices || [], pref = store.get("devPref", null);
-  if (pref) {
-    const p = d.find(x => x.id === pref.id) || d.find(x => x.name === pref.name);
-    if (p) return p;
-    // festgelegtes Gerät gerade nicht erreichbar → nicht auf ein fremdes Gerät (z. B. Lautsprecher woanders) ausweichen
-    return d.find(x => x.type === "Smartphone" && x.is_active) || null;
+  const d = (await sp.api("/me/player/devices"))?.devices || [];
+  const act = d.find(x => x.is_active), last = store.get("lastDev", null);
+  if (act && !isMob(act)) {
+    let playing = false;
+    try { playing = !!(await sp.api("/me/player"))?.is_playing; } catch(e) {}
+    if (playing || (last?.id === act.id && Date.now() - last.t < 30 * 6e4)) { store.set("lastDev", { id: act.id, t: Date.now() }); return act; }
   }
-  return d.find(x => x.is_active) || d.find(x => x.type === "Smartphone") || d[0] || null;
+  const me = store.get("myPhone", null);
+  let p = me && (d.find(x => x.id === me.id) || d.find(x => x.name === me.name));
+  if (!p && !me) {
+    const ios = /iphone|ipad/i.test(navigator.userAgent);
+    let ph = d.filter(isMob); const hint = ph.filter(x => /iphone|ipad/i.test(x.name) === ios); if (hint.length) ph = hint;
+    p = ph.length === 1 ? ph[0] : ph.find(x => x.is_active) || null;
+    if (p && ph.length === 1) store.set("myPhone", { id: p.id, name: p.name });   // eindeutig → merken
+  }
+  if (!p && !d.some(isMob)) { const pc = d.find(x => x.type === "Computer"); if (pc && !/android|iphone|ipad/i.test(navigator.userAgent)) p = pc; }  // am PC: der PC
+  if (p) store.set("lastDev", { id: p.id, t: Date.now() });
+  return p || null;              // Handy gerade nicht erreichbar → Mixtape bietet „Spotify wecken“ an (öffnet Spotify auf diesem Handy)
 }
+store.del("devPref");     // alte Festlegung (0.9.71) entfällt
 const DEV_IC = { Smartphone: "📱", Computer: "💻", Speaker: "🔊", TV: "📺", Tablet: "📱", CastVideo: "📺", CastAudio: "🔊", AVR: "🔊", Automobile: "🚗" };
 async function openDevPicker(el){
   el = typeof el === "string" ? $(el) : el; if (!el) return;
   el.innerHTML = `<div class="msg ok">Suche Spotify-Geräte …</div>`;
   try {
-    const all = (await sp.api("/me/player/devices"))?.devices || [], pref = store.get("devPref", null);
+    const all = (await sp.api("/me/player/devices"))?.devices || [], me = store.get("myPhone", null);
     const cur = await getDevice().catch(() => null);
     el.innerHTML = `<div class="panel devpk"><b>Wo soll die Musik laufen?</b>
-      <div class="small" style="margin:4px 0 8px">Gilt nur für dieses Handy. Fehlt ein Gerät, dort kurz die Spotify-App öffnen und neu laden.</div>
+      <div class="small" style="margin:4px 0 8px">Normal spielt Mixtape auf diesem Handy – außer es läuft gerade schon Musik über einen Lautsprecher. Tippe auf dein Handy, damit Mixtape es sich merkt. Fehlt ein Gerät: dort kurz Spotify öffnen, dann „Neu laden“.</div>
       ${all.map(x => `<button class="btn sec small dv ${cur?.id === x.id ? "on" : ""}" data-dv="${esc(x.id)}" style="display:flex;width:100%;align-items:center;gap:8px;text-align:left">
-        <span>${DEV_IC[x.type] || "🔈"}</span><span style="flex:1">${esc(x.name)}${x.is_active ? ' <span class="small" style="opacity:.7">· gerade aktiv</span>' : ""}</span>${pref?.id === x.id ? "📌" : ""}</button>`).join("") || `<div class="msg warn">Kein Gerät gefunden – öffne Spotify auf diesem Handy und tippe auf „Neu laden“.</div>`}
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn sec small" id="dvReload">↻ Neu laden</button>${pref ? `<button class="btn sec small" id="dvAuto">Automatisch wählen</button>` : ""}<button class="btn sec small" id="dvClose">Schließen</button></div></div>`;
+        <span>${DEV_IC[x.type] || "🔈"}</span><span style="flex:1">${esc(x.name)}${me?.id === x.id ? ' <span class="small" style="opacity:.8">· dieses Handy</span>' : ""}${x.is_active ? ' <span class="small" style="opacity:.7">· aktiv</span>' : ""}</span></button>`).join("") || `<div class="msg warn">Kein Gerät gefunden – öffne Spotify auf diesem Handy und tippe auf „Neu laden“.</div>`}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn sec small" id="dvReload">↻ Neu laden</button>${me ? `<button class="btn sec small" id="dvAuto">„Dieses Handy“ vergessen</button>` : ""}<button class="btn sec small" id="dvClose">Schließen</button></div></div>`;
     el.querySelectorAll("[data-dv]").forEach(b => b.onclick = async () => {
-      const d = all.find(x => x.id === b.dataset.dv); store.set("devPref", { id: d.id, name: d.name });
+      const d = all.find(x => x.id === b.dataset.dv);
+      if (isMob(d)) store.set("myPhone", { id: d.id, name: d.name });       // Handy = dieses Handy (dauerhaft)
+      store.set("lastDev", { id: d.id, t: Date.now() });                     // Lautsprecher = nur für diese Runde
       const pl = await sp.api("/me/player").catch(() => null);
       await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [d.id], play: !!pl?.is_playing }) }).catch(() => {});
-      el.innerHTML = `<div class="msg ok">${DEV_IC[d.type] || "🔈"} Musik läuft ab jetzt auf <b>${esc(d.name)}</b>.</div>`;
+      el.innerHTML = `<div class="msg ok">${DEV_IC[d.type] || "🔈"} Musik läuft jetzt auf <b>${esc(d.name)}</b>${isMob(d) ? " – gemerkt als „dieses Handy“." : " (für diese Spielrunde)."}</div>`;
       if ($("#playDev")?.textContent) $("#playDev").innerHTML = `🔊 Läuft auf: ${esc(d.name)} · <a href="#" class="devchg">ändern</a>`;
     });
     $("#dvReload").onclick = () => openDevPicker(el);
-    $("#dvAuto")?.addEventListener("click", () => { store.del("devPref"); openDevPicker(el); });
+    $("#dvAuto")?.addEventListener("click", () => { store.del("myPhone"); openDevPicker(el); });
     $("#dvClose").onclick = () => { el.innerHTML = ""; };
   } catch(e) { const f = friendlyErr(e); el.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
 }
@@ -1035,8 +1050,10 @@ function spotifyLink(){
   return "spotify://";
 }
 function spToast(t){ const el = $("#spToast"); if (!el) return; el.textContent = t; el.style.display = t ? "block" : "none"; }
+let preWake = null;          // Geräte vor dem Wecken – das neu auftauchende Handy ist „dieses Handy“
 function openSpotify(after){
-  pendingRetry = after || null; spWaking = true;
+  pendingRetry = after || null; spWaking = true; preWake = null;
+  if (sp.tok() && !store.get("myPhone", null)) sp.api("/me/player/devices").then(j => preWake = (j?.devices || []).map(x => x.id)).catch(() => {});
   spToast("Spotify wird geweckt … danach einfach zurück zu Mixtape wechseln.");
   location.href = spotifyLink();
 }
@@ -1044,6 +1061,10 @@ document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState !== "visible" || !spWaking) return;
   spWaking = false; spToast("Verbinde mit Spotify …");
   for (let i = 0; i < 12; i++) {
+    if (preWake && !store.get("myPhone", null)) try {
+      const nw = ((await sp.api("/me/player/devices"))?.devices || []).filter(x => isMob(x) && !preWake.includes(x.id));
+      if (nw.length === 1) store.set("myPhone", { id: nw[0].id, name: nw[0].name });
+    } catch(e) {}
     const d = await spCheck(true);
     if (d) {
       spToast("Spotify bereit ✓"); setTimeout(() => spToast(""), 2500);
