@@ -700,6 +700,13 @@
       <div class="small" style="margin-top:10px"><b>Song-Cache leeren:</b> Vergisst, welche Spotify-Aufnahme für Songs ohne feste ID gefunden wurde. Hilft, wenn ein Song falsch klingt – kostet beim nächsten Spielen aber Spotify-Anfragen.</div>
       <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
     </div></details>
+    <details class="fold" data-fold="backup"><summary><span class="ft">💾 Sicherung</span><span class="fs">vor Neuinstallation oder Handywechsel</span></summary>
+    <div style="padding:0 2px 12px">
+      <div class="small">Speichert alles, was diese App auf dem Handy weiß, in eine Datei: Spotify-Einrichtung und Anmeldung, Teams, Song-Verlauf, Mixtapes, Einstellungen und Prüf-Ergebnisse. Auf einem neuen oder neu installierten Gerät „Sicherung laden“ tippen und die Datei wählen.</div>
+      <button class="btn small" id="bkSave">📤 Sicherung speichern</button>
+      <button class="btn small sec" id="bkLoad">📥 Sicherung laden</button><input type="file" id="bkFile" accept=".json,application/json" hidden>
+      <div id="bkMsg" class="small"></div>
+    </div></details>
     <details class="fold" data-fold="news" id="newsFold"><summary><span class="ft">📝 Neuigkeiten</span><span class="fs" id="newsSum"></span></summary>
     <div id="newsBox" style="padding:0 2px 12px"></div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
@@ -728,7 +735,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.85";
+const APP_VERSION = "0.9.86";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1080,6 +1087,25 @@ async function openDevPicker(el){
   } catch(e) { const f = friendlyErr(e); el.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
 }
 $("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
+// ---------- Sicherung (alles aus dem Speicher dieses Geräts) ----------
+$("#bkSave").addEventListener("click", () => {
+  const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); data[k] = localStorage.getItem(k); }
+  const blob = new Blob([JSON.stringify({ app: "mixtape", v: APP_VERSION, date: new Date().toISOString(), data })], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mixtape-sicherung-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  msg("#bkMsg", "ok", `Sicherung mit ${Object.keys(data).length} Einträgen gespeichert (Ordner „Downloads“).`);
+});
+$("#bkLoad").addEventListener("click", () => $("#bkFile").click());
+$("#bkFile").addEventListener("change", async e => {
+  const f = e.target.files?.[0]; if (!f) return;
+  try {
+    const j = JSON.parse(await f.text()); if (j.app !== "mixtape" || !j.data) throw new Error("Das ist keine Mixtape-Sicherung.");
+    if (!confirm(`Sicherung vom ${new Date(j.date).toLocaleString("de-DE")} laden? Der jetzige Stand auf diesem Gerät wird dabei ersetzt.`)) return;
+    localStorage.clear(); Object.entries(j.data).forEach(([k, v]) => localStorage.setItem(k, v));
+    msg("#bkMsg", "ok", "Sicherung geladen – die App startet neu …"); setTimeout(() => location.reload(), 800);
+  } catch(err) { msg("#bkMsg", "err", esc(err.message || String(err))); }
+  e.target.value = "";
+});
 function renderSilent(){
   const ok = store.get("silentOk", null), own = store.get("silentUri", "");
   $("#keepAlive").closest(".row").style.display = IS_IOS ? "" : "none";   // nur fürs iPhone nötig

@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.86", d: "2026-11-25", e: [
+    ["neu", "Sicherung: Unter Einstellungen alles in eine Datei speichern und auf einem neuen Gerät oder nach Neuinstallation wieder laden."],
+  ]},
   { v: "0.9.85", d: "2026-11-25", e: [
     ["change", "„Spotify wachhalten“ gilt nur für iPhone/iPad. Auf Android läuft alles wie bisher, ohne stillen Track."],
   ]},
