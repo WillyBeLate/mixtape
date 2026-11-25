@@ -967,6 +967,7 @@ const SONGS = [
   ["Everybody (Backstreet's Back)", "Backstreet Boys", 1997, "US", "global"],
 
   // ---------------- HITS IN DEUTSCHLAND (Main) ----------------
+  ["Das ist die Liebe der Matrosen", "Comedian Harmonists", 1931, "DE", "dehits film sommer deutsch"],
   ["Ich bin von Kopf bis Fuß auf Liebe eingestellt", "Marlene Dietrich", 1930, "DE", "dehits film balladen deutsch"],
   ["Ein Freund, ein guter Freund", "Comedian Harmonists", 1930, "DE", "dehits film deutsch"],
   ["Liebling, mein Herz läßt dich grüßen", "Lilian Harvey", 1930, "DE", "dehits film deutsch"],
@@ -1860,6 +1861,7 @@ const PRUEFEN = {
 
 // Manuell bestätigt (Jahr gegen Quellen geprüft) – die Jahres-Prüfung meldet sie nicht mehr.
 const BESTAETIGT = new Set([
+  "Das ist die Liebe der Matrosen|Comedian Harmonists",
   "Monopoli|Klaus Lage",
   "Won't Forget These Days|Fury in the Slaughterhouse",
   "Ein ehrenwertes Haus|Udo Jürgens", "Laura non c'è|Nek", "Ab in den Süden|Buddy", "We No Speak Americano|Yolanda Be Cool", "Tarzan Boy|Baltimora", "Wer Liebe lebt|Michelle", "My Songs Know What You Did in the Dark (Light Em Up)|Fall Out Boy", "Would You Love a Monsterman?|Lordi", "Just a Notion|ABBA", "Seven Seas of Rhye|Queen", "Ich dreh mich um dich|Herbert Grönemeyer", "Welcome to the Jungle|Guns N' Roses", "Kickstart My Heart|Mötley Crüe", "A Thousand Miles|Vanessa Carlton", "Only Girl (In the World)|Rihanna", "Say My Name|Destiny's Child", "American Boy|Estelle", "Bye Bye|Cro",
