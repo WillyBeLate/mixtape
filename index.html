@@ -649,7 +649,7 @@
 //  Grundeinstellungen
 // =====================================================================
 const APP_NAME = "Mixtape";
-const APP_VERSION = "0.9.55";
+const APP_VERSION = "0.9.56";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2354,7 +2354,7 @@ function renderData(){
 //  Navigation & Events
 // =====================================================================
 function show(v){
-  curView = v; keepAwake(["game", "play"].includes(v) && state.running);
+  curView = v; store.set("lastView", v); keepAwake(["game", "play"].includes(v) && state.running);
   if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
   document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play"].includes(v) && b.dataset.v === "spiel")));
@@ -2556,6 +2556,8 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   // App startet immer auf dem Hauptbildschirm; eine offene Runde lässt sich dort mit „Weiterspielen“ fortsetzen
   if (state.running) state.current = deserCur(store.get("cur", null));
   renderResume();
+  // Nach Neuladen im zuletzt offenen Reiter bleiben – außer im Spiel selbst (dort Hauptbildschirm + „Weiterspielen“)
+  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards"].includes(lv)) show(lv);
 })();
 </script>
 </body>
