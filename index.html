@@ -735,7 +735,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.87";
+const APP_VERSION = "0.9.88";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1021,19 +1021,34 @@ const isMob = x => ["Smartphone", "Tablet"].includes(x?.type);
 // Deshalb hängt Mixtape hinter jeden Song einen langen stillen Track: Spotify spielt Stille weiter und bleibt wach.
 const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const keepAliveOn = () => IS_IOS && store.get("keepAlive", true);   // nur auf iPhone/iPad – Android braucht den Umweg nicht
-async function silentUri(){
+async function silentUri(){ return (await silentList())?.[0] || null; }
+// Liste stiller Tracks (kurze Stille-Tracks werden wiederholt, bis ~20 Min. zusammenkommen)
+async function silentList(){
   if (!keepAliveOn()) return null;
-  const own = store.get("silentUri", "");                      // eigener Link aus den Einstellungen
-  if (own) { store.set("silentOk", { uri: own, name: "eigener Track" }); return own; }
-  const ok = store.get("silentOk", null); if (ok?.uri) return ok.uri;
-  if (store.get("silentTry", 0) > Date.now() - 6 * 3600e3) return null;   // höchstens alle 6 Std. suchen
-  store.set("silentTry", Date.now());
-  const j = await sp.api(`/search?type=track&limit=20&market=DE&q=${encodeURIComponent("silence 10 hours")}`);
-  const c = (j?.tracks?.items || []).filter(t => /silen(ce|t)|stille/i.test(t.name) && t.duration_ms >= 20 * 6e4 && !/rain|noise|white|brown|pink|ocean|sleep music|piano/i.test(t.name + " " + t.album?.name))
-    .sort((a, b) => b.duration_ms - a.duration_ms)[0];
-  if (!c) return null;
-  store.set("silentOk", { uri: c.uri, name: c.name + " – " + c.artists.map(a => a.name).join(", "), min: Math.round(c.duration_ms / 6e4) });
-  return c.uri;
+  let ok = store.get("silentOk", null);
+  const own = store.get("silentUri", "");
+  if (own && ok?.uri !== own) {                                // eigener Link: Länge einmal nachschlagen
+    let dur = 0; try { dur = (await sp.api("/tracks/" + own.split(":").pop() + "?market=DE"))?.duration_ms || 0; } catch(e) {}
+    ok = { uri: own, name: "eigener Track", min: dur ? Math.round(dur / 6e4) : null, dur }; store.set("silentOk", ok);
+  }
+  if (!ok?.uri) {
+    if (store.get("silentTry2", 0) > Date.now() - 3600e3) return null;   // höchstens einmal pro Stunde suchen
+    store.set("silentTry2", Date.now());
+    let best = null;
+    for (const q of ["silence", "silent track", "stille", "sleepify"]) {
+      const j = await sp.api(`/search?type=track&limit=30&market=DE&q=${encodeURIComponent(q)}`).catch(() => null);
+      const c = (j?.tracks?.items || []).filter(t => /silen(ce|t)|stille|sleepify/i.test(t.name + " " + (t.album?.name || "")) && t.duration_ms >= 15000 && t.duration_ms <= 4 * 3600e3
+        && !/rain|regen|noise|rauschen|white|brown|pink|ocean|meer|sleep music|piano|klavier|night|nacht|of the lambs|sound of|between|remix|feat|kygo|depeche|is golden|before/i.test(t.name + " " + (t.album?.name || "") + " " + t.artists.map(a => a.name).join(" ")))
+        .sort((a, b) => b.duration_ms - a.duration_ms)[0];
+      if (c && (!best || c.duration_ms > best.duration_ms)) best = c;
+      if (best && best.duration_ms >= 20 * 6e4) break;
+    }
+    if (!best) return null;
+    ok = { uri: best.uri, name: best.name + " – " + best.artists.map(a => a.name).join(", "), min: Math.max(1, Math.round(best.duration_ms / 6e4)), dur: best.duration_ms };
+    store.set("silentOk", ok);
+  }
+  const n = ok.dur ? Math.min(60, Math.max(1, Math.ceil(20 * 6e4 / ok.dur))) : 10;
+  return Array(n).fill(ok.uri);
 }
 async function getDevice(){
   const d = (await sp.api("/me/player/devices"))?.devices || [];
@@ -1111,11 +1126,11 @@ function renderSilent(){
   $("#keepAlive").closest(".row").style.display = IS_IOS ? "" : "none";   // nur fürs iPhone nötig
   $("#keepAlive").checked = keepAliveOn();
   $("#silBox").style.display = keepAliveOn() ? "" : "none";
-  $("#silBox").innerHTML = `Stiller Track: ${ok ? `<b>${esc(ok.name)}</b>${ok.min ? ` (${ok.min} Min.)` : ""}` : "wird beim nächsten Song automatisch gesucht"}
+  $("#silBox").innerHTML = `Stiller Track: ${ok ? `<b>${esc(ok.name)}</b>${ok.min ? ` (${ok.min} Min.${ok.dur && ok.dur < 20 * 6e4 ? ", wird wiederholt" : ""})` : ""}` : "wird beim nächsten Song automatisch gesucht (noch keiner gefunden – zur Not unten einen eigenen Link einfügen)"}
     <div class="row" style="margin-top:6px;gap:6px"><input type="text" id="silLink" placeholder="Eigenen Link einfügen (open.spotify.com/track/…)" value="${own ? "https://open.spotify.com/track/" + esc(own.split(":").pop()) : ""}"><button class="btn small sec" id="silSave">OK</button></div>`;
   $("#silSave").onclick = () => {
     const m = ($("#silLink").value || "").match(/track[\/:]([A-Za-z0-9]{22})/);
-    if (m) store.set("silentUri", "spotify:track:" + m[1]); else { store.del("silentUri"); store.del("silentOk"); store.del("silentTry"); }
+    if (m) store.set("silentUri", "spotify:track:" + m[1]); else { store.del("silentUri"); store.del("silentOk"); store.del("silentTry2"); }
     store.del("silentOk"); renderSilent();
   };
 }
@@ -1128,8 +1143,8 @@ async function playCurrent(fromStart){
   if (!dev) throw Object.assign(new Error("NODEVICE"), { nodevice:true });
   let pos = 0;
   if (!fromStart && state.randStart && c.dur) pos = Math.floor(c.dur * (0.2 + Math.random() * 0.35));
-  const sil = await silentUri().catch(() => null);
-  const body = JSON.stringify(sil ? { uris: [c.uri, sil], offset: { position: 0 }, position_ms: pos } : { uris: [c.uri], position_ms: pos });
+  const sil = await silentList().catch(() => null);
+  const body = JSON.stringify(sil ? { uris: [c.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [c.uri], position_ms: pos });
   if (!dev.is_active) {                               // Gerät erst "aufwecken", sonst ignoriert Spotify den Befehl oft
     await sp.api("/me/player", { method:"PUT", body: JSON.stringify({ device_ids:[dev.id], play:false }) }).catch(() => {});
     await sleep(600);
@@ -2905,8 +2920,8 @@ async function rsPlay(k){
     if (!dev) { rsNow = null; rsMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="rsWake">Spotify wecken &amp; abspielen</button>`; $("#rsWake").onclick = () => openSpotify(() => rsPlay(k)); } return; }
     if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
     const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000;          // gleich in den Refrain-Bereich
-    const sil = await silentUri().catch(() => null);
-    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
+    const sil = await silentList().catch(() => null);
+    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
     store.set("lastDev", { id: dev.id, t: Date.now() }); rsCovers($("#rsBox"));
   } catch(e) { rsNow = null; rsMark(); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
 }
