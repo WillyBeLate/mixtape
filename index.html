@@ -565,6 +565,9 @@
       <div class="small" style="margin-top:4px">Erzeugt jede Kartenseite als einzelnes Bild – quadratisch 2,75″ (69,85 mm), 600 dpi (1794 × 1794 px), mit Beschnittzugabe, wichtige Inhalte im Sicherheitsbereich. Es zählt dieselbe Auswahl wie oben (Zeitraum bzw. Jahrzehnt-Verteilung). Ergebnis: eine ZIP-Datei mit „vorne“ und „hinten“ je Karte.</div>
       <button class="btn small" id="mpcBtn" style="margin-top:8px">📦 Bilder für Kartendruckerei (ZIP)</button>
       <div id="mpcMsg" class="small"></div>
+      <details style="margin-top:10px"><summary class="small" style="cursor:pointer"><b>🎁 Box-Design ansehen</b></summary>
+        <a href="druck/mixtape-box-vorschau.jpg" target="_blank"><img src="druck/mixtape-box-vorschau.jpg" alt="Box-Design (aufgeklappt)" loading="lazy" style="width:100%;border-radius:12px;margin-top:8px;display:block"></a>
+        <div class="small" style="margin-top:4px">Aufgeklappte Box: Mitte vorne, links hinten, daneben die Seiten, oben der Deckel, unten der Boden. Antippen = groß.</div></details>
       <a class="btn small sec" href="druck/mixtape-box-mpc-square-2.75.pdf" download style="display:inline-block;margin-top:8px;text-decoration:none">🎁 Box-Design für MPC (Tuck Box, 38,5 mm)</a>
       <div class="small" style="margin-top:4px">Passt genau auf MPCs Vorlage „Tuck Box 2.75″ × 2.75″, Deck-Dicke 38,5 mm“ als PDF. Bei MPC im Schritt „Customize Box“ hochladen.</div></div>
   </section>
@@ -653,7 +656,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.63";
+const APP_VERSION = "0.9.64";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
