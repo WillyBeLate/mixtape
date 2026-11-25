@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.84", d: "2026-11-25", e: [
+    ["neu", "„Spotify wachhalten“ (auf dem iPhone automatisch an): Nach jedem Song spielt Spotify unhörbar Stille weiter, damit das iPhone Spotify nicht einfriert."],
+  ]},
   { v: "0.9.83", d: "2026-11-25", e: [
     ["fix", "iPhone: Mixtape musste Spotify nach jedem Song neu öffnen, wenn sich die Geräte-Kennung des Handys geändert hatte. Das Handy wird jetzt wiedererkannt."],
   ]},

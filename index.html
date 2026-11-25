@@ -681,6 +681,8 @@
     <details class="fold" data-fold="spotify"><summary><span class="ft">🎧 Spotify</span><span class="fs" id="spSum"></span></summary>
     <div style="padding:0 2px 12px">
       <div id="spState" class="small" style="margin-bottom:8px"></div>
+      <div class="row" style="margin:4px 0 10px"><label for="keepAlive"><b>Spotify wachhalten (iPhone)</b><br><span class="small">Nach jedem Song spielt Spotify unhörbar Stille weiter. So friert das iPhone Spotify nicht ein und Mixtape muss es nicht neu öffnen.</span></label><input type="checkbox" id="keepAlive"></div>
+      <div id="silBox" class="small" style="margin:-4px 0 10px"></div>
       <button class="btn small sec" id="devPickBtn">🔊 Wiedergabegerät wählen</button>
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
       <div id="devPickBox"></div>
@@ -726,7 +728,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.83";
+const APP_VERSION = "0.9.84";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1007,6 +1009,25 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // auch in den Pausen zwischen den Songs derselben Spielrunde (30 Min. nach dem letzten Song).
 // Welches Gerät „dieses Handy“ ist, merkt sich jedes Handy selbst (store "myPhone").
 const isMob = x => ["Smartphone", "Tablet"].includes(x?.type);
+// ---------- Spotify wachhalten (iPhone) ----------
+// iOS friert Spotify im Hintergrund ein, sobald nichts mehr abgespielt wird – dann ist das Handy für Mixtape „weg“.
+// Deshalb hängt Mixtape hinter jeden Song einen langen stillen Track: Spotify spielt Stille weiter und bleibt wach.
+const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const keepAliveOn = () => store.get("keepAlive", IS_IOS);
+async function silentUri(){
+  if (!keepAliveOn()) return null;
+  const own = store.get("silentUri", "");                      // eigener Link aus den Einstellungen
+  if (own) { store.set("silentOk", { uri: own, name: "eigener Track" }); return own; }
+  const ok = store.get("silentOk", null); if (ok?.uri) return ok.uri;
+  if (store.get("silentTry", 0) > Date.now() - 6 * 3600e3) return null;   // höchstens alle 6 Std. suchen
+  store.set("silentTry", Date.now());
+  const j = await sp.api(`/search?type=track&limit=20&market=DE&q=${encodeURIComponent("silence 10 hours")}`);
+  const c = (j?.tracks?.items || []).filter(t => /silen(ce|t)|stille/i.test(t.name) && t.duration_ms >= 20 * 6e4 && !/rain|noise|white|brown|pink|ocean|sleep music|piano/i.test(t.name + " " + t.album?.name))
+    .sort((a, b) => b.duration_ms - a.duration_ms)[0];
+  if (!c) return null;
+  store.set("silentOk", { uri: c.uri, name: c.name + " – " + c.artists.map(a => a.name).join(", "), min: Math.round(c.duration_ms / 6e4) });
+  return c.uri;
+}
 async function getDevice(){
   const d = (await sp.api("/me/player/devices"))?.devices || [];
   const act = d.find(x => x.is_active), last = store.get("lastDev", null);
@@ -1059,6 +1080,19 @@ async function openDevPicker(el){
   } catch(e) { const f = friendlyErr(e); el.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
 }
 $("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
+function renderSilent(){
+  const ok = store.get("silentOk", null), own = store.get("silentUri", "");
+  $("#keepAlive").checked = keepAliveOn();
+  $("#silBox").style.display = keepAliveOn() ? "" : "none";
+  $("#silBox").innerHTML = `Stiller Track: ${ok ? `<b>${esc(ok.name)}</b>${ok.min ? ` (${ok.min} Min.)` : ""}` : "wird beim nächsten Song automatisch gesucht"}
+    <div class="row" style="margin-top:6px;gap:6px"><input type="text" id="silLink" placeholder="Eigenen Link einfügen (open.spotify.com/track/…)" value="${own ? "https://open.spotify.com/track/" + esc(own.split(":").pop()) : ""}"><button class="btn small sec" id="silSave">OK</button></div>`;
+  $("#silSave").onclick = () => {
+    const m = ($("#silLink").value || "").match(/track[\/:]([A-Za-z0-9]{22})/);
+    if (m) store.set("silentUri", "spotify:track:" + m[1]); else { store.del("silentUri"); store.del("silentOk"); store.del("silentTry"); }
+    store.del("silentOk"); renderSilent();
+  };
+}
+$("#keepAlive").addEventListener("change", e => { store.set("keepAlive", e.target.checked); renderSilent(); });
 document.addEventListener("click", e => { const a = e.target.closest(".devchg"); if (!a) return; e.preventDefault(); openDevPicker(curView === "play" ? "#playMsg" : "#devMsg"); });
 
 async function playCurrent(fromStart){
@@ -1067,7 +1101,8 @@ async function playCurrent(fromStart){
   if (!dev) throw Object.assign(new Error("NODEVICE"), { nodevice:true });
   let pos = 0;
   if (!fromStart && state.randStart && c.dur) pos = Math.floor(c.dur * (0.2 + Math.random() * 0.35));
-  const body = JSON.stringify({ uris:[c.uri], position_ms:pos });
+  const sil = await silentUri().catch(() => null);
+  const body = JSON.stringify(sil ? { uris: [c.uri, sil], offset: { position: 0 }, position_ms: pos } : { uris: [c.uri], position_ms: pos });
   if (!dev.is_active) {                               // Gerät erst "aufwecken", sonst ignoriert Spotify den Befehl oft
     await sp.api("/me/player", { method:"PUT", body: JSON.stringify({ device_ids:[dev.id], play:false }) }).catch(() => {});
     await sleep(600);
@@ -1612,7 +1647,7 @@ async function sprintPlay(k){
   const pl = await sp.api("/me/player").catch(() => null);
   const left = st[k][0] * 1000 - (pl?.progress_ms || 0);
   sprintTimer = setTimeout(async () => {
-    try { await sp.api("/me/player/pause", { method:"PUT" }); } catch(e) {}
+    try { if (keepAliveOn() && store.get("silentOk", null)) await sp.api("/me/player/next", { method:"POST" }); else await sp.api("/me/player/pause", { method:"PUT" }); } catch(e) {}
     state.paused = true; updatePlayUI(); $("#playState").textContent = `Stopp nach ${st[k][0]} Sekunden`;
     c.sprintRunning = false; renderModeBox();
   }, Math.max(0, left));
@@ -2603,7 +2638,7 @@ function show(v){
   if (v === "game" || v === "play") renderScore();
   if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
-  if (v === "data") { renderNews(); renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
+  if (v === "data") { renderNews(); renderSilent(); renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
   if (v === "rette") rsRender();
   if (v === "game") { renderMixLine(); renderTvBox(); }
@@ -2843,12 +2878,13 @@ async function rsPlay(k){
     if (!dev) { rsNow = null; rsMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="rsWake">Spotify wecken &amp; abspielen</button>`; $("#rsWake").onclick = () => openSpotify(() => rsPlay(k)); } return; }
     if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
     const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000;          // gleich in den Refrain-Bereich
-    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify({ uris: [tr.uri], position_ms: pos }) });
+    const sil = await silentUri().catch(() => null);
+    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
     store.set("lastDev", { id: dev.id, t: Date.now() }); rsCovers($("#rsBox"));
   } catch(e) { rsNow = null; rsMark(); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
 }
 function rsMark(){ document.querySelectorAll("#rsBox .pl").forEach(b => { const on = b.dataset.k === rsNow; b.classList.toggle("on", on); b.textContent = on ? "⏸" : "▶"; }); }
-async function rsStop(){ if (rsNow) { rsNow = null; try { await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} } }
+async function rsStop(){ if (rsNow) { rsNow = null; try { if (keepAliveOn() && store.get("silentOk", null)) await sp.api("/me/player/next", { method: "POST" }); else await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} } }
 
 // ---------- Ansichten ----------
 const rsTop = (t, sub, back) => `<div class="topbar"><button class="backbtn" id="rsBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
