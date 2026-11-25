@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.92", d: "2026-11-26", e: [
+    ["change", "Zeitsprung: „Später“ ist jetzt grün, „Früher“ rot – besser zu unterscheiden."],
+  ]},
   { v: "0.9.91", d: "2026-11-26", e: [
     ["neu", "Zeitsprung: Higher or Lower mit Jahren, ganz ohne Karten. Ist der neue Song früher oder später? Die Jahre rücken mit jeder richtigen Antwort näher zusammen, 3 Leben pro Person, 1–6 Personen, Rekorde pro Name."],
     ["change", "Die Extras heißen jetzt „Extras: ohne Karten“."],
