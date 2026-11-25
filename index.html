@@ -430,6 +430,27 @@
   .topbar{background:#30196af0}
   .pill{background:#ff5fa240;color:#fff}
   .reveal{border-radius:26px;box-shadow:0 10px 30px #12062e55}
+  /* ===== Rette einen Song ===== */
+  .rsEntry{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:1px solid #ffffff2e;background:linear-gradient(135deg,#ff5fa22e,#7c5cff2e);color:#fff;border-radius:var(--r);padding:14px 16px;margin:14px 0 4px;cursor:pointer;font:inherit}
+  .rsEntry .ri{font-size:30px}.rsEntry b{display:block;font-size:17px}.rsEntry small{color:#d3c8ef;font-size:13px}
+  .rsYear{text-align:center;margin:6px 0 2px}.rsYear .y{font-size:64px;font-weight:900;line-height:1;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rsYear .w{font-size:14px;color:#d3c8ef;margin-top:4px}
+  .rsBar{height:6px;border-radius:3px;background:#ffffff1f;overflow:hidden;margin:10px 0 12px}.rsBar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .rsOpt{display:flex;align-items:center;gap:12px;background:#ffffff14;border:2px solid transparent;border-radius:18px;padding:10px;margin:8px 0;cursor:pointer;user-select:none}
+  .rsOpt.on{border-color:var(--accent);background:#ff5fa22a}
+  .rsOpt .cv{width:56px;height:56px;border-radius:10px;flex:none;background:linear-gradient(135deg,#ff5fa2,#7c5cff);background-size:cover;background-position:center;display:grid;place-items:center;font-size:22px}
+  .rsOpt .tx{flex:1;min-width:0}.rsOpt .tx b{display:block;font-size:16px;line-height:1.2}.rsOpt .tx span{font-size:13px;color:#d3c8ef}
+  .rsOpt .pl{width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:18px;flex:none;cursor:pointer}
+  .rsOpt .pl.on{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .rsRow{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff14}
+  .rsRow .yy{font-weight:900;width:44px;flex:none;color:#ffd23f}
+  .rsRow .cv{width:40px;height:40px;border-radius:8px;flex:none;background:linear-gradient(135deg,#ff5fa2,#7c5cff);background-size:cover;background-position:center}
+  .rsRow .tx{flex:1;min-width:0;font-size:14px;line-height:1.25}.rsRow .tx span{color:#bfb3df;font-size:12px}
+  .rsRow .tx .p2{margin-top:4px;padding-top:4px;border-top:1px dashed #ffffff1f}
+  .rsRow .m{flex:none;font-size:18px}
+  .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
+  .rsDec{display:flex;gap:4px;align-items:flex-end;height:70px;margin:10px 0 2px}.rsDec div{flex:1;text-align:center;font-size:10px;color:#bfb3df}
+  .rsDec i{display:block;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent),var(--accent2));margin-bottom:3px}
 </style>
 </head>
 <body>
@@ -471,6 +492,7 @@
 
     <div id="tvNote" class="panel small" style="display:none">In diesem Modus braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten.</div>
     <button class="btn" id="toMixBtn">Weiter: Mix wählen →</button>
+    <button class="rsEntry" id="rsOpen"><span class="ri">💾</span><span><b>Rette einen Song</b><small>Pro Jahr ein Song – welchen rettest du? Am Ende steht dein Lebens-Mixtape.</small></span></button>
     </div>
     <div id="setupStep2" style="display:none">
     <div class="topbar"><button class="backbtn" id="stepBack" aria-label="Zurück zum Spielmodus"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -535,6 +557,9 @@
     <button class="btn" id="nextBtn" style="display:none">Nächste Karte →</button>
     <div class="scoreBox"></div>
   </section>
+
+  <!-- ======================= RETTE EINEN SONG ======================= -->
+  <section class="view" id="v-rette"><div id="rsBox"></div></section>
 
   <!-- ======================= REGELN ======================= -->
   <section class="view" id="v-rules">
@@ -664,11 +689,11 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.66";
+const APP_VERSION = "0.9.67";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
-const SCOPES = "user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative";
+const SCOPES = "user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public";
 
 // ---------- sicherer Speicher ----------
 let setupStep = 1, stepPushed = false;   // Neues-Spiel-Schritt (1 = Modus, 2 = Mix)
@@ -2373,7 +2398,7 @@ function show(v){
   curView = v; store.set("lastView", v); keepAwake(["game", "play"].includes(v) && state.running);
   if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play"].includes(v) && b.dataset.v === "spiel")));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play","rette"].includes(v) && b.dataset.v === "spiel")));
   if (v !== "game") stopScanner();
   if (v === "setup") { setupStep = 1; renderCats(); renderModePanel(); renderResume(); spCheck(false); }
   if (v === "game" || v === "play") renderScore();
@@ -2381,6 +2406,7 @@ function show(v){
   if (v === "game") spCheck(true);
   if (v === "data") { renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
   if (v === "cards") renderCardInfo();
+  if (v === "rette") rsRender();
   if (v === "game") { renderMixLine(); renderTvBox(); }
   window.scrollTo(0, 0);
 }
@@ -2551,6 +2577,247 @@ function renderInstall(){
   else if (ios) box.innerHTML = `<div class="msg warn">iPhone: In Safari unten auf <b>Teilen</b> (□↑) tippen → <b>„Zum Home-Bildschirm“</b>.</div>`;
   else box.innerHTML = `<div class="msg warn">Android: Chrome-Menü (⋮) → <b>„App installieren“</b> bzw. „Zum Startbildschirm hinzufügen“.</div>`;
 }
+// =====================================================================
+//  RETTE EINEN SONG
+//  Pro Jahr 3–4 Songs, man rettet einen davon. Am Ende: dein Lebens-Mixtape
+//  (auf Wunsch als Spotify-Playlist). Zu zweit wählen beide aus denselben Songs,
+//  erst Person 1 alle Jahre, dann Person 2 – danach der Vergleich.
+//  Läuft komplett lokal; Songs werden über "Titel|Interpret" gemerkt.
+// =====================================================================
+const RS_CATS = ["global", "dehits", "film", "sommer", "balladen"];
+const rsKey = s => s.t + "|" + s.a;
+const RS_BY = new Map(DB.map(s => [rsKey(s), s]));
+const RS_MAXY = Math.max(...ACTIVE.map(s => s.y));
+const RS_MINY = Math.min(...ACTIVE.map(s => s.y));
+let rs = store.get("rette", null);              // laufende oder zuletzt fertige Runde
+let rsSel = null, rsNow = null, rsShow = null;   // Auswahl, gerade laufender Song, angezeigtes Archiv-Mixtape
+const rsSave = () => store.set("rette", rs);
+const rsSong = k => RS_BY.get(k) || { t: k.split("|")[0], a: k.split("|")[1] || "", y: 0, land: "", cats: [] };
+
+function rsPool(cats, y){
+  return [...new Map(cats.flatMap(c => byYearCat[c]?.[y] || []).map(s => [s.i, s])).values()].filter(s => !s.tv);
+}
+// Songs mit fester Aufnahme bevorzugen (spielen sofort, mit Cover, ohne Spotify-Suche)
+function rsDraw(cats, y, n, not = []){
+  let pool = rsPool(cats, y); const rest = pool.filter(s => !not.includes(rsKey(s)));
+  if (rest.length >= n) pool = rest;
+  const out = [];
+  while (out.length < n && pool.length) { const s = pickW(pool, x => x.sid ? 3 : 1); out.push(rsKey(s)); pool = pool.filter(x => x !== s); }
+  return out;
+}
+
+// ---------- Cover (Spotify oEmbed, ohne Kontingent) ----------
+async function rsCover(k){
+  const ck = "cov:" + k, have = store.get(ck, undefined); if (have !== undefined) return have;
+  const s = rsSong(k), uri = s.sid ? "spotify:track:" + s.sid : store.get("trk3:" + k, null)?.uri;
+  if (!uri) return null;
+  try { const r = await fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent("https://open.spotify.com/track/" + uri.split(":").pop()));
+    const u = (await r.json())?.thumbnail_url || null; store.set(ck, u); return u; } catch(e) { return null; }
+}
+function rsCovers(root){
+  root.querySelectorAll("[data-cov]").forEach(async el => { const u = await rsCover(el.dataset.cov); if (u) { el.style.backgroundImage = `url("${u}")`; el.textContent = ""; } });
+}
+
+// ---------- Reinhören ----------
+async function rsPlay(k){
+  const m = $("#rsMsg"); if (m) m.innerHTML = "";
+  if (!sp.tok()) { if (m) m.innerHTML = `<div class="msg warn">Zum Reinhören erst unter „Spiel“ bei Spotify anmelden.</div>`; return; }
+  if (rsNow === k) {                                  // gleicher Song → Pause
+    rsNow = null; rsMark(); try { await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} return;
+  }
+  rsNow = k; rsMark();
+  try {
+    const tr = await resolveTrack(rsSong(k)); if (rsNow !== k) return;
+    const dev = await getDevice();
+    if (!dev) { rsNow = null; rsMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="rsWake">Spotify wecken &amp; abspielen</button>`; $("#rsWake").onclick = () => openSpotify(() => rsPlay(k)); } return; }
+    if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
+    const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000;          // gleich in den Refrain-Bereich
+    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify({ uris: [tr.uri], position_ms: pos }) });
+    rsCovers($("#rsBox"));
+  } catch(e) { rsNow = null; rsMark(); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
+}
+function rsMark(){ document.querySelectorAll("#rsBox .pl").forEach(b => { const on = b.dataset.k === rsNow; b.classList.toggle("on", on); b.textContent = on ? "⏸" : "▶"; }); }
+async function rsStop(){ if (rsNow) { rsNow = null; try { await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} } }
+
+// ---------- Ansichten ----------
+const rsTop = (t, sub, back) => `<div class="topbar"><button class="backbtn" id="rsBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div><div class="tbt">${t}</div><div class="tbs">${sub || ""}</div></div></div>`;
+function rsRender(){
+  const box = $("#rsBox");
+  if (rsShow) return rsResult(box, rsShow, true);
+  if (!rs || rs.view === "setup") return rsSetup(box);
+  if (rs.done) return rsResult(box, rs);
+  if (rs.hand) return rsHand(box);
+  return rsChoose(box);
+}
+function rsSetup(box){
+  const o = store.get("retteOpt", { cats: ["global"], from: 1980, to: Math.min(2025, RS_MAXY), n: 4, names: ["", ""], zwei: false });
+  const arch = store.get("retteArchiv", []);
+  const open = rs && !rs.done ? rs : null;
+  box.innerHTML = rsTop("💾 Rette einen Song", "Pro Jahr ein Song – dein Lebens-Mixtape") + `
+    ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${open.from}–${open.to}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} Jahren gewählt</div>
+      <button class="btn" id="rsCont">↩ Weitermachen</button></div>` : ""}
+    <p class="sub" style="margin-top:4px">Für jedes Jahr zeigt Mixtape ${o.n} Songs. Du darfst nur einen retten – die anderen sind weg. Antippen ▶ zum Reinhören.</p>
+    <div class="panel"><b>Welche Songs?</b>
+      <div id="rsCats" style="margin-top:6px">${RS_CATS.filter(c => CAT[c]).map(c => `<div class="cat ${o.cats.includes(c) ? "on" : ""}" data-c="${c}"><span class="nm">${esc(CAT[c].name)}</span><span class="ck"></span></div>`).join("")}</div></div>
+    <div class="panel"><b>Zeitraum</b>
+      <div class="row" style="margin-top:8px"><input type="number" id="rsFrom" value="${o.from}" min="${RS_MINY}" max="${RS_MAXY}"><span>bis</span><input type="number" id="rsTo" value="${o.to}" min="${RS_MINY}" max="${RS_MAXY}"></div>
+      <div class="small" style="margin-top:6px">Tipp: Ab deinem Geburtsjahr wird's persönlich.</div>
+      <label style="display:block;margin-top:12px">Songs pro Jahr</label>
+      <div class="seg" id="rsN" style="margin-top:6px">${[3, 4].map(n => `<button data-n="${n}" class="${o.n === n ? "on" : ""}">${n} Songs</button>`).join("")}</div></div>
+    <div class="panel"><b>Wer spielt?</b>
+      <div class="seg" id="rsZwei" style="margin-top:8px"><button data-z="0" class="${o.zwei ? "" : "on"}">Allein</button><button data-z="1" class="${o.zwei ? "on" : ""}">Zu zweit</button></div>
+      <input type="text" id="rsN1" placeholder="Dein Name" value="${esc(o.names[0] || "")}" style="margin-top:10px">
+      <input type="text" id="rsN2" placeholder="Name Person 2" value="${esc(o.names[1] || "")}" style="margin-top:8px;${o.zwei ? "" : "display:none"}">
+      <div class="small" style="margin-top:6px;${o.zwei ? "" : "display:none"}" id="rsZinfo">Beide bekommen dieselben Songs. Erst wählt Person 1 alle Jahre, dann Person 2 – am Ende seht ihr, wie gut euer Geschmack zusammenpasst.</div></div>
+    <div id="rsMsg"></div>
+    <button class="btn" id="rsGo">${open ? "Neues Mixtape starten" : "Los geht's"}</button>
+    ${arch.length ? `<details class="panel"><summary><b>Fertige Mixtapes (${arch.length})</b></summary>${arch.map((a, i) => `<button class="btn sec small" data-a="${i}" style="display:block;width:100%;text-align:left">${esc(a.names.join(" & "))} · ${a.from}–${a.to} · ${new Date(a.date).toLocaleDateString("de-DE")}</button>`).join("")}</details>` : ""}`;
+  const keep = () => { const n = [$("#rsN1").value.trim(), $("#rsN2").value.trim()]; store.set("retteOpt", { ...o, names: n }); return n; };
+  $("#rsBack").onclick = () => { keep(); show("setup"); };
+  box.querySelectorAll("#rsCats .cat").forEach(el => el.onclick = () => {
+    const c = el.dataset.c; o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c];
+    if (!o.cats.length) o.cats = [c]; keep(); store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); });
+  box.querySelectorAll("#rsN button").forEach(b => b.onclick = () => { o.n = +b.dataset.n; store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); });
+  box.querySelectorAll("#rsZwei button").forEach(b => b.onclick = () => { o.zwei = b.dataset.z === "1"; store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); });
+  ["#rsFrom", "#rsTo"].forEach(id => $(id).onchange = () => { o.from = +$("#rsFrom").value || o.from; o.to = +$("#rsTo").value || o.to; store.set("retteOpt", { ...o, names: keep() }); });
+  $("#rsCont")?.addEventListener("click", () => { rs.view = "play"; rsSave(); rsRender(); });
+  box.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { rsShow = arch[+b.dataset.a]; rsRender(); window.scrollTo(0, 0); });
+  $("#rsGo").onclick = () => {
+    const names = keep(); let from = Math.max(RS_MINY, Math.min(+$("#rsFrom").value || 1980, RS_MAXY)), to = Math.max(RS_MINY, Math.min(+$("#rsTo").value || RS_MAXY, RS_MAXY));
+    if (from > to) [from, to] = [to, from];
+    if (open && !confirm("Dein angefangenes Mixtape wird dabei verworfen. Neues starten?")) return;
+    const nm = [names[0] || (o.zwei ? "Person 1" : "Ich")]; if (o.zwei) nm.push(names[1] || "Person 2");
+    const years = [];
+    for (let y = from; y <= to; y++) { const opts = rsDraw(o.cats, y, o.n); if (opts.length >= 2) years.push({ y, opts, picks: nm.map(() => null) }); }
+    if (!years.length) { $("#rsMsg").innerHTML = `<div class="msg warn">In diesem Zeitraum gibt es zu wenige Songs. Wähle mehr Kategorien oder einen anderen Zeitraum.</div>`; return; }
+    store.set("retteOpt", { ...o, from, to, names });
+    rs = { id: Date.now(), cats: o.cats, from, to, n: o.n, names: nm, years, pos: 0, pl: 0, hand: false, done: false, view: "play" };
+    rsSel = null; rsSave(); rsRender(); window.scrollTo(0, 0);
+  };
+}
+const rsDoneCount = r => r.years.reduce((a, y) => a + y.picks.filter(p => p).length, 0);
+function rsHand(box){
+  const nm = rs.names[rs.pl];
+  box.innerHTML = rsTop("💾 Rette einen Song", `${rs.from}–${rs.to}`) + `<div class="panel" style="text-align:center;padding:30px 18px">
+    <div style="font-size:48px">🤝</div><h2 style="margin:10px 0">${esc(rs.names[rs.pl - 1])} ist fertig!</h2>
+    <p class="sub">Gib das Handy jetzt an <b>${esc(nm)}</b>. Du bekommst dieselben Songs – was ${esc(rs.names[rs.pl - 1])} gerettet hat, bleibt bis zum Schluss geheim.</p>
+    <button class="btn" id="rsHandGo">Ich bin ${esc(nm)} – los!</button></div>`;
+  $("#rsBack").onclick = () => { rs.view = "setup"; rsSave(); rsRender(); };
+  $("#rsHandGo").onclick = () => { rs.hand = false; rsSave(); rsRender(); };
+}
+function rsChoose(box){
+  const Y = rs.years[rs.pos], pl = rs.pl, total = rs.years.length;
+  if (rsSel && !Y.opts.includes(rsSel)) rsSel = null;
+  if (!rsSel && Y.picks[pl]) rsSel = Y.picks[pl];
+  const sub = (rs.names.length > 1 ? esc(rs.names[pl]) + " wählt · " : "") + `Jahr ${rs.pos + 1} von ${total}`;
+  box.innerHTML = rsTop("💾 Rette einen Song", sub) + `
+    <div class="rsBar"><i style="width:${(rs.pos / total) * 100}%"></i></div>
+    <div class="rsYear"><div class="y">${Y.y}</div><div class="w">Welchen Song rettest du?</div></div>
+    <div id="rsOpts">${Y.opts.map(k => { const s = rsSong(k); return `<div class="rsOpt ${rsSel === k ? "on" : ""}" data-k="${esc(k)}">
+      <div class="cv" data-cov="${esc(k)}">🎵</div><div class="tx"><b>${esc(s.t)}</b><span>${esc(s.a)} ${flag(s.land)}</span></div>
+      <button class="pl" data-k="${esc(k)}" aria-label="Reinhören">▶</button></div>`; }).join("")}</div>
+    <div id="rsMsg"></div>
+    <button class="btn" id="rsPick" ${rsSel ? "" : "disabled"}>${rsSel ? "💾 „" + esc(rsSong(rsSel).t) + "“ retten" : "Tippe auf einen Song"}</button>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+      ${rs.pos > 0 || pl > 0 ? `<button class="btn sec small" id="rsUndo">↩ Zurück</button>` : ""}
+      ${pl === 0 && rsPool(rs.cats, Y.y).length > Y.opts.length ? `<button class="btn sec small" id="rsNew">🔀 Andere Songs</button>` : ""}
+      <button class="btn sec small" id="rsSkip">Jahr überspringen</button></div>`;
+  rsMark(); rsCovers(box);
+  $("#rsBack").onclick = () => { rsStop(); rs.view = "setup"; rsSave(); rsRender(); };
+  box.querySelectorAll(".rsOpt").forEach(el => el.onclick = e => {
+    if (e.target.closest(".pl")) return; rsSel = el.dataset.k;
+    box.querySelectorAll(".rsOpt").forEach(x => x.classList.toggle("on", x === el));
+    const b = $("#rsPick"); b.disabled = false; b.textContent = "💾 „" + rsSong(rsSel).t + "“ retten"; });
+  box.querySelectorAll(".pl").forEach(b => b.onclick = () => rsPlay(b.dataset.k));
+  $("#rsPick").onclick = () => { if (!rsSel) return; Y.picks[pl] = rsSel; rsNext(); };
+  $("#rsSkip").onclick = () => { Y.picks[pl] = "-"; rsNext(); };
+  $("#rsNew")?.addEventListener("click", () => { Y.opts = rsDraw(rs.cats, Y.y, rs.n, Y.opts); rsSel = null; rsSave(); rsChoose(box); });
+  $("#rsUndo")?.addEventListener("click", () => {
+    if (rs.pos > 0) rs.pos--; else if (rs.pl > 0) { rs.pl--; rs.pos = rs.years.length - 1; }
+    rsSel = rs.years[rs.pos].picks[rs.pl]; if (rsSel === "-") rsSel = null; rs.years[rs.pos].picks[rs.pl] = null; rsSave(); rsChoose(box); });
+}
+function rsNext(){
+  rsSel = null; rsStop();
+  if (rs.pos < rs.years.length - 1) rs.pos++;
+  else if (rs.pl < rs.names.length - 1) { rs.pl++; rs.pos = 0; rs.hand = true; }
+  else { rs.done = true; rsArchive(); confetti(); }
+  rsSave(); rsRender(); window.scrollTo(0, 0);
+}
+function rsArchive(){
+  const a = store.get("retteArchiv", []).filter(x => x.id !== rs.id);
+  a.unshift({ id: rs.id, date: Date.now(), names: rs.names, from: rs.from, to: rs.to, cats: rs.cats, years: rs.years.map(y => ({ y: y.y, picks: y.picks })) });
+  store.set("retteArchiv", a.slice(0, 12));
+}
+function rsResult(box, r, fromArch){
+  const two = r.names.length > 1, ys = r.years.filter(y => y.picks.some(p => p && p !== "-"));
+  const both = r.years.filter(y => y.picks.every(p => p && p !== "-"));
+  const same = both.filter(y => y.picks[0] === y.picks[1]);
+  const pct = both.length ? Math.round(same.length / both.length * 100) : 0;
+  const verdict = pct >= 60 ? "Ihr hört quasi mit einem Ohr! 🎧" : pct >= 40 ? "Ziemlich gleicher Geschmack 💞" : pct >= 25 ? "Ein paar gemeinsame Hits – der Rest wird diskutiert 😄" : "Gegensätze ziehen sich an 🔥";
+  // Übereinstimmung pro Jahrzehnt
+  const dec = {}; both.forEach(y => { const d = Math.floor(y.y / 10) * 10; (dec[d] ??= [0, 0])[1]++; if (y.picks[0] === y.picks[1]) dec[d][0]++; });
+  const decHtml = Object.keys(dec).length > 1 ? `<div class="rsDec">${Object.entries(dec).map(([d, [a, b]]) => `<div><i style="height:${Math.max(3, a / b * 52)}px"></i>${String(d).slice(2)}er</div>`).join("")}</div><div class="small" style="text-align:center">Übereinstimmung je Jahrzehnt</div>` : "";
+  const row = y => { const ks = y.picks; const sm = two && ks[0] && ks[0] === ks[1] && ks[0] !== "-";
+    const one = (k, i) => !k || k === "-" ? `<div class="${i ? "p2" : ""}"><span>${two ? esc(r.names[i]) + ": " : ""}– übersprungen –</span></div>`
+      : `<div class="${i ? "p2" : ""}">${two ? `<span>${esc(r.names[i])}:</span> ` : ""}<b>${esc(rsSong(k).t)}</b><br><span>${esc(rsSong(k).a)}</span></div>`;
+    const first = ks.find(k => k && k !== "-");
+    return `<div class="rsRow"><div class="yy">${y.y}</div><div class="cv" ${first ? `data-cov="${esc(first)}"` : ""}></div><div class="tx">${sm ? one(ks[0], 0).replace(/<span>[^<]*:<\/span> /, "") : ks.map(one).join("")}</div>${two ? `<div class="m">${sm ? "💞" : ""}</div>` : ""}</div>`; };
+  box.innerHTML = rsTop("💾 " + (two ? "Eure Mixtapes" : "Dein Lebens-Mixtape"), `${r.from}–${r.to} · ${ys.length} Songs`) + `
+    ${two ? `<div class="panel" style="text-align:center"><div class="small">${esc(r.names[0])} &amp; ${esc(r.names[1])}</div><div class="rsBig">${pct} %</div>
+      <div style="margin-top:6px">Gleicher Song in <b>${same.length}</b> von ${both.length} Jahren</div><div class="small" style="margin-top:4px">${verdict}</div>${decHtml}</div>` : ""}
+    <div id="rsMsg"></div>
+    ${r.names.map((n, i) => `<button class="btn ${i ? "sec" : ""}" data-pl="${i}">🎧 ${two ? esc(n) + "s Mixtape" : "Mixtape"} als Spotify-Playlist speichern</button>`).join("")}
+    <button class="btn sec" id="rsCopy">📋 Liste teilen / kopieren</button>
+    <div class="panel">${r.years.map(row).join("")}</div>
+    <button class="btn" id="rsAgain">${fromArch ? "← Zurück" : "Neues Mixtape"}</button>`;
+  rsCovers(box);
+  const back = () => { rsShow = null; if (!fromArch && rs) { rs.view = "setup"; rsSave(); } rsRender(); window.scrollTo(0, 0); };
+  $("#rsBack").onclick = fromArch ? back : () => { rsShow = null; if (rs) { rs.view = "setup"; rsSave(); } show("setup"); };
+  $("#rsAgain").onclick = () => { if (!fromArch) { rs = null; store.del("rette"); } back(); };
+  box.querySelectorAll("[data-pl]").forEach(b => b.onclick = () => rsPlaylist(r, +b.dataset.pl, b));
+  $("#rsCopy").onclick = async () => {
+    const txt = r.names.map((n, i) => `${r.names.length > 1 ? n + "s" : "Mein"} Lebens-Mixtape ${r.from}–${r.to}\n` + r.years.filter(y => y.picks[i] && y.picks[i] !== "-").map(y => `${y.y} – ${rsSong(y.picks[i]).t} – ${rsSong(y.picks[i]).a}`).join("\n")).join("\n\n")
+      + (two ? `\n\nÜbereinstimmung: ${pct} % (${same.length} von ${both.length} Jahren)` : "") + "\n\n💾 Rette einen Song – Mixtape";
+    try { if (navigator.share) await navigator.share({ text: txt }); else { await navigator.clipboard.writeText(txt); $("#rsMsg").innerHTML = `<div class="msg ok">Liste kopiert ✓</div>`; } }
+    catch(e) { if (e?.name !== "AbortError") try { await navigator.clipboard.writeText(txt); $("#rsMsg").innerHTML = `<div class="msg ok">Liste kopiert ✓</div>`; } catch(_) {} }
+  };
+}
+
+// ---------- Als Spotify-Playlist speichern ----------
+async function rsPlaylist(r, i, btn){
+  const m = $("#rsMsg"), say = (t, c = "warn") => m.innerHTML = `<div class="msg ${c}">${t}</div>`;
+  if (!sp.tok()) return say("Bitte erst unter „Spiel“ bei Spotify anmelden.");
+  const ks = r.years.map(y => y.picks[i]).filter(k => k && k !== "-");
+  btn.disabled = true; const uris = [], miss = [];
+  try {
+    for (let n = 0; n < ks.length; n++) {
+      say(`Songs werden gesucht … ${n + 1} / ${ks.length}`, "ok");
+      try { uris.push((await resolveTrack(rsSong(ks[n]))).uri); } catch(e) { if (e.quota || e.status === 429 || e.status === 401) throw e; miss.push(rsSong(ks[n]).t); }
+    }
+    say("Playlist wird angelegt …", "ok");
+    const body = JSON.stringify({ name: `${r.names.length > 1 ? r.names[i] + "s " : ""}Lebens-Mixtape ${r.from}–${r.to}`, public: false,
+      description: `Pro Jahr ein geretteter Song – erstellt mit Mixtape („Rette einen Song“).` });
+    let pl = null;
+    try { pl = await sp.api("/me/playlists", { method: "POST", body }); }
+    catch(e) { if (e.status !== 404 && e.status !== 405) throw e; const me = await sp.api("/me"); pl = await sp.api(`/users/${encodeURIComponent(me.id)}/playlists`, { method: "POST", body }); }
+    if (!pl?.id) throw new Error("Spotify hat keine Playlist angelegt.");
+    for (let k = 0; k < uris.length; k += 100) {
+      const b = JSON.stringify({ uris: uris.slice(k, k + 100) });
+      try { await sp.api(`/playlists/${pl.id}/items`, { method: "POST", body: b }); }
+      catch(e) { if (e.status !== 404 && e.status !== 405) throw e; await sp.api(`/playlists/${pl.id}/tracks`, { method: "POST", body: b }); }
+    }
+    m.innerHTML = `<div class="msg ok">Playlist „${esc(pl.name || "Lebens-Mixtape")}“ mit ${uris.length} Songs gespeichert ✓${miss.length ? `<br><span class="small">Nicht gefunden: ${esc(miss.join(", "))}</span>` : ""}</div>
+      <a class="btn sec" href="https://open.spotify.com/playlist/${pl.id}" target="_blank" style="text-align:center;text-decoration:none">In Spotify öffnen</a>`;
+  } catch(e) {
+    if (e.status === 401 || e.status === 403) {
+      m.innerHTML = `<div class="msg warn">Mixtape braucht einmalig deine Erlaubnis, Playlists anzulegen. Melde dich dafür kurz neu bei Spotify an – dein Mixtape bleibt gespeichert.</div><button class="btn" id="rsRelog">Neu bei Spotify anmelden</button>`;
+      $("#rsRelog").onclick = () => { if (r === rsShow) { rsShow = null; } store.set("lastView", "rette"); sp.login(); };
+    } else { const f = friendlyErr(e); say(`<b>${f.t}</b><br>${esc(f.d)}`); }
+  } finally { btn.disabled = false; }
+}
+$("#rsOpen").addEventListener("click", () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); });
+
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
 const isAdmin = () => store.get("admin", false);
 function applyAdmin(){ document.body.classList.toggle("admin", isAdmin()); }
@@ -2573,7 +2840,7 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   if (state.running) state.current = deserCur(store.get("cur", null));
   renderResume();
   // Nach Neuladen im zuletzt offenen Reiter bleiben – außer im Spiel selbst (dort Hauptbildschirm + „Weiterspielen“)
-  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards"].includes(lv)) show(lv);
+  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards", "rette"].includes(lv)) show(lv);
 })();
 </script>
 </body>
