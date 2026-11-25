@@ -1542,7 +1542,7 @@ function renderModePanel(){
   const MIC = { duell: "⚔️", frueher: "↕️", staffel: "🏃", wunsch: "🎁", zeitstrahl: "📏", punktejagd: "🎯", sprint: "⏱️", gemeinsam: "🤝", tv: "📺", kids: "🧸", games: "🎮", disney: "🏰", film: "🎬" };
   const ppl = x => { const a = x.app, [lo2, hi2] = a.teams;
     if (a.koop) return `<span class="ppl">${PG}alle</span>`;
-    if (a.namen === "Spieler") return `<span class="ppl">${lo2 === 2 && hi2 === 2 ? P2 : PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2}</span>`;
+    if (a.namen === "Spieler") return `<span class="ppl">${lo2 === 2 && hi2 === 2 ? P2 : PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Personen</span>`;
     return `<span class="ppl">${PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Teams</span>`; };
   const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele", disney: "Filme", film: "Filme", mix: "alles" }[x.app.daten] || "Serien") + " raten" : "";
   const tile = (x, gi) => `<button class="mt ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MIC[x.id] || "🎵"}</span>${x.neu ? '<span class="tag">NEU</span>' : ""}</span>
@@ -1553,7 +1553,7 @@ function renderModePanel(){
   const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi)).join("")}${gi === 4 ? `<button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">💾</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2</span><span>Lebens-Mixtape</span></span></span></button>` : ""}</div>`; }).join("");
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Lebens-Mixtape</span></span></span></button>` : ""}</div>`; }).join("");
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
     const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;
