@@ -361,14 +361,14 @@ const SPIELMODI = [
     beispiel: "Nach zwei Tönen Fanfare ruft Lena „Jurassic Park!“ – Punkt. Ben ergänzt „John Williams“ – Bonuspunkt.",
   },
   {
-    id: "sondermix", name: "Sonder-Mix", spieler: "2–10 Personen oder Teams", neu: true,
-    kurz: "Alles durcheinander: TV, Kinderserien, Spiele, Disney und Filme – ihr wählt, was mitspielt.",
+    id: "sondermix", name: "Extra-Mix", spieler: "2–10 Personen oder Teams", neu: true,
+    kurz: "Mehrere Extras auf einmal: TV, Kinderserien, Spiele, Disney und Filme durcheinander – ihr wählt, was mitspielt.",
     app: { typ: "tv", daten: "mix", ziel: 10, marken: null, teams: [2, 10], namen: "Team", ohneKarten: true,
       aktionen: [ { label: "Erkannt", jeder: true, p: 1 }, { label: "Bonus", jeder: true, p: 1 } ] },
     material: ["nur das Handy – Jahreskarten braucht ihr hier nicht"],
     vorbereitung: [
-      "Spielt einzeln oder in Teams. Wählt unter „Spiel“ den Modus „Sonder-Mix“ – ein Mix ist nicht nötig.",
-      "Unter dem Modus wählt ihr, welche Sonderkategorien mitspielen (z. B. nur Kinderserien + Disney). Mindestens eine bleibt immer an.",
+      "Spielt einzeln oder in Teams. Tippt unter „Spiel“ bei den Extras einfach mehrere Quiz-Modi an (z. B. Kinderserien + Disney) – schon wird gemischt. Ein Mix ist nicht nötig.",
+      "Antippen wählt ein Extra dazu oder wieder ab. Mindestens eins bleibt immer an.",
     ],
     ablauf: [
       "Tippt auf „Nächste Melodie“. Mixtape spielt eine Melodie aus einer der gewählten Sonderkategorien – ohne Namen, ohne Bild.",

@@ -689,7 +689,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.67";
+const APP_VERSION = "0.9.68";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1528,14 +1528,24 @@ function renderModePanel(){
   const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extra: ohne Jahreszahlen"];
   const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele raten", disney: "Filme raten", film: "Filme raten", mix: "alles gemischt" }[x.app.daten] || "Serien raten") : x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
     x.app.teams[0] === x.app.teams[1] ? `${x.app.teams[0]} Teams` : `${x.app.teams[0]}–${x.app.teams[1]} Teams`;
-  const sorted = [...SPIELMODI].sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
+  const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
+  // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
+  const mixOn = m.app.daten === "mix", exSel = mixOn ? sonderSel() : m.app.typ === "tv" ? [m.app.daten] : [];
+  const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
-    `<div class="mgh">${gn}</div><div class="mgrid">${l.map(x => `<button class="mt ${x.id === m.id ? "on" : ""}" data-mode="${x.id}">
+    `<div class="mgh">${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => `<button class="mt ${isOn(x) ? "on" : ""}" data-mode="${x.id}">
       <span class="mtn">${esc(x.name)}</span><span class="mts">${kurzSp(x)}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></button>`).join("")}</div>`; }).join("");
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
-    if (b.dataset.mode === state.game.mode) return;
-    newGame(b.dataset.mode, state.game.teams.map(t => t.n)); renderModePanel(); });
-  $("#modeDesc").textContent = fillText(m.kurz, m.app);
+    const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;
+    if (x.app.typ === "tv" && exSel.length) {                  // Extra zu- oder abwählen
+      const d = x.app.daten, s2 = exSel.includes(d) ? exSel.filter(k => k !== d) : [...exSel, d];
+      if (!s2.length) return;                                  // mindestens eins bleibt
+      if (s2.length > 1) { store.set("sonderSel", s2); target = SPIELMODI.find(k => k.app.daten === "mix").id; }
+      else target = SPIELMODI.find(k => k.app.typ === "tv" && k.app.daten === s2[0]).id;
+    }
+    if (target !== state.game.mode) newGame(target, state.game.teams.map(t => t.n));
+    renderModePanel(); });
+  $("#modeDesc").textContent = mixOn ? "Gemischt: " + sonderSel().map(k => SPIELMODI.find(x => x.app.typ === "tv" && x.app.daten === k)?.name || k).join(" + ") + ". Ruft, sobald ihr's erkennt!" : fillText(m.kurz, m.app);
   const tv = m.app.typ === "tv", noMix = tv || m.app.ohneMix;
   if (noMix && setupStep === 2) setupStep = 1;
   renderSetupStep();
@@ -1554,15 +1564,6 @@ function renderModePanel(){
     document.querySelectorAll("#zielEd [data-z]").forEach(b => b.onclick = () => setZ(goal() + +b.dataset.z));
     document.querySelectorAll("#zielEd [data-zp]").forEach(b => b.onclick = () => setZ(+b.dataset.zp));
   } else $("#zielEd").innerHTML = "";
-  if (a.daten === "mix") {
-    const sel = sonderSel();
-    $("#zielEd").insertAdjacentHTML("beforeend", `<div class="flab">Welche Sonderkategorien?</div><div class="chips">${SONDER_IDS().map(k =>
-      `<button data-sk="${k}" class="${sel.includes(k) ? "on" : ""}">${esc(TV_DATEN[k].name.replace(/ · .*/, ""))} <small style="opacity:.7">${TV_DATEN[k].liste.filter(x => store.get("tvUnsafe", false) || tvSafe(x)).length}</small></button>`).join("")}</div>`);
-    document.querySelectorAll("[data-sk]").forEach(b => b.onclick = () => {
-      let s2 = sonderSel(); s2 = s2.includes(b.dataset.sk) ? s2.filter(x => x !== b.dataset.sk) : [...s2, b.dataset.sk];
-      if (!s2.length) return;                      // mindestens eine bleibt
-      store.set("sonderSel", s2); renderModePanel(); });
-  }
   if (a.koop) { $("#teamEd").innerHTML = `<div class="small" style="margin:0 2px 10px">Alle spielen zusammen in einem Team.</div>`; return; }
   const word = a.namen === "Spieler" ? "Spieler" : "Teams";
   $("#teamEd").innerHTML = `<div class="flab">${word} <span>${lo === hi ? lo : lo + "–" + hi}</span></div>` +
