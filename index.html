@@ -708,7 +708,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.74";
+const APP_VERSION = "0.9.75";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -963,7 +963,7 @@ async function getDevice(){
   if (act && !isMob(act)) {
     let playing = false;
     try { playing = !!(await sp.api("/me/player"))?.is_playing; } catch(e) {}
-    if (playing || (last?.id === act.id && Date.now() - last.t < 30 * 6e4)) { store.set("lastDev", { id: act.id, t: Date.now() }); return act; }
+    if (playing || (last?.id === act.id && Date.now() - last.t < 30 * 6e4)) return act;
   }
   const me = store.get("myPhone", null);
   let p = me && (d.find(x => x.id === me.id) || d.find(x => x.name === me.name));
@@ -974,7 +974,6 @@ async function getDevice(){
     if (p && ph.length === 1) store.set("myPhone", { id: p.id, name: p.name });   // eindeutig → merken
   }
   if (!p && !d.some(isMob)) { const pc = d.find(x => x.type === "Computer"); if (pc && !/android|iphone|ipad/i.test(navigator.userAgent)) p = pc; }  // am PC: der PC
-  if (p) store.set("lastDev", { id: p.id, t: Date.now() });
   return p || null;              // Handy gerade nicht erreichbar → Mixtape bietet „Spotify wecken“ an (öffnet Spotify auf diesem Handy)
 }
 store.del("devPref");     // alte Festlegung (0.9.71) entfällt
@@ -1025,6 +1024,7 @@ async function playCurrent(fromStart){
     const pl = await sp.api("/me/player").catch(() => null);
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
     if (pl?.is_playing) {
+      if (pl.device?.id) store.set("lastDev", { id: pl.device.id, t: Date.now() });   // merkt: diese Runde läuft hier
       $("#playDev").innerHTML = "🔊 Läuft auf: " + esc(pl.device?.name || "?") + (pl.device?.volume_percent != null ? ` · ${pl.device.volume_percent} %` : "") + ` · <a href="#" class="devchg">ändern</a>`;
       state.paused = false; updatePlayUI(); return;
     }
@@ -2600,6 +2600,21 @@ function goFullscreen(){
 $("#fsOn").checked = fsWanted();
 $("#fsOn").addEventListener("change", e => { store.set("fullscreen", e.target.checked); if (!e.target.checked && document.fullscreenElement) document.exitFullscreen?.(); });
 document.addEventListener("click", e => { if (e.target.closest("#startBtn, #tvNext, #scanBtn, #nextBtn, #manBtn")) goFullscreen(); }, true);
+// Spotify vorab wecken: Das iPhone beendet Spotify im Hintergrund nach ein paar Minuten, dann ist das Handy
+// für Spotify „weg“. Eine Webseite darf Spotify nur direkt bei einem Tipp öffnen – deshalb prüft Mixtape im
+// Hintergrund regelmäßig und öffnet Spotify schon beim Tipp auf „Scanner starten“, „Nächste Karte“ usw.
+let spPollT = 0;
+async function spPoll(){ if (!sp.tok() || sp.quota() || document.visibilityState !== "visible") return; spPollT = Date.now(); await spCheck(false); }
+setInterval(() => { if (["setup", "game", "play", "rette"].includes(curView) && Date.now() - spPollT > 20000) spPoll(); }, 5000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && !spWaking) setTimeout(spPoll, 800); });
+document.addEventListener("click", e => {
+  const b = e.target.closest("#scanBtn, #nextBtn, #tvNext, #resumeBtn, #wpNew, #rsPick, .rsOpt .pl");
+  if (!b || !sp.tok() || spReady || spWaking || sp.quota() || Date.now() - spPollT > 60000) return;
+  if (b.id === "scanBtn" && scanner) return;                  // Scanner stoppen braucht kein Spotify
+  // kein Gerät erreichbar → Spotify jetzt (im Tipp) öffnen; danach geht es automatisch mit dem Tipp weiter
+  e.preventDefault(); e.stopImmediatePropagation();
+  openSpotify(() => b.click());
+}, true);
 $("#startBtn").addEventListener("click", () => {
   // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
   newGame(state.game.mode, state.game.teams.map(t => t.n));
@@ -2762,7 +2777,7 @@ async function rsPlay(k){
     if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
     const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000;          // gleich in den Refrain-Bereich
     await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify({ uris: [tr.uri], position_ms: pos }) });
-    rsCovers($("#rsBox"));
+    store.set("lastDev", { id: dev.id, t: Date.now() }); rsCovers($("#rsBox"));
   } catch(e) { rsNow = null; rsMark(); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
 }
 function rsMark(){ document.querySelectorAll("#rsBox .pl").forEach(b => { const on = b.dataset.k === rsNow; b.classList.toggle("on", on); b.textContent = on ? "⏸" : "▶"; }); }
