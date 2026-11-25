@@ -728,7 +728,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.84";
+const APP_VERSION = "0.9.85";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1013,7 +1013,7 @@ const isMob = x => ["Smartphone", "Tablet"].includes(x?.type);
 // iOS friert Spotify im Hintergrund ein, sobald nichts mehr abgespielt wird – dann ist das Handy für Mixtape „weg“.
 // Deshalb hängt Mixtape hinter jeden Song einen langen stillen Track: Spotify spielt Stille weiter und bleibt wach.
 const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-const keepAliveOn = () => store.get("keepAlive", IS_IOS);
+const keepAliveOn = () => IS_IOS && store.get("keepAlive", true);   // nur auf iPhone/iPad – Android braucht den Umweg nicht
 async function silentUri(){
   if (!keepAliveOn()) return null;
   const own = store.get("silentUri", "");                      // eigener Link aus den Einstellungen
@@ -1082,6 +1082,7 @@ async function openDevPicker(el){
 $("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
 function renderSilent(){
   const ok = store.get("silentOk", null), own = store.get("silentUri", "");
+  $("#keepAlive").closest(".row").style.display = IS_IOS ? "" : "none";   // nur fürs iPhone nötig
   $("#keepAlive").checked = keepAliveOn();
   $("#silBox").style.display = keepAliveOn() ? "" : "none";
   $("#silBox").innerHTML = `Stiller Track: ${ok ? `<b>${esc(ok.name)}</b>${ok.min ? ` (${ok.min} Min.)` : ""}` : "wird beim nächsten Song automatisch gesucht"}

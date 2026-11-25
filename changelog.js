@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.85", d: "2026-11-25", e: [
+    ["change", "„Spotify wachhalten“ gilt nur für iPhone/iPad. Auf Android läuft alles wie bisher, ohne stillen Track."],
+  ]},
   { v: "0.9.84", d: "2026-11-25", e: [
     ["neu", "„Spotify wachhalten“ (auf dem iPhone automatisch an): Nach jedem Song spielt Spotify unhörbar Stille weiter, damit das iPhone Spotify nicht einfriert."],
   ]},
