@@ -765,7 +765,6 @@ const SONGS = [
   ["Après toi", "Vicky Leandros", 1972, "GR", "esc"],
   ["Ding-a-dong", "Teach-In", 1975, "NL", "esc"],
   ["L'oiseau et l'enfant", "Marie Myriam", 1977, "FR", "esc"],
-  ["Hallelujah", "Milk and Honey", 1979, "IL", "esc"],
   ["Dschinghis Khan", "Dschinghis Khan", 1979, "DE", "esc schlager dehits"],
   ["What's Another Year", "Johnny Logan", 1980, "IE", "esc"],
   ["Diggi-Loo Diggi-Ley", "Herreys", 1984, "SE", "esc", "4NzirQ4BrNkVaPEla2ipG4"],
