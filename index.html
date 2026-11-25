@@ -107,15 +107,22 @@
   .flab{font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#cfc6e8;margin:14px 2px 8px}
   .flab span{opacity:.6;font-weight:600}
   /* Modus-Kacheln */
-  .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .mgh{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#cfc6e8;margin:12px 2px 6px}
   .mgh:first-child{margin-top:0}
-  .mt{border:1px solid #ffffff1f;background:#ffffff0d;border-radius:14px;padding:11px 12px;text-align:left;color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:all .15s}
-  .mt .mtn{font-weight:800;font-size:15px;line-height:1.2}
-  .mt .mts{font-size:12px;color:#cfc6e8}
-  .mt .tag{margin-left:5px;font-size:9px;padding:1px 6px}
-  .mt.on{border-color:transparent;background:linear-gradient(135deg,#ff5fa2cc,#7c5cffcc);box-shadow:0 4px 16px #7c5cff55}
-  .mt.on .mts{color:#fff}
+  .mt{--gc:#ff5fa2;position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--gc) 35%,transparent);background:linear-gradient(150deg,color-mix(in srgb,var(--gc) 20%,transparent),#ffffff08 70%);
+    border-radius:16px;padding:10px 11px 11px;text-align:left;color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:7px;transition:all .15s;font:inherit;min-width:0}
+  .mt .mhd{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .mt .mic{width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:18px;background:color-mix(in srgb,var(--gc) 30%,#ffffff10)}
+  .mt .mtx{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .mt .mtn{font-weight:800;font-size:15px;line-height:1.15}
+  .mt .mts{font-size:12px;color:#e4dcf7;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .mt .ppl{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;border-radius:999px;background:color-mix(in srgb,var(--gc) 26%,transparent);color:#fff;font-weight:700;font-size:11.5px}
+  .mt .ppl svg{height:13px;width:auto;fill:currentColor}
+  .mt .tag{margin-left:0;font-size:9px;padding:1px 6px}
+  .mt.on{border-color:transparent;background:linear-gradient(135deg,var(--gc),#7c5cff);box-shadow:0 4px 18px color-mix(in srgb,var(--gc) 45%,transparent)}
+  .mt.on .mic,.mt.on .ppl{background:#ffffff33}
+  .mgh{display:flex;align-items:center;gap:6px}.mgh .gd{width:8px;height:8px;border-radius:50%;flex:none}
   /* Team-Namen */
   .tin{display:flex;align-items:center;gap:10px;margin:7px 0}
   .tin i{width:14px;height:14px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 10px var(--c)}
@@ -494,7 +501,6 @@
 
     <div id="tvNote" class="panel small" style="display:none">In diesem Modus braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten.</div>
     <button class="btn" id="toMixBtn">Weiter: Mix wählen →</button>
-    <button class="rsEntry" id="rsOpen"><span class="ri">💾</span><span><b>Rette einen Song</b><small>Pro Jahr ein Song – welchen rettest du? Am Ende steht dein Lebens-Mixtape.</small></span></button>
     </div>
     <div id="setupStep2" style="display:none">
     <div class="topbar"><button class="backbtn" id="stepBack" aria-label="Zurück zum Spielmodus"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -691,7 +697,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.69";
+const APP_VERSION = "0.9.70";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1528,15 +1534,27 @@ function renderModePanel(){
   // nach Spielerzahl gruppiert
   const grp = x => x.app.typ === "tv" ? 4 : x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
   const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extra: ohne Jahreszahlen"];
-  const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele raten", disney: "Filme raten", film: "Filme raten", mix: "alles gemischt" }[x.app.daten] || "Serien raten") : x.app.koop ? "kooperativ" : x.app.namen === "Spieler" ? "2 Personen" :
-    x.app.teams[0] === x.app.teams[1] ? `${x.app.teams[0]} Teams` : `${x.app.teams[0]}–${x.app.teams[1]} Teams`;
+  const GC = ["#ff5fa2", "#ffb020", "#2dc8e6", "#5fd36b", "#9b5cff"];
+  // kleine Figuren: eine Person, zwei Personen, Gruppe
+  const P1 = `<svg viewBox="0 0 10 14"><circle cx="5" cy="3.2" r="2.6"/><path d="M0.6 14v-2.6C0.6 8.8 2.6 7.4 5 7.4s4.4 1.4 4.4 4V14z"/></svg>`;
+  const P2 = `<svg viewBox="0 0 18 14"><circle cx="5" cy="3.2" r="2.6"/><path d="M0.6 14v-2.6C0.6 8.8 2.6 7.4 5 7.4s4.4 1.4 4.4 4V14z"/><circle cx="13" cy="3.2" r="2.6"/><path d="M8.6 14v-2.6c0-2.6 2-4 4.4-4s4.4 1.4 4.4 4V14z"/></svg>`;
+  const PG = `<svg viewBox="0 0 24 14"><circle cx="5" cy="4.2" r="2.2" opacity=".75"/><path d="M1.4 14v-2c0-2.2 1.6-3.4 3.6-3.4s3.6 1.2 3.6 3.4v2z" opacity=".75"/><circle cx="19" cy="4.2" r="2.2" opacity=".75"/><path d="M15.4 14v-2c0-2.2 1.6-3.4 3.6-3.4s3.6 1.2 3.6 3.4v2z" opacity=".75"/><circle cx="12" cy="3.2" r="2.6"/><path d="M7.6 14v-2.6c0-2.6 2-4 4.4-4s4.4 1.4 4.4 4V14z"/></svg>`;
+  const MIC = { duell: "⚔️", frueher: "↕️", staffel: "🏃", wunsch: "🎁", zeitstrahl: "📏", punktejagd: "🎯", sprint: "⏱️", gemeinsam: "🤝", tv: "📺", kids: "🧸", games: "🎮", disney: "🏰", film: "🎬" };
+  const ppl = x => { const a = x.app, [lo2, hi2] = a.teams;
+    if (a.koop) return `<span class="ppl">${PG}alle</span>`;
+    if (a.namen === "Spieler") return `<span class="ppl">${lo2 === 2 && hi2 === 2 ? P2 : PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2}</span>`;
+    return `<span class="ppl">${PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Teams</span>`; };
+  const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele", disney: "Filme", film: "Filme", mix: "alles" }[x.app.daten] || "Serien") + " raten" : "";
+  const tile = (x, gi) => `<button class="mt ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MIC[x.id] || "🎵"}</span>${x.neu ? '<span class="tag">NEU</span>' : ""}</span>
+      <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span></button>`;
   const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
   const mixOn = m.app.daten === "mix", exSel = mixOn ? sonderSel() : m.app.typ === "tv" ? [m.app.daten] : [];
   const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
-    `<div class="mgh">${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => `<button class="mt ${isOn(x) ? "on" : ""}" data-mode="${x.id}">
-      <span class="mtn">${esc(x.name)}</span><span class="mts">${kurzSp(x)}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></button>`).join("")}</div>`; }).join("");
+    `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· mehrere wählbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi)).join("")}${gi === 4 ? `<button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">💾</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2</span><span>Lebens-Mixtape</span></span></span></button>` : ""}</div>`; }).join("");
+  $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
     const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;
     if (x.app.typ === "tv" && exSel.length) {                  // Extra zu- oder abwählen
@@ -2798,7 +2816,6 @@ async function rsPlaylist(r, i, btn){
     } else { const f = friendlyErr(e); say(`<b>${f.t}</b><br>${esc(f.d)}`); }
   } finally { btn.disabled = false; }
 }
-$("#rsOpen").addEventListener("click", () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); });
 
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
 const isAdmin = () => store.get("admin", false);
