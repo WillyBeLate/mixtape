@@ -477,6 +477,8 @@
   .clt{flex:none;align-self:flex-start;height:18px;font:800 10px/18px system-ui,sans-serif;letter-spacing:.5px;padding:0 7px;border-radius:999px;text-transform:uppercase;min-width:66px;text-align:center}
   .clt.neu{background:#2ecc7133;color:#7dffb0;border:1px solid #2ecc7188}.clt.change{background:#38d6ff26;color:#9fe9ff;border:1px solid #38d6ff77}.clt.fix{background:#ffb02026;color:#ffd27a;border:1px solid #ffb02077}
   .cl.fresh .clv::after{content:"NEU";margin-left:6px;font-size:9px;padding:1px 6px;border-radius:999px;background:var(--accent);vertical-align:3px}
+  .trashbtn{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;border:1px solid #ffffff24;background:#ffffff10;color:#d3c8ef;display:grid;place-items:center;cursor:pointer;padding:0}
+  .trashbtn:hover,.trashbtn:active{background:#ff4d4d33;color:#fff;border-color:#ff4d4d88}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
@@ -724,7 +726,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.80";
+const APP_VERSION = "0.9.81";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2619,9 +2621,15 @@ document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click"
 document.addEventListener("click", e => { if (!e.target.closest("[data-home]")) return; stopScanner(); show("setup"); });
 function renderResume(){
   const g = state.game;
-  $("#resumeBox").innerHTML = state.running ? `<div class="panel"><div class="small">Laufende Runde: <b>${esc(modeDef().name)}</b> · ${g.teams.map(t => esc(t.n) + " " + t.p).join(" : ")}</div>
-    <button class="btn sec" id="resumeBtn">↩ Weiterspielen</button><div class="small">Oder unten Modus &amp; Mix wählen und eine neue Runde starten.</div></div>` : "";
+  const op = modeDef().app.ohnePunkte;
+  $("#resumeBox").innerHTML = state.running ? `<div class="panel" style="position:relative"><div class="small">Laufende Runde: <b>${esc(modeDef().name)}</b> · ${g.teams.map(t => esc(t.n) + (op ? "" : " " + t.p)).join(op ? ", " : " : ")}</div>
+    <button class="btn sec" id="resumeBtn">↩ Weiterspielen</button><div class="small" style="padding-right:40px">Oder unten Modus &amp; Mix wählen und eine neue Runde starten.</div>
+    <button class="trashbtn" id="resumeDel" aria-label="Laufende Runde verwerfen" title="Runde verwerfen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg></button></div>` : "";
   $("#resumeBtn")?.addEventListener("click", openSpiel);
+  $("#resumeDel")?.addEventListener("click", () => {
+    if (!confirm("Laufende Runde verwerfen? Punktestand und aktuelle Karte gehen verloren.")) return;
+    stopScanner(); state.running = false; store.set("running", false); state.current = null; store.del("cur"); undoStack.length = 0; store.set("undo", []); renderResume();
+  });
 }
 document.querySelectorAll("#catTabs button").forEach(b => b.addEventListener("click", () => {
   state.tab = b.dataset.t; document.querySelectorAll("#catTabs button").forEach(x => x.classList.toggle("on", x === b)); renderCats(); }));

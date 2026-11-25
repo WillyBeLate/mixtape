@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.81", d: "2026-11-25", e: [
+    ["neu", "Papierkorb bei „Laufende Runde“ im Hauptmenü: angefangene Runde mit einem Tipp verwerfen."],
+    ["change", "Beim Zeitstrahl zeigt „Laufende Runde“ keine Punkte mehr an."],
+  ]},
   { v: "0.9.80", d: "2026-11-25", e: [
     ["neu", "Neuigkeiten: Diese Liste mit allen Änderungen – nach einem Update zeigt die App kurz an, was neu ist."],
     ["change", "Der letzte Reiter heißt jetzt für alle „Einstellungen“."],
