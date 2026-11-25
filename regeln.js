@@ -78,6 +78,7 @@ const REGELN = {
 //  app.marken: Name eines zweiten Zählers (z. B. Klau-Marken) oder null
 //  app.koop: true = alle spielen gemeinsam (Punktetafel zählt geschaffte Level)
 //  app.handkarten: [Start-Team, andere] = Tafel zählt Handkarten, 0 = Sieg
+//  app.ohnePunkte: keine Punktetafel (Stand sieht man an den Karten), nur „wer ist dran“
 //  app.runden: feste Kartenzahl (App zählt mit) · app.zug "reihum" = App wechselt den Zug
 //  app.aktionen: Knöpfe zum Punktevergeben nach dem Auflösen.
 //     jeder:true -> ein Knopf pro Team (p Punkte / m Marken; p:"stufe" = Punkte der Sprint-Stufe)
@@ -177,8 +178,7 @@ const SPIELMODI = [
   {
     id: "zeitstrahl", name: "Zeitstrahl", spieler: "2–5 Teams, gegeneinander",
     kurz: "Wer seine Handkarten zuerst richtig in den gemeinsamen Zeitstrahl gelegt bekommt, gewinnt.",
-    app: { typ: "standard", ziel: 0, marken: null, teams: [2, 5], handkarten: [6, 5], zug: "reihum", namen: "Team",
-      aktionen: [ { label: "Richtig eingeordnet", eff: [["aktiv", -1, 0]] }, { label: "Falsch eingeordnet (Strafkarte)", eff: [["aktiv", -1, 0], ["andere", 1, 0]] }, { label: "Länder-Bonus", eff: [["andere", -1, 0]] } ] },
+    app: { typ: "standard", ziel: 0, marken: null, teams: [2, 5], zug: "reihum", namen: "Team", ohnePunkte: true, aktionen: [] },
     material: ["alle Jahreskarten"],
     vorbereitung: [
       "Teilt euch in 2–5 Teams zu je 1–2 Personen auf und bestimmt ein Start-Team (Team A).",
@@ -195,7 +195,6 @@ const SPIELMODI = [
     ende: "Das erste Team ohne Handkarten gewinnt.",
     varianten: [
       "Einfacher: Hat der Zeitstrahl 13 Karten, nimmt das Team mit dem Handy eine beliebige Karte heraus. Der Zeitstrahl wird so nie länger als 13 Karten.",
-      "Länder-Bonus: Nennt Team B vor dem Auflösen zusätzlich das richtige Herkunftsland, darf es eine eigene Handkarte unter den Nachziehstapel legen.",
     ],
   },
   {
