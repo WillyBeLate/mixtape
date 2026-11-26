@@ -4,6 +4,12 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.10.1", d: "2026-11-27", e: [
+    ["neu", "Rette einen Song: Überraschungseffekt – die Songs kommen nacheinander. Der nächste bleibt verdeckt, bis du ihn mit Play aufdeckst (oder „Alle aufdecken“)."],
+    ["fix", "Reinhören: Tippt man schnell hintereinander, startet nicht mehr Sekunden später ein vorher angetippter Song. Der Knopf zeigt „lädt …“, bis der Song wirklich läuft, und bremst Spotify gerade, siehst du einen Countdown statt stiller Wartezeit."],
+    ["fix", "Songs mit mehreren Künstlern zeigen jetzt alle – z. B. „My Universe“ von Coldplay & BTS, „Under Pressure“ von Queen & David Bowie. „Da Da Da“ von Trio heißt jetzt einfach so."],
+    ["change", "Reinhören startet schneller: Das zuletzt benutzte Gerät wird direkt angesprochen, ohne jedes Mal die Geräteliste abzufragen."],
+  ]},
   { v: "0.10.0", d: "2026-11-27", e: [
     ["change", "Gezeichnete Icons statt Emojis: Play, Pause, Nochmal, Zurück, Kopieren, Retten und Playlist – überall in der App im gleichen Stil. Der Play-Pfeil sitzt jetzt mittig im Knopf."],
     ["change", "Rette einen Song und Zeitsprung zeigen oben ihr eigenes Modus-Icon."],

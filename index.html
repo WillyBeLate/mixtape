@@ -461,6 +461,11 @@
   .ico{width:1.05em;height:1.05em;vertical-align:-.16em;display:inline-block;flex:none}
   .rsOpt .pl{width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:20px;flex:none;cursor:pointer;display:grid;place-items:center;padding:0}
   .rsOpt .pl .ico{width:20px;height:20px}
+  .ico.spin{animation:icspin .8s linear infinite}@keyframes icspin{to{transform:rotate(360deg)}}
+  .rsOpt .pl.ld{opacity:.85}
+  .rsOpt.hid{border:1.5px dashed #ffffff40;background:#ffffff0a}.rsOpt.hid .cv{display:grid;place-items:center;font-size:24px;font-weight:900;color:#ffffffa0;background:#ffffff14}
+  .rsOpt.hid .tx span{opacity:.75}
+  .rsOpt.rsNew{animation:rsPop .45s cubic-bezier(.2,1.4,.4,1)}@keyframes rsPop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
   .rsOpt .pl.on{background:linear-gradient(135deg,var(--accent),var(--accent2))}
   .rsRow{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff14}
   .rsRow .yy{font-weight:900;width:44px;flex:none;color:#ffd23f}
@@ -758,7 +763,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.10.0";
+const APP_VERSION = "0.10.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -776,10 +781,22 @@ const store = {
 const CAT = Object.fromEntries(KATEGORIEN.map(c => [c.id, c]));
 const DB = SONGS.map((s, i) => ({
   i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/),
+  an: (typeof ANZEIGE !== "undefined" && ANZEIGE[s[0] + "|" + s[1]]) || null,   // abweichende Anzeige (alle Künstler, kürzerer Titel)
   sid: typeof s[5] === "string" ? s[5] : (typeof SPOTIFY_IDS !== "undefined" && SPOTIFY_IDS[s[0] + "|" + s[1]]) || null,
   opt: s[5] && typeof s[5] === "object" ? s[5] : {},   // z. B. { mit: "Sean Paul" } = Spotify-Version muss diesen Künstler enthalten
   pruefen: (typeof PRUEFEN !== "undefined" && PRUEFEN[s[0] + "|" + s[1]]) || null
 }));
+// Anzeige wie bei Spotify: alle beteiligten Künstler, gebräuchlicher Titel.
+// Reihenfolge: feste Angabe (ANZEIGE) → „mit“-Künstler → bei der Spotify-Suche gemerkte Künstler → Interpret.
+const showT = s => s?.an?.[0] || s?.t || "";
+function showA(s){
+  if (!s) return "";
+  if (s.an?.[1]) return s.an[1];
+  if (s.opt?.mit) return s.a + " & " + s.opt.mit;
+  const c = typeof store !== "undefined" && store.get("trk3:" + s.t + "|" + s.a, null);
+  if (c?.artist && c.artist.includes(", ") && c.artist.toLowerCase().includes(String(s.a).toLowerCase())) { const p = c.artist.split(", "); return p.length === 2 ? p.join(" & ") : p.slice(0, -1).join(", ") + " & " + p[p.length - 1]; }
+  return s.a;
+}
 // Songs aus der Prüfliste (unsicheres Jahr / Cover) sind standardmäßig nicht im Spiel
 const ALLOW_UNCHECKED = store.get("allowUnchecked", false);
 const ACTIVE = DB.filter(s => !s.pruefen || ALLOW_UNCHECKED);
@@ -1348,8 +1365,8 @@ function reveal(){
   }
   $("#revealBox").innerHTML = `<div class="reveal">
     <div class="yr">${s.y}</div>
-    <div class="t">${esc(s.t)}</div>
-    <div class="a">${esc(s.a)}</div>
+    <div class="t">${esc(showT(s))}</div>
+    <div class="a">${esc(showA(s))}</div>
     <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · aus: ${CAT[c.from].name}${c.repeat ? " · (Wiederholung)" : ""}</div>
   </div><div id="awardBox"></div>`;
   $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
@@ -3027,26 +3044,52 @@ function rsPrefetch(){
 }
 
 // ---------- Reinhören ----------
+// Reinhören: jeder Tipp bekommt eine Nummer – ein älterer, noch laufender Startversuch wird verworfen,
+// damit nicht nach Sekunden plötzlich ein vorher angetippter Song startet. Der Knopf zeigt „lädt …“,
+// bis Spotify wirklich spielt; erst dann erscheint Pause.
+let rsTok = 0, rsLoad = null, rsDevC = null, rsFresh = null;           // rsDevC: zuletzt benutztes Gerät (spart Abfragen)
 async function rsPlay(k){
   const m = $("#rsMsg"); if (m) m.innerHTML = "";
   if (!sp.tok()) { if (m) m.innerHTML = `<div class="msg warn">Zum Reinhören erst unter „Spiel“ bei Spotify anmelden.</div>`; return; }
-  if (rsNow === k) {                                  // gleicher Song → Pause
+  const tok = ++rsTok, stale = () => tok !== rsTok;
+  if (rsNow === k && !rsLoad) {                       // gleicher Song → Pause
     rsNow = null; rsMark(); try { await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} return;
   }
-  rsNow = k; rsMark();
+  rsNow = null; rsLoad = k; rsMark();
+  const wait = sp.coolUntil - Date.now();             // Spotify bremst gerade → sagen statt still warten
+  let cd = null;
+  if (wait > 1500 && m) {
+    const end = sp.coolUntil, upd = () => { const r = Math.ceil((end - Date.now()) / 1000); if (stale() || r <= 0) { clearInterval(cd); if (!stale() && m) m.innerHTML = ""; return; }
+      m.innerHTML = `<div class="msg ok">⏳ Spotify bremst kurz (zu viele Anfragen) – der Song startet in ${r} s.</div>`; };
+    upd(); cd = setInterval(upd, 500);
+  }
+  const fail = e => { if (stale()) return; rsLoad = null; rsMark(); clearInterval(cd); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; };
   try {
-    const tr = await resolveTrack(rsSong(k)); if (rsNow !== k) return;
-    const dev = await getDevice();
-    if (!dev) { rsNow = null; rsMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="rsWake">Spotify wecken &amp; abspielen</button>`; $("#rsWake").onclick = () => openSpotify(() => rsPlay(k)); } return; }
-    if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
+    const tr = await resolveTrack(rsSong(k)); if (stale()) return;
     const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000;          // gleich in den Refrain-Bereich
-    const sil = await silentList().catch(() => null);
-    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
-    store.set("lastDev", { id: dev.id, t: Date.now() }); rsCovers($("#rsBox"));
-  } catch(e) { rsNow = null; rsMark(); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; }
+    const sil = await silentList().catch(() => null); if (stale()) return;
+    const body = JSON.stringify(sil ? { uris: [tr.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos });
+    const go = id => sp.api(`/me/player/play?device_id=${id}`, { method: "PUT", body });
+    let ok = false;
+    // Schnellweg: dasselbe Gerät wie eben (innerhalb von 2 Min.) – ohne Geräte-Abfrage
+    if (rsDevC && Date.now() - rsDevC.t < 120000) { try { await go(rsDevC.id); ok = true; } catch(e) { if (e.status === 429 || e.quota) throw e; rsDevC = null; } }
+    if (!ok) {
+      if (stale()) return;
+      const dev = await getDevice(); if (stale()) return;
+      if (!dev) { rsLoad = null; rsMark(); clearInterval(cd); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="rsWake">Spotify wecken &amp; abspielen</button>`; $("#rsWake").onclick = () => openSpotify(() => rsPlay(k)); } return; }
+      if (!dev.is_active) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); if (stale()) return; }
+      await go(dev.id); rsDevC = { id: dev.id, t: Date.now() };
+    } else rsDevC.t = Date.now();
+    if (stale()) return;
+    clearInterval(cd); if (m && /bremst/.test(m.textContent)) m.innerHTML = "";
+    rsLoad = null; rsNow = k; rsMark();
+    store.set("lastDev", { id: rsDevC.id, t: Date.now() }); rsCovers($("#rsBox"));
+  } catch(e) { fail(e); }
 }
-function rsMark(){ document.querySelectorAll("#rsBox .pl").forEach(b => { const on = b.dataset.k === rsNow; b.classList.toggle("on", on); b.innerHTML = on ? IC_PAUSE : IC_PLAY; }); }
-async function rsStop(){ if (rsNow) { rsNow = null; try { if (keepAliveOn() && store.get("silentOk", null)) await sp.api("/me/player/next", { method: "POST" }); else await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} } }
+const IC_LOAD = '<svg class="ico spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 1-9 9" opacity=".95"/></svg>';
+function rsMark(){ document.querySelectorAll("#rsBox .pl").forEach(b => { const on = b.dataset.k === rsNow, ld = b.dataset.k === rsLoad;
+  b.classList.toggle("on", on || ld); b.classList.toggle("ld", ld); b.innerHTML = ld ? IC_LOAD : on ? IC_PAUSE : IC_PLAY; }); }
+async function rsStop(){ if (rsLoad) { rsTok++; rsLoad = null; } if (rsNow) { rsNow = null; try { if (keepAliveOn() && store.get("silentOk", null)) await sp.api("/me/player/next", { method: "POST" }); else await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} } }
 
 // ---------- Ansichten ----------
 const rsTop = (t, sub, back) => `<div class="topbar"><button class="backbtn" id="rsBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -3069,8 +3112,8 @@ function rsSetup(box){
     ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${rsLbl(open)}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} gewählt</div>
       <button class="btn" id="rsCont">${IC_PLAY} Weitermachen</button></div>` : ""}
     <div class="seg" id="rsMode"><button data-m="jahre" class="${isA ? "" : "on"}">📅 Nach Jahren</button><button data-m="kuenstler" class="${isA ? "on" : ""}">🎤 Nach Künstlern</button></div>
-    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler zeigt Mixtape 10 seiner bekanntesten Songs. Du darfst nur einen retten, die anderen sind weg. Tippe ${IC_PLAY} zum Reinhören."
-      : "Für jedes Jahr zeigt Mixtape 10 prägende Songs – die großen Hits, quer durch die Genres, mit deutschen Hits dazwischen. Du darfst nur einen retten, die anderen sind weg. Tippe ${IC_PLAY} zum Reinhören."}</p>
+    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler zeigt Mixtape 10 seiner bekanntesten Songs. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."
+      : "Für jedes Jahr zeigt Mixtape 10 prägende Songs – die großen Hits, quer durch die Genres, mit deutschen Hits dazwischen. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."}</p>
     ${isA ? `<div class="panel"><b>Künstler</b> <span class="small">(${o.artists.length} gewählt)</span>
       <div class="chips" id="rsArts">${RS_ART.map(a => `<button data-a2="${esc(a)}" class="${o.artists.includes(a) ? "on" : ""}">${esc(a)}</button>`).join("")}</div>
       <div style="display:flex;gap:6px;margin-top:8px"><button class="btn sec small" id="rsAll">Alle</button><button class="btn sec small" id="rsNone">Keine</button><button class="btn sec small" id="rsRnd">🎲 10 zufällige</button></div></div>` : ""}
@@ -3135,28 +3178,40 @@ function rsChoose(box){
   const sub = (two ? esc(rs.names[pl]) + " wählt · " : "") + `${rsIsA(rs) ? "Künstler" : "Jahr"} ${rs.pos + 1} von ${total}`;
   // Vorjahr kurz zeigen (zu zweit: wer was gerettet hat)
   const prev = rs.pos > 0 && pl === 0 ? rs.years[rs.pos - 1] : null;
-  const pv = prev && two ? (prev.picks[0] && prev.picks[0] === prev.picks[1] && prev.picks[0] !== "-" ? `💞 ${esc(String(prev.y))}: Beide haben „${esc(rsSong(prev.picks[0]).t)}“ gerettet`
-    : `${esc(String(prev.y))}: ` + rs.names.map((n, i) => `<b style="color:${PC[i]}">${esc(n)}</b> ${prev.picks[i] && prev.picks[i] !== "-" ? "„" + esc(rsSong(prev.picks[i]).t) + "“" : "–"}`).join(" · ")) : "";
+  const pv = prev && two ? (prev.picks[0] && prev.picks[0] === prev.picks[1] && prev.picks[0] !== "-" ? `💞 ${esc(String(prev.y))}: Beide haben „${esc(showT(rsSong(prev.picks[0])))}“ gerettet`
+    : `${esc(String(prev.y))}: ` + rs.names.map((n, i) => `<b style="color:${PC[i]}">${esc(n)}</b> ${prev.picks[i] && prev.picks[i] !== "-" ? "„" + esc(showT(rsSong(prev.picks[i]))) + "“" : "–"}`).join(" · ")) : "";
   const who = k => two ? rs.names.map((n, i) => i !== pl && Y.picks[i] === k ? `<span class="rsWho" style="--c:${PC[i]}">${esc(n)}</span>` : "").join("") : "";
+  // Überraschung: Songs kommen nacheinander – der nächste bleibt verdeckt, bis man auf ▶ tippt
+  const rv = Y.rev ??= [], n = Y.opts.length;
+  if (rv[pl] == null) rv[pl] = Y.picks[pl] && Y.picks[pl] !== "-" ? n : 1;
+  const shown = Math.min(rv[pl], n), fresh = rsFresh; rsFresh = null;
+  if (rsSel && !Y.opts.slice(0, shown).includes(rsSel)) rsSel = null;
   box.innerHTML = rsTop("Rette einen Song", sub) + `
     <div class="rsBar"><i style="width:${((rs.pos + pl / rs.names.length) / total) * 100}%"></i></div>
     ${pv ? `<div class="rsPrev">${pv}</div>` : ""}
     <div class="rsYear"><div class="y" ${rsIsA(rs) ? `style="font-size:${String(Y.y).length > 14 ? 30 : 38}px;line-height:1.1"` : ""}>${esc(String(Y.y))}</div><div class="w">${two ? `<b style="color:${PC[pl]}">${esc(rs.names[pl])}</b>, welchen Song rettest du?` : "Welchen Song rettest du?"}</div></div>
-    <div id="rsOpts" style="--pc:${two ? PC[pl] : "var(--accent)"}">${Y.opts.map(k => { const s = rsSong(k); return `<div class="rsOpt ${rsSel === k ? "on" : ""}" data-k="${esc(k)}">
-      <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(s.t)}</b><span>${esc(s.a)}</span>${who(k)}</div>
-      <button class="pl" data-k="${esc(k)}" aria-label="Reinhören">${IC_PLAY}</button></div>`; }).join("")}</div>
+    <div id="rsOpts" style="--pc:${two ? PC[pl] : "var(--accent)"}">${Y.opts.slice(0, shown).map(k => { const s = rsSong(k); return `<div class="rsOpt ${rsSel === k ? "on" : ""} ${fresh === k ? "rsNew" : ""}" data-k="${esc(k)}">
+      <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span>${who(k)}</div>
+      <button class="pl" data-k="${esc(k)}" aria-label="Reinhören">${IC_PLAY}</button></div>`; }).join("")}
+      ${shown < n ? `<div class="rsOpt hid" id="rsHid"><div class="cvw"><div class="cv">?</div></div><div class="tx"><b>Song ${shown + 1} von ${n}</b><span>Tippe auf Play zum Aufdecken</span></div>
+      <button class="pl" id="rsRev" aria-label="Aufdecken und anhören">${IC_PLAY}</button></div>` : ""}</div>
     <div id="rsMsg"></div>
-    <button class="btn" id="rsPick" ${rsSel ? "" : "disabled"}>${rsSel ? IC_SAVE + " „" + esc(rsSong(rsSel).t) + "“ retten" : "Tippe auf einen Song"}</button>
+    <button class="btn" id="rsPick" ${rsSel ? "" : "disabled"}>${rsSel ? IC_SAVE + " „" + esc(showT(rsSong(rsSel))) + "“ retten" : "Tippe auf einen Song"}</button>
     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
       ${rs.pos > 0 || pl > 0 ? `<button class="btn sec small" id="rsUndo">${IC_BACK} Zurück</button>` : ""}
+      ${shown < n ? `<button class="btn sec small" id="rsAllRev">Alle aufdecken</button>` : ""}
       <button class="btn sec small" id="rsSkip">${rsIsA(rs) ? "Künstler" : "Jahr"} überspringen</button></div>`;
   rsMark(); rsCovers(box); rsPrefetch();
   $("#rsBack").onclick = () => { rsStop(); rs.view = "setup"; rsSave(); rsRender(); };
   box.querySelectorAll(".rsOpt").forEach(el => el.onclick = e => {
     if (e.target.closest(".pl")) return; rsSel = el.dataset.k;
     box.querySelectorAll(".rsOpt").forEach(x => x.classList.toggle("on", x === el));
-    const b = $("#rsPick"); b.disabled = false; b.innerHTML = IC_SAVE + " „" + esc(rsSong(rsSel).t) + "“ retten"; });
-  box.querySelectorAll(".pl").forEach(b => b.onclick = () => rsPlay(b.dataset.k));
+    const b = $("#rsPick"); b.disabled = false; b.innerHTML = IC_SAVE + " „" + esc(showT(rsSong(rsSel))) + "“ retten"; });
+  box.querySelectorAll(".pl[data-k]").forEach(b => b.onclick = () => rsPlay(b.dataset.k));
+  const reveal = all => { const k = Y.opts[shown]; rv[pl] = all ? n : shown + 1; rsFresh = all ? null : k; rsSave(); rsChoose(box); if (!all) rsPlay(k); };
+  $("#rsRev")?.addEventListener("click", e => { e.stopPropagation(); reveal(false); });
+  $("#rsHid")?.addEventListener("click", e => { if (!e.target.closest(".pl")) reveal(false); });
+  $("#rsAllRev")?.addEventListener("click", () => reveal(true));
   $("#rsPick").onclick = () => { if (!rsSel) return; Y.picks[pl] = rsSel; rsNext(); };
   $("#rsSkip").onclick = () => { Y.picks[pl] = "-"; rsNext(); };
   $("#rsUndo")?.addEventListener("click", () => {
@@ -3188,7 +3243,7 @@ function rsResult(box, r, fromArch){
   const decHtml = Object.keys(dec).length > 1 ? `<div class="rsDec">${Object.entries(dec).map(([d, [a, b]]) => `<div><i style="height:${Math.max(3, a / b * 52)}px"></i>${String(d).slice(2)}er</div>`).join("")}</div><div class="small" style="text-align:center">Übereinstimmung je Jahrzehnt</div>` : "";
   const row = y => { const ks = y.picks; const sm = two && ks[0] && ks[0] === ks[1] && ks[0] !== "-";
     const one = (k, i) => !k || k === "-" ? `<div class="${i ? "p2" : ""}"><span>${two ? esc(r.names[i]) + ": " : ""}– übersprungen –</span></div>`
-      : `<div class="${i ? "p2" : ""}">${two ? `<span>${esc(r.names[i])}:</span> ` : ""}<b>${esc(rsSong(k).t)}</b><br><span>${esc(rsSong(k).a)}</span></div>`;
+      : `<div class="${i ? "p2" : ""}">${two ? `<span>${esc(r.names[i])}:</span> ` : ""}<b>${esc(showT(rsSong(k)))}</b><br><span>${esc(showA(rsSong(k)))}</span></div>`;
     const first = ks.find(k => k && k !== "-");
     return `<div class="rsRow"><div class="yy" ${rsIsA(r) ? `style="width:72px;font-size:12px;line-height:1.2"` : ""}>${esc(String(y.y))}</div><div class="cv" ${first ? `data-cov="${esc(first)}"` : ""}></div><div class="tx">${sm ? one(ks[0], 0).replace(/<span>[^<]*:<\/span> /, "") : ks.map(one).join("")}</div>${two ? `<div class="m">${sm ? "💞" : ""}</div>` : ""}</div>`; };
   box.innerHTML = rsTop("" + (two ? "Eure Mixtapes" : rsIsA(r) ? "Dein Künstler-Mixtape" : "Dein Lebens-Mixtape"), `${rsLbl(r)} · ${ys.length} Songs`) + `
@@ -3205,7 +3260,7 @@ function rsResult(box, r, fromArch){
   $("#rsAgain").onclick = () => { if (!fromArch) { rs = null; store.del("rette"); } back(); };
   box.querySelectorAll("[data-pl]").forEach(b => b.onclick = () => rsPlaylist(r, +b.dataset.pl, b));
   $("#rsCopy").onclick = async () => {
-    const txt = r.names.map((n, i) => `${r.names.length > 1 ? n + "s" : "Mein"} ${rsIsA(r) ? "Künstler" : "Lebens"}-Mixtape ${rsIsA(r) ? "" : r.from + "–" + r.to}\n` + r.years.filter(y => y.picks[i] && y.picks[i] !== "-").map(y => rsIsA(r) ? `${rsSong(y.picks[i]).t} – ${rsSong(y.picks[i]).a}` : `${y.y} – ${rsSong(y.picks[i]).t} – ${rsSong(y.picks[i]).a}`).join("\n")).join("\n\n")
+    const txt = r.names.map((n, i) => `${r.names.length > 1 ? n + "s" : "Mein"} ${rsIsA(r) ? "Künstler" : "Lebens"}-Mixtape ${rsIsA(r) ? "" : r.from + "–" + r.to}\n` + r.years.filter(y => y.picks[i] && y.picks[i] !== "-").map(y => rsIsA(r) ? `${showT(rsSong(y.picks[i]))} – ${showA(rsSong(y.picks[i]))}` : `${y.y} – ${showT(rsSong(y.picks[i]))} – ${showA(rsSong(y.picks[i]))}`).join("\n")).join("\n\n")
       + (two ? `\n\nÜbereinstimmung: ${pct} % (${same.length} von ${both.length} ${rsUnit(r, both.length)})` : "") + "\n\n💾 Rette einen Song – Mixtape";
     try { if (navigator.share) await navigator.share({ text: txt }); else { await navigator.clipboard.writeText(txt); $("#rsMsg").innerHTML = `<div class="msg ok">Liste kopiert ✓</div>`; } }
     catch(e) { if (e?.name !== "AbortError") try { await navigator.clipboard.writeText(txt); $("#rsMsg").innerHTML = `<div class="msg ok">Liste kopiert ✓</div>`; } catch(_) {} }
@@ -3221,7 +3276,7 @@ async function rsPlaylist(r, i, btn){
   try {
     for (let n = 0; n < ks.length; n++) {
       say(`Songs werden gesucht … ${n + 1} / ${ks.length}`, "ok");
-      try { uris.push((await resolveTrack(rsSong(ks[n]))).uri); } catch(e) { if (e.quota || e.status === 429 || e.status === 401) throw e; miss.push(rsSong(ks[n]).t); }
+      try { uris.push((await resolveTrack(rsSong(ks[n]))).uri); } catch(e) { if (e.quota || e.status === 429 || e.status === 401) throw e; miss.push(showT(rsSong(ks[n]))); }
     }
     say("Playlist wird angelegt …", "ok");
     const body = JSON.stringify({ name: `${r.names.length > 1 ? r.names[i] + "s " : ""}${rsIsA(r) ? "Künstler-Mixtape" : "Lebens-Mixtape " + r.from + "–" + r.to}`, public: false,
@@ -3342,7 +3397,7 @@ function zsSetup(box){
   };
 }
 const zsCard = (s, hide, extra = "") => `<div class="zsCard ${hide ? "hid" : ""}">${hide ? `<div class="zsQ">?</div><div class="tx"><b>Neuer Song läuft …</b><span>Titel und Jahr bleiben geheim</span></div>`
-  : `<div class="cvw"><div class="cv" data-cov="${esc(zsKey(s))}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(s.t)}</b><span>${esc(s.a)}</span></div><div class="zsY">${s.y}</div>`}${extra}</div>`;
+  : `<div class="cvw"><div class="cv" data-cov="${esc(zsKey(s))}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div><div class="zsY">${s.y}</div>`}${extra}</div>`;
 function zsGame(box){
   const P = zs.players, act = P[zs.turn], ref = zsSong(zs.ref), cur = zsSong(zs.cur), L = zs.last;
   const multi = P.length > 1;
