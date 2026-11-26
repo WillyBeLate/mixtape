@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.96", d: "2026-11-26", e: [
+    ["fix", "Kleine Größen des neuen App-Icons korrigiert (der Hintergrund war nur teilweise gefüllt)."],
+  ]},
   { v: "0.9.95", d: "2026-11-26", e: [
     ["change", "Neues App-Icon: Neon-Kassette mit MIXTAPE-Schriftzug. Android übernimmt es automatisch (evtl. kurz bestätigen), auf dem iPhone die App einmal neu zum Home-Bildschirm hinzufügen."],
   ]},

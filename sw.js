@@ -2,9 +2,9 @@
 // Strategie "Netz zuerst": Ist das Handy online, wird immer die neueste Version geladen
 // (Updates kommen also automatisch). Nur offline wird die gespeicherte Kopie benutzt.
 // Bei Änderungen an dieser Datei VERSION hochzählen.
-const VERSION = "mixtape-v128";
+const VERSION = "mixtape-v129";
 const FILES = ["./", "index.html", "daten.js", "regeln.js", "changelog.js", "geprueft.js", "ids.js", "manifest.json", "lib/html5-qrcode.min.js", "lib/qrcode.js", "lib/jszip.min.js",
-  "icons/icon3-192.png", "icons/icon3-512.png", "icons/icon3-180.png"];
+  "icons/icon4-192.png", "icons/icon4-512.png", "icons/icon4-180.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
