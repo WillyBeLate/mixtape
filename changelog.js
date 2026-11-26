@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.10.0", d: "2026-11-27", e: [
+    ["change", "Gezeichnete Icons statt Emojis: Play, Pause, Nochmal, Zurück, Kopieren, Retten und Playlist – überall in der App im gleichen Stil. Der Play-Pfeil sitzt jetzt mittig im Knopf."],
+    ["change", "Rette einen Song und Zeitsprung zeigen oben ihr eigenes Modus-Icon."],
+    ["fix", "Fehlende Länderflaggen ergänzt (u. a. Puerto Rico, Barbados, Kuba, Nigeria, Kroatien) – statt „PR“ & Co. erscheint jetzt die richtige Flagge."],
+  ]},
   { v: "0.9.99", d: "2026-11-27", e: [
     ["fix", "Rette einen Song: Cover erscheinen jetzt sofort – auch bei Songs, die noch nie abgespielt wurden. Die Cover der nächsten Runden werden schon im Hintergrund geladen."],
   ]},

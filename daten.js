@@ -2350,6 +2350,7 @@ const LAENDER = {
   AU: "Australien", JM: "Jamaika", TT: "Trinidad und Tobago", CO: "Kolumbien",
   PR: "Puerto Rico", BB: "Barbados", KR: "Südkorea", JP: "Japan", PH: "Philippinen", PL: "Polen", HU: "Ungarn", IN: "Indien", NZ: "Neuseeland", BE: "Belgien",
   RO: "Rumänien", CU: "Kuba", NG: "Nigeria", MS: "Montserrat", BR: "Brasilien", MD: "Moldau", BS: "Bahamas", IS: "Island", EE: "Estland", RS: "Serbien", RU: "Russland", AZ: "Aserbaidschan", ZA: "Südafrika",
+  HR: "Kroatien", AM: "Armenien", LV: "Lettland", CY: "Zypern"
 };
 
 // =====================================================================
