@@ -755,7 +755,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.98";
+const APP_VERSION = "0.9.99";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2965,14 +2965,44 @@ const rsSong = k => RS_BY.get(k) || { t: k.split("|")[0], a: k.split("|")[1] || 
 
 // ---------- Cover (Spotify oEmbed, ohne Kontingent) ----------
 async function rsCover(k){
-  const ck = "cov:" + k, have = store.get(ck, undefined); if (have !== undefined) return have;
+  const ck = "cov:" + k, have = store.get(ck, undefined); if (have) return have;
+  if (have === null && store.get("covTry:" + k, 0) > Date.now() - 7 * 864e5) return null;   // kein Bild: eine Woche nicht neu suchen
   const s = rsSong(k), uri = s.sid ? "spotify:track:" + s.sid : store.get("trk3:" + k, null)?.uri;
-  if (!uri) return null;
-  try { const r = await fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent("https://open.spotify.com/track/" + uri.split(":").pop()));
-    const u = (await r.json())?.thumbnail_url || null; store.set(ck, u); return u; } catch(e) { return null; }
+  let u = null, netErr = false;
+  if (uri) try { const r = await fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent("https://open.spotify.com/track/" + uri.split(":").pop()));
+    u = (await r.json())?.thumbnail_url || null; } catch(e) { netErr = true; }
+  // Ohne Spotify-ID: Cover über die iTunes-Suche (ohne Anmeldung, ohne Spotify-Kontingent)
+  if (!u) try { u = await itunesCover(s.t, s.a); netErr = false; } catch(e) { netErr = true; }
+  if (u || !netErr) { store.set(ck, u); if (!u) store.set("covTry:" + k, Date.now()); }
+  return u;
+}
+const rsNorm = x => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+// iTunes erlaubt kein fetch() von fremden Seiten (CORS) – JSONP per <script> klappt aber überall
+let jsonpN = 0;
+function jsonp(url, ms = 8000){
+  return new Promise((ok, fail) => {
+    const cb = "__jp" + (++jsonpN) + "_" + Date.now().toString(36), sc = document.createElement("script");
+    const done = (f, v) => { clearTimeout(tm); delete window[cb]; sc.remove(); f(v); };
+    const tm = setTimeout(() => done(fail, new Error("timeout")), ms);
+    window[cb] = d => done(ok, d); sc.onerror = () => done(fail, new Error("net"));
+    sc.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb; document.head.appendChild(sc);
+  });
+}
+async function itunesCover(t, a){
+  const res = (await jsonp("https://itunes.apple.com/search?media=music&entity=song&limit=8&country=de&term=" + encodeURIComponent(t.replace(/\(.*?\)/g, "") + " " + a)))?.results || [];
+  const na = rsNorm(a).split(" ")[0], nt = rsNorm(t.replace(/\(.*?\)/g, ""));
+  const hit = res.find(x => rsNorm(x.artistName).includes(na) && rsNorm(x.trackName).includes(nt)) || res.find(x => rsNorm(x.artistName).includes(na));
+  return hit?.artworkUrl100 ? hit.artworkUrl100.replace("100x100bb", "300x300bb") : null;
 }
 function rsCovers(root){
   root.querySelectorAll("[data-cov]").forEach(async el => { const u = await rsCover(el.dataset.cov); if (u) { el.style.backgroundImage = `url("${u}")`; el.textContent = ""; } });
+}
+// Cover der nächsten Runden schon im Hintergrund laden (und vom Browser vorladen lassen)
+let rsPre = Promise.resolve();
+function rsPrefetch(){
+  if (!rs || !rs.years) return;
+  const ks = rs.years.slice(rs.pos + 1, rs.pos + 3).flatMap(y => y.opts);
+  rsPre = rsPre.then(() => Promise.all(ks.map(k => rsCover(k).then(u => { if (u) new Image().src = u; }).catch(() => {})))).catch(() => {});
 }
 
 // ---------- Reinhören ----------
@@ -3099,7 +3129,7 @@ function rsChoose(box){
     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
       ${rs.pos > 0 || pl > 0 ? `<button class="btn sec small" id="rsUndo">↩ Zurück</button>` : ""}
       <button class="btn sec small" id="rsSkip">${rsIsA(rs) ? "Künstler" : "Jahr"} überspringen</button></div>`;
-  rsMark(); rsCovers(box);
+  rsMark(); rsCovers(box); rsPrefetch();
   $("#rsBack").onclick = () => { rsStop(); rs.view = "setup"; rsSave(); rsRender(); };
   box.querySelectorAll(".rsOpt").forEach(el => el.onclick = e => {
     if (e.target.closest(".pl")) return; rsSel = el.dataset.k;

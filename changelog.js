@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.99", d: "2026-11-27", e: [
+    ["fix", "Rette einen Song: Cover erscheinen jetzt sofort – auch bei Songs, die noch nie abgespielt wurden. Die Cover der nächsten Runden werden schon im Hintergrund geladen."],
+  ]},
   { v: "0.9.98", d: "2026-11-26", e: [
     ["neu", "191 neue Songs, vor allem für die bisher dünnen Kategorien: Weihnachten (+27), Country (+33), Italienisch (+26), Eurovision (+22), Hip-Hop (80er & Deutschrap), Schlager, NDW, Finnland, Türkei, Polen sowie viele aktuelle Hits aus den 2020ern."],
   ]},
