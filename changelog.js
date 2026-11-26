@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.95", d: "2026-11-26", e: [
+    ["change", "Neues App-Icon: Neon-Kassette mit MIXTAPE-Schriftzug. Android übernimmt es automatisch (evtl. kurz bestätigen), auf dem iPhone die App einmal neu zum Home-Bildschirm hinzufügen."],
+  ]},
   { v: "0.9.94", d: "2026-11-26", e: [
     ["change", "213 weitere Songs spielen jetzt immer die richtige Aufnahme (Spotify-Abgleich), 35 falsche Treffer gesperrt."],
     ["fix", "„Bauch Beine Po“ ist von 2024, nicht 2023."],
