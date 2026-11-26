@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.10.2", d: "2026-11-27", e: [
+    ["change", "Spielmodi zeigen jetzt klein an, ob ihr die gedruckten Jahreskarten braucht oder ohne Karten spielt."],
+  ]},
   { v: "0.10.1", d: "2026-11-27", e: [
     ["neu", "Rette einen Song: Überraschungseffekt – die Songs kommen nacheinander. Der nächste bleibt verdeckt, bis du ihn mit Play aufdeckst (oder „Alle aufdecken“)."],
     ["fix", "Reinhören: Tippt man schnell hintereinander, startet nicht mehr Sekunden später ein vorher angetippter Song. Der Knopf zeigt „lädt …“, bis der Song wirklich läuft, und bremst Spotify gerade, siehst du einen Countdown statt stiller Wartezeit."],

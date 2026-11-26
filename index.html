@@ -122,6 +122,8 @@
   .mt .mtx{display:flex;flex-direction:column;gap:5px;min-width:0}
   .mt .mtn{font-weight:800;font-size:15px;line-height:1.15}
   .mt .mts{font-size:12px;color:#e4dcf7;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .mt .mkt{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:#ffd9a8;margin-top:3px;opacity:.95}
+  .mt .mkt.no{color:#b9f3f4}
   .mt .ppl{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;border-radius:999px;background:color-mix(in srgb,var(--gc) 26%,transparent);color:#fff;font-weight:700;font-size:11.5px}
   .mt .ppl svg{height:13px;width:auto;fill:currentColor}
   .mt .tag{margin-left:0;font-size:9px;padding:1px 6px}
@@ -763,7 +765,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.10.1";
+const APP_VERSION = "0.10.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1900,16 +1902,19 @@ function renderModePanel(){
     if (a.namen === "Spieler") return `<span class="ppl">${lo2 === 2 && hi2 === 2 ? P2 : PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Personen</span>`;
     return `<span class="ppl">${PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Teams</span>`; };
   const kurzSp = x => x.app.typ === "tv" ? ({ games: "Spiele", disney: "Filme", film: "Filme", mix: "alles" }[x.app.daten] || "Serien") + " raten" : "";
+  // Kleine Info: braucht der Modus die gedruckten Jahreskarten?
+  const CARD_IC = '<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="1.8" width="10" height="12.4" rx="1.8"/><path d="M5.8 5.5h4.4M5.8 8h4.4M5.8 10.5h2.6" stroke-linecap="round"/></svg>';
+  const kart = need => `<span class="mkt ${need ? "" : "no"}">${CARD_IC}${need ? "mit Jahreskarten" : "ohne Karten"}</span>`;
   const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "🎵"}</span>${x.neu ? '<span class="tag">NEU</span>' : ""}</span>
-      <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span><span class="minfo" data-info="${x.id}" role="button" aria-label="Kurz erklärt">i</span></button>`;
+      <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span>${kart(!x.app.ohneKarten)}</span><span class="minfo" data-info="${x.id}" role="button" aria-label="Kurz erklärt">i</span></button>`;
   const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
   const mixOn = m.app.daten === "mix", exSel = mixOn ? sonderSel() : m.app.typ === "tv" ? [m.app.daten] : [];
   const isOn = x => x.app.typ === "tv" ? exSel.includes(x.app.daten) : x.id === m.id;
   $("#modeGrid").innerHTML = MI_DEFS + GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
+      <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span>${kart(false)}</span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span>${kart(false)}</span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
   $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
