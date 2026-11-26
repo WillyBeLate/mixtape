@@ -755,7 +755,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.9.96";
+const APP_VERSION = "0.9.97";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1824,7 +1824,7 @@ const MODE_TWIST = {
   disney: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Disney-Film am Song. Mit anderen Extras mischbar."],
   film: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Film an der Musik. Mit anderen Extras mischbar."],
   zeitsprung: ["Higher or Lower mit Jahren – ganz ohne Karten.", "Ein Song ist bekannt, der nächste läuft: früher oder später? Die Serie wächst, die Jahre rücken näher zusammen. 3 Leben pro Person."],
-  rette: ["Kein Wettkampf, sondern Geschmack.", "Pro Jahr rettest du einen von 10 Songs. Am Ende steht dein Lebens-Mixtape – zu zweit mit Vergleich, wie gut ihr zusammenpasst."],
+  rette: ["Kein Wettkampf, sondern Geschmack.", "Pro Jahr – oder pro Künstler – rettest du einen von 10 Songs. Am Ende steht dein Mixtape – zu zweit mit Vergleich, wie gut ihr zusammenpasst."],
 };
 function showModeInfo(id){
   $("#modePop")?.remove();
@@ -1871,7 +1871,7 @@ function renderModePanel(){
   $("#modeGrid").innerHTML = MI_DEFS + GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Lebens-Mixtape</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
   $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
@@ -2955,6 +2955,12 @@ const rsOpts = y => (RETTE_8[y] || []).filter(k => RS_BY.has(k)).map(k => ({ k, 
 let rs = store.get("rette", null);              // laufende oder zuletzt fertige Runde
 let rsSel = null, rsNow = null, rsShow = null;   // Auswahl, gerade laufender Song, angezeigtes Archiv-Mixtape
 const rsSave = () => store.set("rette", rs);
+// Nach Künstlern (KUENSTLER_10 in daten.js)
+const RS_ART = Object.keys(typeof KUENSTLER_10 !== "undefined" ? KUENSTLER_10 : {});
+const rsOptsA = a => (KUENSTLER_10[a] || []).filter(k => RS_BY.has(k)).map(k => ({ k, r: Math.random() })).sort((a, b) => a.r - b.r).map(x => x.k);
+const rsIsA = r => r && r.kind === "kuenstler";
+const rsLbl = r => rsIsA(r) ? `${r.years.length} Künstler` : `${r.from}–${r.to}`;
+const rsUnit = (r, n) => rsIsA(r) ? (n === 1 ? "Künstler" : "Künstlern") : (n === 1 ? "Jahr" : "Jahren");
 const rsSong = k => RS_BY.get(k) || { t: k.split("|")[0], a: k.split("|")[1] || "", y: 0, land: "", cats: [] };
 
 // ---------- Cover (Spotify oEmbed, ohne Kontingent) ----------
@@ -3003,28 +3009,41 @@ function rsRender(){
   return rsChoose(box);
 }
 function rsSetup(box){
-  const o = { from: 1980, to: RS_MAXY, names: ["", ""], zwei: false, ...store.get("retteOpt", {}) };
+  const o = { from: 1980, to: RS_MAXY, names: ["", ""], zwei: false, mode: "jahre", artists: RS_ART.slice(), ...store.get("retteOpt", {}) };
+  o.artists = (o.artists || []).filter(a => RS_ART.includes(a));
+  const isA = o.mode === "kuenstler";
   const arch = store.get("retteArchiv", []);
   const open = rs && !rs.done ? rs : null;
-  box.innerHTML = rsTop("💾 Rette einen Song", "Pro Jahr ein Song – dein Lebens-Mixtape") + `
-    ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${open.from}–${open.to}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} Jahren gewählt</div>
+  box.innerHTML = rsTop("💾 Rette einen Song", isA ? "Pro Künstler ein Song – dein Mixtape" : "Pro Jahr ein Song – dein Lebens-Mixtape") + `
+    ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${rsLbl(open)}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} gewählt</div>
       <button class="btn" id="rsCont">↩ Weitermachen</button></div>` : ""}
-    <p class="sub" style="margin-top:4px">Für jedes Jahr zeigt Mixtape 10 prägende Songs – die großen Hits, quer durch die Genres, mit deutschen Hits dazwischen. Du darfst nur einen retten, die anderen sind weg. ▶ zum Reinhören.</p>
-    <div class="panel"><b>Zeitraum</b>
+    <div class="seg" id="rsMode"><button data-m="jahre" class="${isA ? "" : "on"}">📅 Nach Jahren</button><button data-m="kuenstler" class="${isA ? "on" : ""}">🎤 Nach Künstlern</button></div>
+    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler zeigt Mixtape 10 seiner bekanntesten Songs. Du darfst nur einen retten, die anderen sind weg. ▶ zum Reinhören."
+      : "Für jedes Jahr zeigt Mixtape 10 prägende Songs – die großen Hits, quer durch die Genres, mit deutschen Hits dazwischen. Du darfst nur einen retten, die anderen sind weg. ▶ zum Reinhören."}</p>
+    ${isA ? `<div class="panel"><b>Künstler</b> <span class="small">(${o.artists.length} gewählt)</span>
+      <div class="chips" id="rsArts">${RS_ART.map(a => `<button data-a2="${esc(a)}" class="${o.artists.includes(a) ? "on" : ""}">${esc(a)}</button>`).join("")}</div>
+      <div style="display:flex;gap:6px;margin-top:8px"><button class="btn sec small" id="rsAll">Alle</button><button class="btn sec small" id="rsNone">Keine</button><button class="btn sec small" id="rsRnd">🎲 10 zufällige</button></div></div>` : ""}
+    <div class="panel" style="${isA ? "display:none" : ""}"><b>Zeitraum</b>
       <div class="row" style="margin-top:8px"><input type="number" id="rsFrom" value="${o.from}" min="${RS_MINY}" max="${RS_MAXY}"><span>bis</span><input type="number" id="rsTo" value="${o.to}" min="${RS_MINY}" max="${RS_MAXY}"></div>
       <div class="small" style="margin-top:6px">Möglich: ${RS_MINY}–${RS_MAXY}. Tipp: Ab deinem Geburtsjahr wird's persönlich.</div></div>
     <div class="panel"><b>Wer spielt?</b>
       <div class="seg" id="rsZwei" style="margin-top:8px"><button data-z="0" class="${o.zwei ? "" : "on"}">Allein</button><button data-z="1" class="${o.zwei ? "on" : ""}">Zu zweit</button></div>
       <input type="text" id="rsN1" placeholder="Dein Name" value="${esc(o.names[0] || "")}" style="margin-top:10px">
       <input type="text" id="rsN2" placeholder="Name Person 2" value="${esc(o.names[1] || "")}" style="margin-top:8px;${o.zwei ? "" : "display:none"}">
-      <div class="small" style="margin-top:6px;${o.zwei ? "" : "display:none"}" id="rsZinfo">Ihr wählt Jahr für Jahr: erst Person 1, dann Person 2 – aus denselben Songs. Ihr seht, was der andere gerettet hat, und am Ende, wie gut euer Geschmack zusammenpasst.</div></div>
+      <div class="small" style="margin-top:6px;${o.zwei ? "" : "display:none"}" id="rsZinfo">Ihr wählt ${isA ? "Künstler für Künstler" : "Jahr für Jahr"}: erst Person 1, dann Person 2 – aus denselben Songs. Ihr seht, was der andere gerettet hat, und am Ende, wie gut euer Geschmack zusammenpasst.</div></div>
     <div id="rsMsg"></div>
     <button class="btn" id="rsGo">${open ? "Neues Mixtape starten" : "Los geht's"}</button>
-    ${arch.length ? `<details class="panel"><summary><b>Fertige Mixtapes (${arch.length})</b></summary>${arch.map((a, i) => `<button class="btn sec small" data-a="${i}" style="display:block;width:100%;text-align:left">${esc(a.names.join(" & "))} · ${a.from}–${a.to} · ${new Date(a.date).toLocaleDateString("de-DE")}</button>`).join("")}</details>` : ""}`;
+    ${arch.length ? `<details class="panel"><summary><b>Fertige Mixtapes (${arch.length})</b></summary>${arch.map((a, i) => `<button class="btn sec small" data-a="${i}" style="display:block;width:100%;text-align:left">${esc(a.names.join(" & "))} · ${rsIsA(a) ? "🎤 " : ""}${rsLbl(a)} · ${new Date(a.date).toLocaleDateString("de-DE")}</button>`).join("")}</details>` : ""}`;
   const keep = () => { const n = [$("#rsN1").value.trim(), $("#rsN2").value.trim()]; store.set("retteOpt", { ...o, names: n }); return n; };
   $("#rsBack").onclick = () => { keep(); show("setup"); };
   box.querySelectorAll("#rsZwei button").forEach(b => b.onclick = () => { o.zwei = b.dataset.z === "1"; store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); });
   ["#rsFrom", "#rsTo"].forEach(id => $(id).onchange = () => { o.from = +$("#rsFrom").value || o.from; o.to = +$("#rsTo").value || o.to; store.set("retteOpt", { ...o, names: keep() }); });
+  box.querySelectorAll("#rsMode button").forEach(b => b.onclick = () => { o.mode = b.dataset.m; store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); });
+  const setArts = l => { o.artists = RS_ART.filter(a => l.includes(a)); store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); };
+  box.querySelectorAll("[data-a2]").forEach(b => b.onclick = () => { const a = b.dataset.a2; setArts(o.artists.includes(a) ? o.artists.filter(x => x !== a) : [...o.artists, a]); });
+  $("#rsAll")?.addEventListener("click", () => setArts(RS_ART));
+  $("#rsNone")?.addEventListener("click", () => setArts([]));
+  $("#rsRnd")?.addEventListener("click", () => setArts(RS_ART.map(a => [a, Math.random()]).sort((x, y) => x[1] - y[1]).slice(0, 10).map(x => x[0])));
   $("#rsCont")?.addEventListener("click", () => { rs.view = "play"; rsSave(); rsRender(); });
   box.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { rsShow = arch[+b.dataset.a]; rsRender(); window.scrollTo(0, 0); });
   $("#rsGo").onclick = () => {
@@ -3033,6 +3052,13 @@ function rsSetup(box){
     if (open && !confirm("Dein angefangenes Mixtape wird dabei verworfen. Neues starten?")) return;
     const nm = [names[0] || (o.zwei ? "Person 1" : "Ich")]; if (o.zwei) nm.push(names[1] || "Person 2");
     const years = [];
+    if (isA) {
+      for (const a of o.artists.map(a => [a, Math.random()]).sort((x, y) => x[1] - y[1]).map(x => x[0])) { const opts = rsOptsA(a); if (opts.length >= 2) years.push({ y: a, opts, picks: nm.map(() => null) }); }
+      if (!years.length) { $("#rsMsg").innerHTML = `<div class="msg warn">Wähl mindestens einen Künstler aus.</div>`; return; }
+      store.set("retteOpt", { ...o, names });
+      rs = { id: Date.now(), kind: "kuenstler", names: nm, years, pos: 0, pl: 0, hand: false, done: false, view: "play" };
+      rsSel = null; rsSave(); rsRender(); window.scrollTo(0, 0); return;
+    }
     for (const y of RS_YEARS) if (y >= from && y <= to) { const opts = rsOpts(y); if (opts.length >= 2) years.push({ y, opts, picks: nm.map(() => null) }); }
     if (!years.length) { $("#rsMsg").innerHTML = `<div class="msg warn">Für diesen Zeitraum gibt es keine Songs. Möglich ist ${RS_MINY}–${RS_MAXY}.</div>`; return; }
     store.set("retteOpt", { ...o, from, to, names });
@@ -3043,7 +3069,7 @@ function rsSetup(box){
 const rsDoneCount = r => r.years.reduce((a, y) => a + y.picks.filter(p => p).length, 0);
 function rsHand(box){
   const nm = rs.names[rs.pl];
-  box.innerHTML = rsTop("💾 Rette einen Song", `${rs.from}–${rs.to}`) + `<div class="panel" style="text-align:center;padding:30px 18px">
+  box.innerHTML = rsTop("💾 Rette einen Song", rsLbl(rs)) + `<div class="panel" style="text-align:center;padding:30px 18px">
     <div style="font-size:48px">🤝</div><h2 style="margin:10px 0">${esc(rs.names[rs.pl - 1])} ist fertig!</h2>
     <p class="sub">Gib das Handy jetzt an <b>${esc(nm)}</b>. Du bekommst dieselben Songs – was ${esc(rs.names[rs.pl - 1])} gerettet hat, bleibt bis zum Schluss geheim.</p>
     <button class="btn" id="rsHandGo">Ich bin ${esc(nm)} – los!</button></div>`;
@@ -3055,16 +3081,16 @@ function rsChoose(box){
   if (rsSel && !Y.opts.includes(rsSel)) rsSel = null;
   if (!rsSel && Y.picks[pl]) rsSel = Y.picks[pl];
   const two = rs.names.length > 1, PC = ["#ff5fa2", "#2de2e6"];
-  const sub = (two ? esc(rs.names[pl]) + " wählt · " : "") + `Jahr ${rs.pos + 1} von ${total}`;
+  const sub = (two ? esc(rs.names[pl]) + " wählt · " : "") + `${rsIsA(rs) ? "Künstler" : "Jahr"} ${rs.pos + 1} von ${total}`;
   // Vorjahr kurz zeigen (zu zweit: wer was gerettet hat)
   const prev = rs.pos > 0 && pl === 0 ? rs.years[rs.pos - 1] : null;
-  const pv = prev && two ? (prev.picks[0] && prev.picks[0] === prev.picks[1] && prev.picks[0] !== "-" ? `💞 ${prev.y}: Beide haben „${esc(rsSong(prev.picks[0]).t)}“ gerettet`
-    : `${prev.y}: ` + rs.names.map((n, i) => `<b style="color:${PC[i]}">${esc(n)}</b> ${prev.picks[i] && prev.picks[i] !== "-" ? "„" + esc(rsSong(prev.picks[i]).t) + "“" : "–"}`).join(" · ")) : "";
+  const pv = prev && two ? (prev.picks[0] && prev.picks[0] === prev.picks[1] && prev.picks[0] !== "-" ? `💞 ${esc(String(prev.y))}: Beide haben „${esc(rsSong(prev.picks[0]).t)}“ gerettet`
+    : `${esc(String(prev.y))}: ` + rs.names.map((n, i) => `<b style="color:${PC[i]}">${esc(n)}</b> ${prev.picks[i] && prev.picks[i] !== "-" ? "„" + esc(rsSong(prev.picks[i]).t) + "“" : "–"}`).join(" · ")) : "";
   const who = k => two ? rs.names.map((n, i) => i !== pl && Y.picks[i] === k ? `<span class="rsWho" style="--c:${PC[i]}">${esc(n)}</span>` : "").join("") : "";
   box.innerHTML = rsTop("💾 Rette einen Song", sub) + `
     <div class="rsBar"><i style="width:${((rs.pos + pl / rs.names.length) / total) * 100}%"></i></div>
     ${pv ? `<div class="rsPrev">${pv}</div>` : ""}
-    <div class="rsYear"><div class="y">${Y.y}</div><div class="w">${two ? `<b style="color:${PC[pl]}">${esc(rs.names[pl])}</b>, welchen Song rettest du?` : "Welchen Song rettest du?"}</div></div>
+    <div class="rsYear"><div class="y" ${rsIsA(rs) ? `style="font-size:${String(Y.y).length > 14 ? 30 : 38}px;line-height:1.1"` : ""}>${esc(String(Y.y))}</div><div class="w">${two ? `<b style="color:${PC[pl]}">${esc(rs.names[pl])}</b>, welchen Song rettest du?` : "Welchen Song rettest du?"}</div></div>
     <div id="rsOpts" style="--pc:${two ? PC[pl] : "var(--accent)"}">${Y.opts.map(k => { const s = rsSong(k); return `<div class="rsOpt ${rsSel === k ? "on" : ""}" data-k="${esc(k)}">
       <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(s.t)}</b><span>${esc(s.a)}</span>${who(k)}</div>
       <button class="pl" data-k="${esc(k)}" aria-label="Reinhören">▶</button></div>`; }).join("")}</div>
@@ -3072,7 +3098,7 @@ function rsChoose(box){
     <button class="btn" id="rsPick" ${rsSel ? "" : "disabled"}>${rsSel ? "💾 „" + esc(rsSong(rsSel).t) + "“ retten" : "Tippe auf einen Song"}</button>
     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
       ${rs.pos > 0 || pl > 0 ? `<button class="btn sec small" id="rsUndo">↩ Zurück</button>` : ""}
-      <button class="btn sec small" id="rsSkip">Jahr überspringen</button></div>`;
+      <button class="btn sec small" id="rsSkip">${rsIsA(rs) ? "Künstler" : "Jahr"} überspringen</button></div>`;
   rsMark(); rsCovers(box);
   $("#rsBack").onclick = () => { rsStop(); rs.view = "setup"; rsSave(); rsRender(); };
   box.querySelectorAll(".rsOpt").forEach(el => el.onclick = e => {
@@ -3097,7 +3123,7 @@ function rsNext(){
 }
 function rsArchive(){
   const a = store.get("retteArchiv", []).filter(x => x.id !== rs.id);
-  a.unshift({ id: rs.id, date: Date.now(), names: rs.names, from: rs.from, to: rs.to, years: rs.years.map(y => ({ y: y.y, picks: y.picks })) });
+  a.unshift({ id: rs.id, kind: rs.kind, date: Date.now(), names: rs.names, from: rs.from, to: rs.to, years: rs.years.map(y => ({ y: y.y, picks: y.picks })) });
   store.set("retteArchiv", a.slice(0, 12));
 }
 function rsResult(box, r, fromArch){
@@ -3107,16 +3133,16 @@ function rsResult(box, r, fromArch){
   const pct = both.length ? Math.round(same.length / both.length * 100) : 0;
   const verdict = pct >= 60 ? "Ihr hört quasi mit einem Ohr! 🎧" : pct >= 40 ? "Ziemlich gleicher Geschmack 💞" : pct >= 25 ? "Ein paar gemeinsame Hits – der Rest wird diskutiert 😄" : "Gegensätze ziehen sich an 🔥";
   // Übereinstimmung pro Jahrzehnt
-  const dec = {}; both.forEach(y => { const d = Math.floor(y.y / 10) * 10; (dec[d] ??= [0, 0])[1]++; if (y.picks[0] === y.picks[1]) dec[d][0]++; });
+  const dec = {}; if (!rsIsA(r)) both.forEach(y => { const d = Math.floor(y.y / 10) * 10; (dec[d] ??= [0, 0])[1]++; if (y.picks[0] === y.picks[1]) dec[d][0]++; });
   const decHtml = Object.keys(dec).length > 1 ? `<div class="rsDec">${Object.entries(dec).map(([d, [a, b]]) => `<div><i style="height:${Math.max(3, a / b * 52)}px"></i>${String(d).slice(2)}er</div>`).join("")}</div><div class="small" style="text-align:center">Übereinstimmung je Jahrzehnt</div>` : "";
   const row = y => { const ks = y.picks; const sm = two && ks[0] && ks[0] === ks[1] && ks[0] !== "-";
     const one = (k, i) => !k || k === "-" ? `<div class="${i ? "p2" : ""}"><span>${two ? esc(r.names[i]) + ": " : ""}– übersprungen –</span></div>`
       : `<div class="${i ? "p2" : ""}">${two ? `<span>${esc(r.names[i])}:</span> ` : ""}<b>${esc(rsSong(k).t)}</b><br><span>${esc(rsSong(k).a)}</span></div>`;
     const first = ks.find(k => k && k !== "-");
-    return `<div class="rsRow"><div class="yy">${y.y}</div><div class="cv" ${first ? `data-cov="${esc(first)}"` : ""}></div><div class="tx">${sm ? one(ks[0], 0).replace(/<span>[^<]*:<\/span> /, "") : ks.map(one).join("")}</div>${two ? `<div class="m">${sm ? "💞" : ""}</div>` : ""}</div>`; };
-  box.innerHTML = rsTop("💾 " + (two ? "Eure Mixtapes" : "Dein Lebens-Mixtape"), `${r.from}–${r.to} · ${ys.length} Songs`) + `
+    return `<div class="rsRow"><div class="yy" ${rsIsA(r) ? `style="width:72px;font-size:12px;line-height:1.2"` : ""}>${esc(String(y.y))}</div><div class="cv" ${first ? `data-cov="${esc(first)}"` : ""}></div><div class="tx">${sm ? one(ks[0], 0).replace(/<span>[^<]*:<\/span> /, "") : ks.map(one).join("")}</div>${two ? `<div class="m">${sm ? "💞" : ""}</div>` : ""}</div>`; };
+  box.innerHTML = rsTop("💾 " + (two ? "Eure Mixtapes" : rsIsA(r) ? "Dein Künstler-Mixtape" : "Dein Lebens-Mixtape"), `${rsLbl(r)} · ${ys.length} Songs`) + `
     ${two ? `<div class="panel" style="text-align:center"><div class="small">${esc(r.names[0])} &amp; ${esc(r.names[1])}</div><div class="rsBig">${pct} %</div>
-      <div style="margin-top:6px">Gleicher Song in <b>${same.length}</b> von ${both.length} Jahren</div><div class="small" style="margin-top:4px">${verdict}</div>${decHtml}</div>` : ""}
+      <div style="margin-top:6px">Gleicher Song bei <b>${same.length}</b> von ${both.length} ${rsUnit(r, both.length)}</div><div class="small" style="margin-top:4px">${verdict}</div>${decHtml}</div>` : ""}
     <div id="rsMsg"></div>
     ${r.names.map((n, i) => `<button class="btn ${i ? "sec" : ""}" data-pl="${i}">🎧 ${two ? esc(n) + "s Mixtape" : "Mixtape"} als Spotify-Playlist speichern</button>`).join("")}
     <button class="btn sec" id="rsCopy">📋 Liste teilen / kopieren</button>
@@ -3128,8 +3154,8 @@ function rsResult(box, r, fromArch){
   $("#rsAgain").onclick = () => { if (!fromArch) { rs = null; store.del("rette"); } back(); };
   box.querySelectorAll("[data-pl]").forEach(b => b.onclick = () => rsPlaylist(r, +b.dataset.pl, b));
   $("#rsCopy").onclick = async () => {
-    const txt = r.names.map((n, i) => `${r.names.length > 1 ? n + "s" : "Mein"} Lebens-Mixtape ${r.from}–${r.to}\n` + r.years.filter(y => y.picks[i] && y.picks[i] !== "-").map(y => `${y.y} – ${rsSong(y.picks[i]).t} – ${rsSong(y.picks[i]).a}`).join("\n")).join("\n\n")
-      + (two ? `\n\nÜbereinstimmung: ${pct} % (${same.length} von ${both.length} Jahren)` : "") + "\n\n💾 Rette einen Song – Mixtape";
+    const txt = r.names.map((n, i) => `${r.names.length > 1 ? n + "s" : "Mein"} ${rsIsA(r) ? "Künstler" : "Lebens"}-Mixtape ${rsIsA(r) ? "" : r.from + "–" + r.to}\n` + r.years.filter(y => y.picks[i] && y.picks[i] !== "-").map(y => rsIsA(r) ? `${rsSong(y.picks[i]).t} – ${rsSong(y.picks[i]).a}` : `${y.y} – ${rsSong(y.picks[i]).t} – ${rsSong(y.picks[i]).a}`).join("\n")).join("\n\n")
+      + (two ? `\n\nÜbereinstimmung: ${pct} % (${same.length} von ${both.length} ${rsUnit(r, both.length)})` : "") + "\n\n💾 Rette einen Song – Mixtape";
     try { if (navigator.share) await navigator.share({ text: txt }); else { await navigator.clipboard.writeText(txt); $("#rsMsg").innerHTML = `<div class="msg ok">Liste kopiert ✓</div>`; } }
     catch(e) { if (e?.name !== "AbortError") try { await navigator.clipboard.writeText(txt); $("#rsMsg").innerHTML = `<div class="msg ok">Liste kopiert ✓</div>`; } catch(_) {} }
   };
@@ -3147,8 +3173,8 @@ async function rsPlaylist(r, i, btn){
       try { uris.push((await resolveTrack(rsSong(ks[n]))).uri); } catch(e) { if (e.quota || e.status === 429 || e.status === 401) throw e; miss.push(rsSong(ks[n]).t); }
     }
     say("Playlist wird angelegt …", "ok");
-    const body = JSON.stringify({ name: `${r.names.length > 1 ? r.names[i] + "s " : ""}Lebens-Mixtape ${r.from}–${r.to}`, public: false,
-      description: `Pro Jahr ein geretteter Song – erstellt mit Mixtape („Rette einen Song“).` });
+    const body = JSON.stringify({ name: `${r.names.length > 1 ? r.names[i] + "s " : ""}${rsIsA(r) ? "Künstler-Mixtape" : "Lebens-Mixtape " + r.from + "–" + r.to}`, public: false,
+      description: `${rsIsA(r) ? "Pro Künstler" : "Pro Jahr"} ein geretteter Song – erstellt mit Mixtape („Rette einen Song“).` });
     let pl = null;
     try { pl = await sp.api("/me/playlists", { method: "POST", body }); }
     catch(e) { if (e.status !== 404 && e.status !== 405) throw e; const me = await sp.api("/me"); pl = await sp.api(`/users/${encodeURIComponent(me.id)}/playlists`, { method: "POST", body }); }

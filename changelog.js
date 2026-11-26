@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.9.97", d: "2026-11-26", e: [
+    ["neu", "Rette einen Song – Nach Künstlern: 26 Künstler (u. a. Coldplay, Grönemeyer, Filow, Rihanna, Lady Gaga) mit je 10 bekannten Songs – du rettest einen. Künstler frei auswählbar oder 10 zufällige, zu zweit abwechselnd."],
+    ["neu", "81 neue Songs im Quiz, u. a. Filow (Rasenschach, Jiggy, Turbo …), Helene Fischer, Britney, Katy Perry, Bruno Mars, Toten Hosen und Udo Lindenberg."],
+  ]},
   { v: "0.9.96", d: "2026-11-26", e: [
     ["fix", "Kleine Größen des neuen App-Icons korrigiert (der Hintergrund war nur teilweise gefüllt)."],
   ]},
