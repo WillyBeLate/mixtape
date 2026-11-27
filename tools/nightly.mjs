@@ -21,7 +21,7 @@ const deadline = Date.now() + 45 * 60e3;   // nach 45 Min. aufhören, Rest morge
 const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(rd("daten.js") + rd("ids.js") + rd("geprueft.js") +
-  ";this.SONGS=SONGS;this.SPOTIFY_IDS=SPOTIFY_IDS;this.MB_GEPRUEFT=MB_GEPRUEFT;this.BESTAETIGT=typeof BESTAETIGT!=='undefined'?BESTAETIGT:new Set();" +
+  ";this.SONGS=SONGS;this.RETTE_8=typeof RETTE_8!=='undefined'?RETTE_8:{};this.KUENSTLER_10=typeof KUENSTLER_10!=='undefined'?KUENSTLER_10:{};this.SPOTIFY_IDS=SPOTIFY_IDS;this.MB_GEPRUEFT=MB_GEPRUEFT;this.BESTAETIGT=typeof BESTAETIGT!=='undefined'?BESTAETIGT:new Set();" +
   "this.NICHT_BEI_SPOTIFY=typeof NICHT_BEI_SPOTIFY!=='undefined'?NICHT_BEI_SPOTIFY:[];", ctx);
 const { SONGS, SPOTIFY_IDS, MB_GEPRUEFT, BESTAETIGT } = ctx;
 const NOSPOT = new Set(ctx.NICHT_BEI_SPOTIFY);
@@ -30,7 +30,14 @@ const SYNC_FALSCH = new Set(JSON.parse("[" + (html.match(/const SYNC_FALSCH = ne
 const key = s => s[0] + "|" + s[1];
 const inlineId = s => typeof s[5] === "string" ? s[5] : null;
 let pruefen = fs.existsSync(ROOT + "tools/pruefen.json") ? JSON.parse(rd("tools/pruefen.json")) : { spotify: {}, jahr: {} };
-pruefen.spotify ??= {}; pruefen.jahr ??= {};
+pruefen.spotify ??= {}; pruefen.jahr ??= {}; pruefen.ersatz ??= {};
+// Fällt ein Song weg (gibt es nicht bei Spotify), merken wir, wo er fehlt – Claude sucht dafür Ersatz.
+function ersatzNoetig(k){
+  const s = SONGS.find(x => key(x) === k); if (!s) return;
+  const rette = Object.entries(ctx.RETTE_8).filter(([, l]) => l.includes(k)).map(([y]) => +y);
+  const kuenstler = Object.entries(ctx.KUENSTLER_10).filter(([, l]) => l.includes(k)).map(([n]) => n);
+  pruefen.ersatz[k] = { jahr: s[2], land: s[3], kategorien: s[4], rette, kuenstler, seit: new Date().toISOString().slice(0, 10) };
+}
 const sum = { fix: 0, nospot: 0, ids: 0, mb: 0, review: 0, issues: [] };
 
 // ---------- 1) Korrekturen aus der App ----------
@@ -48,7 +55,7 @@ if (process.env.GH_TOKEN) {
       if (!v?.id || !/^[A-Za-z0-9]{22}$/.test(v.id)) continue;
       SPOTIFY_IDS[k] = v.id; NOSPOT.delete(k); delete pruefen.spotify[k]; sum.fix++;
     }
-    for (const k of d.nospot || []) { if (typeof k === "string") { NOSPOT.add(k); delete SPOTIFY_IDS[k]; sum.nospot++; } }
+    for (const k of d.nospot || []) { if (typeof k === "string") { if (!NOSPOT.has(k)) ersatzNoetig(k); NOSPOT.add(k); delete SPOTIFY_IDS[k]; sum.nospot++; } }
     sum.issues.push(it.number);
   }
 }

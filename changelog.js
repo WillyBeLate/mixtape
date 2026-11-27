@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.1", d: "2026-11-27", e: [
+    ["change", "Nächtliche Prüfung: Gibt es einen Song bei Spotify nicht, kommt automatisch ein passender Ersatz dazu – gleiches Jahr und gleiche Kategorie. Bei „Rette einen Song“ bleiben es 20 pro Jahr, bei den Künstlern bleibt die Anzahl gleich."],
+  ]},
   { v: "0.14.0", d: "2026-11-27", e: [
     ["neu", "Vier neue Spiele ohne Karten unter „Extras“: Blind sortiert, Zeit-Poker, Der DJ lügt und Gedächtnis-Mixtape."],
     ["neu", "Blind sortiert: 5 Songs nacheinander sofort auf 5 Plätze legen – vom ältesten zum neuesten, ohne zu wissen, was noch kommt."],
