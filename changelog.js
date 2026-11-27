@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.6", d: "2026-11-27", e: [
+    ["fix", "Die Modus-Icons oben links bei „Rette einen Song“ und „Zeitsprung“ werden jetzt vollständig mit Farbverlauf gezeichnet."],
+  ]},
   { v: "0.12.5", d: "2026-11-27", e: [
     ["change", "Rückfragen wie „Neues Mixtape starten?“ erscheinen jetzt als eigenes Fenster im Mixtape-Stil statt als graue Browser-Meldung."],
     ["change", "Rette einen Song: gezeichnete Icons bei „Nach Jahren“ und „Nach Künstlern“; wer gerade wählt, steht jetzt als farbiges Namensschild da; mehr Abstand zwischen Künstler und Namensschild."],
