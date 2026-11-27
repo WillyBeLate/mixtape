@@ -513,6 +513,18 @@
   #zsEarlier{background:linear-gradient(135deg,#ff5a5f,#d62f5c);box-shadow:0 6px 18px #ff4d4d55}
   .zsRes{border-radius:20px;padding:12px;margin:6px 0}.zsRes.ok{background:#2ecc7122;border:1px solid #2ecc7188}.zsRes.no{background:#ff4d4d22;border:1px solid #ff4d4d88}
   .zsV{font-size:20px;font-weight:900;text-align:center;margin-bottom:8px}
+  .zsPl.ex .zsP span{color:#fff;letter-spacing:0;font-weight:800}
+  .bsSlots{margin:10px 0}.bsRow{display:flex;align-items:center;gap:8px;margin:6px 0;border-radius:20px}
+  .bsRow.bad .zsCard{box-shadow:0 0 0 2px #ff4d6d inset}.bsRow .zsCard{flex:1;padding:6px 8px}.bsRow .zsCard .cv{width:42px;height:42px}.bsRow .zsY{font-size:22px}
+  .bsN{width:34px;flex:none;text-align:center;font-weight:900;font-size:20px;line-height:1;color:#ffd23f}.bsN small{display:block;font-size:9px;font-weight:700;color:#cfc6e8;margin-top:2px}
+  .bsEmpty{flex:1;height:58px;border-radius:16px;border:2px dashed #ffffff40;background:#ffffff08;color:#d3c8ef;font:700 14px system-ui,sans-serif;cursor:pointer}
+  .bsEmpty:not(:disabled):active{background:#ff5fa22a;border-color:var(--accent)}.bsEmpty:disabled{opacity:.4}
+  .pkY{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px 0}.pkY .btn{width:auto;margin:0;padding:10px 12px}
+  .pkV{font-size:44px;font-weight:900;min-width:110px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .djC{display:grid;grid-template-columns:1fr 1fr;gap:8px}.djC .btn{margin:0}.djC .btn:first-child{grid-column:1/-1;background:linear-gradient(135deg,#2ecc71,#14a37f)}
+  .djV button{padding:8px 10px;font-size:13px}
+  .memoBar{display:flex;gap:6px;margin:8px 0 12px}.memoBar i{flex:1;height:8px;border-radius:9px;background:#ffffff1c}.memoBar i.done{background:#b06cff}.memoBar i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));animation:memoP 1s infinite alternate}@keyframes memoP{to{opacity:.55}}
+  .rsOpt.good{border-color:#2ecc71;background:#2ecc7122}.rsOpt.badc{border-color:#ff4d6d;background:#ff4d4d22}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
   .rsWrong{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:5px;border:1px solid #ffb02088;background:#ffb0201f;color:#ffd9a8;border-radius:999px;padding:4px 9px 4px 4px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
@@ -665,6 +677,7 @@
   <!-- ======================= RETTE EINEN SONG ======================= -->
   <section class="view" id="v-rette"><div id="rsBox"></div></section>
   <section class="view" id="v-zeitsprung"><div id="zsBox"></div></section>
+  <section class="view" id="v-extra"><div id="exBox"></div></section>
 
   <!-- ======================= REGELN ======================= -->
   <section class="view" id="v-rules">
@@ -816,7 +829,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.13.2";
+const APP_VERSION = "0.14.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1595,7 +1608,7 @@ async function keepAwake(on){
     else if (!on && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
   } catch(e) {}
 }
-const awakeView = v => (["game", "play"].includes(v) && state.running) || v === "rette" || v === "zeitsprung";
+const awakeView = v => (["game", "play"].includes(v) && state.running) || v === "rette" || v === "zeitsprung" || v === "extra";
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") keepAwake(awakeView(curView)); });
 
 // ---------- Karten-Protokoll für die Feierabend-Statistik ----------
@@ -1968,6 +1981,14 @@ const MODE_ICON = {
     <path d="M14 11.4l4 5.6M23 9.6l4 5.6M32 7.8l4 5.6" stroke="#ff4fb0" stroke-width="2"/><path d="M6 27h36" stroke="#3ee8ff" stroke-width="1.4"/><path d="M21 31v7l6-3.5z" fill="#ffd23f" stroke="none"/>`, "#3ee8ff"),
   zeitsprung: MI(`<circle cx="24" cy="26" r="15" stroke="url(#miC)" stroke-width="2.4"/><path d="M24 17v9l6 4" stroke="#b06cff" stroke-width="2.2"/><path d="M20 6h8M24 6v5" stroke="#3ee8ff" stroke-width="2.2"/>
     <path d="M42 14v12M38 18l4-4 4 4" stroke="#9be15d" stroke-width="2.4"/><path d="M6 24v12M2 32l4 4 4-4" stroke="#ff4fb0" stroke-width="2.4"/>`, "#3ee8ff"),
+  blind: MI(`<rect x="4" y="30" width="7" height="12" rx="1.5" stroke="#ff4fb0" stroke-width="2"/><rect x="13" y="24" width="7" height="18" rx="1.5" stroke="#ffb23d" stroke-width="2"/><rect x="22" y="18" width="7" height="24" rx="1.5" stroke="#ffd23f" stroke-width="2"/><rect x="31" y="12" width="7" height="30" rx="1.5" stroke="#9be15d" stroke-width="2" stroke-dasharray="3 2.4"/>
+    <path d="M30 6c4-3 10-3 14 0M30 6c4 3 10 3 14 0" stroke="url(#miC)" stroke-width="2"/><path d="M31 11l12-10" stroke="#3ee8ff" stroke-width="1.8"/>`, "#ffb23d"),
+  poker: MI(`<ellipse cx="24" cy="36" rx="14" ry="5" stroke="url(#miB)" stroke-width="2.4"/><path d="M10 36v-5c0 2.8 6.3 5 14 5s14-2.2 14-5v5" stroke="url(#miB)" stroke-width="2"/><ellipse cx="24" cy="26" rx="14" ry="5" stroke="#9be15d" stroke-width="2.2"/>
+    <path d="M17 26h4M27 26h4" stroke="#ffd23f" stroke-width="2"/><path d="M24 4v12M19 9l5-5 5 5" stroke="#3ee8ff" stroke-width="2.2"/>${SPARK(41, 12, 1.4, "#ffd23f")}`, "#9be15d"),
+  dj: MI(`<circle cx="18" cy="28" r="13" stroke="url(#miA)" stroke-width="2.4"/><circle cx="18" cy="28" r="4" stroke="#ffd23f" stroke-width="2"/><path d="M18 15a13 13 0 0 1 9 4" stroke="#3ee8ff" stroke-width="1.6"/>
+    <path d="M32 8h12v10h-6l-4 4v-4h-2z" stroke="#ff4fb0" stroke-width="2"/><path d="M36 11.5c1-1.8 4-1.6 4 .4 0 1.6-2 1.6-2 3M38 17v.2" stroke="#ffd23f" stroke-width="1.6"/><path d="M34 34l8 6" stroke="#b06cff" stroke-width="2.4"/>`, "#ff4fb0"),
+  memo: MI(`<path d="M24 40c-9 0-16-6-16-15 0-6 4-11 9-12 1-4 5-7 9-6 4-1 9 2 10 6 5 1 8 6 8 11 0 9-9 16-20 16z" stroke="url(#miD)" stroke-width="2.3"/>
+    <path d="M24 9v30M16 18c3 0 5 2 5 5M32 18c-3 0-5 2-5 5M14 30c3-1 6 0 7 3M34 30c-3-1-6 0-7 3" stroke="#b06cff" stroke-width="1.7"/>${SPARK(42, 8, 1.5, "#ffd23f")}${SPARK(6, 10, 1.3, "#3ee8ff")}`, "#b06cff"),
   rette: MI(`<path d="M8 6h26l7 7v29H8z" stroke="url(#miB)" stroke-width="2.4"/><path d="M15 6v10h16V6" stroke="#ffd23f" stroke-width="2"/><path d="M26 9v4" stroke="#ffd23f" stroke-width="2"/>
     <rect x="13" y="24" width="23" height="14" rx="2" stroke="#ff6f61" stroke-width="1.8"/><path d="M26 27v7" stroke="#ff4fb0" stroke-width="1.8"/><circle cx="24" cy="34.5" r="2" fill="#ff4fb0" stroke="none"/><path d="M26 27l3.5 1.2" stroke="#ff4fb0" stroke-width="1.8"/>
     ${SPARK(44, 6, 1.4, "#ffd23f")}`, "#ffb23d"),
@@ -1993,8 +2014,9 @@ const MODE_TWIST = {
 };
 function showModeInfo(id){
   $("#modePop")?.remove();
-  const m = SPIELMODI.find(x => x.id === id), t = MODE_TWIST[id] || [m?.kurz || ""];
-  const name = m ? m.name : id === "zeitsprung" ? "Zeitsprung" : "Rette einen Song", wer = m ? m.spieler : id === "zeitsprung" ? "1–6 Personen" : "1–2 Personen";
+  const m = SPIELMODI.find(x => x.id === id), t = MODE_TWIST[id] || (typeof EX_DEF !== "undefined" && EX_DEF[id] ? EX_DEF[id].info : [m?.kurz || ""]);
+  const X = typeof EX_DEF !== "undefined" ? EX_DEF[id] : null;
+  const name = m ? m.name : X ? X.name : id === "zeitsprung" ? "Zeitsprung" : "Rette einen Song", wer = m ? m.spieler : X ? X.wer : id === "zeitsprung" ? "1–6 Personen" : "1–2 Personen";
   const f = x => esc(m ? fillText(x, m.app) : x);
   const el = document.createElement("div"); el.id = "modePop"; el.className = "pop";
   el.innerHTML = `<div class="wp" style="text-align:left"><button class="xbtn" aria-label="Schließen">✕</button>
@@ -2007,7 +2029,7 @@ function showModeInfo(id){
   const close = () => el.remove();
   el.addEventListener("click", e => { if (e.target === el) close(); });
   el.querySelector(".xbtn").onclick = close;
-  $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : id === "zeitsprung" ? "#zsOpen" : `#modeGrid [data-mode="${id}"]`)?.click(); };
+  $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : id === "zeitsprung" ? "#zsOpen" : EX_DEF[id] ? "#exOpen-" + id : `#modeGrid [data-mode="${id}"]`)?.click(); };
   $("#mpRules")?.addEventListener("click", () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + id)?.scrollIntoView(), 50); });
 }
 // ---------- Modus-Auswahl im Mix ----------
@@ -2039,9 +2061,11 @@ function renderModePanel(){
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>` : ""}</div>`; }).join("");
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">${d.name}</span><span class="mts"><span class="ppl">${d.min > 1 ? P2 : PG}${d.wer}</span><span>${d.sub}</span></span></span><span class="minfo" data-info="${k}" role="button" aria-label="Kurz erklärt">i</span></button>`).join("")}` : ""}</div>`; }).join("");
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
   $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
+  Object.keys(EX_DEF).forEach(k => { const b = $("#exOpen-" + k); if (b) b.onclick = () => exOpen(k); });
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
   document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
     const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;
@@ -2943,7 +2967,7 @@ function show(v){
   curView = v; store.set("lastView", v); keepAwake(awakeView(v));
   if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play","rette","zeitsprung"].includes(v) && b.dataset.v === "spiel")));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play","rette","zeitsprung","extra"].includes(v) && b.dataset.v === "spiel")));
   if (v !== "game") stopScanner();
   if (v === "setup") { setupStep = 1; renderCats(); renderModePanel(); renderResume(); spCheck(false); }
   if (v === "game" || v === "play") renderScore();
@@ -2953,6 +2977,8 @@ function show(v){
   if (v === "cards") renderCardInfo();
   if (v === "rette") rsRender();
   if (v === "zeitsprung") zsRender();
+  if (v === "extra") exRender();
+  if (v !== "extra" && typeof exNow !== "undefined" && exNow) { exStop(); clearTimeout(exMemoT); }
   if (v === "game") { renderMixLine(); renderTvBox(); }
   window.scrollTo(0, 0);
 }
@@ -3855,6 +3881,320 @@ function zsEnd(box){
   $("#zsAgainGame").onclick = () => { zs = null; store.del("zs"); zsRender(); $("#zsGo")?.click(); };
 }
 
+// =====================================================================
+//  EXTRA-SPIELE ohne Karten: Blind sortiert · Zeit-Poker · Der DJ lügt · Gedächtnis-Mixtape
+//  Alle laufen auf einem Handy, das reihum weitergegeben wird.
+// =====================================================================
+const EX_DEF = {
+  blind: { name: "Blind sortiert", wer: "1–6 Personen", sub: "5 Songs ordnen", R: [[2, "2"], [3, "3"], [5, "5"]], Rd: 3, Rl: "Runden pro Person", min: 1,
+    info: ["Sortieren, ohne zu wissen, was noch kommt.", "Nacheinander kommen 5 Songs. Jeden legst du sofort auf einen der 5 Plätze – vom ältesten bis zum neuesten. Was liegt, bleibt liegen. Pro richtig sortiertem Nachbarpaar gibt's einen Punkt, für alles richtig einen Bonus."] },
+  poker: { name: "Zeit-Poker", wer: "2–6 Personen", sub: "tippen sub: "Jahr tippen & setzen" setzen", R: [[6, "6"], [8, "8"], [12, "12"]], Rd: 8, Rl: "Songs", min: 2,
+    info: ["Tippen, setzen, bluffen.", "Ein Song läuft. Reihum tippt jeder verdeckt ein Jahr und setzt 1–5 Chips. Wer am nächsten dran ist, gewinnt alle Einsätze – bei genau richtigem Jahr legt die Bank den Pot noch einmal drauf. Wer keine Chips mehr hat, ist raus."] },
+  dj: { name: "Der DJ lügt", wer: "2–6 Personen", sub: "Lüge erkennen", R: [[1, "1×"], [2, "2×"], [3, "3×"]], Rd: 2, Rl: "DJ-Runden pro Person", min: 2,
+    info: ["Nur der DJ kennt das Jahr – und vielleicht lügt er.", "Reihum ist einer DJ, sieht als Einziger Titel und Jahr und sagt ein Jahr an – echt oder gelogen. Die anderen tippen: „Glaub ich“ oder „Gelogen!“. Richtig getippt gibt einen Punkt, der DJ bekommt einen für jeden, den er reinlegt."] },
+  memo: { name: "Gedächtnis-Mixtape", wer: "1–6 Personen", sub: "6 Songs merken", R: [[4, "4"], [6, "6"], [8, "8"]], Rd: 6, Rl: "Fragen", min: 1,
+    info: ["Gut zuhören – danach wird gefragt.", "6 Songs laufen hintereinander, je 15 Sekunden, ohne Titel. Danach kommen Fragen: Welcher kam als vierter? Welcher war der älteste? Welcher kam direkt nach …? Reihum beantwortet jeder eine Frage."] },
+};
+const EX_COL = ZS_COL;
+let ex = store.get("ex", null), exNow = null, exTimer = null, exMemoT = null;
+const exSave = () => store.set("ex", ex);
+const exS = k => RS_BY.get(k);
+const exShuf = a => a.map(x => [x, Math.random()]).sort((p, q) => p[1] - q[1]).map(x => x[0]);
+function exDraw(n, distinctYears){
+  const pool = zsPool(ex.cats).filter(s => !noSpot(s)), used = new Set(ex.used), out = [], ys = new Set();
+  let cand = pool.filter(s => !used.has(zsKey(s)));
+  if (cand.length < n * 3) { ex.used = []; cand = pool.slice(); }
+  for (let t = 0; out.length < n && t < 400; t++) {
+    const s = pickW(cand, x => (x.sid ? 2 : 1) * songW(x)); if (!s) break;
+    const k = zsKey(s); if (out.includes(k) || (distinctYears && ys.has(s.y))) continue;
+    out.push(k); ys.add(s.y);
+  }
+  ex.used.push(...out); return out;
+}
+// ---------- Abspielen ----------
+async function exPlay(k, o = {}){
+  const m = $("#exMsg"); if (m) m.innerHTML = "";
+  if (!sp.tok()) { if (m) m.innerHTML = `<div class="msg warn">Zum Abspielen erst unter „Spiel“ bei Spotify anmelden.</div>`; return false; }
+  clearTimeout(exTimer); exNow = k; exMark();
+  try {
+    const tr = await resolveTrack(exS(k)); if (exNow !== k) return false;
+    const dev = (rsDevC && Date.now() - rsDevC.t < 120000) ? rsDevC : await getDevice();
+    if (!dev) { exNow = null; exMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="exWake">Spotify wecken &amp; abspielen</button>`; $("#exWake").onclick = () => openSpotify(() => exPlay(k, o)); } return false; }
+    if (dev.is_active === false) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
+    const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000, sil = await silentList().catch(() => null);
+    await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
+    rsDevC = { id: dev.id, t: Date.now() }; store.set("lastDev", { id: dev.id, t: Date.now() });
+    if (o.stopMs) exTimer = setTimeout(exStop, o.stopMs);
+    return true;
+  } catch(e) {
+    exNow = null; exMark(); const f = friendlyErr(e);
+    if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; return false;
+  }
+}
+async function exStop(){ clearTimeout(exTimer); if (!exNow) return; exNow = null; exMark();
+  try { if (keepAliveOn() && store.get("silentOk", null)) await sp.api("/me/player/next", { method: "POST" }); else await sp.api("/me/player/pause", { method: "PUT" }); } catch(e) {} }
+function exMark(){ const b = $("#exPl"); if (b) b.innerHTML = exNow ? IC_PAUSE + " Pause" : IC_PLAY + " Abspielen"; }
+const exPlBtn = k => `<button class="btn sec small" id="exPl" data-k="${esc(k)}">${exNow === k ? IC_PAUSE + " Pause" : IC_PLAY + " Abspielen"}</button>`;
+function exBindPl(){ $("#exPl")?.addEventListener("click", e => { const k = e.currentTarget.dataset.k; exNow === k ? exStop() : exPlay(k); }); }
+
+// ---------- Gemeinsame Bausteine ----------
+const exTop = sub => `<div class="topbar"><button class="backbtn" id="exBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div><div class="tbt"><span class="tbi">${MODE_ICON[ex.game] || ""}</span>${EX_DEF[ex.game].name}</div><div class="tbs">${sub || ""}</div></div></div>`;
+const exCard = (k, extra = "", yr = true) => { const s = exS(k); return `<div class="zsCard"><div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div>${yr ? `<div class="zsY">${s.y}</div>` : ""}${extra}</div>`; };
+const exHid = (t, sub) => `<div class="zsCard hid"><div class="zsQ">?</div><div class="tx"><b>${t}</b><span>${sub || "Titel und Jahr bleiben geheim"}</span></div></div>`;
+const exScore = (key = "p", fmt = v => v) => `<div class="zsPl ex">${ex.players.map((p, i) => `<div class="zsP ${i === ex.turn ? "on" : ""} ${p.out ? "out" : ""}" style="--c:${EX_COL[i % 6]}"><b>${esc(p.n)}</b><span>${fmt(p[key])}</span></div>`).join("")}</div>`;
+const exName = i => `<span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(ex.players[i].n)}</span>`;
+function exHand(box, i, why, go){
+  box.innerHTML = exTop(why) + `<div class="panel" style="text-align:center;padding:30px 18px"><div style="font-size:46px">🤝</div>
+    <h2 style="margin:10px 0">Handy an ${esc(ex.players[i].n)}</h2><p class="sub">${why}</p><button class="btn" id="exHandGo">Ich bin ${esc(ex.players[i].n)}</button></div>`;
+  exBackBind(); $("#exHandGo").onclick = go;
+}
+function exBackBind(){ $("#exBack").onclick = () => { exStop(); ex.view = "setup"; exSave(); show("setup"); }; }
+
+function exOpen(g){
+  if (!ex || ex.game !== g) ex = { game: g, view: "setup" };
+  else if (ex.done) ex.view = "setup";
+  exSave(); show("extra");
+}
+function exRender(){
+  const box = $("#exBox"); if (!ex) return show("setup");
+  if (ex.view === "setup") return exSetup(box);
+  if (ex.done) return exEnd(box);
+  ({ blind: exBlind, poker: exPoker, dj: exDj, memo: exMemo })[ex.game](box);
+}
+function exSetup(box){
+  const D = EX_DEF[ex.game], o = { cats: ["global", "dehits"], names: ["", ""], ...store.get("exOpt", {}) };
+  const R = o["R_" + ex.game] ?? D.Rd, open = ex.players && !ex.done;
+  const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
+  if (o.names.length < D.min) o.names.push("");
+  box.innerHTML = exTop(D.sub) + `
+    ${open ? `<div class="panel"><div class="small">Laufende Runde: ${ex.players.map(p => esc(p.n)).join(" · ")}</div><button class="btn" id="exCont">${IC_PLAY} Weiterspielen</button></div>` : ""}
+    <p class="sub" style="margin-top:4px"><b>${D.info[0]}</b> ${D.info[1]}</p>
+    <div class="panel"><b>Wer spielt?</b> <span class="small">(${D.wer}, das Handy geht reihum)</span>
+      <div id="exNames" style="margin-top:8px">${o.names.map((n, i) => `<div class="row" style="margin-bottom:6px"><input type="text" data-xn="${i}" value="${esc(n)}" placeholder="Name ${i + 1}" maxlength="16">${o.names.length > D.min ? `<button class="btn sec small" data-xdel="${i}" style="width:auto;margin:0">✕</button>` : ""}</div>`).join("")}</div>
+      ${o.names.length < 6 ? `<button id="exAdd" style="background:none;border:0;color:#ffd1e6;font-weight:700;cursor:pointer;padding:4px 0">+ Person hinzufügen</button>` : ""}</div>
+    <div class="panel"><b>${D.Rl}</b><div class="seg" id="exR" style="margin-top:8px">${D.R.map(([v, l]) => `<button data-r="${v}" class="${v === R ? "on" : ""}">${l}</button>`).join("")}</div></div>
+    <div class="panel"><b>Welche Songs?</b> <span class="small">(${zsPool(o.cats).length} Songs im Mix)</span>
+      ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}</div>
+    <div id="exMsg"></div>
+    <button class="btn" id="exGo">${open ? "Neue Runde starten" : "Los geht's"}</button>`;
+  const names = () => [...box.querySelectorAll("[data-xn]")].map(el => el.value.trim());
+  const saveO = () => store.set("exOpt", { ...o, names: names() });
+  exBackBind(); $("#exBack").onclick = () => { saveO(); show("setup"); };
+  $("#exCont")?.addEventListener("click", () => { ex.view = "play"; exSave(); exRender(); });
+  box.querySelectorAll("[data-xc]").forEach(b => b.onclick = () => { const c = b.dataset.xc; o.names = names();
+    o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c]; if (!o.cats.length) o.cats = [c]; store.set("exOpt", o); exSetup(box); });
+  box.querySelectorAll("#exR button").forEach(b => b.onclick = () => { o.names = names(); o["R_" + ex.game] = +b.dataset.r; store.set("exOpt", o); exSetup(box); });
+  $("#exAdd")?.addEventListener("click", () => { o.names = [...names(), ""]; store.set("exOpt", o); exSetup(box); });
+  box.querySelectorAll("[data-xdel]").forEach(b => b.onclick = () => { o.names = names().filter((_, i) => i !== +b.dataset.xdel); store.set("exOpt", o); exSetup(box); });
+  box.querySelectorAll("[data-xn]").forEach(el => el.oninput = saveO);
+  $("#exGo").onclick = async () => {
+    const nm = names(), ns = nm.map((n, i) => n || (nm.length > 1 ? "Person " + (i + 1) : "Ich")); saveO();
+    if (ns.length < D.min) { $("#exMsg").innerHTML = `<div class="msg warn">Für ${D.name} braucht ihr mindestens ${D.min} Personen.</div>`; return; }
+    if (zsPool(o.cats).length < 30) { $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`; return; }
+    if (open && !await ask("Die laufende Runde wird beendet. Neue Runde starten?")) return;
+    ex = { game: ex.game, id: Date.now(), cats: o.cats, R, used: [], view: "play", done: false, turn: 0, round: 1,
+      players: ns.map(n => ({ n, p: 0, chips: 10 })) };
+    exStart(); exSave(); exRender(); window.scrollTo(0, 0);
+  };
+}
+function exStart(){
+  if (ex.game === "blind") { ex.cur = { songs: exDraw(5, true), slots: [null, null, null, null, null], i: 0 }; ex.hand = ex.players.length > 1; }
+  if (ex.game === "poker") { ex.song = exDraw(1)[0]; ex.phase = "listen"; ex.bets = []; ex.who = null; }
+  if (ex.game === "dj") { ex.dj = (ex.round - 1) % ex.players.length; ex.song = exDraw(1)[0]; ex.phase = "hand"; ex.claim = null; ex.votes = {}; }
+  if (ex.game === "memo") { ex.songs = exDraw(6, true); ex.phase = "listen"; ex.i = -1; ex.qs = exMemoQs(ex.songs, ex.R); ex.qi = 0; ex.ans = null; }
+}
+function exFinish(){
+  exStop(); clearTimeout(exMemoT); ex.done = true; exSave(); exRender(); window.scrollTo(0, 0); confetti();
+}
+function exEnd(box){
+  const key = ex.game === "poker" ? "chips" : "p", unit = ex.game === "poker" ? "Chips" : "Punkte";
+  const P = ex.players.map((p, i) => ({ ...p, i })).sort((a, b) => b[key] - a[key]), multi = P.length > 1;
+  const tie = multi && P[0][key] === P[1][key];
+  box.innerHTML = exTop("Runde vorbei") + `
+    <div class="panel" style="text-align:center"><div style="font-size:44px">🏆</div>
+      <h2 style="margin:6px 0">${multi ? (tie ? "Unentschieden!" : esc(P[0].n) + " gewinnt!") : P[0][key] + " " + unit}</h2>
+      ${ex.game === "memo" && !multi ? `<div class="small">von ${ex.qs.length} Fragen richtig</div>` : ""}</div>
+    ${multi ? `<div class="panel">${P.map((p, r) => `<div class="row" style="padding:6px 0"><span><b>${r + 1}. ${esc(p.n)}</b></span><span class="small">${p[key]} ${unit}</span></div>`).join("")}</div>` : ""}
+    <button class="btn" id="exAgainG">🔁 Nochmal – gleiche Leute</button>
+    <button class="btn sec" id="exSetupB">Leute oder Songs ändern</button>`;
+  exBackBind();
+  $("#exSetupB").onclick = () => { ex = { game: ex.game, view: "setup" }; exSave(); exRender(); };
+  $("#exAgainG").onclick = () => { ex = { game: ex.game, view: "setup" }; exSave(); exRender(); $("#exGo")?.click(); };
+}
+const exNextTurn = () => { ex.turn = (ex.turn + 1) % ex.players.length; };
+
+// ---------- 1) Blind sortiert ----------
+function exBlindScore(slots){
+  const ys = slots.map(k => exS(k).y); let ok = 0; const bad = [];
+  for (let i = 0; i < 4; i++) { if (ys[i] <= ys[i + 1]) ok++; else bad.push(i); }
+  return { ok, bad, pts: ok + (ok === 4 ? 1 : 0) };
+}
+function exBlind(box){
+  const P = ex.players, C = ex.cur, multi = P.length > 1;
+  if (ex.hand) return exHand(box, ex.turn, `Runde ${ex.round} von ${ex.R}`, () => { ex.hand = false; exSave(); exRender(); exPlay(C.songs[C.i]); });
+  const done = C.i >= 5, res = done ? exBlindScore(C.slots) : null, k = C.songs[C.i];
+  const lbl = ["ältester", "", "", "", "neuester"];
+  box.innerHTML = exTop(`Runde ${ex.round} von ${ex.R}${multi ? " · " + esc(P[ex.turn].n) + " ist dran" : ""}`) + (multi ? exScore() : "") + `
+    ${done ? `<div class="zsRes ${res.ok === 4 ? "ok" : ""}"><div class="zsV">${res.ok === 4 ? "🎯 Perfekt sortiert! +5" : `${res.ok} von 4 Paaren richtig · +${res.pts}`}</div></div>`
+      : `<div class="small zsLbl">${multi ? exName(ex.turn) + " " : ""}Song ${C.i + 1} von 5 – wohin damit?</div>${exHid("Song " + (C.i + 1) + " läuft …", "Tippe auf einen freien Platz")}
+        <div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(k)}</div><div id="exMsg"></div>`}
+    <div class="bsSlots">${C.slots.map((s, i) => `<div class="bsRow ${res && (res.bad.includes(i) || res.bad.includes(i - 1)) ? "bad" : ""}"><div class="bsN">${i + 1}<small>${lbl[i]}</small></div>
+      ${s ? exCard(s) : `<button class="bsEmpty" data-slot="${i}" ${done ? "disabled" : ""}>Hier ablegen</button>`}</div>`).join("")}</div>
+    ${done ? `<button class="btn" id="exNext">${ex.round >= ex.R && ex.turn === P.length - 1 ? "Ergebnis" : "Weiter →"}</button>` : ""}`;
+  exBackBind(); exBindPl(); rsCovers(box);
+  box.querySelectorAll("[data-slot]").forEach(b => b.onclick = () => {
+    C.slots[+b.dataset.slot] = k; C.i++;
+    if (C.i >= 5) { exStop(); P[ex.turn].p += exBlindScore(C.slots).pts; exSave(); exRender(); return; }
+    exSave(); exRender(); exPlay(C.songs[C.i]);
+  });
+  $("#exNext")?.addEventListener("click", () => {
+    if (ex.turn === P.length - 1) { if (ex.round >= ex.R) return exFinish(); ex.round++; }
+    exNextTurn(); ex.cur = { songs: exDraw(5, true), slots: [null, null, null, null, null], i: 0 }; ex.hand = multi;
+    exSave(); exRender(); window.scrollTo(0, 0); if (!multi) exPlay(ex.cur.songs[0]);
+  });
+}
+
+// ---------- 2) Zeit-Poker ----------
+function exPoker(box){
+  const P = ex.players, s = exS(ex.song), alive = P.map((p, i) => i).filter(i => !P[i].out);
+  const sub = `Song ${ex.round} von ${ex.R}`;
+  if (ex.phase === "listen") {
+    box.innerHTML = exTop(sub) + exScore("chips", v => v + " Chips") + `${exHid("Song " + ex.round + " läuft …", "Alle hören zu – dann tippt reihum jeder verdeckt")}
+      <div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(ex.song)}</div><div id="exMsg"></div>
+      <button class="btn" id="exBetGo">Tippen &amp; setzen</button>`;
+    exBackBind(); exBindPl(); if (!exNow) exPlay(ex.song);
+    $("#exBetGo").onclick = () => { ex.phase = "bet"; ex.who = alive[0]; ex.hand = true; exSave(); exRender(); };
+    return;
+  }
+  if (ex.phase === "bet") {
+    const i = ex.who, p = P[i];
+    if (ex.hand) return exHand(box, i, "Verdeckt tippen und setzen", () => { ex.hand = false; exSave(); exRender(); });
+    const y0 = ex._y ?? 1995, maxB = Math.min(5, p.chips);
+    box.innerHTML = exTop(sub) + `<div class="rsYear"><div class="w">${exName(i)} Welches Jahr? Und wie viel setzt du?</div></div>
+      <div class="pkY"><button class="btn sec small" data-dy="-10">−10</button><button class="btn sec small" data-dy="-1">−1</button><div class="pkV" id="pkV">${y0}</div><button class="btn sec small" data-dy="1">+1</button><button class="btn sec small" data-dy="10">+10</button></div>
+      <div class="panel"><b>Einsatz</b> <span class="small">(du hast ${p.chips} Chips)</span><div class="seg" id="pkB" style="margin-top:8px">${[1, 2, 3, 4, 5].filter(b => b <= maxB).map(b => `<button data-b="${b}" class="${b === 1 ? "on" : ""}">${b}</button>`).join("")}</div></div>
+      <div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(ex.song)}</div><div id="exMsg"></div>
+      <button class="btn" id="pkOk">Verdeckt abgeben</button>`;
+    exBackBind(); exBindPl();
+    let y = y0, b = 1;
+    box.querySelectorAll("[data-dy]").forEach(x => x.onclick = () => { y = Math.max(1920, Math.min(new Date().getFullYear(), y + +x.dataset.dy)); $("#pkV").textContent = y; });
+    box.querySelectorAll("#pkB button").forEach(x => x.onclick = () => { b = +x.dataset.b; box.querySelectorAll("#pkB button").forEach(z => z.classList.toggle("on", z === x)); });
+    $("#pkOk").onclick = () => {
+      ex.bets.push({ i, y, b }); p.chips -= b; delete ex._y;
+      const nx = alive[alive.indexOf(i) + 1];
+      if (nx == null) { ex.phase = "reveal"; exStop();
+        const pot = ex.bets.reduce((a, x) => a + x.b, 0), best = Math.min(...ex.bets.map(x => Math.abs(x.y - s.y)));
+        const win = ex.bets.filter(x => Math.abs(x.y - s.y) === best), bonus = best === 0 ? pot : 0, share = Math.floor((pot + bonus) / win.length);
+        win.forEach(x => P[x.i].chips += share); P.forEach(q => { if (q.chips <= 0) q.out = true; });
+        ex.res = { pot, bonus, best, win: win.map(x => x.i), share };
+      } else { ex.who = nx; ex.hand = true; }
+      exSave(); exRender(); window.scrollTo(0, 0);
+    };
+    return;
+  }
+  // Auflösung
+  const r = ex.res;
+  box.innerHTML = exTop(sub) + `<div class="zsRes ok"><div class="zsV">${r.best === 0 ? "🎯 Volltreffer! Die Bank verdoppelt den Pot" : "Am nächsten dran: " + r.best + " Jahr" + (r.best === 1 ? "" : "e")}</div>${exCard(ex.song)}</div>
+    <div class="panel">${ex.bets.map(x => `<div class="row" style="padding:5px 0"><span>${exName(x.i)}</span><span class="small">tippt <b>${x.y}</b> · setzt ${x.b} ${r.win.includes(x.i) ? `· <b style="color:#9be15d">+${r.share} Chips</b>` : ""}</span></div>`).join("")}</div>
+    ${exScore("chips", v => v + " Chips")}
+    <button class="btn" id="exNext">${ex.round >= ex.R || P.filter(q => !q.out).length < 2 ? "Ergebnis" : "Nächster Song →"}</button>`;
+  exBackBind(); rsCovers(box);
+  $("#exNext").onclick = () => {
+    if (ex.round >= ex.R || P.filter(q => !q.out).length < 2) return exFinish();
+    ex.round++; ex.song = exDraw(1)[0]; ex.phase = "listen"; ex.bets = []; ex.res = null; exSave(); exRender(); window.scrollTo(0, 0);
+  };
+}
+
+// ---------- 3) Der DJ lügt ----------
+function exDj(box){
+  const P = ex.players, d = ex.dj, s = exS(ex.song), total = ex.R * P.length, sub = `Runde ${ex.round} von ${total} · DJ: ${esc(P[d].n)}`;
+  if (ex.phase === "hand") return exHand(box, d, "Du bist DJ – nur du darfst gleich aufs Handy schauen", () => { ex.phase = "secret"; exSave(); exRender(); });
+  if (ex.phase === "secret") {
+    const fakes = exShuf([-7, -4, -2, 2, 3, 6].map(x => s.y + x).filter(y => y >= 1920 && y <= new Date().getFullYear() && y !== s.y)).slice(0, 3);
+    box.innerHTML = exTop(sub) + `<div class="small zsLbl">🤫 Nur für ${exName(d)}</div>${exCard(ex.song)}
+      <div class="rsYear"><div class="w">Welches Jahr sagst du an?</div></div>
+      <div class="djC"><button class="btn" data-cl="${s.y}">Die Wahrheit: ${s.y}</button>${fakes.map(y => `<button class="btn sec" data-cl="${y}">Lügen: ${y}</button>`).join("")}</div>
+      <div class="small" style="text-align:center;margin-top:6px">Danach startet der Song, du sagst das Jahr laut an und gibst das Handy weiter.</div><div id="exMsg"></div>`;
+    exBackBind(); rsCovers(box);
+    box.querySelectorAll("[data-cl]").forEach(b => b.onclick = () => { ex.claim = +b.dataset.cl; ex.phase = "vote"; ex.votes = {}; exSave(); exRender(); exPlay(ex.song); });
+    return;
+  }
+  if (ex.phase === "vote") {
+    const G = P.map((p, i) => i).filter(i => i !== d);
+    box.innerHTML = exTop(sub) + `${exHid("Song läuft …", `${esc(P[d].n)} sagt: „Der ist von ${ex.claim}“`)}
+      <div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(ex.song)}</div><div id="exMsg"></div>
+      <div class="rsYear"><div class="w">Stimmt <b>${ex.claim}</b>? Jeder tippt seins an:</div></div>
+      <div class="panel">${G.map(i => `<div class="row" style="padding:6px 0;gap:8px"><span style="flex:1">${exName(i)}</span>
+        <div class="seg djV" style="width:auto"><button data-v="${i}:1" class="${ex.votes[i] === true ? "on" : ""}">Glaub ich</button><button data-v="${i}:0" class="${ex.votes[i] === false ? "on" : ""}">Gelogen!</button></div></div>`).join("")}</div>
+      <button class="btn" id="djRev" ${G.every(i => ex.votes[i] != null) ? "" : "disabled"}>Auflösen</button>`;
+    exBackBind(); exBindPl();
+    box.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { const [i, v] = b.dataset.v.split(":"); ex.votes[i] = v === "1"; exSave(); exRender(); });
+    $("#djRev").onclick = () => {
+      const truth = ex.claim === s.y; let fooled = 0;
+      G.forEach(i => { const ok = ex.votes[i] === truth; if (ok) P[i].p++; else fooled++; });
+      P[d].p += fooled; ex.res = { truth, fooled }; ex.phase = "reveal"; exSave(); exRender(); window.scrollTo(0, 0);
+    };
+    return;
+  }
+  const r = ex.res, G = P.map((p, i) => i).filter(i => i !== d);
+  box.innerHTML = exTop(sub) + `<div class="zsRes ${r.truth ? "ok" : "no"}"><div class="zsV">${r.truth ? "✓ Das war die Wahrheit!" : `🤥 Gelogen! Gesagt: ${ex.claim}`}</div>${exCard(ex.song)}</div>
+    <div class="panel">${G.map(i => `<div class="row" style="padding:5px 0"><span>${exName(i)}</span><span class="small">${ex.votes[i] ? "glaubte es" : "rief „Gelogen!“"} · ${ex.votes[i] === r.truth ? "<b style=\"color:#9be15d\">+1</b>" : "reingelegt"}</span></div>`).join("")}
+      <div class="row" style="padding:5px 0"><span>${exName(d)} (DJ)</span><span class="small">${r.fooled ? `<b style="color:#9be15d">+${r.fooled}</b> fürs Reinlegen` : "niemanden reingelegt"}</span></div></div>
+    ${exScore()}
+    <button class="btn" id="exNext">${ex.round >= total ? "Ergebnis" : "Nächster DJ →"}</button>`;
+  exBackBind(); rsCovers(box); $("#exPl")?.remove();
+  $("#exNext").onclick = () => { exStop(); if (ex.round >= total) return exFinish(); ex.round++; ex.dj = (ex.round - 1) % P.length; ex.song = exDraw(1)[0]; ex.phase = "hand"; ex.claim = null; ex.votes = {}; ex.res = null; exSave(); exRender(); window.scrollTo(0, 0); };
+}
+
+// ---------- 4) Gedächtnis-Mixtape ----------
+function exMemoQs(songs, n){
+  const S = songs.map(exS), ys = S.map(s => s.y), qs = [], ord = ["erster", "zweiter", "dritter", "vierter", "fünfter", "sechster"];
+  const pos = exShuf([0, 1, 2, 3, 4, 5]);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  if (ys.filter(y => y === minY).length === 1) qs.push({ t: "Welcher dieser Songs ist der älteste?", a: songs[ys.indexOf(minY)] });
+  if (ys.filter(y => y === maxY).length === 1) qs.push({ t: "Welcher dieser Songs ist der neueste?", a: songs[ys.indexOf(maxY)] });
+  const de = songs.filter(k => rsIsDe(exS(k))); if (de.length === 1) qs.push({ t: "Welcher Song war deutschsprachig?", a: de[0] });
+  const j = 1 + Math.floor(Math.random() * 5); qs.push({ t: `Welcher Song kam direkt nach „${showT(S[j - 1])}“?`, a: songs[j] });
+  const j2 = Math.floor(Math.random() * 5); qs.push({ t: `Welcher Song kam direkt vor „${showT(S[j2 + 1])}“?`, a: songs[j2] });
+  pos.forEach(p => qs.push({ t: `Welcher Song lief als ${ord[p]}?`, a: songs[p] }));
+  const out = [], seen = new Set();
+  for (const q of exShuf(qs.slice(0, qs.length - 6)).concat(qs.slice(qs.length - 6))) { if (out.length >= n) break; if (seen.has(q.t)) continue; seen.add(q.t); out.push(q); }
+  return exShuf(out);
+}
+function exMemoRun(){
+  clearTimeout(exMemoT);
+  if (!ex || ex.game !== "memo" || ex.phase !== "listen") return;
+  ex.i++; exSave();
+  if (ex.i >= 6) { exStop(); ex.phase = "q"; ex.turn = 0; exSave(); return exRender(); }
+  exRender(); exPlay(ex.songs[ex.i]);
+  exMemoT = setTimeout(exMemoRun, 15000);
+}
+function exMemo(box){
+  const P = ex.players, multi = P.length > 1;
+  if (ex.phase === "listen") {
+    const run = ex.i >= 0;
+    box.innerHTML = exTop(run ? `Song ${ex.i + 1} von 6` : "Gut zuhören!") + `
+      <div class="memoBar">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < ex.i ? "done" : i === ex.i ? "on" : ""}"></i>`).join("")}</div>
+      ${run ? exHid(`Song ${ex.i + 1} von 6 läuft …`, "Merk ihn dir – Titel kommen erst bei den Fragen") : `<div class="panel" style="text-align:center"><div style="font-size:42px">🎧</div><p class="sub">Gleich laufen 6 Songs, je 15 Sekunden. Merkt euch Reihenfolge, Stimmen und Stimmung – danach gibt es ${ex.qs.length} Fragen.</p></div>`}
+      <div id="exMsg"></div>
+      ${run ? "" : `<button class="btn" id="memoGo">${IC_PLAY} Mixtape starten</button>`}`;
+    exBackBind(); $("#exBack").onclick = () => { clearTimeout(exMemoT); exStop(); ex.view = "setup"; if (ex.i >= 0) { ex.i = -1; } exSave(); show("setup"); };
+    $("#memoGo")?.addEventListener("click", exMemoRun);
+    return;
+  }
+  const q = ex.qs[ex.qi], who = multi ? ex.qi % P.length : 0, A = ex.ans;
+  box.innerHTML = exTop(`Frage ${ex.qi + 1} von ${ex.qs.length}`) + (multi ? exScore() : "") + `
+    <div class="rsYear"><div class="w">${multi ? exName(who) + " " : ""}<b>${esc(q.t)}</b></div></div>
+    <div id="rsOpts">${exShuf(ex.songs).sort((x, y) => ex._ord ? ex._ord.indexOf(x) - ex._ord.indexOf(y) : 0).map(k => { const s = exS(k), cls = A ? (k === q.a ? "good" : k === A ? "badc" : "") : "";
+      return `<div class="rsOpt memoO ${cls}" data-mk="${esc(k)}"><div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}${A ? ` · ${s.y}` : ""}</span></div></div>`; }).join("")}</div>
+    ${A ? `<div class="zsRes ${A === q.a ? "ok" : "no"}"><div class="zsV">${A === q.a ? "✓ Richtig!" : "✗ Leider nicht"}</div></div><button class="btn" id="exNext">${ex.qi + 1 >= ex.qs.length ? "Ergebnis" : "Nächste Frage →"}</button>` : ""}`;
+  if (!ex._ord) { ex._ord = [...box.querySelectorAll("[data-mk]")].map(e => e.dataset.mk); exSave(); }
+  exBackBind(); rsCovers(box);
+  if (!A) box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { ex.ans = el.dataset.mk; if (ex.ans === q.a) P[who].p++; exSave(); exRender(); });
+  $("#exNext")?.addEventListener("click", () => { if (ex.qi + 1 >= ex.qs.length) return exFinish(); ex.qi++; ex.ans = null; delete ex._ord; exSave(); exRender(); window.scrollTo(0, 0); });
+}
+
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
 const isAdmin = () => store.get("admin", false);
 function applyAdmin(){ document.body.classList.toggle("admin", isAdmin()); }
@@ -3921,7 +4261,7 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
   if (state.running) state.current = deserCur(store.get("cur", null));
   renderResume();
   // Nach Neuladen im zuletzt offenen Reiter bleiben – außer im Spiel selbst (dort Hauptbildschirm + „Weiterspielen“)
-  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards", "rette", "zeitsprung"].includes(lv)) show(lv);
+  const lv = store.get("lastView", "setup"); if (["data", "rules", "cards", "rette", "zeitsprung", "extra"].includes(lv)) show(lv);
 })();
 </script>
 </body>

@@ -4,6 +4,13 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.0", d: "2026-11-27", e: [
+    ["neu", "Vier neue Spiele ohne Karten unter „Extras“: Blind sortiert, Zeit-Poker, Der DJ lügt und Gedächtnis-Mixtape."],
+    ["neu", "Blind sortiert: 5 Songs nacheinander sofort auf 5 Plätze legen – vom ältesten zum neuesten, ohne zu wissen, was noch kommt."],
+    ["neu", "Zeit-Poker: Jahr verdeckt tippen und Chips setzen – wer am nächsten dran ist, räumt den Pot ab."],
+    ["neu", "Der DJ lügt: Nur der DJ sieht das Jahr und sagt eins an – die anderen tippen „Glaub ich“ oder „Gelogen!“."],
+    ["neu", "Gedächtnis-Mixtape: 6 Songs je 15 Sekunden hören, danach Fragen zu Reihenfolge, ältestem und neuestem Song."],
+  ]},
   { v: "0.13.2", d: "2026-11-27", e: [
     ["change", "Jahreskarten: Die 2030er bekommen jetzt Pastell von Lavendel zu Rosé, damit sie sich klar von den blauen 2000ern abheben."],
   ]},
