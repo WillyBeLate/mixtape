@@ -14,7 +14,7 @@ const wr = (f, t) => fs.writeFileSync(ROOT + f, t);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const OWNER = "WillyBeLate";
 const REPO = process.env.REPO || "WillyBeLate/mixtape";
-const MAX_SPOTIFY = +(process.env.MAX_SPOTIFY || 700), MAX_MB = +(process.env.MAX_MB || 900);
+const MAX_SPOTIFY = +(process.env.MAX_SPOTIFY || 450), MAX_MB = +(process.env.MAX_MB || 900);
 const deadline = Date.now() + 45 * 60e3;   // nach 45 Min. aufhören, Rest morgen
 
 // ---------- Daten laden ----------
