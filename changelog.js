@@ -4,6 +4,14 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.1", d: "2026-11-28", e: [
+    ["fix", "Schnelles Weitertippen startet keinen alten Song mehr. Beim Sprint stoppt ein verspäteter Timer nach „Auflösen“ den Song nicht mehr."],
+    ["fix", "iPhone/iPad: Ist ein Song bei Spotify nicht abspielbar und läuft stattdessen nur die Stille, sagt Mixtape das jetzt, statt „Song läuft“ zu zeigen."],
+    ["fix", "Klarere Meldungen: Abgelaufene Spotify-Anmeldung zeigt „Neu anmelden“, und nicht jeder Fehler heißt mehr „Keine Internetverbindung“."],
+    ["change", "Ist Spotifys Kontingent aufgebraucht, pausiert nur noch die Suche – Abspielen, Pause und Lautstärke gehen weiter."],
+    ["change", "Schnellerer Start bei schlechtem Empfang: Nach 3 Sekunden nimmt die App die gespeicherte Version. Nach Updates passen alle Dateien sicher zusammen."],
+    ["change", "Spotify wird seltener im Hintergrund abgefragt (spart Akku), der Speicher wird geschont und der Browser gebeten, eure Daten nicht von selbst zu löschen."],
+  ]},
   { v: "0.15.0", d: "2026-11-28", e: [
     ["change", "Songs, bei denen die Spotify-Version oder das Jahr noch unsicher ist, sind in keinem Spiel mehr, bis die nächtliche Prüfung sie geklärt hat. Eine eigene „Falscher Song“-Korrektur macht einen Song sofort wieder spielbar."],
     ["neu", "Fehlt einer Main-Kategorie dadurch ein Jahr, ergänzt die nächtliche Prüfung automatisch einen passenden Song."],

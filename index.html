@@ -15,11 +15,11 @@
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/html5-qrcode.min.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="daten.js"></script>
-<script src="regeln.js"></script>
-<script src="changelog.js"></script>
-<script src="geprueft.js"></script>
-<script src="ids.js"></script>
+<script src="daten.js?v=0.15.1"></script>
+<script src="regeln.js?v=0.15.1"></script>
+<script src="changelog.js?v=0.15.1"></script>
+<script src="geprueft.js?v=0.15.1"></script>
+<script src="ids.js?v=0.15.1"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -811,7 +811,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.0";
+const APP_VERSION = "0.15.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -821,7 +821,12 @@ const SCOPES = "user-read-playback-state user-modify-playback-state playlist-rea
 let setupStep = 1, stepPushed = false;   // Neues-Spiel-Schritt (1 = Modus, 2 = Mix)
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  set(k, v){ const t = JSON.stringify(v); try{ localStorage.setItem(k, t); }catch(e){ store.full(e); try{ localStorage.setItem(k, t); }catch(_){} } },
+  // Speicher voll: erst entbehrliche Zwischenspeicher (Cover, Song-Cache-Fehlversuche) leeren, dann einmal Bescheid geben
+  full(e){ if (store._full) return; store._full = true;
+    try { Object.keys(localStorage).filter(k => /^(cov:|covTry:|tv2:)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch(_) {}
+    setTimeout(() => { store._full = false; }, 5000);
+    console.warn("Speicher voll", e); },
   del(k){ try{ localStorage.removeItem(k); }catch(e){} },
 };
 
@@ -1015,9 +1020,16 @@ const sp = {
     location.href = "https://accounts.spotify.com/authorize?" + q;
   },
   async tokenReq(params){
-    const r = await fetch("https://accounts.spotify.com/api/token", { method:"POST",
-      headers:{ "Content-Type":"application/x-www-form-urlencoded" }, body:new URLSearchParams({ client_id:sp.cid(), ...params }) });
-    if (!r.ok) throw new Error("Token-Fehler " + r.status);
+    let r;
+    try { r = await fetch("https://accounts.spotify.com/api/token", { method:"POST",
+      headers:{ "Content-Type":"application/x-www-form-urlencoded" }, body:new URLSearchParams({ client_id:sp.cid(), ...params }) }); }
+    catch(e) { throw Object.assign(new Error("Keine Verbindung zu Spotify."), { net: true }); }
+    if (!r.ok) {
+      // Abgelaufene oder widerrufene Anmeldung: lokal abmelden und klar „Neu anmelden“ anbieten
+      if (params.grant_type === "refresh_token" && (r.status === 400 || r.status === 401)) {
+        store.del("tok"); throw Object.assign(new Error("Spotify-Anmeldung abgelaufen – bitte neu anmelden."), { status: 401 }); }
+      throw new Error("Spotify-Anmeldung fehlgeschlagen (Fehler " + r.status + ").");
+    }
     const j = await r.json();
     const old = sp.tok() || {};
     store.set("tok", { access:j.access_token, refresh:j.refresh_token || old.refresh, exp:Date.now() + (j.expires_in - 60) * 1000 });
@@ -1032,7 +1044,7 @@ const sp = {
     return null;
   },
   async access(){
-    const t = sp.tok(); if (!t) throw new Error("Nicht bei Spotify angemeldet.");
+    const t = sp.tok(); if (!t) throw Object.assign(new Error("Nicht bei Spotify angemeldet."), { status: 401 });
     if (Date.now() > t.exp) await sp.tokenReq({ grant_type:"refresh_token", refresh_token:t.refresh });
     return sp.tok().access;
   },
@@ -1051,7 +1063,8 @@ const sp = {
     const next = new Date(q.probe + 15 * 6e4).toLocaleTimeString("de-DE", { hour:"2-digit", minute:"2-digit" });
     return `Spotify-Kontingent aufgebraucht (seit ${new Date(q.since).toLocaleString("de-DE", { weekday:"short", hour:"2-digit", minute:"2-digit" })}). Spotify gibt keine Dauer an, meist 12–24 Stunden. Nächster Versuch frühestens ${next}.`; },
   async _api(path, opt, tries = 0){
-    const q = sp.quota();
+    // Kontingent-Sperre gilt nur für die Suche – Abspielen, Pause, Geräte usw. laufen weiter (feste Songs brauchen keine Suche)
+    const srch = path.startsWith("/search"), q = srch ? sp.quota() : null;
     if (q && Date.now() - q.probe < 15 * 6e4) { const e = new Error(sp.quotaMsg()); e.status = 429; e.quota = true; throw e; }
     const wait = Math.max(sp.coolUntil - Date.now(), sp._last + sp.gap - Date.now());
     if (wait > 0) await sleep(wait);
@@ -1061,14 +1074,16 @@ const sp = {
     for (let n = 0; ; n++) {           // kurze Netzaussetzer / Spotify-Schluckauf: still bis zu 2× wiederholen
       try { r = await fetch("https://api.spotify.com/v1" + path, { ...opt,
         headers:{ Authorization:"Bearer " + await sp.access(), "Content-Type":"application/json" } }); }
-      catch(e) { if (n < 2 && navigator.onLine !== false) { await sleep(800 * (n + 1)); continue; } throw e; }
+      catch(e) { if (e?.status || e?.net) throw e;                     // Fehler beim Anmelden: nicht als Netzfehler werten
+        if (n < 2 && navigator.onLine !== false) { await sleep(800 * (n + 1)); continue; }
+        throw Object.assign(new Error("Keine Verbindung zu Spotify."), { net: true }); }
       if ([502, 503, 504].includes(r.status) && n < 2) { await sleep(800 * (n + 1)); continue; }
       break;
     }
     if (r.status === 429) {
       let j429 = null; try { j429 = JSON.parse(await r.text()); } catch(_) {}
       if (j429?.error?.reason === "QUOTA_EXCEEDED") {
-        store.set("spQuota", { since: q?.since || Date.now(), probe: Date.now() });
+        store.set("spQuota", { since: sp.quota()?.since || Date.now(), probe: Date.now() });
         const e = new Error(sp.quotaMsg()); e.status = 429; e.quota = true; throw e;
       }
       const hdr = r.headers.get("Retry-After");                 // im Browser oft nicht lesbar (CORS)
@@ -1280,22 +1295,25 @@ $("#keepAlive").addEventListener("change", e => { store.set("keepAlive", e.targe
 document.addEventListener("click", e => { const a = e.target.closest(".devchg"); if (!a) return; e.preventDefault(); openDevPicker(curView === "play" ? "#playMsg" : "#devMsg"); });
 
 async function playCurrent(fromStart){
-  const c = state.current;
-  const dev = await getDevice();
+  const c = state.current, stale = () => state.current !== c || !c;   // Karte inzwischen gewechselt → nichts mehr tun
+  const dev = await getDevice(); if (stale()) return;
   if (!dev) throw Object.assign(new Error("NODEVICE"), { nodevice:true });
   let pos = 0;
   if (!fromStart && state.randStart && c.dur) pos = Math.floor(c.dur * (0.2 + Math.random() * 0.35));
-  const sil = await silentList().catch(() => null);
+  const sil = await silentList().catch(() => null); if (stale()) return;
   const body = JSON.stringify(sil ? { uris: [c.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [c.uri], position_ms: pos });
   if (!dev.is_active) {                               // Gerät erst "aufwecken", sonst ignoriert Spotify den Befehl oft
     await sp.api("/me/player", { method:"PUT", body: JSON.stringify({ device_ids:[dev.id], play:false }) }).catch(() => {});
-    await sleep(600);
+    await sleep(600); if (stale()) return;
   }
   await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body });
   // Kontrolle: läuft wirklich der richtige Song? Sonst einmal nachlegen.
   for (let i = 0; i < 2; i++) {
-    await sleep(1200);
-    const pl = await sp.api("/me/player").catch(() => null);
+    await sleep(1200); if (stale()) return;
+    const pl = await sp.api("/me/player").catch(() => null); if (stale()) return;
+    // Läuft statt des Songs schon der Stille-Track, war der Song nicht abspielbar (z. B. in DE gesperrt)
+    if (pl?.is_playing && sil?.includes(pl.item?.uri) && !pl.item?.linked_from)
+      throw Object.assign(new Error("Spotify kann diesen Song gerade nicht abspielen (z. B. in Deutschland nicht verfügbar). Über „Falscher Song?“ kannst du eine andere Version wählen."), { unplayable: true });
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
     if (pl?.is_playing) {
       if (pl.device?.id) store.set("lastDev", { id: pl.device.id, t: Date.now() });   // merkt: diese Runde läuft hier
@@ -1304,8 +1322,9 @@ async function playCurrent(fromStart){
       renderVol();
       state.paused = false; updatePlayUI(); return;
     }
-    if (i === 0) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
+    if (i === 0 && !stale()) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
   }
+  if (stale()) return;
   throw Object.assign(new Error("NOTPLAYING"), { nodevice:true });
 }
 
@@ -1366,9 +1385,10 @@ document.addEventListener("visibilitychange", async () => {
 });
 // Verständliche Fehlermeldung mit genau einem Knopf zur Lösung (plus ggf. Alternative)
 function friendlyErr(e){
-  const off = !navigator.onLine || e instanceof TypeError || /failed to fetch|network/i.test(e?.message || "");
+  const off = navigator.onLine === false || !!e?.net;   // nur echte Netzfehler – Programmfehler nicht als „kein Internet“ tarnen
   if (off) return { i: "<span class=dw data-dw=wifi></span>", t: "Keine Internetverbindung", d: "Prüf WLAN oder mobile Daten – dann einfach nochmal tippen.", btn: "Nochmal versuchen" };
-  if (e?.quota) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst – Songs mit fester Aufnahme laufen oft trotzdem.", btn: "Nochmal versuchen" };
+  if (e?.unplayable) return { i: "<span class=dw data-dw=stop></span>", t: "Song nicht abspielbar", d: e.message, btn: "Anderen Song ziehen", other: true };
+  if (e?.quota) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst. Songs mit fester Aufnahme laufen trotzdem – nur die Suche nach neuen Songs pausiert.", btn: "Nochmal versuchen" };
   if (e?.status === 429) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify bremst kurz", d: "Zu viele Anfragen auf einmal. Ein paar Sekunden warten, dann nochmal tippen.", btn: "Nochmal versuchen" };
   if (e?.status === 401) return { i: "<span class=dw data-dw=key></span>", t: "Spotify-Anmeldung abgelaufen", d: "Einmal neu anmelden, danach geht's direkt weiter.", btn: "Neu anmelden", act: () => sp.login() };
   if (e?.status === 403) return { i: "<span class=dw data-dw=lock></span>", t: "Spotify lässt nicht abspielen", d: "Abspielen geht nur mit Spotify Premium und wenn dein Konto in der App freigeschaltet ist.", btn: "Nochmal versuchen" };
@@ -1433,7 +1453,7 @@ function updatePlayUI(){
 
 function reveal(){
   const c = state.current; if (!c) return;
-  clearTimeout(sprintTimer);
+  clearTimeout(sprintTimer); sprintTok++;
   if (!c.revealed) {
     c.revealed = true;
     state.played.add(c.song.i); state.playedAt[c.song.i] = ++state.playN; save();
@@ -1540,7 +1560,7 @@ const saveCur = () => store.set("cur", serCur(state.current));
 // ---------- Rückgängig: Schnappschuss vor jeder Punkte-/Zug-Änderung ----------
 function pushUndo(label){
   undoStack.push({ g: JSON.stringify(state.game), cur: serCur(state.current), view: curView, label });
-  if (undoStack.length > 40) undoStack.shift(); store.set("undo", undoStack);
+  if (undoStack.length > 15) undoStack.splice(0, undoStack.length - 15); store.set("undo", undoStack);   // 15 Schritte reichen, spart Speicher
 }
 function clearUndo(){ undoStack = []; store.set("undo", undoStack); }
 function doUndo(){
@@ -1867,16 +1887,19 @@ function renderSabotage(){
 }
 
 // ---------- Modus-Bereich im Abspiel-Bildschirm ----------
-let sprintTimer = null;
+let sprintTimer = null, sprintTok = 0;   // sprintTok: jeder neue Start/Auflösen macht ältere Startversuche ungültig
 async function sprintPlay(k){
   const c = state.current, st = modeDef().app.stufen; if (!c || !st[k]) return;
-  clearTimeout(sprintTimer);
+  clearTimeout(sprintTimer); const tok = ++sprintTok;
   c.stage = k; c.sprintRunning = true; renderModeBox();
   $("#playHint").textContent = `Stufe ${k+1}: ${st[k][0]} Sekunden · ${st[k][1]} ${st[k][1] === 1 ? "Punkt" : "Punkte"}`;
   await playCurrent(true);
+  if (tok !== sprintTok || state.current !== c) return;      // inzwischen aufgelöst oder neue Stufe/Karte
   const pl = await sp.api("/me/player").catch(() => null);
+  if (tok !== sprintTok || state.current !== c) return;
   const left = st[k][0] * 1000 - (pl?.progress_ms || 0);
   sprintTimer = setTimeout(async () => {
+    if (tok !== sprintTok || state.current !== c) return;
     try { if (keepAliveOn() && store.get("silentOk", null)) await sp.api("/me/player/next", { method:"POST" }); else await sp.api("/me/player/pause", { method:"PUT" }); } catch(e) {}
     state.paused = true; updatePlayUI(); $("#playState").textContent = `Stopp nach ${st[k][0]} Sekunden`;
     c.sprintRunning = false; renderModeBox();
@@ -2939,11 +2962,12 @@ document.addEventListener("click", e => { if (e.target.closest("#startBtn, #tvNe
 // Hintergrund regelmäßig und öffnet Spotify schon beim Tipp auf „Scanner starten“, „Nächste Karte“ usw.
 let spPollT = 0;
 async function spPoll(){ if (!sp.tok() || sp.quota() || document.visibilityState !== "visible") return; spPollT = Date.now(); await spCheck(false); }
-setInterval(() => { if (["setup", "game", "play", "rette"].includes(curView) && Date.now() - spPollT > 20000) spPoll(); }, 5000);
+// Alle 45 s reicht (spart Spotify-Kontingent und Akku); beim Zurückkehren in die App wird sofort geprüft.
+setInterval(() => { if (["setup", "game", "play", "rette", "zeitsprung", "extra"].includes(curView) && Date.now() - spPollT > 45000) spPoll(); }, 5000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && !spWaking) setTimeout(spPoll, 800); });
 document.addEventListener("click", e => {
   const b = e.target.closest("#scanBtn, #nextBtn, #tvNext, #resumeBtn, #wpNew, #rsPick, .rsOpt .pl");
-  if (!b || !sp.tok() || spReady || spWaking || sp.quota() || Date.now() - spPollT > 60000) return;
+  if (!b || !sp.tok() || spReady || spWaking || sp.quota() || Date.now() - spPollT > 100000) return;
   if (b.id === "scanBtn" && scanner) return;                  // Scanner stoppen braucht kein Spotify
   // kein Gerät erreichbar → Spotify jetzt (im Tipp) öffnen; danach geht es automatisch mit dem Tipp weiter
   e.preventDefault(); e.stopImmediatePropagation();
@@ -4109,6 +4133,7 @@ $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").for
 
 (async () => {
   renderInstall(); showNewsBanner(); renderBkRemind(); renderSpReady();
+  try { navigator.storage?.persist?.(); } catch(e) {}   // Browser bitten, Mixtapes & Co. nicht von selbst zu löschen
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
   const err = await sp.handleRedirect();
