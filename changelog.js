@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.2", d: "2026-11-28", e: [
+    ["neu", "Einstellungen → App: Kurze Hilfe, wie das neue App-Icon auf Android und iPhone auf den Startbildschirm kommt."],
+    ["change", "Playlist importieren: Bis 100 Songs reicht es, Claude den Link im Chat zu schicken. Den Import braucht ihr nur noch für größere, eigene Playlists – fremde Playlists gibt Spotify seit 2026 nicht mehr heraus."],
+  ]},
   { v: "0.15.1", d: "2026-11-28", e: [
     ["fix", "Schnelles Weitertippen startet keinen alten Song mehr. Beim Sprint stoppt ein verspäteter Timer nach „Auflösen“ den Song nicht mehr."],
     ["fix", "iPhone/iPad: Ist ein Song bei Spotify nicht abspielbar und läuft stattdessen nur die Stille, sagt Mixtape das jetzt, statt „Song läuft“ zu zeigen."],

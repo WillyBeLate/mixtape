@@ -1,2 +1,0 @@
-2026-11-27T23:02:28.909Z
-26zIHVncgI9HmHlgYWwnDi: FEHLER Spotify 403 {"error": {"status": 403, "message": "Forbidden" } }

@@ -15,11 +15,11 @@
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/html5-qrcode.min.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.1"></script>
-<script src="regeln.js?v=0.15.1"></script>
-<script src="changelog.js?v=0.15.1"></script>
-<script src="geprueft.js?v=0.15.1"></script>
-<script src="ids.js?v=0.15.1"></script>
+<script src="daten.js?v=0.15.2"></script>
+<script src="regeln.js?v=0.15.2"></script>
+<script src="changelog.js?v=0.15.2"></script>
+<script src="geprueft.js?v=0.15.2"></script>
+<script src="ids.js?v=0.15.2"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -761,7 +761,7 @@
     <div id="pruefStat" class="panel small" style="margin:6px 0"></div>
     <details class="fold sub adm" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
     <div class="panel" style="margin-top:6px">
-      <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
+      <div class="small">Bis 100 Songs reicht es, Claude den Playlist-Link einfach im Chat zu schicken. Für größere Playlists: Link einer <b>eigenen</b> (oder gemeinsamen) Spotify-Playlist hier einfügen – fremde Playlists gibt Spotify seit 2026 nicht mehr heraus (Tipp: in Spotify über „Zu anderer Playlist hinzufügen“ eine eigene Kopie anlegen). Mixtape speichert alle Songs mit Titel, Interpret, Album, Datum und Spotify-ID als Datei – die ladet ihr im Chat hoch.</div>
       <input type="text" id="plUrl" placeholder="https://open.spotify.com/playlist/…" style="margin-top:8px">
       <button class="btn small" id="plGo"><span class=dw data-dw=download></span> Auslesen &amp; speichern</button>
       <div id="plMsg" class="small"></div>
@@ -788,6 +788,9 @@
     <div class="panel"><h2 style="margin-top:0">App</h2>
       <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · © Willy · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
       <div id="installBox"></div>
+      <details style="margin-top:8px"><summary class="small" style="cursor:pointer">App-Icon auf dem Startbildschirm ist noch alt?</summary>
+        <div class="small" style="margin-top:6px"><b>Android (Chrome):</b> Ein neues Icon übernimmt Chrome aus Sicherheitsgründen nicht still, sondern nur mit deiner Zustimmung. Öffne willybelate.github.io/mixtape in einem normalen Chrome-Tab → Menü ⋮ → <b>„App-Update überprüfen“</b> → bestätigen. Taucht der Punkt nicht auf: vorher sichern (Daten &amp; Sicherung), dann App deinstallieren und über Chrome neu installieren.<br>
+        <b>iPhone/iPad:</b> iOS übernimmt das Icon nur beim Hinzufügen. Zum Aktualisieren: vorher sichern (Daten &amp; Sicherung), dann das Icon vom Home-Bildschirm entfernen, in Safari über Teilen → „Zum Home-Bildschirm“ neu hinzufügen und die Sicherung laden.</div></details>
       <button class="btn small sec adm" id="admOff" style="margin-top:8px">Daten-Bereich auf diesem Gerät ausblenden</button>
     </div>
   </section>
@@ -811,7 +814,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.1";
+const APP_VERSION = "0.15.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;

@@ -1,2 +1,0 @@
-# Eine Spotify-Playlist-URL pro Zeile. Nach dem Push liest die Action „Playlist auslesen“ sie aus → tools/playlists/<id>.json
-https://open.spotify.com/playlist/26zIHVncgI9HmHlgYWwnDi
