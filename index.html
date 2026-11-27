@@ -169,6 +169,8 @@
   .pop{position:fixed;inset:0;z-index:60;background:#0b0418d9;backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px;animation:wpf .25s ease-out}
   .pop .wp{position:relative;width:min(420px,100%);max-height:92vh;overflow:auto;background:linear-gradient(160deg,#3b1f7a,#1d0f3d);border-radius:26px;padding:26px 20px 18px;text-align:center;
     box-shadow:0 0 0 2px var(--wc,#ffd23f),0 20px 60px #000a,0 0 80px color-mix(in srgb,var(--wc,#ffd23f) 45%,transparent);animation:wpp .5s cubic-bezier(.2,1.6,.4,1)}
+  .uiDlg .wp{text-align:left;padding:22px 20px 16px}.uiMsg{font-size:16px;line-height:1.45;white-space:pre-line}
+  .uiBtns{display:flex;gap:8px;margin-top:16px}.uiBtns .btn{flex:1;margin:0}
   .pop .tro{font-size:74px;line-height:1;animation:wpb 1.4s ease-in-out infinite}
   .pop .wl{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.75;margin-top:8px}
   .pop .wn{font-size:34px;font-weight:900;margin:4px 0 6px;color:var(--wc,#fff);text-shadow:0 2px 0 #0006}
@@ -461,7 +463,8 @@
   .rsOpt.on{border-color:var(--accent);background:#ff5fa22a}
   .rsOpt .cv{width:46px;height:46px;border-radius:10px;flex:none;background:linear-gradient(135deg,#ff5fa2,#7c5cff);background-size:cover;background-position:center;display:grid;place-items:center;font-size:22px}
   .rsOpt .tx{flex:1;min-width:0}.rsOpt .tx b{display:block;font-size:16px;line-height:1.2}.rsOpt .tx span{font-size:13px;color:#d3c8ef}
-  .tbi{width:36px;height:36px;margin-right:2px;display:inline-flex;flex:none}.tbi svg{width:100%;height:100%}
+  .tbi{width:36px;height:36px;margin-right:6px;display:inline-flex;flex:none;padding:2px}.tbi svg{width:100%;height:100%;overflow:visible}
+  .rsYear .rsWho.rsMe{margin:0 6px 0 0;font-size:14px;padding:2px 10px;vertical-align:1px}.rsYear .rsWho.rsMe+.rsWho{margin-left:4px}
   .ico{width:1.05em;height:1.05em;vertical-align:-.16em;display:inline-block;flex:none}
   .rsOpt .pl{width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:20px;flex:none;cursor:pointer;display:grid;place-items:center;padding:0}
   .rsOpt .pl .ico{width:20px;height:20px}
@@ -483,7 +486,7 @@
   .flg{display:inline-block;vertical-align:-1px;border-radius:2px;box-shadow:0 0 0 1px #ffffff40,0 1px 3px #0006;overflow:hidden}
   .flgt{font:800 8.5px/13px system-ui,sans-serif;letter-spacing:.5px;padding:0 4px;background:#ffffff26;color:#fff;box-shadow:none;border-radius:4px;vertical-align:1px}
   .cvw{position:relative;flex:none}.cvw .flg{position:absolute;right:-5px;bottom:-4px}
-  .rsOpt .tx .rsWho{display:inline-block;margin:4px 4px 0 0;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--c) 30%,transparent);color:#fff;border:1px solid var(--c)}
+  .rsWho{display:inline-block;margin:4px 4px 0 10px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--c) 30%,transparent);color:#fff;border:1px solid var(--c)}
   .rsPrev{font-size:13px;text-align:center;color:#d3c8ef;background:#ffffff10;border-radius:12px;padding:7px 10px;margin:-4px 0 6px}
   #rsOpts .rsOpt.on{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 18%,transparent)}
   .homebtn{display:inline-flex;align-items:center;gap:6px;border:1px solid #ffffff2e;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 13px 7px 10px;font:600 13px system-ui,sans-serif;cursor:pointer;margin:2px 0 6px}
@@ -789,7 +792,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.12.4";
+const APP_VERSION = "0.12.5";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1204,7 +1207,7 @@ $("#bkFile").addEventListener("change", async e => {
   const f = e.target.files?.[0]; if (!f) return;
   try {
     const j = JSON.parse(await f.text()); if (j.app !== "mixtape" || !j.data) throw new Error("Das ist keine Mixtape-Sicherung.");
-    if (!confirm(`Sicherung vom ${new Date(j.date).toLocaleString("de-DE")} laden? Der jetzige Stand auf diesem Gerät wird dabei ersetzt.`)) return;
+    if (!await ask(`Sicherung vom ${new Date(j.date).toLocaleString("de-DE")} laden? Der jetzige Stand auf diesem Gerät wird dabei ersetzt.`)) return;
     localStorage.clear(); Object.entries(j.data).forEach(([k, v]) => localStorage.setItem(k, v));
     msg("#bkMsg", "ok", "Sicherung geladen – die App startet neu …"); setTimeout(() => location.reload(), 800);
   } catch(err) { msg("#bkMsg", "err", esc(err.message || String(err))); }
@@ -1404,6 +1407,18 @@ function reveal(){
   c.stage = 9; c.done = true; renderModeBox(); renderScore();
 }
 const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+// Eigene Dialoge statt der Browser-Fenster („Auf … wird Folgendes angezeigt“)
+function uiDialog(msg, o = {}){
+  return new Promise(ok => {
+    const el = document.createElement("div"); el.className = "pop uiDlg";
+    el.innerHTML = `<div class="wp"><div class="uiMsg">${esc(String(msg))}</div><div class="uiBtns">${o.cancel ? `<button class="btn sec" data-r="0">${esc(o.cancel)}</button>` : ""}<button class="btn" data-r="1">${esc(o.ok || "OK")}</button></div></div>`;
+    const done = r => { el.remove(); ok(r); };
+    el.addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (b) done(b.dataset.r === "1"); else if (e.target === el) done(false); });
+    document.body.appendChild(el); el.querySelector('[data-r="1"]').focus();
+  });
+}
+const ask = (msg, ok = "Ja", cancel = "Abbrechen") => uiDialog(msg, { ok, cancel });
+window.alert = msg => { uiDialog(msg); };
 
 // =====================================================================
 //  SPIELMODI & PUNKTETAFEL  (Regeln + Einstellungen stehen in regeln.js)
@@ -2881,8 +2896,8 @@ function renderResume(){
     <button class="btn sec" id="resumeBtn">${IC_PLAY} Weiterspielen</button><div class="small" style="padding-right:40px">Oder unten Modus &amp; Mix wählen und eine neue Runde starten.</div>
     <button class="trashbtn" id="resumeDel" aria-label="Laufende Runde verwerfen" title="Runde verwerfen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg></button></div>` : "";
   $("#resumeBtn")?.addEventListener("click", openSpiel);
-  $("#resumeDel")?.addEventListener("click", () => {
-    if (!confirm("Laufende Runde verwerfen? Punktestand und aktuelle Karte gehen verloren.")) return;
+  $("#resumeDel")?.addEventListener("click", async () => {
+    if (!await ask("Laufende Runde verwerfen? Punktestand und aktuelle Karte gehen verloren.")) return;
     stopScanner(); state.running = false; store.set("running", false); state.current = null; store.del("cur"); undoStack.length = 0; store.set("undo", []); renderResume();
   });
 }
@@ -2996,7 +3011,7 @@ $("#mbExport").addEventListener("click", async () => {
     alert(n + " Ergebnisse als Datei „mixtape-pruefung.json“ gespeichert – einfach im Chat hochladen.");
   } catch(e) { try { await navigator.clipboard.writeText(txt); alert(n + " Ergebnisse kopiert."); } catch(e2) { prompt("Ergebnisse kopieren:", txt); } }
 });
-$("#mbReset").addEventListener("click", () => { if (!confirm("Alle Prüfergebnisse löschen?")) return;
+$("#mbReset").addEventListener("click", async () => { if (!await ask("Alle Prüfergebnisse löschen?")) return;
   try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
@@ -3034,7 +3049,7 @@ $("#plGo").addEventListener("click", async () => {
       : e.status === 404 ? " – Link prüfen bzw. ist die Playlist privat?" : "";
     $("#plMsg").innerHTML = `<div class="msg err">Fehler: ${esc(e.message || String(e))}${hint}</div>`; }
 });
-$("#clearPlayed").addEventListener("click", () => { if (!confirm("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); state.playedAt = {}; state.playN = 0; store.del("verlauf"); save(); alert("Verlauf gelöscht."); });
+$("#clearPlayed").addEventListener("click", async () => { if (!await ask("Verlauf löschen? Danach können auch Songs kommen, die ihr erst kürzlich gehört habt.")) return; state.played.clear(); state.playedAt = {}; state.playN = 0; store.del("verlauf"); save(); alert("Verlauf gelöscht."); });
 $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(); alert("Abgemeldet."); });
 
 // ---------- Installierbare App ----------
@@ -3196,9 +3211,9 @@ function rsSetup(box){
   box.innerHTML = rsTop("Rette einen Song", isA ? "Pro Künstler ein Song – dein Mixtape" : "Pro Jahr ein Song – dein Lebens-Mixtape") + `
     ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${rsLbl(open)}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} gewählt</div>
       <button class="btn" id="rsCont">${IC_PLAY} Weitermachen</button></div>` : ""}
-    <div class="seg" id="rsMode"><button data-m="jahre" class="${isA ? "" : "on"}">📅 Nach Jahren</button><button data-m="kuenstler" class="${isA ? "on" : ""}">🎤 Nach Künstlern</button></div>
-    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler kommen 8 seiner bekanntesten Songs – jede Runde neu gemischt. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."
-      : "Für jedes Jahr kommen 8 prägende Songs – jede Runde neu gemischt aus 20 großen Hits des Jahres, quer durch die Genres, mit deutschen Hits dazwischen. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."}</p>
+    <div class="seg" id="rsMode"><button data-m="jahre" class="${isA ? "" : "on"}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14.5h2.5M13.5 14.5H16M8 17.5h2.5"/></svg> Nach Jahren</button><button data-m="kuenstler" class="${isA ? "on" : ""}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg> Nach Künstlern</button></div>
+    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler kommen 8 seiner bekanntesten Songs – jede Runde neu gemischt. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit " + IC_PLAY + " aufdeckst. Du darfst nur einen retten, die anderen sind weg."
+      : "Für jedes Jahr kommen 8 prägende Songs – jede Runde neu gemischt aus 20 großen Hits des Jahres, quer durch die Genres, mit deutschen Hits dazwischen. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit " + IC_PLAY + " aufdeckst. Du darfst nur einen retten, die anderen sind weg."}</p>
     ${isA ? `<div class="panel"><b>Künstler</b> <span class="small">(${o.artists.length} gewählt)</span>
       <div class="chips" id="rsArts">${RS_ART.map(a => `<button data-a2="${esc(a)}" class="${o.artists.includes(a) ? "on" : ""}">${esc(a)}</button>`).join("")}</div>
       <div style="display:flex;gap:6px;margin-top:8px"><button class="btn sec small" id="rsAll">Alle</button><button class="btn sec small" id="rsNone">Keine</button><button class="btn sec small" id="rsRnd">🎲 10 zufällige</button></div></div>` : ""}
@@ -3229,10 +3244,10 @@ function rsSetup(box){
   $("#rsRnd")?.addEventListener("click", () => setArts(RS_ART.map(a => [a, Math.random()]).sort((x, y) => x[1] - y[1]).slice(0, 10).map(x => x[0])));
   $("#rsCont")?.addEventListener("click", () => { rs.view = "play"; rsSave(); rsRender(); });
   box.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { rsShow = arch[+b.dataset.a]; rsRender(); window.scrollTo(0, 0); });
-  $("#rsGo").onclick = () => {
+  $("#rsGo").onclick = async () => {
     const names = keep(); let from = Math.max(RS_MINY, Math.min(+$("#rsFrom").value || 1980, RS_MAXY)), to = Math.max(RS_MINY, Math.min(+$("#rsTo").value || RS_MAXY, RS_MAXY));
     if (from > to) [from, to] = [to, from];
-    if (open && !confirm("Dein angefangenes Mixtape wird dabei verworfen. Neues starten?")) return;
+    if (open && !await ask("Dein angefangenes Mixtape wird dabei verworfen. Neues starten?")) return;
     const nm = [names[0] || (o.zwei ? "Person 1" : "Ich")]; if (o.zwei) nm.push(names[1] || "Person 2");
     const years = [];
     if (isA) {
@@ -3280,7 +3295,7 @@ function rsChoose(box){
   box.innerHTML = rsTop("Rette einen Song", sub) + `
     <div class="rsBar"><i style="width:${((rs.pos + pl / rs.names.length) / total) * 100}%"></i></div>
     ${pv ? `<div class="rsPrev">${pv}${tipRes}</div>` : ""}
-    <div class="rsYear"><div class="y" ${rsIsA(rs) ? `style="font-size:${String(Y.y).length > 14 ? 30 : 38}px;line-height:1.1"` : ""}>${esc(String(Y.y))}</div><div class="w">${two ? `<b style="color:${PC[pl]}">${esc(rs.names[pl])}</b>, welchen Song rettest du?` : "Welchen Song rettest du?"}</div></div>
+    <div class="rsYear"><div class="y" ${rsIsA(rs) ? `style="font-size:${String(Y.y).length > 14 ? 30 : 38}px;line-height:1.1"` : ""}>${esc(String(Y.y))}</div><div class="w">${two ? `<span class="rsWho rsMe" style="--c:${PC[pl]}">${esc(rs.names[pl])}</span> welchen Song rettest du?` : "Welchen Song rettest du?"}</div></div>
     <div id="rsOpts" style="--pc:${two ? PC[pl] : "var(--accent)"}">${Y.opts.slice(0, shown).map(k => { const s = rsSong(k); return `<div class="rsOpt ${rsSel === k ? "on" : ""} ${fresh === k ? "rsNew" : ""}" data-k="${esc(k)}">
       <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span>${who(k)}</div>
       <button class="pl" data-k="${esc(k)}" aria-label="Reinhören">${IC_PLAY}</button></div>`; }).join("")}
@@ -3360,8 +3375,8 @@ function rsFixOpen(k, list, box){
     if (sp.tok()) try { const tr = await sp.api("/tracks/" + id + "?market=DE"); r = { uri: tr.uri, dur: tr.duration_ms, name: tr.name, artist: tr.artists.map(a => a.name).join(", "), album: tr.album?.name || "", date: tr.album?.release_date || "", typ: tr.album?.album_type || "" }; } catch(e) {}
     save(r);
   };
-  $("#rsFixNone").onclick = () => {
-    if (!confirm(`„${showT(s)}“ aus allen Spielen entfernen, weil es den Song bei Spotify nicht gibt?`)) return;
+  $("#rsFixNone").onclick = async () => {
+    if (!await ask(`„${showT(s)}“ aus allen Spielen entfernen, weil es den Song bei Spotify nicht gibt?`)) return;
     store.set("nospot:" + k, true); store.del("fix:" + k); ghQueue("nospot", k);
     if (rs && !rs.done) { const Y = rs.years[rs.pos]; const i = Y.opts.indexOf(k);
       if (i >= 0) { Y.opts.splice(i, 1); const pool = rsIsA(rs) ? (KUENSTLER_10[Y.y] || []) : (RETTE_8[Y.y] || []);
@@ -3376,7 +3391,7 @@ function rsFixOpen(k, list, box){
 function rsTip(box){
   const Y = rs.years[rs.pos], pl = rs.pl, ot = 1 - pl, PC = ["#ff5fa2", "#2de2e6"], done = Y.picks[ot] != null;
   box.innerHTML = rsTop("Rette einen Song", `${esc(rs.names[pl])} tippt · ${esc(String(Y.y))}`) + `
-    <div class="rsYear"><div style="font-size:40px;line-height:1">🎯</div><div class="w"><b style="color:${PC[pl]}">${esc(rs.names[pl])}</b>, welchen Song ${done ? "hat" : "rettet"} <b style="color:${PC[ot]}">${esc(rs.names[ot])}</b> ${done ? "gerettet" : ""}?</div></div>
+    <div class="rsYear"><div style="font-size:40px;line-height:1">🎯</div><div class="w"><span class="rsWho rsMe" style="--c:${PC[pl]}">${esc(rs.names[pl])}</span> welchen Song ${done ? "hat" : "rettet"} <span class="rsWho rsMe" style="--c:${PC[ot]}">${esc(rs.names[ot])}</span> ${done ? "gerettet" : ""}?</div></div>
     <div class="small" style="text-align:center;margin:-4px 0 8px">Dein Song: „${esc(showT(rsSong(Y.picks[pl])))}“ – die Auflösung kommt ${done ? "gleich" : "nach " + esc(rs.names[ot]) + "s Wahl"}.</div>
     <div id="rsOpts" style="--pc:${PC[pl]}">${Y.opts.map(k => { const s = rsSong(k); return `<div class="rsOpt" data-tk="${esc(k)}">
       <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div></div>`; }).join("")}</div>
@@ -3682,10 +3697,10 @@ function zsSetup(box){
   $("#zsAdd")?.addEventListener("click", () => { o.names = [...names(), ""]; store.set("zsOpt", o); zsSetup(box); });
   box.querySelectorAll("[data-zdel]").forEach(b => b.onclick = () => { o.names = names().filter((_, i) => i !== +b.dataset.zdel); store.set("zsOpt", o); zsSetup(box); });
   box.querySelectorAll("[data-zn]").forEach(el => el.oninput = saveO);
-  $("#zsGo").onclick = () => {
+  $("#zsGo").onclick = async () => {
     const ns = names().map((n, i) => n || (names().length > 1 ? "Person " + (i + 1) : "Ich")); saveO();
     if (zsPool(o.cats).length < 20) { $("#zsMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`; return; }
-    if (open && !confirm("Die laufende Runde wird beendet. Neue Runde starten?")) return;
+    if (open && !await ask("Die laufende Runde wird beendet. Neue Runde starten?")) return;
     zs = { id: Date.now(), cats: o.cats, players: ns.map(n => ({ n, l: ZS_LIVES, p: 0, s: 0, best: 0 })), turn: 0, n: 0, used: [], ref: null, cur: null, last: null, view: "play", done: false };
     zs.ref = zsDraw(); zs.used.push(zs.ref); zs.cur = zsDraw(); zs.used.push(zs.cur);
     zsSave(); zsRender(); window.scrollTo(0, 0); zsPlay(true);
@@ -3710,7 +3725,7 @@ function zsGame(box){
     <button class="btn sec small" id="zsEnd" style="display:block;margin:14px auto 0">Runde beenden</button>`;
   rsCovers(box);
   $("#zsBack").onclick = () => { zs.view = "setup"; zsSave(); show("setup"); };
-  $("#zsEnd").onclick = () => { if (confirm("Runde jetzt beenden?")) zsFinish(); };
+  $("#zsEnd").onclick = async () => { if (await ask("Runde jetzt beenden?", "Beenden")) zsFinish(); };
   $("#zsPl")?.addEventListener("click", () => zsPlay(false));
   $("#zsAgain")?.addEventListener("click", () => zsPlay(true));
   const answer = later => {
@@ -3763,7 +3778,7 @@ $("#verTap").addEventListener("click", () => {
   const now = Date.now(); verTaps = now - verTapT < 1500 ? verTaps + 1 : 1; verTapT = now;
   if (verTaps >= 7 && !isAdmin()) { verTaps = 0; store.set("admin", true); applyAdmin(); renderData(); alert("Daten-Bereich auf diesem Gerät freigeschaltet."); }
 });
-$("#admOff").addEventListener("click", () => { if (!confirm("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; syncRunning = false; mbRunning = false; store.set("admin", false); applyAdmin(); });
+$("#admOff").addEventListener("click", async () => { if (!await ask("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; syncRunning = false; mbRunning = false; store.set("admin", false); applyAdmin(); });
 // ---------- Neuigkeiten ----------
 const CL_LBL = { neu: "Neu", change: "Geändert", fix: "Fix" };
 const verNum = v => String(v).split(/[–-]/).pop().split(".").map(Number).reduce((a, x) => a * 1000 + (x || 0), 0);

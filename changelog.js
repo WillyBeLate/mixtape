@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.5", d: "2026-11-27", e: [
+    ["change", "Rückfragen wie „Neues Mixtape starten?“ erscheinen jetzt als eigenes Fenster im Mixtape-Stil statt als graue Browser-Meldung."],
+    ["change", "Rette einen Song: gezeichnete Icons bei „Nach Jahren“ und „Nach Künstlern“; wer gerade wählt, steht jetzt als farbiges Namensschild da; mehr Abstand zwischen Künstler und Namensschild."],
+    ["fix", "Rette einen Song: In der Beschreibung stand „${IC_PLAY}“ statt des Play-Symbols. Das Modus-Icon oben links wird nicht mehr abgeschnitten."],
+  ]},
   { v: "0.12.4", d: "2026-11-27", e: [
     ["change", "Spielmodi: Ob ihr Jahreskarten braucht, zeigt jetzt nur noch ein kleines Karten-Symbol oben rechts auf der Kachel. Kein Symbol = ohne Karten."],
   ]},
