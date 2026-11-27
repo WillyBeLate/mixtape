@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.11.0", d: "2026-11-27", e: [
+    ["neu", "Rette einen Song: große Auswertung – Genre-Profil, Deutsch vs. international mit Flaggen, Mainstream oder Geheimtipp, Lieblingskünstler. Zu zweit außerdem Geschmacks-Match (auch gleicher Künstler/Genre zählt), eure einigste und strittigste Phase und das Jahrzehnt-Duell."],
+    ["neu", "Partner-Tipp (zu zweit, im Setup an- und abschaltbar): Nach jedem geretteten Song tippst du, welchen der andere rettet. Am Ende: Wer kennt wen besser?"],
+    ["neu", "Auswertung als Bild teilen, z. B. per WhatsApp."],
+  ]},
   { v: "0.10.4", d: "2026-11-27", e: [
     ["change", "Rette einen Song: Pro Jahr gibt es jetzt einen Pool von 20 prägenden Songs – jede neue Runde kommen zufällig 8 davon. Auch bei den Künstlern wird jedes Mal neu gemischt."],
     ["neu", "165 neue Songs (u. a. Ray Charles, Marvin Gaye, Pink Floyd, Red Hot Chili Peppers, Spice Girls, Shakira, Bad Bunny) – auch im normalen Quiz in ihren Kategorien."],
