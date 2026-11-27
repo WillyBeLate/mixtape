@@ -832,7 +832,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.14.4";
+const APP_VERSION = "0.14.5";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1196,11 +1196,11 @@ async function getDevice(){
     try { playing = !!(await sp.api("/me/player"))?.is_playing; } catch(e) {}
     if (playing || (last?.id === act.id && Date.now() - last.t < 30 * 6e4)) return act;
   }
-  const me = store.get("myPhone", null);
+  const me = store.get("myPhone", null), isI = x => /iphone|ipad/i.test(x?.name || "");
   let p = me && (d.find(x => x.id === me.id) || d.find(x => x.name === me.name));
   if (!p) {
     // gemerktes Handy nicht in der Liste (iPhone vergibt teils neue Geräte-IDs) → passendes Handy suchen
-    const ios = IS_IOS, isI = x => /iphone|ipad/i.test(x.name);   // iPad meldet sich in Safari als „Mac“ – deshalb IS_IOS
+    const ios = IS_IOS;   // iPad meldet sich in Safari als „Mac“ – deshalb IS_IOS
     let ph = d.filter(isMob);
     const hint = ph.filter(x => isI(x) === ios);               // iPhone-Namen auf dem iPhone, sonst die anderen
     const sure = ios ? hint.length > 0 : hint.length > 0 && hint.length < ph.length;
@@ -1424,7 +1424,7 @@ async function handleYear(year){
   const m = modeDef();
   if (m.app.typ === "wunsch" && !state.forceCat) { showWunsch(year); return; }
   const pick = pickSong(year, m.app.typ === "wunsch" ? state.forceCat : null);
-  if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte im Datenbank-Check nachsehen.`); return; }
+  if (!pick) { msg("#scanMsg", "err", `Für ${year} gibt es im Main-Mix keinen Song. Bitte unter Einstellungen → Song-Statistik nachsehen.`); return; }
   show("play");
   $("#playDev").textContent = ""; $("#revealBox").innerHTML = ""; $("#nextBtn").style.display = "none"; $("#revealBtn").style.display = "block";
   $("#playState").textContent = "Song wird geladen …"; msg("#playMsg");
@@ -1485,7 +1485,7 @@ function reveal(){
   $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
   c.stage = 9; c.done = true; renderModeBox(); renderScore();
 }
-const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
 // Eigene Dialoge statt der Browser-Fenster („Auf … wird Folgendes angezeigt“)
 function uiDialog(msg, o = {}){
   return new Promise(ok => {
@@ -1527,6 +1527,11 @@ function defaultName(m, i){
 const TEAMFARBEN = ["#ff4d8d", "#ef4444", "#ff8a1f", "#ffd23f", "#2ecc71", "#14c8b4", "#38bdf8", "#3b6cff", "#9b5cff", "#e5e7eb"];
 const TEAM_START = [0, 6, 3, 4, 8, 2, 5, 7, 1, 9];
 const teamCol = i => TEAMFARBEN[state.game?.teams?.[i]?.c ?? TEAM_START[i % 10]];
+// Läuft gerade eine Runde (Punkte vergeben oder Karte offen)? Dann vor dem Zurücksetzen nachfragen.
+async function okToReset(){
+  const busy = state.running && (state.current || undoStack.length);
+  return !busy || await ask("Die laufende Runde wird beendet und die Punkte werden zurückgesetzt. Trotzdem ändern?", "Ja, ändern", "Abbrechen");
+}
 function newGame(modeId, names){
   const m = SPIELMODI.find(x => x.id === modeId) || SPIELMODI[0];
   const [lo, hi] = m.app.teams;
@@ -1924,7 +1929,7 @@ function renderModeBox(){
   }
   box.innerHTML = h;
   $("#revealBtn").style.display = c.stage === 9 || typ === "staffel" ? "none" : "block";
-  const err = e => e.nodevice ? showWake("Spotify schläft gerade.", () => sprintPlay(c.stage)) : msg("#playMsg", "err", e.message);
+  const err = e => e.nodevice ? showWake("Spotify schläft gerade.", () => sprintPlay(c.stage)) : msg("#playMsg", "err", esc(e.message));
   $("#sprNext")?.addEventListener("click", () => sprintPlay(c.stage + 1).catch(err));
   $("#sprAgain")?.addEventListener("click", () => sprintPlay(c.stage).catch(err));
   $("#sprFull")?.addEventListener("click", async () => { try { await sp.api("/me/player/play", { method:"PUT" }); state.paused = false; updatePlayUI(); } catch(e) { err(e); } });
@@ -2157,7 +2162,7 @@ function renderModePanel(){
   $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
   Object.keys(EX_DEF).forEach(k => { const b = $("#exOpen-" + k); if (b) b.onclick = () => exOpen(k); });
   $("#rsOpen").onclick = () => { if (rs) { rs.view = "setup"; rsSave(); } rsShow = null; show("rette"); };
-  document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#modeGrid [data-mode]").forEach(b => b.onclick = async () => {
     const x = SPIELMODI.find(k => k.id === b.dataset.mode); let target = x.id;
     if (x.app.typ === "tv" && exSel.length) {                  // Extra zu- oder abwählen
       const d = x.app.daten, s2 = exSel.includes(d) ? exSel.filter(k => k !== d) : [...exSel, d];
@@ -2165,7 +2170,7 @@ function renderModePanel(){
       if (s2.length > 1) { store.set("sonderSel", s2); target = SPIELMODI.find(k => k.app.daten === "mix").id; }
       else target = SPIELMODI.find(k => k.app.typ === "tv" && k.app.daten === s2[0]).id;
     }
-    if (target !== state.game.mode) newGame(target, state.game.teams.map(t => t.n));
+    if (target !== state.game.mode) { if (!await okToReset()) return; newGame(target, state.game.teams.map(t => t.n)); }
     renderModePanel(); });
   $("#modeDesc").textContent = mixOn ? "Gemischt: " + sonderSel().map(k => SPIELMODI.find(x => x.app.typ === "tv" && x.app.daten === k)?.name || k).join(" + ") + ". Ruft, sobald ihr's erkennt!" : fillText(m.kurz, m.app);
   const tv = m.app.typ === "tv", noMix = tv || m.app.ohneMix;
@@ -2205,8 +2210,8 @@ function renderModePanel(){
     const other = g.teams.findIndex((t, j) => j !== i && t.c === k);
     if (other >= 0) g.teams[other].c = cur;          // Farbe schon vergeben -> tauschen
     g.teams[i].c = k; saveGame(); renderModePanel(); renderScore?.(); });
-  $("#tAdd")?.addEventListener("click", () => { newGame(m.id, [...g.teams.map(t => t.n), defaultName(m, g.teams.length)]); renderModePanel(); });
-  $("#tDel")?.addEventListener("click", () => { newGame(m.id, g.teams.slice(0, -1).map(t => t.n)); renderModePanel(); });
+  $("#tAdd")?.addEventListener("click", async () => { if (!await okToReset()) return; newGame(m.id, [...g.teams.map(t => t.n), defaultName(m, g.teams.length)]); renderModePanel(); });
+  $("#tDel")?.addEventListener("click", async () => { if (!await okToReset()) return; newGame(m.id, g.teams.slice(0, -1).map(t => t.n)); renderModePanel(); });
 }
 
 // =====================================================================
@@ -2426,7 +2431,7 @@ async function openTvPicker(q){
       <div><b>${esc(tr.name)}</b><br><span>${esc(tr.artists.map(a => a.name).join(", "))} · ${esc(tr.album?.name || "")}</span></div>
       <button class="btn small sec" data-fp="${k}">${IC_PLAY}</button><button class="btn small" data-fs="${k}">✓</button></div>`).join("") : "Nichts gefunden – anderen Suchbegriff probieren.";
     const pick = k => ({ uri: items[k].uri, dur: items[k].duration_ms, name: items[k].name, artist: items[k].artists.map(a => a.name).join(", ") });
-    box.querySelectorAll("[data-fp]").forEach(b => b.onclick = async () => { Object.assign(c, pick(+b.dataset.fp)); try { await playCurrent(true); msg("#playMsg"); } catch(e) { msg("#playMsg", "err", e.message); } });
+    box.querySelectorAll("[data-fp]").forEach(b => b.onclick = async () => { Object.assign(c, pick(+b.dataset.fp)); try { await playCurrent(true); msg("#playMsg"); } catch(e) { msg("#playMsg", "err", esc(e.message)); } });
     box.querySelectorAll("[data-fs]").forEach(b => b.onclick = () => {
       const r = pick(+b.dataset.fs); store.set("tvfix:" + x.i, r); Object.assign(c, { uri: r.uri, trName: r.name, trArtist: r.artist });
       if (c.revealed) reveal();
@@ -2572,10 +2577,10 @@ async function startScanner(){
       const m = txt.match(/(\d{4})\s*$/);
       if (scanLock) return;                       // Kamera liefert ~10 Treffer/Sek. → nur den ersten nehmen
       if (!txt.startsWith(QR_PREFIX) || !m) { msg("#scanMsg", "warn", "Das ist keine " + APP_NAME + "-Karte."); return; }
-      scanLock = true; handleYear(+m[1]).catch(e => { show("play"); msg("#playMsg", "err", "Fehler: " + (e.message || e)); });
+      scanLock = true; handleYear(+m[1]).catch(e => { show("play"); msg("#playMsg", "err", "Fehler: " + esc(e.message || e)); });
     });
     $("#scanBtn").textContent = "Scanner stoppen";
-  } catch(e) { msg("#scanMsg", "err", "Kamera nicht verfügbar: " + (e.message || e)); scanner = null; }
+  } catch(e) { msg("#scanMsg", "err", "Kamera nicht verfügbar: " + esc(e.message || e)); scanner = null; }
 }
 function stopScanner(){
   // Scanner sofort "abmelden", damit ein zweiter Aufruf nicht nochmal stop() versucht (das wirft einen Fehler
@@ -2868,7 +2873,10 @@ function renderCardInfo(){
   if (mix) { const a = document.activeElement; if (!(a && a.dataset && a.dataset.dec)) renderCardMix(); else refreshMixLabels(); }
   const n = mix ? cardPlan().ys.length : Math.max(0, to - from + 1) * copies;
   $("#cardInfo").innerHTML = `<div class="msg ok">${n} Karten · ${Math.ceil(n/12)} Blätter (beidseitig)</div>`;
-  state.range = [from, to]; save();
+  // Der Druckbereich bestimmt auch, welche Jahre im Spiel vorkommen – nur gültige Bereiche übernehmen,
+  // damit ein halb getipptes „Von“ nicht alle Main-Kategorien zu Support macht.
+  const maxY = new Date().getFullYear() + 1;
+  if (from >= 1900 && to <= maxY && to - from >= 9) { state.range = [from, to]; save(); }
 }
 
 
@@ -3054,7 +3062,12 @@ function renderData(){
 // =====================================================================
 //  Navigation & Events
 // =====================================================================
+// Neue App-Version: erst neu laden, wenn gerade nicht gespielt wird (nie mitten in einer Runde)
+var needReload = false;   // var: show() kann schon vor dieser Zeile aufgerufen werden
+function reloadSafe(v){ return !["game", "play", "rette", "zeitsprung", "extra"].includes(v) && !scanner; }
+function maybeReload(){ if (reloadSafe(curView)) location.reload(); else needReload = true; }
 function show(v){
+  if (needReload && reloadSafe(v)) { store.set("lastView", v); location.reload(); return; }
   curView = v; store.set("lastView", v); keepAwake(awakeView(v));
   if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
@@ -3149,8 +3162,9 @@ document.addEventListener("click", e => {
   e.preventDefault(); e.stopImmediatePropagation();
   openSpotify(() => b.click());
 }, true);
-$("#startBtn").addEventListener("click", () => {
+$("#startBtn").addEventListener("click", async () => {
   // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
+  if (!await okToReset()) return;
   newGame(state.game.mode, state.game.teams.map(t => t.n));
   state.current = null; saveCur(); state.running = true; store.set("running", true);
   if (sp.tok() && !spReady) openSpotify();   // kein Spotify-Gerät erreichbar -> jetzt unauffällig wecken
@@ -3260,7 +3274,7 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
   // Neue Version sofort holen: SW ohne HTTP-Cache prüfen und nach Wechsel einmal neu laden
   navigator.serviceWorker.register("sw.js", { updateViaCache:"none" }).then(r => r.update()).catch(()=>{});
   let reloaded = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; maybeReload(); } });
 }
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; renderInstall(); });
 function renderInstall(){
@@ -4323,13 +4337,13 @@ function showNewsBanner(){
   const L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [], seen = newsSeen();
   const fresh = L.flatMap(x => x.e.map((e, k) => ({ id: newsId(x, k), v: x.v, t: e[0], txt: e[1] }))).filter(e => !seen.has(e.id));
   if (!fresh.length) return;
-  const show = fresh.slice(0, 5), more = fresh.length - show.length, vers = [...new Set(fresh.map(e => e.v))];
+  const top5 = fresh.slice(0, 5), more = fresh.length - top5.length, vers = [...new Set(fresh.map(e => e.v))];
   const el = document.createElement("div"); el.className = "panel"; el.id = "newsBanner"; el.style.border = "1px solid #ff5fa266"; el.style.position = "relative";
   el.innerHTML = `<button class="xbtn" id="nbX" aria-label="Schließen" style="position:absolute;right:10px;top:8px;background:none;border:0;color:#d3c8ef;font-size:18px;cursor:pointer">✕</button>
     <div id="nbHead" style="cursor:pointer;padding-right:28px"><b><span class=dw data-dw=sparkle></span> Neu für dich${vers.length === 1 ? ` in Version ${esc(vers[0])}` : ` seit Version ${esc(vers[vers.length - 1])}`}</b>
       <span class="small" style="opacity:.8;white-space:nowrap"> (${fresh.length}) <span id="nbArr" style="display:inline-block;transition:transform .2s">▾</span></span></div>
     <div id="nbBody" hidden>
-    ${show.map(e => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${e.t}">${CL_LBL[e.t]}</span><span>${esc(e.txt)}</span></div>`).join("")}
+    ${top5.map(e => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${e.t}">${CL_LBL[e.t]}</span><span>${esc(e.txt)}</span></div>`).join("")}
     ${more > 0 ? `<div class="small" style="margin-top:6px">… und ${more} weitere</div>` : ""}
     <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay, gesehen</button></div></div>`;
   $("#newsBanner")?.remove(); $("#resumeBox").before(el);

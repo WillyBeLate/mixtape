@@ -4,6 +4,13 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.5", d: "2026-11-28", e: [
+    ["fix", "„Alle Neuigkeiten“ im Neu-für-dich-Hinweis öffnet jetzt wirklich die Neuigkeiten."],
+    ["fix", "iPhone/iPad: Die verbesserte Spotify-Erkennung aus 0.14.2 greift jetzt auch, wenn auf dem Handy noch kein Gerät gemerkt ist."],
+    ["change", "Läuft eine Runde, fragt Mixtape vor dem Moduswechsel, vor +/− Team und vor „Los geht’s“ nach, statt die Punkte still zurückzusetzen."],
+    ["fix", "Ein halb getippter Druckbereich unter „Karten“ verstellt nicht mehr die Jahre im Spiel."],
+    ["change", "Neue App-Versionen laden erst neu, wenn gerade keine Runde läuft."],
+  ]},
   { v: "0.14.4", d: "2026-11-27", e: [
     ["change", "Nächtliche Prüfung läuft jetzt um 3 Uhr. Eure „Falscher Song“-Meldungen gelten erst als erledigt, wenn sie wirklich gespeichert sind – so geht keine Korrektur mehr verloren."],
     ["change", "Die Nachtprüfung zählt keine eigenen Versionen mehr hoch. Neuigkeiten gibt es nur noch, wenn sich für euch etwas ändert (z. B. ein Song ersetzt oder ein Jahr korrigiert)."],
