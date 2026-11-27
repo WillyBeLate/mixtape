@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.3", d: "2026-11-27", e: [
+    ["fix", "Die kleinen ⓘ-Knöpfe der Spielmodi schimmern beim Scrollen nicht mehr durch die Leiste unten."],
+  ]},
   { v: "0.12.2", d: "2026-11-27", e: [
     ["change", "Nächtliche Prüfung: 246 Songs spielen jetzt immer die richtige Spotify-Aufnahme, 3 Songs auf das Jahr geprüft."],
   ]},

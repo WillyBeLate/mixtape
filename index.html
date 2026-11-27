@@ -74,7 +74,7 @@
   .reveal .t{font-size:22px;font-weight:800;margin-top:10px}
   .reveal .a{font-size:17px;color:#555;margin-top:4px}
   .reveal .meta{font-size:13px;color:var(--muted);margin-top:12px}
-  .nav{position:fixed;left:0;right:0;bottom:0;background:#120a24ee;backdrop-filter:blur(8px);display:flex;
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#120a24ee;backdrop-filter:blur(8px);display:flex;
     padding:8px 8px calc(8px + env(safe-area-inset-bottom));border-top:1px solid #ffffff14}
   .nav button{flex:1;background:none;border:0;color:#a99cc9;font-size:12px;padding:6px;cursor:pointer}
   .nav button svg{display:block;width:26px;height:26px;margin:0 auto 3px;fill:none;stroke:currentColor;stroke-width:1.7;
@@ -787,7 +787,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.12.2";
+const APP_VERSION = "0.12.3";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;

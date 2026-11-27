@@ -2,7 +2,7 @@
 // Strategie "Netz zuerst": Ist das Handy online, wird immer die neueste Version geladen
 // (Updates kommen also automatisch). Nur offline wird die gespeicherte Kopie benutzt.
 // Bei Änderungen an dieser Datei VERSION hochzählen.
-const VERSION = "mixtape-v142";
+const VERSION = "mixtape-v143";
 const FILES = ["./", "index.html", "daten.js", "regeln.js", "changelog.js", "geprueft.js", "ids.js", "manifest.json", "lib/html5-qrcode.min.js", "lib/qrcode.js", "lib/jszip.min.js",
   "icons/icon4-192.png", "icons/icon4-512.png", "icons/icon4-180.png"];
 
