@@ -6,6 +6,7 @@
 //  Eindeutige Treffer → ids.js / geprueft.js. Unsichere → tools/pruefen.json (prüft Claude).
 // =====================================================================
 import fs from "node:fs";
+import { execSync } from "node:child_process";
 import vm from "node:vm";
 
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -166,25 +167,8 @@ const gTxt = rd("geprueft.js"), gHead = gTxt.slice(0, gTxt.indexOf("const MB_GEP
 wr("geprueft.js", gHead + "const MB_GEPRUEFT = {\n" + Object.entries(MB_GEPRUEFT).map(([k, v]) => `  ${q(k)}: ${q(v).replace(",", ", ")},`).join("\n") + "\n};\n");
 wr("tools/pruefen.json", JSON.stringify(pruefen, null, 1) + "\n");
 
-// Unsichere Songs (Spotify-Treffer fraglich oder Jahr fraglich) sind in der App nicht im Spiel, bis Claude sie geprüft hat.
-const UNSICHER = [...new Set([...Object.keys(pruefen.spotify), ...Object.keys(pruefen.jahr)])].filter(k => !NOSPOT.has(k)).sort();
-wr("ids.js", rd("ids.js").replace(/\n\/\/ Noch in Prüfung[^\n]*\nconst UNSICHER = \[[^\n]*\];\n/, "\n") +
-  "// Noch in Prüfung (Spotify-Version oder Jahr unsicher) – bis dahin in keinem Spiel\n" +
-  "const UNSICHER = [" + UNSICHER.map(q).join(", ") + "];\n");
-// Lücken: Jahre, in denen eine Main-Kategorie keinen spielbaren Song mehr hat → Claude ergänzt Ersatz
-{
-  const [, from, to] = html.match(/const DEFAULT_FROM = (\d+), DEFAULT_TO = (\d+)/) || [, 1930, 2026];
-  const out = new Set(UNSICHER), PR = ctx.PRUEFEN || {};
-  const ok = SONGS.filter(s => typeof s[2] === "number" && !NOSPOT.has(key(s)) && !out.has(key(s)) && !PR[key(s)]);
-  const luecken = {};
-  for (const c of ctx.KATEGORIEN.filter(c => c.typ === "main")) {
-    const miss = [];
-    for (let y = +from; y <= +to; y++) if (!ok.some(s => s[2] === y && s[4].split(/\s+/).includes(c.id))) miss.push(y);
-    if (miss.length) luecken[c.id] = miss;
-  }
-  pruefen.luecken = luecken;
-  wr("tools/pruefen.json", JSON.stringify(pruefen, null, 1) + "\n");
-}
+// Unsichere Songs (Liste UNSICHER in ids.js) und Lücken je Main-Kategorie (pruefen.luecken) neu berechnen
+console.log(execSync("node " + JSON.stringify(ROOT + "tools/unsicher.mjs")).toString().trim());
 const parts = [];
 if (sum.ids) parts.push(`${sum.ids} Spotify-IDs`);
 if (sum.fix) parts.push(`${sum.fix} Korrekturen`);
