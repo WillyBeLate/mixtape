@@ -4,6 +4,12 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.0", d: "2026-11-28", e: [
+    ["change", "Songs, bei denen die Spotify-Version oder das Jahr noch unsicher ist, sind in keinem Spiel mehr, bis die nächtliche Prüfung sie geklärt hat. Eine eigene „Falscher Song“-Korrektur macht einen Song sofort wieder spielbar."],
+    ["neu", "Fehlt einer Main-Kategorie dadurch ein Jahr, ergänzt die nächtliche Prüfung automatisch einen passenden Song."],
+    ["change", "Einstellungen → Song-Prüfung zeigt jetzt nur noch kurz den Stand: wie viele Songs noch ohne Jahres-Prüfung, ohne Spotify-ID oder in Prüfung sind. Die alten Prüf-Werkzeuge in der App sind weg – das erledigt alles die Nacht."],
+    ["change", "Aufgeräumt: rund 230 Zeilen alter Code entfernt."],
+  ]},
   { v: "0.14.6", d: "2026-11-28", e: [
     ["change", "Sicherheit: Die Sicherungsdatei enthält die Spotify-Anmeldung und den GitHub-Schlüssel nicht mehr. Nach dem Laden einer Sicherung auf einem neuen Gerät einmal bei Spotify anmelden und den Schlüssel neu einfügen. Auf dem eigenen Gerät bleibt beides beim Laden erhalten."],
     ["change", "Sicherheit: Cover kommen nur noch direkt von Spotify. Die frühere iTunes-Suche hat fremden Code in die App geladen und ist entfernt."],

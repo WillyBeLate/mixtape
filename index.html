@@ -758,28 +758,7 @@
       <input type="password" id="ghTok" placeholder="GitHub-Schlüssel (github_pat_…)" autocomplete="off">
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn small" id="ghSave">Speichern</button><button class="btn small sec" id="ghSend">Jetzt senden</button><button class="btn small sec" id="ghDel">Schlüssel entfernen</button></div>
     </div>
-    <details class="fold sub adm" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
-    <div class="panel" id="mbPanel" style="margin-top:6px">
-      <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
-        Ca. 1 Song alle 1,6 Sekunden – beim ersten Mal also ~30 Minuten, bei Auslastung länger. Bildschirm anlassen und nur in <b>einem</b> Tab/Gerät laufen lassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
-      <div id="mbStats" style="margin:10px 0"></div>
-      <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
-      <button class="btn small" id="mbStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Prüfung starten</button>
-      <button class="btn small sec" id="mbCopy"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> Bericht kopieren</button>
-      <button class="btn small sec" id="mbExport"><span class=dw data-dw=upload></span> Ergebnisse exportieren</button>
-      <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
-      <div id="mbList"></div>
-    </div></details>
-    <details class="fold sub adm" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
-    <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
-    <details class="fold sub adm" data-fold="spsync"><summary><span class="ft">Spotify-Abgleich</span><span class="fs" id="syncSum"></span></summary>
-    <div class="panel" style="margin-top:6px">
-      <div class="small">Sucht einmal alle Songs bei Spotify und merkt sich die genaue Aufnahme. Auffällige Treffer werden markiert – die könnt ihr direkt anhören. Danach „Exportieren“ und die Datei im Chat hochladen, dann trage ich alle Songs fest ein. Wegen Spotifys Kontingent höchstens 400 Songs pro Tag – also lieber in Etappen; Bildschirm anlassen.</div>
-      <div id="syncStats" style="margin:10px 0"></div>
-      <button class="btn small" id="syncStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Abgleich starten</button>
-      <button class="btn small sec" id="syncExport"><span class=dw data-dw=upload></span> Exportieren</button>
-      <div id="syncList"></div>
-    </div></details>
+    <div id="pruefStat" class="panel small" style="margin:6px 0"></div>
     <details class="fold sub adm" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
     <div class="panel" style="margin-top:6px">
       <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
@@ -821,7 +800,7 @@
   <button data-v="spiel" class="on"><svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path class="f" d="M10 8.5v7l6-3.5z"/></svg>Spiel</button>
   <button data-v="rules"><svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><line x1="12" y1="6.5" x2="12" y2="20"/><circle class="f" cx="16.2" cy="10" r="1.6"/><path d="M14.6 14.2h3.4"/></svg>Regeln</button>
   <button data-v="cards"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="11" height="15" rx="2" transform="rotate(-10 9 12.5)"/><rect x="9.5" y="4" width="11" height="15" rx="2"/><line x1="12" y1="14.5" x2="18" y2="14.5"/><line x1="12" y1="16.5" x2="18" y2="16.5"/><circle class="f" cx="15" cy="9" r="2.2"/></svg>Karten</button>
-  <button data-v="data" style="position:relative"><span id="dataBadge" class="badge adm"></span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg>Einstellungen</button>
+  <button data-v="data" style="position:relative"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg>Einstellungen</button>
 </nav>
 
 <div id="printArea"></div>
@@ -832,7 +811,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.14.6";
+const APP_VERSION = "0.15.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -866,12 +845,15 @@ function showA(s){
   if (c?.artist && c.artist.includes(", ") && c.artist.toLowerCase().includes(String(s.a).toLowerCase())) { const p = c.artist.split(", "); return p.length === 2 ? p.join(" & ") : p.slice(0, -1).join(", ") + " & " + p[p.length - 1]; }
   return s.a;
 }
-// Songs aus der Prüfliste (unsicheres Jahr / Cover) sind standardmäßig nicht im Spiel
-const ALLOW_UNCHECKED = store.get("allowUnchecked", false);
 // Von euch als „gibt es bei Spotify nicht“ markiert → aus allen Pools raus
 const NOSPOT_ALL = new Set(typeof NICHT_BEI_SPOTIFY !== "undefined" ? NICHT_BEI_SPOTIFY : []);
 const noSpot = s => NOSPOT_ALL.has(s.t + "|" + s.a) || store.get("nospot:" + s.t + "|" + s.a, false);
-const ACTIVE = DB.filter(s => (!s.pruefen || ALLOW_UNCHECKED) && !noSpot(s));
+// Noch in Prüfung (Spotify-Version oder Jahr unsicher, Liste UNSICHER aus ids.js) oder in PRUEFEN: nicht im Spiel,
+// bis die nächtliche Auswertung entschieden hat. Eine eigene „Falscher Song“-Korrektur macht den Song wieder spielbar.
+const UNS_ALL = new Set(typeof UNSICHER !== "undefined" ? UNSICHER : []);
+const unsicher = s => (!!s.pruefen || UNS_ALL.has(s.t + "|" + s.a)) && !store.get("fix:" + s.t + "|" + s.a, null);
+const offPlay = s => noSpot(s) || unsicher(s);
+const ACTIVE = DB.filter(s => !offPlay(s));
 const byYearCat = {};   // byYearCat[cat][year] = [songs]
 for (const s of ACTIVE) for (const c of s.cats) {
   if (!CAT[c]) console.warn("Unbekannte Kategorie", c, s);
@@ -985,12 +967,6 @@ function pickW(arr, w = songW){
   return arr[arr.length - 1];
 }
 
-// Song-Gedächtnis: Sind alle passenden Songs eines Jahres schon gelaufen, kommen genau diese
-// automatisch wieder in den Topf. So muss nie jemand von Hand etwas zurücksetzen.
-function recycle(cats, year){
-  const all = cats.flatMap(c => byYearCat[c]?.[year] || []);
-  if (all.length && all.every(s => state.played.has(s.i))) { all.forEach(s => state.played.delete(s.i)); save(); }
-}
 function pickSong(year, force){
   // Wunschkonzert: Kategorie vom anderen Team gewählt (es werden nur Kategorien mit Song angeboten)
   if (force) {
@@ -1105,7 +1081,6 @@ const sp = {
     }
     if (q) store.del("spQuota");                                    // wieder frei
     if (r.status === 204) return null;
-    if (r.status === 204) return null;
     const txt = await r.text(); let j = null;
     try { j = txt ? JSON.parse(txt) : null; } catch(_) { j = null; }   // Spotify schickt bei play/pause teils Nicht-JSON
     if (!r.ok) { const e = new Error(j?.error?.message || ("HTTP " + r.status)); e.status = r.status; e.reason = j?.error?.reason; throw e; }
@@ -1159,7 +1134,6 @@ const isMob = x => ["Smartphone", "Tablet"].includes(x?.type);
 // Deshalb hängt Mixtape hinter jeden Song einen langen stillen Track: Spotify spielt Stille weiter und bleibt wach.
 const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const keepAliveOn = () => IS_IOS && store.get("keepAlive", true);   // nur auf iPhone/iPad – Android braucht den Umweg nicht
-async function silentUri(){ return (await silentList())?.[0] || null; }
 // Liste stiller Tracks (kurze Stille-Tracks werden wiederholt, bis ~20 Min. zusammenkommen)
 async function silentList(){
   if (!keepAliveOn()) return null;
@@ -2235,7 +2209,6 @@ function appInfo(m){
   if (a.zug === "reihum") out.push("Wer am Zug ist, ist markiert („am Zug“). Nach „Nächste Karte“ wechselt der Zug automatisch; antippen einer Team-Kachel setzt den Zug von Hand." + (a.ziel ? " Erreicht ein Team das Ziel, zeigt Mixtape an, wer noch nachzieht, und entscheidet erst danach – bei Gleichstand mit Verlängerung." : ""));
   if (a.typ === "sprint") out.push(`Mixtape stoppt den Song automatisch nach ${a.stufen.map(s => s[0] + " s").join(", dann ")}. Die Knöpfe für die nächste Stufe erscheinen nach jedem Stopp.`);
   if (a.typ === "wunsch") out.push(`Nach dem Scannen zeigt Mixtape dem aktiven Team ${a.auswahl} Kategorien, zu denen es für das Jahr einen Song gibt – meist eine Mischung aus Main, Support und Künstlern. Die gewählte Kategorie erscheint erst beim Auflösen. Ein Mix wird nicht gebraucht.`);
-  if (false) out.push("Im Spiel-Bildschirm wählt das gegnerische Team die Kategorie, bevor gescannt wird. Zur Auswahl stehen alle Kategorien – auch solche, die nicht in eurem Mix sind.");
   if (a.typ === "staffel") out.push("Statt „Auflösen“ gibt es drei Knöpfe: Jahrzehnt, Jahr, Titel & Interpret – je einer pro Etappe.");
   return out.join(" ");
 }
@@ -2444,100 +2417,22 @@ async function openTvPicker(q){
       const fb = $("#fixBox"); if (fb) fb.innerHTML = `<div class="msg ok">Gespeichert: „${esc(r.name)}“ ist ab jetzt die Melodie für „${esc(x.serie)}“. Unter „Daten → Sonderkategorien“ kannst du deine Korrekturen exportieren.</div>`; });
   } catch(e) { $("#fixList").textContent = e.message; }
 }
-// =====================================================================
-//  SPOTIFY-ABGLEICH: alle Songs einmal auflösen, Auffälliges markieren, exportieren
-// =====================================================================
-const SYNC_PER_DAY = 400;
-// Treffer aus dem Abgleich, die falsch waren (Cover, Live, Remix, falscher Song) – lokal gemerkte Version verwerfen
-const SYNC_VERWORFEN = ["Bei Mir Bist Du Schön|The Andrews Sisters", "Caravan|Duke Ellington", "Chattahoochee|Alan Jackson", "Don't Fence Me In|Bing Crosby", "Don't You Want Me|The Human League", "Dragostea din tei|O-Zone", "Dream a Little Dream of Me|Ozzie Nelson", "Everyway That I Can|Sertab Erener", "Flowers|Miley Cyrus", "Fly on the Wings of Love|Olsen Brothers", "Friends in Low Places|Garth Brooks", "Hold Me Now|Johnny Logan", "It Don't Mean a Thing (If It Ain't Got That Swing)|Duke Ellington", "Junge|Die Ärzte", "Love the Way You Lie|Eminem", "Lovesick Blues|Hank Williams", "MMMBop|Hanson", "Marmor, Stein und Eisen bricht|Drafi Deutscher", "Moves like Jagger|Maroon 5", "Music|Madonna", "Non ho l'età|Gigliola Cinquetti", "Oh, Pretty Woman|Roy Orbison", "Okie from Muskogee|Merle Haggard", "On the Road Again|Willie Nelson", "Poupée de cire, poupée de son|France Gall", "Rhythm Is a Dancer|Snap!", "Runaround Sue|Dion", "Take My Breath Away|Berlin", "The House of the Rising Sun|The Animals", "The Twist|Chubby Checker", "Waka Waka (This Time for Africa)|Shakira"];
-if (store.get("syncVerworfen", 0) < 1) { SYNC_VERWORFEN.forEach(k => store.del("trk3:" + k)); store.set("syncVerworfen", 1); }
-// Spotify-Treffer, die nachweislich falsch sind (Cover, Remix, Neuaufnahme, falscher Song) – werden nie wieder genommen
+// Spotify-Treffer, die nachweislich falsch sind – pflegt die nächtliche Auswertung (Liste wird von tools/nightly.mjs gelesen)
 const SYNC_FALSCH = new Set(["5LFSK7UFyXQvM8MZ5ABIGs", "01jOnfF6OMQx2ZgC3nKi3o", "63Tl9k1sH8tznn3bqoMuyF", "4L0rxWhjyX0VhNbK4U9oK6", "07rZol7bEXJSUHIcwah0eq", "1nADUWEBc0TpiXYsimFFIj", "1NoBp6XGAKRFtx0djrWucn", "7yr5r5YkJdpdAyx70qEIXU", "5IUSvXnhiIxc0fAscMRkj2", "3r9E51LlXbQ29NIsmwEntj", "4M5Mnz9ORqaMMUAgKtv3bI", "1xdv6tmmDVa8hrmrkgtjPL", "7kzZ2NzhoS2T3dCVpDtTaA", "6uzAorm9rlMshQ9rjKviNl", "5Klgx19dxRpzMlNusBv2r0", "7kOCe5hY2YMUnmkq4DGxhk", "30gux5mcQNtDSg7fZDkHRF", "25gYG5fHSt6Fmsz3M5ns6C", "1BbV38AcrkXbartPq74Kgn", "7zhtLp2V3lNXdllknAqbKk", "1hZJcuz9iMoz6tLkFlIaUy", "6ePGjP38OpRDuBxJzbfw11", "55vAraLCIsYMnakMHUUgvB", "4bdSlVSykHJOGikz9cblCH", "1mX96thG2hGyuyAz94Q5tk", "1M5UFjoTyGNYWM74HWsaZ4", "1Z2hvETizj8ZtytikiQUzK", "4p2newrzzjPdXIENDqlCCW", "0I7JWPUEJFdhR9kZVFXXCO", "3T3d6AMSjlUzIYv4jgUb1g", "6ApcZWe94QLWSKNJLD7mTO", "72CzdcyV37G7W5Bn0oBUzu", "6itlI3Mf2zR3DhLw9MoHdy", "4ipQpT51w20CBQQl5mumST", "7gxGHvTICQtKCF52Q9nfDp", "7MnqGkKia4STbmgMTEwzLk", "417mjKtC6TJ7HPbharS4ks", "6qvBZHaVQhn4KNwYHsTFDF", "1HK36bPadNntrM2HYyv6mP", "1Yom00mz0RWeWYqnOJINAM", "2f8x6QtNGEa8RZ2iHPse5W", "0sI4BTzJ1S2pDjAdEDNnua", "44fNhBfmBUhaByY0651VIc", "4lf6yM9MpHvIg63NFOVO30", "0WigOLaU0Us4maaqGUFS0M", "7KwZKIrUUPhwJaxZaoHvZ1", "19RMnoq9P5cR4uJMGULDvD", "6HYQDkdOmX0ybHUtZRcEE2", "2Gme7o9uGwJRasgi3afc0e", "0Hjv9g5LiWGwsCDICMTlek", "3t2Fi7zxZQI5OEX1dOLWE3", "4mndagpVV2ywptgFHbqAPF", "455fdGT6Vq5968PnIoMDn1", "2VI1Ki0gGz5czQp8uAagQA", "1In8rI5MrH9pkrF1KGI6KR", "4agMrs0Xv2x24I6jme8x8d", "5BRLrZEVIR6SyWBnhKI55k", "3DJY4qFbkQvZKNJJwK2aRt", "5WTxbyWTpoqhdxEN2szOnl", "30sd8jH5OHQCkoagP19D8b", "6LA5NHaBKkcQkEBEveSGaJ", "12CsN1uG7jDAogsKmHGs2n", "1ztazqaTatRXw5qdSP2PN3", "6VVMaAZP3WQFg4hqti4url", "4PaOzqmcBriGOaChbnmou4", "6gBgPa8H8R3nIjhOLI7VgA", "4I2ENHg65RuKifEHdD0kMu", "6faxpn57mwuKSvfAeObzlz", "2Yp4JGzCFHUf2CTQuzbcdE", "1FYkfAu884UvgQMfffIt2V", "3L9FyUdt9CouusMVHR1JVz", "7Kpqjspw4Y7HrvItIRcBiW", "5SEFk7Qt1kbXxUVkJ44wJ2", "7rJWEhDUymfTOCJERCSJ7C", "70gS6bjAjFc96IIunuRj1c", "1TEK9upsSyMHjx3tbg8iP1", "6O0HXKAKi3vC4Duhrt0NZO", "3Wloia3unakmhFRBFhHFsg", "5DGpoPw7go0wC27t4Prd9i", "4GXiU5gksumD30J0xjaFRc", "2SJDjOCfah73sesncTBFy1", "3R4hjFEt8Xu6qUrAzVSKEi", "6qe1mOjh5jEs0evTSUEXpi", "7M7vBoHAwzFQaMf8VaVIn4", "050Sj8CLGfSZRJo1EypErQ", "1g09DZjQ7yBommCT6POY2n", "1GEBsLDvJGw7kviySRI6GX", "7trc0rSAo0Ud79lj05iEso", "3UaQv8EIgtncx7N8imK9PA", "4HYtv84jEdG0ZLIEMwQdgJ", "5uWxvYWgZPqtlowVViHixH", "2fimogk5DKnxfNBaIknVBS", "1hxLyjC9D9Jpw6EAPKqWv4", "4kgTdThcDHfuDS2kKxB7Lc", "7aJMmhcw04NrO6whqwL23G", "1W8g3TGloBFlg469qVqeEF", "42koBctf7kKRuL53XuG1R6", "5B30jIcaGzKSRpQIxfKOXL", "1xEpgyKx4ZHtefFAh0SmU5", "4Sdj67b8WF9PhAXh4tvBi6", "5J494Qu4Bo59rM7QFBlD2e", "798eEmTRotyV9QOEg7AfTp", "50jCUPNEHtmLfK6PQzcnOH", "1y1HmkdcV9linCkC2btxaV", "3hrrNlEsIkH8hhLZO4zcgj", "5IrzX45ZkfK8sTjVCi26TW", "5maNhiEpDJGNiSzDTaQWg7", "0q0NmxsupLRKhSzDIT6SBS", "2ynaRz7EuNbDrNrlr3QUjP", "1xweD94ZrIv1pu6TPJCES9", "3gYYZnxrPzQCV40cNK4UqY", "26qO4FFiU8crnSfk2AFia4", "1o5evgltJughVgrPinzAOV", "4nOygULhEuDO5ZBRNPFaso", "2K2DJylEa0ZbzQrz5nnd5v", "4nrjV4zFV8ueJJpHzWJ4LF", "5RfjmwrFkz3fcHcZAMDwHt", "13QjwdjKiFrKzYznJu6iiP", "1j3iIoVs051iUu8izSLKtG", "5w4s2ccJcpiNlajHVGtHDg", "2Y6k2RbPc83mh3C7mgIB37", "5igF62nmn2kTk28QtE3NXX"]);
-if (store.get("syncVerworfen", 0) < 2) { SYNC_VERWORFEN.forEach(k => { const c = store.get("trk3:" + k, null); if (c && SYNC_FALSCH.has(c.uri.split(":").pop())) store.del("trk3:" + k); }); store.set("syncVerworfen", 2); }
 // Neue Sperren: alle gemerkten Treffer gegen die Liste prüfen (läuft einmal je Listen-Stand)
 if (store.get("syncFalschN", 0) !== SYNC_FALSCH.size) { DB.forEach(x => { const c = store.get("trk3:" + x.t + "|" + x.a, null); if (c && SYNC_FALSCH.has(c.uri.split(":").pop())) store.del("trk3:" + x.t + "|" + x.a); }); store.set("syncFalschN", SYNC_FALSCH.size); }
-let syncRunning = false, syncPace = 700;   // gemächlich, damit das Spotify-Limit für das Spiel frei bleibt
-const syncKey = s => "trk3:" + s.t + "|" + s.a;
-function syncFlags(s, r){
-  if (!r) return ["nicht gefunden"];
-  const f = [], y = parseInt(r.date) || 0;
-  const ok = store.get("syncok:" + s.t + "|" + s.a, false) || (typeof BESTAETIGT !== "undefined" && BESTAETIGT.has(s.t + "|" + s.a));
-  if (y && y < s.y) f.push(ok ? `Spotify-Album von ${y} (Jahr ${s.y} bestätigt)` : `Spotify-Album von ${y} – älter als unser Jahr ${s.y}`);
-  if (y && y > s.y + 1 && r.typ !== "compilation") f.push(`nur spätere Ausgabe (${y})`);
-  if (r.typ === "compilation") f.push("nur auf Sampler");
-  if (/\b(version|edit|mix|mono|re-?recorded|re-?mastered \d{4} version|from .* soundtrack)\b/i.test(r.name.replace(/\(.*remaster.*\)/i, ""))) f.push("Versionshinweis im Titel");
-  return f;
+// ---------- Stand der nächtlichen Prüfung (nur Zahlen) ----------
+function renderPruefStat(){
+  const el = $("#pruefStat"); if (!el) return;
+  const k = s => s.t + "|" + s.a, B = typeof BESTAETIGT !== "undefined" ? BESTAETIGT : new Set(), G = typeof MB_GEPRUEFT !== "undefined" ? MB_GEPRUEFT : {};
+  const L = DB.filter(s => !noSpot(s));
+  const jahr = L.filter(s => !B.has(k(s)) && !(G[k(s)] && G[k(s)][0] === s.y)).length;
+  const inPr = L.filter(unsicher).length;
+  const ohneId = L.filter(s => !s.sid && !unsicher(s) && !store.get("fix:" + k(s), null)).length;
+  el.innerHTML = jahr + inPr + ohneId === 0 ? `<b>Alle ${L.length} Songs sind geprüft ✓</b>`
+    : `<b>Stand der Prüfung</b> (${L.length} Songs)<br>Jahr noch ungeprüft: <b>${jahr}</b> · noch ohne Spotify-ID: <b>${ohneId}</b>` +
+      (inPr ? `<br>Bei Claude in Prüfung: <b>${inPr}</b> – bis dahin in keinem Spiel` : "");
 }
-const SYNC_SERIOUS = f => f.some(x => /nicht gefunden|älter als/.test(x));
-function renderSync(){
-  if (!$("#syncStats")) return;
-  const all = DB.filter(s => !s.sid), done = all.filter(s => store.get(syncKey(s), null) || store.get("syncmiss:" + s.t + "|" + s.a, false));
-  const fixed = DB.length - all.length;
-  const rows = done.map(s => [s, store.get(syncKey(s), null)]).map(([s, r]) => [s, r, syncFlags(s, r)]);
-  const serious = rows.filter(x => SYNC_SERIOUS(x[2])), info = rows.filter(x => x[2].length && !SYNC_SERIOUS(x[2]));
-  const cool = sp.coolUntil - Date.now();
-  const coolTxt = sp.quota() ? sp.quotaMsg() : cool > 0 ? (cool > 90000 ? "Spotify-Sperre bis " + new Date(sp.coolUntil).toLocaleTimeString("de-DE", { hour:"2-digit", minute:"2-digit" }) : "Spotify bremst – kurz warten") : "";
-  $("#syncSum").textContent = `${done.length + fixed}/${DB.length} festgelegt${syncRunning ? (cool > 0 ? " · wartet" : " · läuft") : ""}`;
-  $("#syncStats").innerHTML = `${coolTxt ? `<div class="small" style="color:#ffb86b;margin-bottom:4px"><span class=dw data-dw=hourglass></span> ${coolTxt}. Der Fortschritt bleibt gespeichert – danach einfach weiter abgleichen.</div>` : ""}<div class="small">${fixed} fest eingetragen · ${done.length}/${all.length} abgeglichen · <span class=dw data-dw=warn></span> ${serious.length} prüfen · <span class=dw data-dw=info></span> ${info.length} Hinweise</div>
-    <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100 * done.length / Math.max(1, all.length)}%;background:var(--accent);border-radius:3px"></div></div>`;
-  $("#syncStart").innerHTML = syncRunning ? IC_PAUSE + " Abgleich anhalten" : IC_PLAY + " Abgleich starten";
-  $("#syncList").innerHTML = serious.length ? `<h4 style="margin:12px 0 4px">Bitte kurz prüfen (${serious.length})</h4>` + serious.slice(0, 150).map(([s, r, f]) => `<div class="fixit">
-      <div><b>${esc(s.t)}</b> · ${esc(s.a)} (${s.y})<br><span>${r ? "Spotify: „" + esc(r.name) + "“ · " + esc(r.artist) + " · " + esc(r.album) : ""}<br><span class=dw data-dw=warn></span> ${esc(f.join(" · "))}</span></div>
-      <div style="display:flex;gap:6px">${r ? `<button class="btn small sec" data-sync="${s.i}">${IC_PLAY}</button><button class="btn small sec" data-syncok="${s.i}" title="Passt so">✓</button>` : ""}</div></div>`).join("") : "";
-  document.querySelectorAll("[data-syncok]").forEach(b => b.onclick = () => {
-    const s = DB[+b.dataset.syncok]; store.set("syncok:" + s.t + "|" + s.a, true); renderSync();
-  });
-  document.querySelectorAll("[data-sync]").forEach(b => b.onclick = async () => {
-    const s = DB[+b.dataset.sync], r = store.get(syncKey(s), null);
-    try { state.current = { song: s, uri: r.uri, dur: r.dur }; await playCurrent(true); } catch(e) { alert(e.nodevice ? "Spotify schläft – App kurz öffnen." : e.message); }
-  });
-}
-async function syncRun(){
-  if (syncRunning) { syncRunning = false; renderSync(); return; }
-  if (!sp.tok()) { alert("Bitte erst unter „Spiel“ bei Spotify anmelden."); return; }
-  if (sp.quota()) { alert(sp.quotaMsg() + "\n\nDer Abgleich startet erst wieder, wenn Spotify freigibt."); return; }
-  syncRunning = true; renderSync();
-  const todo = DB.filter(s => !s.sid && !store.get(syncKey(s), null) && !store.get("syncmiss:" + s.t + "|" + s.a, false));
-  const today = new Date().toDateString(), day = store.get("syncDay", {}); if (day.d !== today) { day.d = today; day.n = 0; }
-  for (const s of todo) {
-    if (!syncRunning) break;
-    // Spotify-Kontingent schonen: höchstens SYNC_PER_DAY Songs pro Tag
-    if (day.n >= SYNC_PER_DAY) { syncRunning = false; renderSync(); alert(`Für heute sind ${SYNC_PER_DAY} Songs abgeglichen – mehr lässt Spotifys Kontingent nicht gut zu. Morgen weitermachen und zwischendurch gern exportieren.`); return; }
-    // Abgleich pausiert, solange man nicht im Daten-Tab ist (z. B. während des Spiels)
-    while (syncRunning && !document.getElementById("v-data")?.classList.contains("on")) await sleep(1000);
-    if (!syncRunning) break;
-    for (let k = 0; k < 6; k++) {
-      try { await resolveTrack(s); day.n++; store.set("syncDay", day); break; }
-      catch(e) {
-        if (e.status === 429) {
-          if (e.quota || (e.retryAfter || 0) > 60) { syncRunning = false; renderSync(); return; }   // lange Sperre: anhalten statt endlos warten
-          renderSync(); await sleep(Math.max(5000, (e.retryAfter || 5) * 1000)); continue;
-        }
-        if (e.status >= 500) { await sleep(5000 * (k + 1)); continue; }
-        if (e.status === 401) { syncRunning = false; alert("Spotify-Anmeldung abgelaufen – bitte neu verbinden."); break; }
-        store.set("syncmiss:" + s.t + "|" + s.a, true); break;   // nicht gefunden
-      }
-    }
-    if (todo.indexOf(s) % 10 === 0) renderSync();
-    await sleep(syncPace);
-  }
-  syncRunning = false; renderSync();
-}
-function syncExport(){
-  const out = {};
-  for (const s of DB) { const key = s.t + "|" + s.a, fx = store.get("fix:" + key, null);
-    if (store.get("nospot:" + key, false)) { out[key] = [null, "", "", "", "", "gibt es bei Spotify nicht (von euch markiert)"]; continue; }
-    if (fx?.uri) { out[key] = [fx.uri.split(":").pop(), fx.name || "", fx.artist || "", fx.album || "", fx.date || "", "Korrektur von euch"]; continue; }
-    if (s.sid) continue; const r = store.get(syncKey(s), null);
-    out[s.t + "|" + s.a] = r ? [r.uri.split(":").pop(), r.name, r.artist, r.album, r.date, syncFlags(s, r).join(" · ")]
-      : store.get("syncmiss:" + s.t + "|" + s.a, false) ? [null, "", "", "", "", "nicht gefunden"] : null;
-    if (!out[s.t + "|" + s.a]) delete out[s.t + "|" + s.a]; }   // noch nicht abgeglichene Songs nicht als „nicht gefunden“ ausgeben
-  const txt = JSON.stringify(out);
-  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" })); a.download = "mixtape-spotify-ids.json"; document.body.appendChild(a); a.click(); a.remove();
-    alert(Object.keys(out).length + " Songs als „mixtape-spotify-ids.json“ gespeichert – im Chat hochladen."); }
-  catch(e) { prompt("Kopieren:", txt); }
-}
-
 // ---------- Automatisch an die nächtliche Prüfung senden (GitHub-Issue) ----------
 // Korrekturen („Falscher Song“) landen in einer Warteschlange und gehen per GitHub-Issue ans Repo.
 // Die GitHub Action „Nächtliche Prüfung“ übernimmt sie, gleicht Spotify + MusicBrainz ab und veröffentlicht die neue Version.
@@ -2887,112 +2782,6 @@ function renderCardInfo(){
 
 
 // =====================================================================
-//  JAHRES-PRÜFUNG über MusicBrainz (läuft im Browser des Nutzers)
-//  Regel: frühestes Release dieses Titels von diesem Interpreten.
-// =====================================================================
-const MB_BAD = /\b(live|demo|remix|mix|instrumental|karaoke|acoustic|unplugged|rehearsal|session|take \d|edit|version|re-?record)/i;
-const mbKey = s => "mbv:" + s.t + "|" + s.a;
-let mbRunning = false;
-function mbResult(s){
-  if (typeof BESTAETIGT !== "undefined" && BESTAETIGT.has(s.t + "|" + s.a)) return { y: s.y, mb: s.y, manual: true };   // manuell gegen Quellen bestätigt
-  const r = store.get(mbKey(s), null); if (r && r.y === s.y) return r;
-  // Ergebnisse, die schon auf einem anderen Gerät geprüft und in die App übernommen wurden
-  const g = typeof MB_GEPRUEFT !== "undefined" && MB_GEPRUEFT[s.t + "|" + s.a];
-  return g && g[0] === s.y ? { y: g[0], mb: g[1], shared: true } : null;
-}   // Jahr geändert -> neu prüfen
-// "später" bei alten Songs (vor 1960) ist meist nur eine Wiederveröffentlichung (Original-Schellack fehlt in MusicBrainz)
-//  -> zählt nicht als Problem. Wichtig ist vor allem "früher": dann ist unser Jahr wahrscheinlich zu spät.
-function mbStatus(r){ return !r ? "offen" : r.mb == null ? "nicht gefunden" : r.mb === r.y ? "ok"
-  : r.mb < r.y ? "früher" : "später (alt)"; }
-const MB_RELEVANT = st => st === "früher" || st === "nicht gefunden";
-async function mbCheck(s){
-  const q = `recording:"${cleanTitle(s.t).replace(/"/g, "")}" AND artist:"${s.a.replace(/"/g, "")}"`;
-  const url = "https://musicbrainz.org/ws/2/recording/?fmt=json&limit=100&query=" + encodeURIComponent(q);
-  let wait = 5000;
-  for (;;) {                                   // so lange versuchen, bis MusicBrainz antwortet (oder angehalten wird)
-    if (!mbRunning) throw new Error("angehalten");
-    let r;
-    try { r = await fetch(url, { headers: { Accept: "application/json" } }); }
-    catch(e) { await mbWait(wait, "Netzwerkfehler"); wait = Math.min(wait * 2, 60000); continue; }
-    if (r.status === 503 || r.status === 429 || r.status >= 500) {
-      await mbWait(wait, "MusicBrainz ist gerade ausgelastet"); wait = Math.min(wait * 2, 60000); continue;
-    }
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const j = await r.json();
-    const want = norm(cleanTitle(s.t)), artist = norm(s.a);
-    let best = null;
-    for (const rec of j.recordings || []) {
-      const credit = norm((rec["artist-credit"] || []).map(c => c.name + (c.joinphrase || "")).join(""));
-      const okArtist = credit.includes(artist) || artist.includes(credit);
-      const okTitle = norm(rec.title).startsWith(want) || want.startsWith(norm(rec.title));
-      const bad = MB_BAD.test((rec.disambiguation || "") + " " + rec.title.replace(new RegExp(cleanTitle(s.t).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), ""));
-      const d = rec["first-release-date"];
-      if (okArtist && okTitle && !bad && d) { const y = +d.slice(0, 4); if (!best || y < best.y) best = { y, d, id: rec.id }; }
-    }
-    mbNote("");
-    return { y: s.y, mb: best ? best.y : null, d: best?.d || null, id: best?.id || null, ts: Date.now() };
-  }
-}
-async function mbWait(ms, why){        // Countdown anzeigen, damit man sieht, dass es weitergeht
-  for (let left = Math.round(ms / 1000); left > 0 && mbRunning; left--) {
-    mbNote(`${why} – nächster Versuch in ${left}s … (Fortschritt ist gespeichert)`); await sleep(1000);
-  }
-}
-function mbNote(t){ const el = $("#mbNote"); if (el) el.textContent = t; }
-function mbOpenCount(){ return DB.filter(s => !mbResult(s)).length; }
-function updateBadge(){
-  const n = mbOpenCount(), el = $("#dataBadge"); if (!el) return;
-  el.textContent = n > 999 ? "999+" : n; el.style.display = n ? "block" : "none";
-  el.title = n + " Songs noch nicht auf das Jahr geprüft";
-}
-function renderMb(){
-  updateBadge();
-  if (!$("#mbStats")) return;
-  const all = DB, res = all.map(s => [s, mbResult(s)]);
-  const c = { ok: 0, "früher": 0, "später": 0, "später (alt)": 0, "nicht gefunden": 0, offen: 0 };
-  res.forEach(([s, r]) => c[mbStatus(r)]++);
-  const done = all.length - c.offen;
-  if ($("#mbSum")) $("#mbSum").textContent = `${done}/${all.length} geprüft${mbRunning ? " · läuft" : ""}`;
-  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · <span class=dw data-dw=ok></span> ${c.ok} bestätigt · <span class=dw data-dw=warn></span> ${c["früher"]} früher · <span class=dw data-dw=question></span> ${c["nicht gefunden"]} nicht gefunden
-    <br><span class=dw data-dw=info></span> ${c["später (alt)"]} Songs, bei denen MusicBrainz nur spätere Wiederveröffentlichungen kennt (kein Fehler)</div>
-    <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100*done/all.length}%;background:var(--accent);border-radius:3px"></div></div>`;
-  const probs = res.filter(([s, r]) => r && MB_RELEVANT(mbStatus(r))).sort((a, b) => a[0].y - b[0].y);
-  $("#mbList").innerHTML = probs.length ? `<table style="margin-top:10px"><tr><th>Song</th><th>Wir</th><th>MB</th></tr>${probs.map(([s, r]) =>
-    `<tr><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td>${s.y}</td><td>${r.mb ?? "–"}${r.mb != null && r.mb < s.y ? " <span class=dw data-dw=warn></span>" : ""}</td></tr>`).join("")}</table>` : "";
-  $("#mbStart").innerHTML = mbRunning ? IC_PAUSE + " Prüfung anhalten" : (c.offen ? IC_PLAY + " Prüfung starten" : "✓ Alles geprüft");
-}
-async function mbRun(){
-  if (mbRunning) { mbRunning = false; renderMb(); return; }
-  mbRunning = true; renderMb();
-  let wake = null;
-  const lock = async () => { try { wake = await navigator.wakeLock?.request("screen"); } catch(e){} };
-  await lock();
-  document.addEventListener("visibilitychange", lock);          // Bildschirmsperre nach Tab-Wechsel erneuern
-  const skipped = new Set();
-  for (let round = 0; round < 3 && mbRunning; round++) {         // übersprungene Songs am Ende nochmal versuchen
-    for (const s of DB) {
-      if (!mbRunning) break;
-      if (mbResult(s) || (round === 0 && skipped.has(s.i))) continue;
-      try { store.set(mbKey(s), await mbCheck(s)); skipped.delete(s.i); }
-      catch(e) { if (!mbRunning) break; skipped.add(s.i); mbNote(`„${s.t}“ übersprungen (${e.message}) – kommt am Ende nochmal dran.`); }
-      renderMb();
-      await sleep(1600);                                          // unter 1 Anfrage/Sekunde bleiben (MusicBrainz-Limit pro IP)
-    }
-    if (!skipped.size) break;
-    await sleep(10000);
-  }
-  document.removeEventListener("visibilitychange", lock);
-  mbRunning = false; try { wake?.release(); } catch(e){}
-  renderMb();
-  if (skipped.size) mbNote(`${skipped.size} Songs konnten nicht abgefragt werden – „Prüfung starten“ versucht es erneut.`);
-}
-function mbReport(){
-  const lines = DB.map(s => [s, mbResult(s)]).filter(([s, r]) => r && MB_RELEVANT(mbStatus(r)))
-    .map(([s, r]) => `${mbStatus(r).toUpperCase()} | ${s.t} | ${s.a} | wir ${s.y} | MB ${r.mb ?? "-"}${r.d ? " (" + r.d + ")" : ""}`);
-  return `Mixtape ${APP_VERSION} – Jahres-Prüfung (${lines.length} Auffälligkeiten)\n` + lines.join("\n");
-}
-
-// =====================================================================
 //  UI: Datenbank-Check
 // =====================================================================
 function catPanel(c, ys){
@@ -3048,20 +2837,12 @@ function renderData(){
     catch(e) { try { await navigator.clipboard.writeText(txt); alert("Korrekturen kopiert."); } catch(e2) { prompt("Korrekturen:", txt); } }
   });
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
-    if (!d.dataset.init && ["spotify", "mb", "check", "plimport", "spsync", "pruefung", "stats", "backup"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
+    if (!d.dataset.init && ["spotify", "plimport", "pruefung", "stats", "backup"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
   if ($("#spState")) $("#spState").innerHTML = sp.tok() ? "<span class=dw data-dw=ok></span> Mit Spotify verbunden. Abmelden nur, wenn ihr ein anderes Konto nutzen wollt." : sp.cid() ? "Nicht angemeldet – unter „Spiel“ auf „Mit Spotify verbinden“ tippen." : "Noch nicht eingerichtet – unten unter „Einrichtung“ die Client-ID eintragen.";
-  const pl = DB.filter(s => s.pruefen).sort((a, b) => a.y - b.y);
-  $("#checkSum").textContent = pl.length ? `${pl.length} Songs offen` : "leer – alles geprüft";
-  $("#checkPanel").innerHTML = `
-    <div class="small">Songs mit unsicherem Jahr oder Cover einer älteren Version. ${ALLOW_UNCHECKED ? "<b>Sie spielen gerade mit.</b>" : "Sie sind <b>nicht</b> im Spiel."}
-    Nach dem Prüfen in <code>daten.js</code> unter PRUEFEN löschen bzw. das Jahr korrigieren.</div>
-    <div class="row" style="margin:10px 0"><label for="allowUnch">Ungeprüfte Songs mitspielen</label><input type="checkbox" id="allowUnch" ${ALLOW_UNCHECKED ? "checked" : ""}></div>
-    <table><tr><th>Jahr</th><th>Song</th><th>Grund</th></tr>${pl.map(s => `<tr><td>${s.y}</td><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td class="small">${esc(s.pruefen)}</td></tr>`).join("")}</table>`;
-  $("#allowUnch").onchange = e => { store.set("allowUnchecked", e.target.checked); location.reload(); };
-  renderMb(); renderSync();
+  renderPruefStat();
   $("#clientId").value = sp.cid(); $("#redirUri").textContent = REDIRECT;
 }
 
@@ -3083,7 +2864,7 @@ function show(v){
   if (v === "game" || v === "play") renderScore();
   if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
-  if (v === "data") { renderNews(); renderSilent(); renderData(); if (isAdmin() && !mbRunning && mbOpenCount()) mbRun(); }   // neue Songs automatisch prüfen
+  if (v === "data") { renderNews(); renderSilent(); renderData(); }
   if (v === "cards") renderCardInfo();
   if (v === "rette") rsRender();
   if (v === "zeitsprung") zsRender();
@@ -3218,27 +2999,8 @@ $("#cTotal").addEventListener("input", () => store.set("cardTotal", +$("#cTotal"
 document.querySelectorAll("#cModeSeg [data-cm]").forEach(b => b.addEventListener("click", () => { $("#cMode").value = b.dataset.cm; renderCardInfo(); }));
 $("#mpcBtn").addEventListener("click", exportMpc);
 $("#printBtn").addEventListener("click", () => { document.getElementById("pgRules")?.remove(); buildPrint(); setTimeout(() => window.print(), 300); });
-$("#mbStart").addEventListener("click", mbRun);
-$("#mbCopy").addEventListener("click", async () => { const t = mbReport();
-  try { await navigator.clipboard.writeText(t); alert("Bericht kopiert – einfach in den Chat einfügen."); } catch(e) { prompt("Bericht kopieren:", t); } });
-// Alle Prüfergebnisse dieses Geräts als Datei – kommt dann in geprueft.js, damit kein Gerät doppelt prüft
-$("#mbExport").addEventListener("click", async () => {
-  const out = {};
-  for (const s of DB) { const r = store.get(mbKey(s), null); if (r && r.y === s.y) out[s.t + "|" + s.a] = [r.y, r.mb ?? null]; }
-  const n = Object.keys(out).length; if (!n) { alert("Auf diesem Gerät gibt es noch keine Prüfergebnisse."); return; }
-  const txt = JSON.stringify(out);
-  try {
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" }));
-    a.download = "mixtape-pruefung.json"; document.body.appendChild(a); a.click(); a.remove();
-    alert(n + " Ergebnisse als Datei „mixtape-pruefung.json“ gespeichert – einfach im Chat hochladen.");
-  } catch(e) { try { await navigator.clipboard.writeText(txt); alert(n + " Ergebnisse kopiert."); } catch(e2) { prompt("Ergebnisse kopieren:", txt); } }
-});
-$("#mbReset").addEventListener("click", async () => { if (!await ask("Alle Prüfergebnisse löschen?")) return;
-  try { Object.keys(localStorage).filter(k => k.startsWith("mbv:")).forEach(k => localStorage.removeItem(k)); } catch(e){} renderMb(); });
 $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#clientId").value.trim()); alert("Gespeichert."); });
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
-$("#syncStart").addEventListener("click", syncRun);
-$("#syncExport").addEventListener("click", syncExport);
 $("#ghSave").addEventListener("click", async () => { const t = $("#ghTok").value.trim(); if (!t) return;
   try { const r = await fetch(`https://api.github.com/repos/${GH_REPO}`, { headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json" } });
     if (!r.ok) throw 0; store.set("ghTok", t); $("#ghTok").value = ""; ghFlush(); alert("Gespeichert ✓ Korrekturen gehen ab jetzt automatisch raus."); }
@@ -3309,7 +3071,7 @@ const RS_N = 8;   // so viele Songs stehen pro Jahr bzw. Künstler zur Wahl
 // Offiziell geprüfte Songs (feste Spotify-Version + MusicBrainz-Jahr) kommen zuerst dran; noch ungeprüfte nur, falls sonst keine 8 zusammenkommen.
 const rsTier = k => { const s = RS_BY.get(k), fx = store.get("fix:" + k, null);
   return fx?.uri ? 0 : s.sid && typeof MB_GEPRUEFT !== "undefined" && MB_GEPRUEFT[k] ? 0 : s.sid ? 1 : 2; };
-const rsPick = l => l.filter(k => RS_BY.has(k) && !noSpot(RS_BY.get(k))).map(k => ({ k, t: rsTier(k), r: Math.random() })).sort((a, b) => a.t - b.t || a.r - b.r).slice(0, RS_N).sort((a, b) => a.r - b.r).map(x => x.k);
+const rsPick = l => l.filter(k => RS_BY.has(k) && !offPlay(RS_BY.get(k))).map(k => ({ k, t: rsTier(k), r: Math.random() })).sort((a, b) => a.t - b.t || a.r - b.r).slice(0, RS_N).sort((a, b) => a.r - b.r).map(x => x.k);
 const rsOpts = y => rsPick(RETTE_8[y] || []);
 let rs = store.get("rette", null);              // laufende oder zuletzt fertige Runde
 let rsSel = null, rsNow = null, rsShow = null;   // Auswahl, gerade laufender Song, angezeigtes Archiv-Mixtape
@@ -3559,7 +3321,7 @@ function rsFixOpen(k, list, box){
   el.scrollIntoView({ behavior: "smooth", block: "start" });
   const M = (t, c = "ok") => $("#rsFixM").innerHTML = `<div class="msg ${c}">${t}</div>`;
   $("#rsFixX").onclick = () => el.innerHTML = "";
-  const save = r => { store.set("fix:" + k, r); store.set("trk3:" + k, r); store.set("syncok:" + k, true); store.del("cov:" + k);
+  const save = r => { store.set("fix:" + k, r); store.set("trk3:" + k, r); store.del("cov:" + k);
     ghQueue("fix", k, { id: r.uri.split(":").pop(), name: r.name || "", artist: r.artist || "", album: r.album || "", date: r.date || "" });
     M(`Gespeichert ✓ „${esc(r.name || "Spotify-Track")}“ ist jetzt die Version für „${esc(showT(s))}“. ${store.get("ghTok", "") ? "Die Korrektur geht automatisch an die nächtliche Prüfung – ab morgen gilt sie auf allen Geräten." : "Damit sie auf allen Geräten gilt: unter Einstellungen „Automatische Prüfung“ einrichten."}`);
     rsCovers(box); };
@@ -3586,7 +3348,7 @@ function rsFixOpen(k, list, box){
     store.set("nospot:" + k, true); store.del("fix:" + k); ghQueue("nospot", k);
     if (rs && !rs.done) { const Y = rs.years[rs.pos]; const i = Y.opts.indexOf(k);
       if (i >= 0) { Y.opts.splice(i, 1); const pool = rsIsA(rs) ? (KUENSTLER_10[Y.y] || []) : (RETTE_8[Y.y] || []);
-        const add = pool.filter(x => RS_BY.has(x) && !Y.opts.includes(x) && !noSpot(RS_BY.get(x)))[0]; if (add) Y.opts.push(add);
+        const add = pool.filter(x => RS_BY.has(x) && !Y.opts.includes(x) && !offPlay(RS_BY.get(x)))[0]; if (add) Y.opts.push(add);
         if (rsSel === k) rsSel = null; if (rsNow === k) rsStop(); rsSave(); } }
     rsRender();
     setTimeout(() => { const m = $("#rsMsg"); if (m) m.innerHTML = `<div class="msg ok">„${esc(showT(s))}“ ist raus – aus allen Spielen${store.get("ghTok", "") ? ", ab morgen auf allen Geräten" : ""}.</div>`; }, 50);
@@ -3995,7 +3757,7 @@ const exSave = () => store.set("ex", ex);
 const exS = k => RS_BY.get(k);
 const exShuf = a => a.map(x => [x, Math.random()]).sort((p, q) => p[1] - q[1]).map(x => x[0]);
 function exDraw(n, distinctYears){
-  const pool = zsPool(ex.cats).filter(s => !noSpot(s)), used = new Set(ex.used), out = [], ys = new Set();
+  const pool = zsPool(ex.cats).filter(s => !offPlay(s)), used = new Set(ex.used), out = [], ys = new Set();
   let cand = pool.filter(s => !used.has(zsKey(s)));
   if (cand.length < n * 3) { ex.used = []; cand = pool.slice(); }
   for (let t = 0; out.length < n && t < 400; t++) {
@@ -4298,7 +4060,7 @@ $("#verTap").addEventListener("click", () => {
   const now = Date.now(); verTaps = now - verTapT < 1500 ? verTaps + 1 : 1; verTapT = now;
   if (verTaps >= 7 && !isAdmin()) { verTaps = 0; store.set("admin", true); applyAdmin(); renderData(); alert("Daten-Bereich auf diesem Gerät freigeschaltet."); }
 });
-$("#admOff").addEventListener("click", async () => { if (!await ask("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; syncRunning = false; mbRunning = false; store.set("admin", false); applyAdmin(); });
+$("#admOff").addEventListener("click", async () => { if (!await ask("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; store.set("admin", false); applyAdmin(); });
 // ---------- Neuigkeiten ----------
 const CL_LBL = { neu: "Neu", change: "Geändert", fix: "Fix" };
 const verNum = v => String(v).split(/[–-]/).pop().split(".").map(Number).reduce((a, x) => a * 1000 + (x || 0), 0);
@@ -4346,7 +4108,7 @@ $("#newsFold").addEventListener("toggle", e => { if (e.target.open) { const L = 
 $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);
 
 (async () => {
-  renderInstall(); updateBadge(); showNewsBanner(); renderBkRemind(); renderSpReady();
+  renderInstall(); showNewsBanner(); renderBkRemind(); renderSpReady();
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
   const err = await sp.handleRedirect();
