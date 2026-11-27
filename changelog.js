@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.6", d: "2026-11-28", e: [
+    ["change", "Sicherheit: Die Sicherungsdatei enthält die Spotify-Anmeldung und den GitHub-Schlüssel nicht mehr. Nach dem Laden einer Sicherung auf einem neuen Gerät einmal bei Spotify anmelden und den Schlüssel neu einfügen. Auf dem eigenen Gerät bleibt beides beim Laden erhalten."],
+    ["change", "Sicherheit: Cover kommen nur noch direkt von Spotify. Die frühere iTunes-Suche hat fremden Code in die App geladen und ist entfernt."],
+  ]},
   { v: "0.14.5", d: "2026-11-28", e: [
     ["fix", "„Alle Neuigkeiten“ im Neu-für-dich-Hinweis öffnet jetzt wirklich die Neuigkeiten."],
     ["fix", "iPhone/iPad: Die verbesserte Spotify-Erkennung aus 0.14.2 greift jetzt auch, wenn auf dem Handy noch kein Gerät gemerkt ist."],

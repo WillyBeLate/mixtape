@@ -793,7 +793,7 @@
     <div id="dataBox"></div></details>
     <details class="fold" data-fold="backup"><summary><span class="ft"><span class=dw data-dw=save></span> Daten &amp; Sicherung</span><span class="fs">Sichern, Verlauf, Cache</span></summary>
     <div style="padding:0 2px 12px">
-      <div class="small">Speichert alles, was diese App auf dem Handy weiß, in eine Datei: Spotify-Einrichtung und Anmeldung, Teams, Song-Verlauf, Mixtapes, Einstellungen und Prüf-Ergebnisse. Auf einem neuen oder neu installierten Gerät „Sicherung laden“ tippen und die Datei wählen.</div>
+      <div class="small">Speichert alles, was diese App auf dem Handy weiß, in eine Datei: Spotify-Einrichtung, Teams, Song-Verlauf, Mixtapes, Einstellungen und Korrekturen. Auf einem neuen oder neu installierten Gerät „Sicherung laden“ tippen und die Datei wählen. Aus Sicherheitsgründen nicht dabei: die Spotify-Anmeldung und der GitHub-Schlüssel – danach also einmal bei Spotify anmelden und den Schlüssel neu einfügen.</div>
       <button class="btn small" id="bkSave"><span class=dw data-dw=upload></span> Sicherung speichern</button>
       <button class="btn small sec" id="bkLoad"><span class=dw data-dw=download></span> Sicherung laden</button><input type="file" id="bkFile" accept=".json,application/json" hidden>
       <div id="bkMsg" class="small"></div>
@@ -832,7 +832,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.14.5";
+const APP_VERSION = "0.14.6";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1245,9 +1245,12 @@ async function openDevPicker(el){
 }
 $("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
 // ---------- Sicherung (alles aus dem Speicher dieses Geräts) ----------
+// Zugangsdaten kommen nicht in die Datei (die liegt z. B. in iCloud oder im Download-Ordner):
+// Spotify-Anmeldung und GitHub-Schlüssel bleiben nur auf dem Gerät.
+const BK_SECRET = ["tok", "pkce", "ghTok"];
 async function backupNow(){
   store.set("bkLast", Date.now());
-  const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); data[k] = localStorage.getItem(k); }
+  const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!BK_SECRET.includes(k)) data[k] = localStorage.getItem(k); }
   const name = `mixtape-sicherung-${new Date().toISOString().slice(0, 10)}.json`;
   const blob = new Blob([JSON.stringify({ app: "mixtape", v: APP_VERSION, date: new Date().toISOString(), data })], { type: "application/json" });
   const file = new File([blob], name, { type: "application/json" });
@@ -1278,7 +1281,10 @@ $("#bkFile").addEventListener("change", async e => {
   try {
     const j = JSON.parse(await f.text()); if (j.app !== "mixtape" || !j.data) throw new Error("Das ist keine Mixtape-Sicherung.");
     if (!await ask(`Sicherung vom ${new Date(j.date).toLocaleString("de-DE")} laden? Der jetzige Stand auf diesem Gerät wird dabei ersetzt.`)) return;
-    localStorage.clear(); Object.entries(j.data).forEach(([k, v]) => localStorage.setItem(k, v));
+    // Anmeldung und Schlüssel dieses Geräts behalten, dann den gesicherten Stand einspielen
+    const keep = Object.fromEntries(BK_SECRET.map(k => [k, localStorage.getItem(k)]).filter(([, v]) => v !== null));
+    localStorage.clear(); Object.entries(j.data).forEach(([k, v]) => { try { localStorage.setItem(k, v); } catch(e) {} });
+    Object.entries(keep).forEach(([k, v]) => { if (localStorage.getItem(k) === null) localStorage.setItem(k, v); });
     msg("#bkMsg", "ok", "Sicherung geladen – die App startet neu …"); setTimeout(() => location.reload(), 800);
   } catch(err) { msg("#bkMsg", "err", esc(err.message || String(err))); }
   e.target.value = "";
@@ -3323,29 +3329,12 @@ async function rsCover(k){
   const s = rsSong(k), uri = s.sid ? "spotify:track:" + s.sid : store.get("trk3:" + k, null)?.uri;
   let u = null, netErr = false;
   if (uri) try { const r = await fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent("https://open.spotify.com/track/" + uri.split(":").pop()));
-    u = (await r.json())?.thumbnail_url || null; } catch(e) { netErr = true; }
-  // Ohne Spotify-ID: Cover über die iTunes-Suche (ohne Anmeldung, ohne Spotify-Kontingent)
-  if (!u) try { u = await itunesCover(s.t, s.a); netErr = false; } catch(e) { netErr = true; }
+    const t = (await r.json())?.thumbnail_url || null; u = /^https:\/\/[a-z0-9.-]+\.(scdn\.co|spotifycdn\.com)\//i.test(t || "") ? t : null; } catch(e) { netErr = true; }
+  // Ohne Spotify-ID gibt es (noch) kein Cover – die Nachtprüfung trägt fehlende IDs nach.
+  //  (Früher iTunes per JSONP: lud fremden Code in die App, deshalb entfernt.)
+  if (!uri) return null;
   if (u || !netErr) { store.set(ck, u); if (!u) store.set("covTry:" + k, Date.now()); }
   return u;
-}
-const rsNorm = x => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
-// iTunes erlaubt kein fetch() von fremden Seiten (CORS) – JSONP per <script> klappt aber überall
-let jsonpN = 0;
-function jsonp(url, ms = 8000){
-  return new Promise((ok, fail) => {
-    const cb = "__jp" + (++jsonpN) + "_" + Date.now().toString(36), sc = document.createElement("script");
-    const done = (f, v) => { clearTimeout(tm); delete window[cb]; sc.remove(); f(v); };
-    const tm = setTimeout(() => done(fail, new Error("timeout")), ms);
-    window[cb] = d => done(ok, d); sc.onerror = () => done(fail, new Error("net"));
-    sc.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb; document.head.appendChild(sc);
-  });
-}
-async function itunesCover(t, a){
-  const res = (await jsonp("https://itunes.apple.com/search?media=music&entity=song&limit=8&country=de&term=" + encodeURIComponent(t.replace(/\(.*?\)/g, "") + " " + a)))?.results || [];
-  const na = rsNorm(a).split(" ")[0], nt = rsNorm(t.replace(/\(.*?\)/g, ""));
-  const hit = res.find(x => rsNorm(x.artistName).includes(na) && rsNorm(x.trackName).includes(nt)) || res.find(x => rsNorm(x.artistName).includes(na));
-  return hit?.artworkUrl100 ? hit.artworkUrl100.replace("100x100bb", "300x300bb") : null;
 }
 function rsCovers(root){
   root.querySelectorAll("[data-cov]").forEach(async el => { const u = await rsCover(el.dataset.cov); if (u) { el.style.backgroundImage = `url("${u}")`; el.textContent = ""; } });
