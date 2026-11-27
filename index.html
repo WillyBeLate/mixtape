@@ -510,6 +510,10 @@
   .zsV{font-size:20px;font-weight:900;text-align:center;margin-bottom:8px}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
   #rsPick:disabled{position:static;box-shadow:none}
+  .rsWrong{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:5px;border:1px solid #ffb02088;background:#ffb0201f;color:#ffd9a8;border-radius:999px;padding:4px 9px 4px 4px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .topbar:has(.rsWrong) .tbt{font-size:18px;white-space:nowrap}.topbar:has(.rsWrong) .tbi{width:28px;height:28px}
+  .rsWrong b{width:18px;height:18px;border-radius:50%;background:#ffb020;color:#1b1033;display:grid;place-items:center;font-size:12px;font-weight:900}
+  .rsFixP{margin-top:4px}.rsFixS{display:block;width:100%;text-align:left;margin-top:6px}.rsFixS span{opacity:.7;font-weight:500}
   .rsSt b{font-size:15px}.rsLbl{margin:6px 0 8px;font-size:13px}.rsLbl span{font-weight:800;color:#ffd23f}
   .rsGb{display:flex;align-items:center;gap:8px;margin:5px 0}.rsGb>span{width:70px;flex:none;font-size:12px;color:#d3c8ef}
   .rsGb>div{flex:1;display:grid;grid-template-columns:1fr 34px;gap:2px 6px;align-items:center}.rsGb i{display:block;height:8px;border-radius:4px;min-width:3px}.rsGb em{font-style:normal;font-size:11px;color:#bfb3df;text-align:right}
@@ -775,7 +779,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.11.0";
+const APP_VERSION = "0.11.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -811,7 +815,9 @@ function showA(s){
 }
 // Songs aus der Prüfliste (unsicheres Jahr / Cover) sind standardmäßig nicht im Spiel
 const ALLOW_UNCHECKED = store.get("allowUnchecked", false);
-const ACTIVE = DB.filter(s => !s.pruefen || ALLOW_UNCHECKED);
+// Von euch als „gibt es bei Spotify nicht“ markiert → aus allen Pools raus
+const noSpot = s => store.get("nospot:" + s.t + "|" + s.a, false);
+const ACTIVE = DB.filter(s => (!s.pruefen || ALLOW_UNCHECKED) && !noSpot(s));
 const byYearCat = {};   // byYearCat[cat][year] = [songs]
 for (const s of ACTIVE) for (const c of s.cats) {
   if (!CAT[c]) console.warn("Unbekannte Kategorie", c, s);
@@ -1055,6 +1061,7 @@ const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replac
 const cleanTitle = t => t.replace(/\(.*?\)/g, "").replace(/[!?,.]/g, " ").replace(/\s+/g, " ").trim();
 
 async function resolveTrack(song){
+  const fx = store.get("fix:" + song.t + "|" + song.a, null); if (fx?.uri) return fx;   // eigene Korrektur („Falscher Song“)
   if (song.sid) return { uri:"spotify:track:" + song.sid, dur:null };
   const key = "trk3:" + song.t + "|" + song.a;
   const cached = store.get(key, null); if (cached) return cached;
@@ -2286,7 +2293,10 @@ async function syncRun(){
 }
 function syncExport(){
   const out = {};
-  for (const s of DB) { if (s.sid) continue; const r = store.get(syncKey(s), null);
+  for (const s of DB) { const key = s.t + "|" + s.a, fx = store.get("fix:" + key, null);
+    if (store.get("nospot:" + key, false)) { out[key] = [null, "", "", "", "", "gibt es bei Spotify nicht (von euch markiert)"]; continue; }
+    if (fx?.uri) { out[key] = [fx.uri.split(":").pop(), fx.name || "", fx.artist || "", fx.album || "", fx.date || "", "Korrektur von euch"]; continue; }
+    if (s.sid) continue; const r = store.get(syncKey(s), null);
     out[s.t + "|" + s.a] = r ? [r.uri.split(":").pop(), r.name, r.artist, r.album, r.date, syncFlags(s, r).join(" · ")]
       : store.get("syncmiss:" + s.t + "|" + s.a, false) ? [null, "", "", "", "", "nicht gefunden"] : null;
     if (!out[s.t + "|" + s.a]) delete out[s.t + "|" + s.a]; }   // noch nicht abgeglichene Songs nicht als „nicht gefunden“ ausgeben
@@ -3006,7 +3016,10 @@ const RS_BY = new Map(DB.map(s => [rsKey(s), s]));
 const RS_YEARS = Object.keys(typeof RETTE_8 !== "undefined" ? RETTE_8 : {}).map(Number).sort((a, b) => a - b);
 const RS_MINY = RS_YEARS[0] || 1960, RS_MAXY = RS_YEARS[RS_YEARS.length - 1] || 2025;
 const RS_N = 8;   // so viele Songs stehen pro Jahr bzw. Künstler zur Wahl
-const rsPick = l => l.filter(k => RS_BY.has(k)).map(k => ({ k, r: Math.random() })).sort((a, b) => a.r - b.r).slice(0, RS_N).map(x => x.k);
+// Offiziell geprüfte Songs (feste Spotify-Version + MusicBrainz-Jahr) kommen zuerst dran; noch ungeprüfte nur, falls sonst keine 8 zusammenkommen.
+const rsTier = k => { const s = RS_BY.get(k), fx = store.get("fix:" + k, null);
+  return fx?.uri ? 0 : s.sid && typeof MB_GEPRUEFT !== "undefined" && MB_GEPRUEFT[k] ? 0 : s.sid ? 1 : 2; };
+const rsPick = l => l.filter(k => RS_BY.has(k) && !noSpot(RS_BY.get(k))).map(k => ({ k, t: rsTier(k), r: Math.random() })).sort((a, b) => a.t - b.t || a.r - b.r).slice(0, RS_N).sort((a, b) => a.r - b.r).map(x => x.k);
 const rsOpts = y => rsPick(RETTE_8[y] || []);
 let rs = store.get("rette", null);              // laufende oder zuletzt fertige Runde
 let rsSel = null, rsNow = null, rsShow = null;   // Auswahl, gerade laufender Song, angezeigtes Archiv-Mixtape
@@ -3226,6 +3239,9 @@ function rsChoose(box){
       ${rs.pos > 0 || pl > 0 ? `<button class="btn sec small" id="rsUndo">${IC_BACK} Zurück</button>` : ""}
       ${shown < n ? `<button class="btn sec small" id="rsAllRev">Alle aufdecken</button>` : ""}
       <button class="btn sec small" id="rsSkip">${rsIsA(rs) ? "Künstler" : "Jahr"} überspringen</button></div>`;
+  box.querySelector(".topbar").insertAdjacentHTML("beforeend", `<button class="rsWrong" id="rsWrong" aria-label="Falscher Song melden"><b>!</b>Falscher Song</button>`);
+  box.querySelector(".topbar").insertAdjacentHTML("afterend", `<div id="rsFix"></div>`);
+  $("#rsWrong").onclick = () => rsFixOpen(rsNow && Y.opts.slice(0, shown).includes(rsNow) ? rsNow : null, Y.opts.slice(0, shown), box);
   rsMark(); rsCovers(box); rsPrefetch();
   $("#rsBack").onclick = () => { rsStop(); rs.view = "setup"; rsSave(); rsRender(); };
   box.querySelectorAll(".rsOpt").forEach(el => el.onclick = e => {
@@ -3244,6 +3260,63 @@ function rsChoose(box){
     if (rs.pl > 0) rs.pl--; else if (rs.pos > 0) { rs.pos--; rs.pl = rs.names.length - 1; }
     rsSel = rs.years[rs.pos].picks[rs.pl]; if (rsSel === "-") rsSel = null; rs.years[rs.pos].picks[rs.pl] = null;
     if (rs.years[rs.pos].tipps) rs.years[rs.pos].tipps[rs.pl] = null; rsSave(); rsChoose(box); });
+}
+// ---------- „Falscher Song“: richtige Spotify-Version festlegen oder „gibt es nicht“ ----------
+async function rsPlayUri(uri){
+  const dev = (rsDevC && Date.now() - rsDevC.t < 120000) ? rsDevC : await getDevice(); if (!dev) throw new Error("Spotify schläft gerade – kurz Spotify öffnen.");
+  await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify({ uris: [uri], position_ms: 30000 }) });
+  rsDevC = { id: dev.id, t: Date.now() }; rsNow = null; rsLoad = null; rsMark();
+}
+function rsFixOpen(k, list, box){
+  const el = $("#rsFix"); if (!el) return;
+  if (!k) { el.innerHTML = `<div class="panel rsFixP"><div style="display:flex;justify-content:space-between;align-items:center"><b>Welcher Song stimmt nicht?</b><button class="btn sec small" id="rsFixX">✕</button></div>
+      ${list.map(x => `<button class="btn sec small rsFixS" data-fk="${esc(x)}">${esc(showT(rsSong(x)))} <span>· ${esc(showA(rsSong(x)))}</span></button>`).join("")}</div>`;
+    $("#rsFixX").onclick = () => el.innerHTML = "";
+    el.querySelectorAll("[data-fk]").forEach(b => b.onclick = () => rsFixOpen(b.dataset.fk, list, box));
+    el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  const s = rsSong(k), cur = store.get("fix:" + k, null) || store.get("trk3:" + k, null);
+  el.innerHTML = `<div class="panel rsFixP"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>„${esc(showT(s))}“ – ${esc(showA(s))}</b><button class="btn sec small" id="rsFixX">✕</button></div>
+    <div class="small" style="margin:4px 0 8px">${cur?.name ? `Gerade hinterlegt: „${esc(cur.name)}“ · ${esc(cur.artist || "")}` : s.sid ? "Gerade hinterlegt: feste Spotify-Version" : "Noch keine feste Spotify-Version."} Wähle die richtige Aufnahme (Original, kein Live/Cover/Remix):</div>
+    <div class="row" style="gap:6px"><input type="text" id="rsFixQ" value="${esc(cleanTitle(s.t) + " " + s.a)}"><button class="btn small" id="rsFixGo">Suchen</button></div>
+    <div id="rsFixL" class="small" style="margin-top:8px">Suche …</div>
+    <div class="row" style="gap:6px;margin-top:10px"><input type="text" id="rsFixLink" placeholder="oder Spotify-Link einfügen (open.spotify.com/track/…)"><button class="btn small sec" id="rsFixLinkOk">OK</button></div>
+    <button class="btn sec small" id="rsFixNone" style="margin-top:10px;width:100%">🚫 Diesen Song gibt es bei Spotify nicht</button>
+    <div id="rsFixM"></div></div>`;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const M = (t, c = "ok") => $("#rsFixM").innerHTML = `<div class="msg ${c}">${t}</div>`;
+  $("#rsFixX").onclick = () => el.innerHTML = "";
+  const save = r => { store.set("fix:" + k, r); store.set("trk3:" + k, r); store.set("syncok:" + k, true); store.del("cov:" + k);
+    M(`Gespeichert ✓ „${esc(r.name || "Spotify-Track")}“ ist jetzt die Version für „${esc(showT(s))}“. Mit „Exportieren“ im Spotify-Abgleich schickst du mir die Korrektur – dann gilt sie auf allen Geräten.`);
+    rsCovers(box); };
+  const search = async q => {
+    const L = $("#rsFixL"); if (!sp.tok()) { L.textContent = "Zum Suchen erst bei Spotify anmelden – oder unten einen Link einfügen."; return; }
+    L.textContent = "Suche …";
+    try { const j = await sp.api(`/search?type=track&limit=10&market=DE&q=${encodeURIComponent(q)}`), it = j?.tracks?.items || [];
+      L.innerHTML = it.length ? it.map((tr, i) => `<div class="fixit"><div><b>${esc(tr.name)}</b><br><span>${esc(tr.artists.map(a => a.name).join(", "))} · ${esc(tr.album?.name || "")} (${esc((tr.album?.release_date || "").slice(0, 4))})</span></div>
+        <button class="btn small sec" data-fp="${i}" aria-label="Anhören">${IC_PLAY}</button><button class="btn small" data-fs="${i}" aria-label="Diese Version nehmen">✓</button></div>`).join("") : "Nichts gefunden – anderen Suchbegriff probieren.";
+      const pk = i => { const tr = it[i]; return { uri: tr.uri, dur: tr.duration_ms, name: tr.name, artist: tr.artists.map(a => a.name).join(", "), album: tr.album?.name || "", date: tr.album?.release_date || "", typ: tr.album?.album_type || "" }; };
+      L.querySelectorAll("[data-fp]").forEach(b => b.onclick = () => rsPlayUri(it[+b.dataset.fp].uri).catch(e => M(esc(friendlyErr(e).d || e.message), "warn")));
+      L.querySelectorAll("[data-fs]").forEach(b => b.onclick = () => save(pk(+b.dataset.fs)));
+    } catch(e) { L.textContent = friendlyErr(e).d || e.message; }
+  };
+  $("#rsFixGo").onclick = () => search($("#rsFixQ").value);
+  $("#rsFixLinkOk").onclick = async () => {
+    const id = ($("#rsFixLink").value.match(/track[\/:]([A-Za-z0-9]{22})/) || [])[1]; if (!id) return M("Das ist kein Spotify-Track-Link.", "warn");
+    let r = { uri: "spotify:track:" + id, dur: null, name: "", artist: "" };
+    if (sp.tok()) try { const tr = await sp.api("/tracks/" + id + "?market=DE"); r = { uri: tr.uri, dur: tr.duration_ms, name: tr.name, artist: tr.artists.map(a => a.name).join(", "), album: tr.album?.name || "", date: tr.album?.release_date || "", typ: tr.album?.album_type || "" }; } catch(e) {}
+    save(r);
+  };
+  $("#rsFixNone").onclick = () => {
+    if (!confirm(`„${showT(s)}“ aus allen Spielen entfernen, weil es den Song bei Spotify nicht gibt?`)) return;
+    store.set("nospot:" + k, true); store.del("fix:" + k);
+    if (rs && !rs.done) { const Y = rs.years[rs.pos]; const i = Y.opts.indexOf(k);
+      if (i >= 0) { Y.opts.splice(i, 1); const pool = rsIsA(rs) ? (KUENSTLER_10[Y.y] || []) : (RETTE_8[Y.y] || []);
+        const add = pool.filter(x => RS_BY.has(x) && !Y.opts.includes(x) && !noSpot(RS_BY.get(x)))[0]; if (add) Y.opts.push(add);
+        if (rsSel === k) rsSel = null; if (rsNow === k) rsStop(); rsSave(); } }
+    rsRender();
+    setTimeout(() => { const m = $("#rsMsg"); if (m) m.innerHTML = `<div class="msg ok">„${esc(showT(s))}“ ist raus – aus allen Spielen. Mit „Exportieren“ im Spotify-Abgleich bekomme ich die Info, dann lösche ich ihn fest.</div>`; }, 50);
+  };
+  search($("#rsFixQ").value);
 }
 // Partner-Tipp: Welchen Song rettet (bzw. hat gerettet) die andere Person?
 function rsTip(box){

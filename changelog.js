@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.11.1", d: "2026-11-27", e: [
+    ["neu", "Rette einen Song: Oben rechts gibt es „Falscher Song“. Dort legst du die richtige Spotify-Version fest (suchen, anhören, ✓ – oder Link einfügen) oder markierst, dass es den Song bei Spotify nicht gibt. Dann fliegt er aus allen Spielen."],
+    ["change", "Rette einen Song nimmt bevorzugt geprüfte Songs (feste Spotify-Version und geprüftes Jahr). Noch ungeprüfte kommen nur dazu, wenn sonst keine 8 zusammenkommen."],
+    ["change", "Deine Korrekturen und „gibt es nicht“-Markierungen landen beim Exportieren im Spotify-Abgleich mit in der Datei."],
+  ]},
   { v: "0.11.0", d: "2026-11-27", e: [
     ["neu", "Rette einen Song: große Auswertung – Genre-Profil, Deutsch vs. international mit Flaggen, Mainstream oder Geheimtipp, Lieblingskünstler. Zu zweit außerdem Geschmacks-Match (auch gleicher Künstler/Genre zählt), eure einigste und strittigste Phase und das Jahrzehnt-Duell."],
     ["neu", "Partner-Tipp (zu zweit, im Setup an- und abschaltbar): Nach jedem geretteten Song tippst du, welchen der andere rettet. Am Ende: Wer kennt wen besser?"],
