@@ -532,9 +532,17 @@
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
   .rsDec{display:flex;gap:4px;align-items:flex-end;height:70px;margin:10px 0 2px}.rsDec div{flex:1;text-align:center;font-size:10px;color:#bfb3df}
   .rsDec i{display:block;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent),var(--accent2));margin-bottom:3px}
+  .volc{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0}.volc:empty{display:none}
+  .volc .vb{width:40px;height:40px;border-radius:50%;border:0;background:#ffffff1f;color:#fff;display:grid;place-items:center;cursor:pointer;font-size:18px;padding:0}
+  .volc .vb:active{background:#ffffff38}.volc .vv{min-width:46px;text-align:center;font-size:13px;color:#d3c8ef;font-weight:700}
+  .spr{display:flex;align-items:center;gap:8px;font-size:13px;color:#d3c8ef;margin:-4px 2px 12px;flex-wrap:wrap}
+  .spr i{width:8px;height:8px;border-radius:50%;background:#ffb020;flex:none}.spr.ok i{background:#1ed760;box-shadow:0 0 6px #1ed760}
+  .spr .btn{margin:0 0 0 auto;width:auto;padding:6px 12px}
+  .bkr{border:1px solid #ffb02066}
+  html.big .wrap{zoom:1.15}html.big .nav button{font-size:13.5px}
   /* ---------- Tablet (iPad & Co.): breitere Spalte, größere Schrift, mehr Kacheln nebeneinander ---------- */
   @media (min-width:760px){
-    .wrap{max-width:820px;padding:26px 30px 130px;zoom:1.08}
+    .wrap{max-width:820px;padding:26px 30px 130px;zoom:1.08}html.big .wrap{zoom:1.22}
     .topbar{margin:0 -30px 16px;padding:12px 30px}
     .mgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
     .mt.wide{grid-column:1/-1}
@@ -573,6 +581,7 @@
 </svg></h1><button class="spchip" id="spChip" style="display:none" aria-label="Spotify verbunden – Gerät prüfen"></button></div>
     <div id="devMsg"></div>
     <div id="loginBox" class="panel"></div>
+    <div id="spReadyBox"></div>
     <div id="resumeBox"></div>
 
     <h2><span class="stepnr">1</span> Spielmodus</h2>
@@ -641,6 +650,7 @@
       <h2 id="playState">Song läuft …</h2>
       <p class="sub" id="playHint">Welches Jahr? Früher oder später?</p>
       <p class="small" id="playDev" style="opacity:.5"></p>
+      <div class="volc" data-volbox></div>
     </div>
     <div id="playMsg"></div>
     <div id="modeBox"></div>
@@ -746,6 +756,7 @@
     <details class="fold noadm-open" data-fold="spiel" open><summary><span class="ft">🎮 Spiel</span><span class="fs">Vollbild, Songstart</span></summary>
     <div style="padding:0 2px 12px">
       <div class="row"><label for="fsOn"><b>Vollbild beim Spielen</b><br><span class="small">Blendet die Statusleiste oben aus – dort zeigen neue Handys sonst den laufenden Song an.</span></label><input type="checkbox" id="fsOn"></div>
+      <div class="row" style="margin-top:12px"><label for="bigFont"><b>Große Schrift</b><br><span class="small">Alles etwas größer – angenehm beim Spieleabend, wenn das Handy auf dem Tisch liegt.</span></label><input type="checkbox" id="bigFont"></div>
       <div class="row" style="margin-top:12px"><label for="randStart"><b>Zufälliger Startpunkt im Song</b><br><span class="small">Der Song startet irgendwo in der Mitte statt am Anfang – schwerer, weil das bekannte Intro fehlt.</span></label><input type="checkbox" id="randStart"></div>
     </div></details>
     <details class="fold" data-fold="spotify"><summary><span class="ft">🎧 Spotify</span><span class="fs" id="spSum"></span></summary>
@@ -805,7 +816,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.12.7";
+const APP_VERSION = "0.13.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1054,8 +1065,14 @@ const sp = {
     if (wait > 0) await sleep(wait);
     sp._last = Date.now();
     if (q) store.set("spQuota", { ...q, probe: Date.now() });
-    const r = await fetch("https://api.spotify.com/v1" + path, { ...opt,
-      headers:{ Authorization:"Bearer " + await sp.access(), "Content-Type":"application/json" } });
+    let r;
+    for (let n = 0; ; n++) {           // kurze Netzaussetzer / Spotify-Schluckauf: still bis zu 2× wiederholen
+      try { r = await fetch("https://api.spotify.com/v1" + path, { ...opt,
+        headers:{ Authorization:"Bearer " + await sp.access(), "Content-Type":"application/json" } }); }
+      catch(e) { if (n < 2 && navigator.onLine !== false) { await sleep(800 * (n + 1)); continue; } throw e; }
+      if ([502, 503, 504].includes(r.status) && n < 2) { await sleep(800 * (n + 1)); continue; }
+      break;
+    }
     if (r.status === 429) {
       let j429 = null; try { j429 = JSON.parse(await r.text()); } catch(_) {}
       if (j429?.error?.reason === "QUOTA_EXCEEDED") {
@@ -1208,13 +1225,33 @@ async function openDevPicker(el){
 }
 $("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
 // ---------- Sicherung (alles aus dem Speicher dieses Geräts) ----------
-$("#bkSave").addEventListener("click", () => {
+async function backupNow(){
+  store.set("bkLast", Date.now());
   const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); data[k] = localStorage.getItem(k); }
+  const name = `mixtape-sicherung-${new Date().toISOString().slice(0, 10)}.json`;
   const blob = new Blob([JSON.stringify({ app: "mixtape", v: APP_VERSION, date: new Date().toISOString(), data })], { type: "application/json" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mixtape-sicherung-${new Date().toISOString().slice(0, 10)}.json`;
+  const file = new File([blob], name, { type: "application/json" });
+  // iPhone/iPad: Teilen-Menü → „In Dateien sichern“ (z. B. iCloud Drive) – übersteht auch ein Neuinstallieren
+  if (IS_IOS && navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title: "Mixtape-Sicherung" }); return Object.keys(data).length; } catch(e) { if (e?.name === "AbortError") return 0; } }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  msg("#bkMsg", "ok", `Sicherung mit ${Object.keys(data).length} Einträgen gespeichert (Ordner „Downloads“).`);
-});
+  return Object.keys(data).length;
+}
+$("#bkSave").addEventListener("click", async () => { const n = await backupNow(); if (n) msg("#bkMsg", "ok", `Sicherung mit ${n} Einträgen gespeichert${IS_IOS ? "" : " (Ordner „Downloads“)"}.`); renderBkRemind(); });
+// Erinnerung auf der Startseite, wenn die letzte Sicherung über eine Woche her ist (und es etwas zu sichern gibt)
+function renderBkRemind(){
+  $("#bkRemind")?.remove();
+  const last = store.get("bkLast", 0), snooze = store.get("bkSnooze", 0), now = Date.now();
+  const worth = store.get("retteArchiv", []).length || store.get("zsRekord", null) || store.get("game", null) || Object.keys(localStorage).some(k => k.startsWith("fix:"));
+  if (!worth || now - last < 7 * 864e5 || now < snooze) return;
+  const days = last ? Math.floor((now - last) / 864e5) : null;
+  const el = document.createElement("div"); el.id = "bkRemind"; el.className = "panel bkr";
+  el.innerHTML = `<div><b>${IC_SAVE} ${days ? `Letzte Sicherung vor ${days} Tagen` : "Noch keine Sicherung"}</b><div class="small">Mixtapes, Rekorde und Korrekturen liegen nur auf diesem Gerät.</div></div>
+    <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="bkrGo">Jetzt sichern</button><button class="btn small sec" id="bkrLater">Später</button></div>`;
+  $("#resumeBox").before(el);
+  $("#bkrGo").onclick = async () => { await backupNow(); renderBkRemind(); };
+  $("#bkrLater").onclick = () => { store.set("bkSnooze", now + 3 * 864e5); el.remove(); };
+}
 $("#bkLoad").addEventListener("click", () => $("#bkFile").click());
 $("#bkFile").addEventListener("change", async e => {
   const f = e.target.files?.[0]; if (!f) return;
@@ -1262,7 +1299,9 @@ async function playCurrent(fromStart){
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
     if (pl?.is_playing) {
       if (pl.device?.id) store.set("lastDev", { id: pl.device.id, t: Date.now() });   // merkt: diese Runde läuft hier
-      $("#playDev").innerHTML = "🔊 Läuft auf: " + esc(pl.device?.name || "?") + (pl.device?.volume_percent != null ? ` · ${pl.device.volume_percent} %` : "") + ` · <a href="#" class="devchg">ändern</a>`;
+      $("#playDev").innerHTML = "🔊 Läuft auf: " + esc(pl.device?.name || "?") + ` · <a href="#" class="devchg">ändern</a>`;
+      if (pl.device?.volume_percent != null) store.set("vol", pl.device.volume_percent);
+      renderVol();
       state.paused = false; updatePlayUI(); return;
     }
     if (i === 0) await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {});
@@ -1275,13 +1314,20 @@ async function playCurrent(fromStart){
 //  Eine Webseite darf Spotify nicht unsichtbar starten. Sie darf die App aber per Link
 //  öffnen. Danach zieht Mixtape die Wiedergabe still aufs Handy (ohne dass ein Song läuft).
 // =====================================================================
-let spReady = null;          // letztes Ergebnis der Geräteprüfung
+let spReady = null, spChecked = false;   // letztes Ergebnis der Geräteprüfung
 let spWaking = false;        // Spotify wurde per Link geöffnet – warten auf Rückkehr
 let pendingRetry = null;     // was nach dem Wecken automatisch passieren soll
+function renderSpReady(){
+  const el = $("#spReadyBox"); if (!el) return;
+  if (!sp.tok() || sp.quota() || !spChecked) { el.innerHTML = ""; return; }
+  el.innerHTML = spReady ? `<div class="spr ok"><i></i>Spotify bereit auf <b>${esc(spReady.name)}</b></div>`
+    : `<div class="spr"><i></i>Spotify schläft gerade<button class="btn small" id="spWakeNow">Jetzt wecken</button></div>`;
+  $("#spWakeNow")?.addEventListener("click", () => openSpotify(() => spCheck(true)));
+}
 async function spCheck(activate){
   if (!sp.tok()) return null;
   try {
-    const d = await getDevice(); spReady = d;
+    const d = await getDevice(); spReady = d; spChecked = true; renderSpReady();
     if (d && activate && !d.is_active)
       await sp.api("/me/player", { method:"PUT", body: JSON.stringify({ device_ids:[d.id], play:false }) }).catch(() => {});
     return d;
@@ -1521,6 +1567,25 @@ function restorePlay(){
   if (c.revealed) reveal(); else { $("#revealBtn").style.display = "block"; $("#nextBtn").style.display = "none"; renderModeBox(); renderScore(); }
 }
 
+// ---------- Lautstärke direkt in Mixtape (z. B. wenn die Musik auf der Alexa läuft) ----------
+const IC_VDN = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 12h4"/></svg>';
+const IC_VUP = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 12h5M18 9.5v5"/></svg>';
+const volHtml = () => `<button class="vb" data-vol="-10" aria-label="Leiser">${IC_VDN}</button><span class="vv">${store.get("vol", null) ?? "–"} %</span><button class="vb" data-vol="10" aria-label="Lauter">${IC_VUP}</button>`;
+function renderVol(){ document.querySelectorAll("[data-volbox]").forEach(el => el.innerHTML = sp.tok() ? volHtml() : ""); }
+let volBusy = false;
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-vol]"); if (!b || volBusy || !sp.tok()) return;
+  volBusy = true;
+  try {
+    let v = store.get("vol", null);
+    if (v == null) v = (await sp.api("/me/player").catch(() => null))?.device?.volume_percent ?? 50;
+    v = Math.max(0, Math.min(100, Math.round((v + +b.dataset.vol) / 10) * 10));
+    await sp.api("/me/player/volume?volume_percent=" + v, { method: "PUT" });
+    store.set("vol", v); renderVol();
+  } catch(err) { const box = b.closest("[data-volbox]"); if (box) box.innerHTML = `<span class="small">Dieses Gerät lässt sich nicht fernsteuern – bitte am Gerät selbst lauter/leiser machen.</span>`; setTimeout(renderVol, 4000); }
+  volBusy = false;
+});
+
 // ---------- Bildschirm bleibt an, solange gespielt wird ----------
 let wakeLock = null, curView = "setup";
 async function keepAwake(on){
@@ -1530,7 +1595,8 @@ async function keepAwake(on){
     else if (!on && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
   } catch(e) {}
 }
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") keepAwake(["game", "play"].includes(curView) && state.running); });
+const awakeView = v => (["game", "play"].includes(v) && state.running) || v === "rette" || v === "zeitsprung";
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") keepAwake(awakeView(curView)); });
 
 // ---------- Karten-Protokoll für die Feierabend-Statistik ----------
 function cardDeltas(c){ const T = state.game.teams, hk = modeDef().app.handkarten;
@@ -2873,7 +2939,7 @@ function renderData(){
 //  Navigation & Events
 // =====================================================================
 function show(v){
-  curView = v; store.set("lastView", v); keepAwake(["game", "play"].includes(v) && state.running);
+  curView = v; store.set("lastView", v); keepAwake(awakeView(v));
   if (v === "game") renderHistory();
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("on", el.id === "v-" + v));
   document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v || (["setup","game","play","rette","zeitsprung"].includes(v) && b.dataset.v === "spiel")));
@@ -2920,6 +2986,9 @@ document.querySelectorAll("#catTabs button").forEach(b => b.addEventListener("cl
   state.tab = b.dataset.t; document.querySelectorAll("#catTabs button").forEach(x => x.classList.toggle("on", x === b)); renderCats(); }));
 $("#weight").value = state.weight; $("#wVal").textContent = $("#wVal2").textContent = state.weight + " %";
 $("#weight").addEventListener("input", e => { state.weight = +e.target.value; $("#wVal").textContent = $("#wVal2").textContent = state.weight + " %"; save(); });
+$("#bigFont").checked = store.get("bigFont", false);
+$("#bigFont").addEventListener("change", e => { store.set("bigFont", e.target.checked); document.documentElement.classList.toggle("big", e.target.checked); });
+document.documentElement.classList.toggle("big", store.get("bigFont", false));
 $("#randStart").checked = state.randStart;
 $("#randStart").addEventListener("change", e => { state.randStart = e.target.checked; save(); });
 // Neues Spiel in zwei Schritten: 1) Modus & Teams  2) Mix. Zurück per Pfeil oder Zurück-Taste des Handys.
@@ -3321,7 +3390,8 @@ function rsChoose(box){
     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
       ${rs.pos > 0 || pl > 0 ? `<button class="btn sec small" id="rsUndo">${IC_BACK} Zurück</button>` : ""}
       ${shown < n ? `<button class="btn sec small" id="rsAllRev">Alle aufdecken</button>` : ""}
-      <button class="btn sec small" id="rsSkip">${rsIsA(rs) ? "Künstler" : "Jahr"} überspringen</button></div>`;
+      <button class="btn sec small" id="rsSkip">${rsIsA(rs) ? "Künstler" : "Jahr"} überspringen</button></div>
+    <div class="volc" data-volbox style="margin-top:10px">${sp.tok() ? volHtml() : ""}</div>`;
   box.querySelector(".topbar").insertAdjacentHTML("beforeend", `<button class="rsWrong" id="rsWrong" aria-label="Falscher Song melden"><b>!</b>Falscher Song</button>`);
   box.querySelector(".topbar").insertAdjacentHTML("afterend", `<div id="rsFix"></div>`);
   $("#rsWrong").onclick = () => rsFixOpen(rsNow && Y.opts.slice(0, shown).includes(rsNow) ? rsNow : null, Y.opts.slice(0, shown), box);
@@ -3833,14 +3903,15 @@ function showNewsBanner(){
   $("#newsBanner")?.remove(); $("#resumeBox").before(el);
   const done = () => { markNewsSeen(fresh.map(e => e.id)); el.remove(); };
   $("#nbOk").onclick = done; $("#nbX").onclick = done;
-  $("#nbHead").onclick = () => { const b = $("#nbBody"); b.hidden = !b.hidden; $("#nbArr").style.transform = b.hidden ? "" : "rotate(180deg)"; };
+  $("#nbHead").onclick = () => { const b = $("#nbBody"); b.hidden = !b.hidden; $("#nbArr").style.transform = b.hidden ? "" : "rotate(180deg)";
+    if (!b.hidden) markNewsSeen(fresh.map(e => e.id)); };   // einmal gelesen → beim nächsten Öffnen nicht mehr da
   $("#nbAll").onclick = () => { done(); show("data"); const f = $("#newsFold"); f.open = true; renderNews(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
 }
 $("#newsFold").addEventListener("toggle", e => { if (e.target.open) { const L = typeof CHANGELOG !== "undefined" ? CHANGELOG : []; markNewsSeen(L.flatMap(x => x.e.map((_, k) => newsId(x, k)))); $("#newsBanner")?.remove(); } });
 $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);
 
 (async () => {
-  renderInstall(); updateBadge(); showNewsBanner();
+  renderInstall(); updateBadge(); showNewsBanner(); renderBkRemind(); renderSpReady();
   setTimeout(() => spCheck(false), 1500);
   document.title = APP_NAME + " – Das Musik-Zeitreise-Spiel"; $("#appName").textContent = APP_NAME;
   const err = await sp.handleRedirect();

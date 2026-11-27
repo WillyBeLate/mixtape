@@ -4,6 +4,15 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.13.0", d: "2026-11-27", e: [
+    ["neu", "Lautstärke direkt in Mixtape: Plus/Minus beim Spielen und bei „Rette einen Song“ – praktisch, wenn die Musik auf der Alexa läuft."],
+    ["neu", "Startseite zeigt, ob Spotify bereit ist („Spotify bereit auf …“) – sonst gleich „Jetzt wecken“, bevor der erste Song kommt."],
+    ["neu", "Sicherungs-Erinnerung: Ist die letzte Sicherung über eine Woche her, erinnert die Startseite daran. Auf dem iPhone landet die Sicherung über „Teilen → In Dateien sichern“ z. B. in iCloud."],
+    ["neu", "Einstellungen → Spiel: Schalter „Große Schrift“."],
+    ["change", "Der Bildschirm bleibt jetzt auch bei „Rette einen Song“ und „Zeitsprung“ an."],
+    ["change", "Kurze Netz- oder Spotify-Aussetzer werden still wiederholt, statt gleich eine Fehlermeldung zu zeigen."],
+    ["change", "Neuigkeiten-Banner: Einmal aufgeklappt und gelesen, ist er beim nächsten Öffnen weg."],
+  ]},
   { v: "0.12.7", d: "2026-11-27", e: [
     ["neu", "Eigene Ansicht für iPad und Tablets: breitere Spalte, etwas größere Schrift, drei Spielmodi nebeneinander und bei „Rette einen Song“ die Songs zweispaltig."],
   ]},
