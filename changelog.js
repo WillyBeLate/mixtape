@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.4", d: "2026-11-27", e: [
+    ["change", "Spielmodi: Ob ihr Jahreskarten braucht, zeigt jetzt nur noch ein kleines Karten-Symbol oben rechts auf der Kachel. Kein Symbol = ohne Karten."],
+  ]},
   { v: "0.12.3", d: "2026-11-27", e: [
     ["fix", "Die kleinen ⓘ-Knöpfe der Spielmodi schimmern beim Scrollen nicht mehr durch die Leiste unten."],
   ]},
