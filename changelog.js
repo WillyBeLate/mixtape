@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.3", d: "2026-11-27", e: [
+    ["change", "Einstellungen aufgeräumt: Automatische Prüfung, Jahres-Prüfung, Prüfliste, Spotify-Abgleich und Playlist-Import stecken jetzt zusammen unter „Song-Prüfung“."],
+    ["change", "Alle Kategorien und Künstler mit ihrer Abdeckung findest du gesammelt unter „Song-Statistik“."],
+    ["change", "Sicherung, Song-Verlauf und Cache sind zu „Daten & Sicherung“ zusammengefasst."],
+  ]},
   { v: "0.14.2", d: "2026-11-27", e: [
     ["change", "Alle Emojis in der App sind jetzt gezeichnete Neon-Icons im Stil der Spielmodi – in Auswertungen, Einstellungen, Meldungen und Spielen."],
     ["fix", "iPad: Mixtape erkennt das iPad jetzt richtig als iPad (Safari gibt sich dort als Mac aus) und findet Spotify darauf zuverlässiger."],

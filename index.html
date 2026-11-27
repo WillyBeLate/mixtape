@@ -260,6 +260,8 @@
   details.fold .fs{font-size:12px;color:#cfc6e8}
   details.fold[open]{padding-bottom:4px}
   details.fold .panel{background:#ffffff0d}
+  details.fold.sub{background:#ffffff08;border-color:#ffffff12;border-radius:14px;margin:6px 0;padding:0 10px}
+  details.fold.sub>summary{padding:11px 2px}details.fold.sub .ft{font-size:15px}
   .decs{display:flex;gap:4px;align-items:flex-end;height:60px;margin-top:10px}
   .decs div{flex:1;text-align:center;font-size:10px;color:#cfc6e8}
   .decs i{display:block;background:linear-gradient(180deg,var(--accent),var(--accent2));border-radius:4px 4px 0 0;margin:0 auto 3px;width:70%}
@@ -727,46 +729,6 @@
   <!-- ======================= DATEN ======================= -->
   <section class="view" id="v-data">
     <h1><span>Einstellungen</span></h1>
-    <h2 class="adm" style="margin-top:6px">Datenbank-Check</h2>
-    <p class="sub adm">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
-    <div id="dataBox" class="adm"></div>
-    <details class="fold" data-fold="auto"><summary><span class="ft"><span class=dw data-dw=moon></span> Automatische Prüfung</span><span class="fs" id="ghSum"></span></summary>
-    <div style="padding:0 2px 12px">
-      <div class="small">Jede Nacht gleicht Mixtape von selbst alle neuen Songs mit Spotify und MusicBrainz ab – ganz ohne Handy. Eindeutige Treffer gelten am Morgen auf allen Geräten, unsichere schaut sich Claude an.
-        Damit auch eure Korrekturen über „Falscher Song“ automatisch dort landen, hier einmal den GitHub-Schlüssel einfügen (auf jedem Handy).</div>
-      <div id="ghState" class="small" style="margin:8px 0"></div>
-      <input type="password" id="ghTok" placeholder="GitHub-Schlüssel (github_pat_…)" autocomplete="off">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn small" id="ghSave">Speichern</button><button class="btn small sec" id="ghSend">Jetzt senden</button><button class="btn small sec" id="ghDel">Schlüssel entfernen</button></div>
-    </div></details>
-    <details class="fold adm" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
-    <div class="panel" id="mbPanel" style="margin-top:6px">
-      <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
-        Ca. 1 Song alle 1,6 Sekunden – beim ersten Mal also ~30 Minuten, bei Auslastung länger. Bildschirm anlassen und nur in <b>einem</b> Tab/Gerät laufen lassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
-      <div id="mbStats" style="margin:10px 0"></div>
-      <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
-      <button class="btn small" id="mbStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Prüfung starten</button>
-      <button class="btn small sec" id="mbCopy"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> Bericht kopieren</button>
-      <button class="btn small sec" id="mbExport"><span class=dw data-dw=upload></span> Ergebnisse exportieren</button>
-      <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
-      <div id="mbList"></div>
-    </div></details>
-    <details class="fold adm" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
-    <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
-    <details class="fold adm" data-fold="spsync"><summary><span class="ft">Spotify-Abgleich</span><span class="fs" id="syncSum"></span></summary>
-    <div class="panel" style="margin-top:6px">
-      <div class="small">Sucht einmal alle Songs bei Spotify und merkt sich die genaue Aufnahme. Auffällige Treffer werden markiert – die könnt ihr direkt anhören. Danach „Exportieren“ und die Datei im Chat hochladen, dann trage ich alle Songs fest ein. Wegen Spotifys Kontingent höchstens 400 Songs pro Tag – also lieber in Etappen; Bildschirm anlassen.</div>
-      <div id="syncStats" style="margin:10px 0"></div>
-      <button class="btn small" id="syncStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Abgleich starten</button>
-      <button class="btn small sec" id="syncExport"><span class=dw data-dw=upload></span> Exportieren</button>
-      <div id="syncList"></div>
-    </div></details>
-    <details class="fold adm" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
-    <div class="panel" style="margin-top:6px">
-      <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
-      <input type="text" id="plUrl" placeholder="https://open.spotify.com/playlist/…" style="margin-top:8px">
-      <button class="btn small" id="plGo"><span class=dw data-dw=download></span> Auslesen &amp; speichern</button>
-      <div id="plMsg" class="small"></div>
-    </div></details>
     <details class="fold noadm-open" data-fold="spiel" open><summary><span class="ft"><span class=dw data-dw=gamepad></span> Spiel</span><span class="fs">Vollbild, Songstart</span></summary>
     <div style="padding:0 2px 12px">
       <div class="row"><label for="fsOn"><b>Vollbild beim Spielen</b><br><span class="small">Blendet die Statusleiste oben aus – dort zeigen neue Handys sonst den laufenden Song an.</span></label><input type="checkbox" id="fsOn"></div>
@@ -788,19 +750,59 @@
         <button class="btn small" id="saveCid">Speichern</button>
       </details>
     </div></details>
-    <details class="fold" data-fold="speicher"><summary><span class="ft"><span class=dw data-dw=broom></span> Verlauf &amp; Speicher</span><span class="fs">bei Problemen</span></summary>
+    <details class="fold" data-fold="pruefung"><summary><span class="ft"><span class=dw data-dw=moon></span> Song-Prüfung</span><span class="fs" id="ghSum"></span></summary>
     <div style="padding:0 2px 12px">
-      <div class="small"><b>Song-Verlauf löschen:</b> Kürzlich gespielte Songs kommen danach wieder genauso oft wie alle anderen, und „Zuletzt gespielt“ ist leer.</div>
-      <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
-      <div class="small" style="margin-top:10px"><b>Song-Cache leeren:</b> Vergisst, welche Spotify-Aufnahme für Songs ohne feste ID gefunden wurde. Hilft, wenn ein Song falsch klingt – kostet beim nächsten Spielen aber Spotify-Anfragen.</div>
-      <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
+      <div class="small">Jede Nacht gleicht Mixtape von selbst alle neuen Songs mit Spotify und MusicBrainz ab – ganz ohne Handy. Eindeutige Treffer gelten am Morgen auf allen Geräten, unsichere schaut sich Claude an.
+        Damit auch eure Korrekturen über „Falscher Song“ automatisch dort landen, hier einmal den GitHub-Schlüssel einfügen (auf jedem Handy).</div>
+      <div id="ghState" class="small" style="margin:8px 0"></div>
+      <input type="password" id="ghTok" placeholder="GitHub-Schlüssel (github_pat_…)" autocomplete="off">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn small" id="ghSave">Speichern</button><button class="btn small sec" id="ghSend">Jetzt senden</button><button class="btn small sec" id="ghDel">Schlüssel entfernen</button></div>
+    </div>
+    <details class="fold sub adm" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
+    <div class="panel" id="mbPanel" style="margin-top:6px">
+      <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
+        Ca. 1 Song alle 1,6 Sekunden – beim ersten Mal also ~30 Minuten, bei Auslastung länger. Bildschirm anlassen und nur in <b>einem</b> Tab/Gerät laufen lassen. Bereits geprüfte Songs werden übersprungen, später kommen nur neue dran.</div>
+      <div id="mbStats" style="margin:10px 0"></div>
+      <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
+      <button class="btn small" id="mbStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Prüfung starten</button>
+      <button class="btn small sec" id="mbCopy"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> Bericht kopieren</button>
+      <button class="btn small sec" id="mbExport"><span class=dw data-dw=upload></span> Ergebnisse exportieren</button>
+      <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
+      <div id="mbList"></div>
     </div></details>
-    <details class="fold" data-fold="backup"><summary><span class="ft"><span class=dw data-dw=save></span> Sicherung</span><span class="fs">vor Neuinstallation oder Handywechsel</span></summary>
+    <details class="fold sub adm" data-fold="check"><summary><span class="ft">Prüfliste</span><span class="fs" id="checkSum"></span></summary>
+    <div class="panel" id="checkPanel" style="margin-top:6px"></div></details>
+    <details class="fold sub adm" data-fold="spsync"><summary><span class="ft">Spotify-Abgleich</span><span class="fs" id="syncSum"></span></summary>
+    <div class="panel" style="margin-top:6px">
+      <div class="small">Sucht einmal alle Songs bei Spotify und merkt sich die genaue Aufnahme. Auffällige Treffer werden markiert – die könnt ihr direkt anhören. Danach „Exportieren“ und die Datei im Chat hochladen, dann trage ich alle Songs fest ein. Wegen Spotifys Kontingent höchstens 400 Songs pro Tag – also lieber in Etappen; Bildschirm anlassen.</div>
+      <div id="syncStats" style="margin:10px 0"></div>
+      <button class="btn small" id="syncStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Abgleich starten</button>
+      <button class="btn small sec" id="syncExport"><span class=dw data-dw=upload></span> Exportieren</button>
+      <div id="syncList"></div>
+    </div></details>
+    <details class="fold sub adm" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
+    <div class="panel" style="margin-top:6px">
+      <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
+      <input type="text" id="plUrl" placeholder="https://open.spotify.com/playlist/…" style="margin-top:8px">
+      <button class="btn small" id="plGo"><span class=dw data-dw=download></span> Auslesen &amp; speichern</button>
+      <div id="plMsg" class="small"></div>
+    </div></details>
+    </details>
+    <details class="fold adm" data-fold="stats"><summary><span class="ft"><span class=dw data-dw=chart></span> Song-Statistik</span><span class="fs" id="statSum"></span></summary>
+    <div class="small" style="padding:0 2px 6px">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr.</div>
+    <div id="dataBox"></div></details>
+    <details class="fold" data-fold="backup"><summary><span class="ft"><span class=dw data-dw=save></span> Daten &amp; Sicherung</span><span class="fs">Sichern, Verlauf, Cache</span></summary>
     <div style="padding:0 2px 12px">
       <div class="small">Speichert alles, was diese App auf dem Handy weiß, in eine Datei: Spotify-Einrichtung und Anmeldung, Teams, Song-Verlauf, Mixtapes, Einstellungen und Prüf-Ergebnisse. Auf einem neuen oder neu installierten Gerät „Sicherung laden“ tippen und die Datei wählen.</div>
       <button class="btn small" id="bkSave"><span class=dw data-dw=upload></span> Sicherung speichern</button>
       <button class="btn small sec" id="bkLoad"><span class=dw data-dw=download></span> Sicherung laden</button><input type="file" id="bkFile" accept=".json,application/json" hidden>
       <div id="bkMsg" class="small"></div>
+      <div style="border-top:1px solid #ffffff14;margin:12px 0 0;padding-top:10px">
+      <div class="small"><b>Song-Verlauf löschen:</b> Kürzlich gespielte Songs kommen danach wieder genauso oft wie alle anderen, und „Zuletzt gespielt“ ist leer.</div>
+      <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
+      <div class="small" style="margin-top:10px"><b>Song-Cache leeren:</b> Vergisst, welche Spotify-Aufnahme für Songs ohne feste ID gefunden wurde. Hilft, wenn ein Song falsch klingt – kostet beim nächsten Spielen aber Spotify-Anfragen.</div>
+      <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
+      </div>
     </div></details>
     <details class="fold" data-fold="news" id="newsFold"><summary><span class="ft"><span class=dw data-dw=pencil></span> Neuigkeiten</span><span class="fs" id="newsSum"></span></summary>
     <div id="newsBox" style="padding:0 2px 12px"></div></details>
@@ -830,7 +832,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.14.2";
+const APP_VERSION = "0.14.3";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2990,7 +2992,7 @@ function catPanel(c, ys){
 }
 function foldHtml(id, title, sum, inner){
   const open = store.get("fold:" + id, false);
-  return `<details class="fold" data-fold="${id}" ${open ? "open" : ""}><summary><span class="ft">${title}</span><span class="fs">${sum}</span></summary>${inner}</details>`;
+  return `<details class="fold sub" data-fold="${id}" ${open ? "open" : ""}><summary><span class="ft">${title}</span><span class="fs">${sum}</span></summary>${inner}</details>`;
 }
 function renderData(){
   const ys = years();
@@ -3022,6 +3024,7 @@ function renderData(){
     <div class="small" style="margin-top:6px;opacity:.7">${unsafe.map(x => esc(x.serie)).join(" · ")}</div></div>`;
   h += foldHtml("special", "Sonderkategorien", `${nSp} Kategorien · ${nMel} Titelmelodien`, tvPanels + fixPanel);
   $("#dataBox").innerHTML = h;
+  if ($("#statSum")) $("#statSum").textContent = `${KATEGORIEN.length + nSp} Kategorien · ${ACTIVE.length} Songs`;
   $("#tvUnsafe")?.addEventListener("change", e => { store.set("tvUnsafe", e.target.checked); renderData(); });
   $("#fixExport")?.addEventListener("click", async () => {
     const out = {}; Object.values(TV_DATEN).flatMap(D => D.liste).forEach(x => { const f = tvFix(x); if (f) out[x.i] = [f.uri.split(":").pop(), f.name, f.artist]; });
@@ -3031,7 +3034,7 @@ function renderData(){
     catch(e) { try { await navigator.clipboard.writeText(txt); alert("Korrekturen kopiert."); } catch(e2) { prompt("Korrekturen:", txt); } }
   });
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
-    if (!d.dataset.init && ["spotify", "mb", "check", "plimport", "spsync"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
+    if (!d.dataset.init && ["spotify", "mb", "check", "plimport", "spsync", "pruefung", "stats", "backup"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
