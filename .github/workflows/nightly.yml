@@ -1,7 +1,7 @@
 name: Nächtliche Prüfung
 on:
   schedule:
-    - cron: "15 0 * * *"   # 1:15 Uhr (Winter) bzw. 2:15 Uhr (Sommer) deutscher Zeit
+    - cron: "0 2 * * *"   # 3:00 Uhr (Winter) bzw. 4:00 Uhr (Sommer) deutscher Zeit
   workflow_dispatch:
 permissions:
   contents: write
@@ -25,17 +25,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
       - name: Speichern & veröffentlichen
+        id: save
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ -s tools/.summary ]; then
-            git config user.name "mixtape-nachtpruefung"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -A ids.js geprueft.js tools/pruefen.json index.html sw.js changelog.js
-            git commit -m "Nächtliche Prüfung: $(cat tools/.summary)"
-            git push
-            curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-              https://api.github.com/repos/${{ github.repository }}/pages/builds || true
-          else
-            git add tools/pruefen.json && git diff --cached --quiet || (git config user.name "mixtape-nachtpruefung"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"; git commit -m "Nächtliche Prüfung: Prüfliste aktualisiert" && git push)
-          fi
+          git config user.name "mixtape-nachtpruefung"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A ids.js geprueft.js tools/pruefen.json
+          if git diff --cached --quiet; then echo "Nichts zu speichern."; exit 0; fi
+          git commit -m "Nächtliche Prüfung: $(cat tools/.summary)"
+          # Falls in der Zwischenzeit jemand gepusht hat: erst den neuen Stand holen, dann pushen (bis zu 3 Versuche)
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && ok=1 && break
+            git rebase --abort 2>/dev/null || true
+            sleep 20
+          done
+          if [ -z "$ok" ]; then echo "Push fehlgeschlagen – Issues bleiben offen und werden morgen erneut übernommen."; exit 1; fi
+          curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages/builds || true
+      - name: Übernommene Korrekturen schließen
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(cat tools/.issues 2>/dev/null); do
+            gh issue comment "$n" -R "${{ github.repository }}" -b "✅ Übernommen in der nächtlichen Prüfung." || true
+            gh issue close "$n" -R "${{ github.repository }}" || true
+          done

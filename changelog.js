@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.4", d: "2026-11-27", e: [
+    ["change", "Nächtliche Prüfung läuft jetzt um 3 Uhr. Eure „Falscher Song“-Meldungen gelten erst als erledigt, wenn sie wirklich gespeichert sind – so geht keine Korrektur mehr verloren."],
+    ["change", "Die Nachtprüfung zählt keine eigenen Versionen mehr hoch. Neuigkeiten gibt es nur noch, wenn sich für euch etwas ändert (z. B. ein Song ersetzt oder ein Jahr korrigiert)."],
+  ]},
   { v: "0.14.3", d: "2026-11-27", e: [
     ["change", "Einstellungen aufgeräumt: Automatische Prüfung, Jahres-Prüfung, Prüfliste, Spotify-Abgleich und Playlist-Import stecken jetzt zusammen unter „Song-Prüfung“."],
     ["change", "Alle Kategorien und Künstler mit ihrer Abdeckung findest du gesammelt unter „Song-Statistik“."],

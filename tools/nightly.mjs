@@ -21,7 +21,7 @@ const deadline = Date.now() + 45 * 60e3;   // nach 45 Min. aufhören, Rest morge
 const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(rd("daten.js") + rd("ids.js") + rd("geprueft.js") +
-  ";this.SONGS=SONGS;this.RETTE_8=typeof RETTE_8!=='undefined'?RETTE_8:{};this.KUENSTLER_10=typeof KUENSTLER_10!=='undefined'?KUENSTLER_10:{};this.SPOTIFY_IDS=SPOTIFY_IDS;this.MB_GEPRUEFT=MB_GEPRUEFT;this.BESTAETIGT=typeof BESTAETIGT!=='undefined'?BESTAETIGT:new Set();" +
+  ";this.SONGS=SONGS;this.KATEGORIEN=KATEGORIEN;this.PRUEFEN=typeof PRUEFEN!=='undefined'?PRUEFEN:{};this.RETTE_8=typeof RETTE_8!=='undefined'?RETTE_8:{};this.KUENSTLER_10=typeof KUENSTLER_10!=='undefined'?KUENSTLER_10:{};this.SPOTIFY_IDS=SPOTIFY_IDS;this.MB_GEPRUEFT=MB_GEPRUEFT;this.BESTAETIGT=typeof BESTAETIGT!=='undefined'?BESTAETIGT:new Set();" +
   "this.NICHT_BEI_SPOTIFY=typeof NICHT_BEI_SPOTIFY!=='undefined'?NICHT_BEI_SPOTIFY:[];", ctx);
 const { SONGS, SPOTIFY_IDS, MB_GEPRUEFT, BESTAETIGT } = ctx;
 const NOSPOT = new Set(ctx.NICHT_BEI_SPOTIFY);
@@ -156,7 +156,6 @@ async function mbCheck(s){
 }
 
 // ---------- Schreiben ----------
-const changed = sum.fix || sum.nospot || sum.ids || sum.mb;
 const q = JSON.stringify;
 const idsTxt = rd("ids.js");
 const head = idsTxt.slice(0, idsTxt.indexOf("const SPOTIFY_IDS"));
@@ -167,26 +166,31 @@ const gTxt = rd("geprueft.js"), gHead = gTxt.slice(0, gTxt.indexOf("const MB_GEP
 wr("geprueft.js", gHead + "const MB_GEPRUEFT = {\n" + Object.entries(MB_GEPRUEFT).map(([k, v]) => `  ${q(k)}: ${q(v).replace(",", ", ")},`).join("\n") + "\n};\n");
 wr("tools/pruefen.json", JSON.stringify(pruefen, null, 1) + "\n");
 
-if (changed) {
-  // Version hochzählen + Neuigkeiten
-  let h = rd("index.html");
-  const v = h.match(/const APP_VERSION = "(\d+)\.(\d+)\.(\d+)"/), nv = `${v[1]}.${v[2]}.${+v[3] + 1}`;
-  wr("index.html", h.replace(v[0], `const APP_VERSION = "${nv}"`));
-  const sw = rd("sw.js"), sv = sw.match(/mixtape-v(\d+)/); wr("sw.js", sw.replace(sv[0], "mixtape-v" + (+sv[1] + 1)));
-  const parts = [];
-  if (sum.ids) parts.push(`${sum.ids} Songs spielen jetzt immer die richtige Spotify-Aufnahme`);
-  if (sum.fix) parts.push(`${sum.fix} eurer „Falscher Song“-Korrekturen übernommen`);
-  if (sum.nospot) parts.push(`${sum.nospot} Songs ohne Spotify-Version aus den Spielen genommen`);
-  if (sum.mb) parts.push(`${sum.mb} Songs auf das Jahr geprüft`);
-  const d = new Date().toISOString().slice(0, 10);
-  const cl = rd("changelog.js").replace("const CHANGELOG = [\n", `const CHANGELOG = [\n  { v: ${q(nv)}, d: ${q(d)}, e: [\n    ["change", ${q("Nächtliche Prüfung: " + parts.join(", ") + ".")}],\n  ]},\n`);
-  wr("changelog.js", cl);
-  fs.writeFileSync(ROOT + "tools/.summary", `${nv} – ${parts.join(", ")}`);
-} else fs.writeFileSync(ROOT + "tools/.summary", "");
-
-// verarbeitete Issues schließen
-if (process.env.GH_TOKEN && !process.env.DRY) for (const n of sum.issues) {
-  try { await gh(`/repos/${REPO}/issues/${n}/comments`, { method: "POST", body: q({ body: "✅ Übernommen in der nächtlichen Prüfung." }) });
-    await gh(`/repos/${REPO}/issues/${n}`, { method: "PATCH", body: q({ state: "closed" }) }); } catch(e) { console.log(e.message); }
+// Unsichere Songs (Spotify-Treffer fraglich oder Jahr fraglich) sind in der App nicht im Spiel, bis Claude sie geprüft hat.
+const UNSICHER = [...new Set([...Object.keys(pruefen.spotify), ...Object.keys(pruefen.jahr)])].filter(k => !NOSPOT.has(k)).sort();
+wr("ids.js", rd("ids.js").replace(/\n\/\/ Noch in Prüfung[^\n]*\nconst UNSICHER = \[[^\n]*\];\n/, "\n") +
+  "// Noch in Prüfung (Spotify-Version oder Jahr unsicher) – bis dahin in keinem Spiel\n" +
+  "const UNSICHER = [" + UNSICHER.map(q).join(", ") + "];\n");
+// Lücken: Jahre, in denen eine Main-Kategorie keinen spielbaren Song mehr hat → Claude ergänzt Ersatz
+{
+  const [, from, to] = html.match(/const DEFAULT_FROM = (\d+), DEFAULT_TO = (\d+)/) || [, 1930, 2026];
+  const out = new Set(UNSICHER), PR = ctx.PRUEFEN || {};
+  const ok = SONGS.filter(s => typeof s[2] === "number" && !NOSPOT.has(key(s)) && !out.has(key(s)) && !PR[key(s)]);
+  const luecken = {};
+  for (const c of ctx.KATEGORIEN.filter(c => c.typ === "main")) {
+    const miss = [];
+    for (let y = +from; y <= +to; y++) if (!ok.some(s => s[2] === y && s[4].split(/\s+/).includes(c.id))) miss.push(y);
+    if (miss.length) luecken[c.id] = miss;
+  }
+  pruefen.luecken = luecken;
+  wr("tools/pruefen.json", JSON.stringify(pruefen, null, 1) + "\n");
 }
+const parts = [];
+if (sum.ids) parts.push(`${sum.ids} Spotify-IDs`);
+if (sum.fix) parts.push(`${sum.fix} Korrekturen`);
+if (sum.nospot) parts.push(`${sum.nospot} ohne Spotify`);
+if (sum.mb) parts.push(`${sum.mb} Jahre geprüft`);
+fs.writeFileSync(ROOT + "tools/.summary", parts.join(", ") || "Prüfliste aktualisiert");
+// Verarbeitete Issues schließt der Workflow erst NACH erfolgreichem Push (sonst gingen Korrekturen verloren)
+fs.writeFileSync(ROOT + "tools/.issues", sum.issues.join(" "));
 console.log(JSON.stringify(sum));
