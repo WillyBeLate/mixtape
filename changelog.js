@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.1", d: "2026-11-27", e: [
+    ["change", "Nächtliche Prüfung: 461 Songs auf das Jahr geprüft."],
+  ]},
   { v: "0.12.0", d: "2026-11-27", e: [
     ["neu", "Automatische Prüfung: Jede Nacht gleicht Mixtape neue Songs selbstständig mit Spotify und MusicBrainz ab – ohne dass ein Handy laufen muss. Eindeutige Treffer gelten morgens auf allen Geräten."],
     ["neu", "Einstellungen → 🌙 Automatische Prüfung: Mit einem GitHub-Schlüssel gehen eure „Falscher Song“-Korrekturen von selbst an die nächtliche Prüfung."],

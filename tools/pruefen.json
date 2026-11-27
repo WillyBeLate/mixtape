@@ -1,4 +1,255 @@
 {
  "spotify": {},
- "jahr": {}
+ "jahr": {
+  "Ich will immer wieder... dieses Fieber spür'n|Helene Fischer": {
+   "wir": 2011,
+   "mb": 2009,
+   "datum": "2009-10-09"
+  },
+  "Phänomen|Helene Fischer": {
+   "wir": 2013,
+   "mb": 2011,
+   "datum": "2011-10-14"
+  },
+  "Die Hölle morgen früh|Helene Fischer": {
+   "wir": 2021,
+   "mb": 2011,
+   "datum": "2011-10-14"
+  },
+  "Treasure|Bruno Mars": {
+   "wir": 2013,
+   "mb": 2012,
+   "datum": "2012"
+  },
+  "Chasing Pavements|Adele": {
+   "wir": 2008,
+   "mb": 2007,
+   "datum": "2007"
+  },
+  "Drunk in Love|Beyoncé": {
+   "wir": 2013,
+   "mb": 2012,
+   "datum": "2012-12-25"
+  },
+  "The A Team|Ed Sheeran": {
+   "wir": 2011,
+   "mb": 2010,
+   "datum": "2010-02-07"
+  },
+  "My Name Is|Eminem": {
+   "wir": 1999,
+   "mb": 1998,
+   "datum": "1998"
+  },
+  "lovely|Billie Eilish": {
+   "wir": 2018,
+   "mb": 2017,
+   "datum": "2017-12-12"
+  },
+  "Peace on Earth / Little Drummer Boy|David Bowie": {
+   "wir": 1982,
+   "mb": 1977,
+   "datum": "1977"
+  },
+  "8 Days of Christmas|Destiny's Child": {
+   "wir": 2001,
+   "mb": 1999,
+   "datum": "1999"
+  },
+  "A Nonsense Christmas|Sabrina Carpenter": {
+   "wir": 2023,
+   "mb": 2022,
+   "datum": "2022-12-07"
+  },
+  "Der Junge mit der Mundharmonika|Bernd Clüver": {
+   "wir": 1973,
+   "mb": 1972,
+   "datum": "1972-11"
+  },
+  "Kleine Taschenlampe brenn'|Markus": {
+   "wir": 1983,
+   "mb": 1982,
+   "datum": "1982"
+  },
+  "Distant Drums|Jim Reeves": {
+   "wir": 1966,
+   "mb": 1962,
+   "datum": "1962"
+  },
+  "Rose Garden|Lynn Anderson": {
+   "wir": 1970,
+   "mb": 1968,
+   "datum": "1968"
+  },
+  "Lucille|Kenny Rogers": {
+   "wir": 1977,
+   "mb": 1976,
+   "datum": "1976"
+  },
+  "Picture|Kid Rock": {
+   "wir": 2002,
+   "mb": 2001,
+   "datum": "2001-11-19"
+  },
+  "Chicken Fried|Zac Brown Band": {
+   "wir": 2008,
+   "mb": 2005,
+   "datum": "2005-12-16"
+  },
+  "Hurricane|Luke Combs": {
+   "wir": 2016,
+   "mb": 2015,
+   "datum": "2015-11-27"
+  },
+  "Austin (Boots Stop Workin')|Dasha": {
+   "wir": 2024,
+   "mb": 2023,
+   "datum": "2023-11-17"
+  },
+  "Quando quando quando|Tony Renis": {
+   "wir": 1962,
+   "mb": 1960,
+   "datum": "1960"
+  },
+  "Grande grande grande|Mina": {
+   "wir": 1972,
+   "mb": 1971,
+   "datum": "1971"
+  },
+  "Tu|Umberto Tozzi": {
+   "wir": 1978,
+   "mb": 1976,
+   "datum": "1976"
+  },
+  "Ti scatterò una foto|Tiziano Ferro": {
+   "wir": 2007,
+   "mb": 2006,
+   "datum": "2006-06-23"
+  },
+  "Sleeping Sun|Nightwish": {
+   "wir": 1999,
+   "mb": 1998,
+   "datum": "1998-12-07"
+  },
+  "First Day of My Life|The Rasmus": {
+   "wir": 2005,
+   "mb": 2003,
+   "datum": "2003-03-21"
+  },
+  "Araba|Mustafa Sandal": {
+   "wir": 1998,
+   "mb": 1996,
+   "datum": "1996"
+  },
+  "Solo|Blanka": {
+   "wir": 2023,
+   "mb": 2022,
+   "datum": "2022-09-23"
+  },
+  "SloMo|Chanel": {
+   "wir": 2022,
+   "mb": 2021,
+   "datum": "2021-12-24"
+  },
+  "Espresso Macchiato|Tommy Cash": {
+   "wir": 2025,
+   "mb": 2024,
+   "datum": "2024-12-07"
+  },
+  "CARNIVAL|¥$": {
+   "wir": 2024,
+   "mb": 2023,
+   "datum": "2023-12-15"
+  },
+  "Mädchen auf dem Pferd|Luca-Dante Spadafora": {
+   "wir": 2024,
+   "mb": 2023,
+   "datum": "2023-05-12"
+  },
+  "Lost|Linkin Park": {
+   "wir": 2023,
+   "mb": 2012,
+   "datum": "2012-06-20"
+  },
+  "Wonderland by Night|Bert Kaempfert": {
+   "wir": 1960,
+   "mb": 1959,
+   "datum": "1959"
+  },
+  "Happy Together|The Turtles": {
+   "wir": 1967,
+   "mb": 1966,
+   "datum": "1966"
+  },
+  "Joy to the World|Three Dog Night": {
+   "wir": 1971,
+   "mb": 1970,
+   "datum": "1970-11-18"
+  },
+  "Tiger Feet|Mud": {
+   "wir": 1974,
+   "mb": 1973,
+   "datum": "1973"
+  },
+  "Rock the Boat|The Hues Corporation": {
+   "wir": 1974,
+   "mb": 1973,
+   "datum": "1973"
+  },
+  "Hooked on a Feeling|Blue Swede": {
+   "wir": 1974,
+   "mb": 1973,
+   "datum": "1973"
+  },
+  "Poison|Bell Biv DeVoe": {
+   "wir": 1990,
+   "mb": 1989,
+   "datum": "1989"
+  },
+  "November Rain|Guns N' Roses": {
+   "wir": 1991,
+   "mb": 1986,
+   "datum": "1986"
+  },
+  "Under the Bridge|Red Hot Chili Peppers": {
+   "wir": 1992,
+   "mb": 1991,
+   "datum": "1991-09-24"
+  },
+  "Mr. Jones|Counting Crows": {
+   "wir": 1993,
+   "mb": 1991,
+   "datum": "1991"
+  },
+  "It's Alright|East 17": {
+   "wir": 1993,
+   "mb": 1992,
+   "datum": "1992"
+  },
+  "7 Seconds|Youssou N'Dour": {
+   "wir": 1994,
+   "mb": 1993,
+   "datum": "1993"
+  },
+  "Firestarter|The Prodigy": {
+   "wir": 1996,
+   "mb": 1995,
+   "datum": "1995-10-28"
+  },
+  "Born Slippy .NUXX|Underworld": {
+   "wir": 1996,
+   "mb": 1995,
+   "datum": "1995-05-01"
+  },
+  "Daylight in Your Eyes|No Angels": {
+   "wir": 2001,
+   "mb": 1997,
+   "datum": "1997"
+  },
+  "Holy|Justin Bieber": {
+   "wir": 2020,
+   "mb": 2019,
+   "datum": "2019-02-16"
+  }
+ }
 }
