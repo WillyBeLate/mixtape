@@ -1387,3 +1387,5 @@ const SPOTIFY_IDS = {
   "Our Last Summer|ABBA": "6hHXft1nFyvfVv6UoRToPZ",
   "Bauch Beine Po|Shirin David": "64f3yNXsi2Vk76odcHCOnw"
 };
+// Von euch über „Falscher Song“ als „gibt es bei Spotify nicht“ gemeldet – ist in keinem Spiel mehr
+const NICHT_BEI_SPOTIFY = [];

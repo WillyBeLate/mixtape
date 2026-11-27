@@ -688,6 +688,14 @@
     <h2 class="adm" style="margin-top:6px">Datenbank-Check</h2>
     <p class="sub adm">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
     <div id="dataBox" class="adm"></div>
+    <details class="fold" data-fold="auto"><summary><span class="ft">🌙 Automatische Prüfung</span><span class="fs" id="ghSum"></span></summary>
+    <div style="padding:0 2px 12px">
+      <div class="small">Jede Nacht gleicht Mixtape von selbst alle neuen Songs mit Spotify und MusicBrainz ab – ganz ohne Handy. Eindeutige Treffer gelten am Morgen auf allen Geräten, unsichere schaut sich Claude an.
+        Damit auch eure Korrekturen über „Falscher Song“ automatisch dort landen, hier einmal den GitHub-Schlüssel einfügen (auf jedem Handy).</div>
+      <div id="ghState" class="small" style="margin:8px 0"></div>
+      <input type="password" id="ghTok" placeholder="GitHub-Schlüssel (github_pat_…)" autocomplete="off">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn small" id="ghSave">Speichern</button><button class="btn small sec" id="ghSend">Jetzt senden</button><button class="btn small sec" id="ghDel">Schlüssel entfernen</button></div>
+    </div></details>
     <details class="fold adm" data-fold="mb"><summary><span class="ft">Jahres-Prüfung</span><span class="fs" id="mbSum"></span></summary>
     <div class="panel" id="mbPanel" style="margin-top:6px">
       <div class="small">Gleicht jeden Song mit der offenen Musikdatenbank MusicBrainz ab: frühestes Release <b>dieses Titels von diesem Interpreten</b> (ohne Live/Remix/Demo).
@@ -779,7 +787,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.11.1";
+const APP_VERSION = "0.12.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -798,7 +806,7 @@ const CAT = Object.fromEntries(KATEGORIEN.map(c => [c.id, c]));
 const DB = SONGS.map((s, i) => ({
   i, t: s[0], a: s[1], y: s[2], land: s[3], cats: s[4].split(/\s+/),
   an: (typeof ANZEIGE !== "undefined" && ANZEIGE[s[0] + "|" + s[1]]) || null,   // abweichende Anzeige (alle Künstler, kürzerer Titel)
-  sid: typeof s[5] === "string" ? s[5] : (typeof SPOTIFY_IDS !== "undefined" && SPOTIFY_IDS[s[0] + "|" + s[1]]) || null,
+  sid: (typeof SPOTIFY_IDS !== "undefined" && SPOTIFY_IDS[s[0] + "|" + s[1]]) || (typeof s[5] === "string" ? s[5] : null),   // ids.js hat Vorrang (enthält auch eure Korrekturen)
   opt: s[5] && typeof s[5] === "object" ? s[5] : {},   // z. B. { mit: "Sean Paul" } = Spotify-Version muss diesen Künstler enthalten
   pruefen: (typeof PRUEFEN !== "undefined" && PRUEFEN[s[0] + "|" + s[1]]) || null
 }));
@@ -816,7 +824,8 @@ function showA(s){
 // Songs aus der Prüfliste (unsicheres Jahr / Cover) sind standardmäßig nicht im Spiel
 const ALLOW_UNCHECKED = store.get("allowUnchecked", false);
 // Von euch als „gibt es bei Spotify nicht“ markiert → aus allen Pools raus
-const noSpot = s => store.get("nospot:" + s.t + "|" + s.a, false);
+const NOSPOT_ALL = new Set(typeof NICHT_BEI_SPOTIFY !== "undefined" ? NICHT_BEI_SPOTIFY : []);
+const noSpot = s => NOSPOT_ALL.has(s.t + "|" + s.a) || store.get("nospot:" + s.t + "|" + s.a, false);
 const ACTIVE = DB.filter(s => (!s.pruefen || ALLOW_UNCHECKED) && !noSpot(s));
 const byYearCat = {};   // byYearCat[cat][year] = [songs]
 for (const s of ACTIVE) for (const c of s.cats) {
@@ -2306,6 +2315,41 @@ function syncExport(){
   catch(e) { prompt("Kopieren:", txt); }
 }
 
+// ---------- Automatisch an die nächtliche Prüfung senden (GitHub-Issue) ----------
+// Korrekturen („Falscher Song“) landen in einer Warteschlange und gehen per GitHub-Issue ans Repo.
+// Die GitHub Action „Nächtliche Prüfung“ übernimmt sie, gleicht Spotify + MusicBrainz ab und veröffentlicht die neue Version.
+const GH_REPO = "WillyBeLate/mixtape";
+function ghQueue(kind, k, v){ const qq = store.get("ghQ", { fix: {}, nospot: [] });
+  if (kind === "fix") { qq.fix[k] = v; qq.nospot = qq.nospot.filter(x => x !== k); }
+  else { if (!qq.nospot.includes(k)) qq.nospot.push(k); delete qq.fix[k]; }
+  store.set("ghQ", qq); ghFlush(); }
+let ghBusy = false;
+async function ghFlush(){
+  const tok = store.get("ghTok", ""), qq = store.get("ghQ", null);
+  if (!tok || ghBusy || !qq || (!Object.keys(qq.fix).length && !qq.nospot.length)) { renderGh(); return; }
+  ghBusy = true;
+  try {
+    const n = Object.keys(qq.fix).length + qq.nospot.length;
+    const body = `Automatisch aus der App gesendet (${new Date().toLocaleString("de-DE")}, Version ${APP_VERSION}).\n\n` +
+      Object.entries(qq.fix).map(([k, v]) => `- ✅ ${k} → ${v.name || ""} · ${v.artist || ""}`).join("\n") + (qq.nospot.length ? "\n" + qq.nospot.map(k => `- 🚫 ${k} (gibt es bei Spotify nicht)`).join("\n") : "") +
+      "\n\n```json\n" + JSON.stringify({ v: 1, fix: qq.fix, nospot: qq.nospot }) + "\n```";
+    const r = await fetch(`https://api.github.com/repos/${GH_REPO}/issues`, { method: "POST",
+      headers: { Authorization: "Bearer " + tok, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({ title: `[mixtape-auto] ${n} Korrektur${n === 1 ? "" : "en"}`, body }) });
+    if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "Schlüssel ungültig oder ohne Recht auf Issues" : "GitHub " + r.status);
+    store.del("ghQ"); store.set("ghLast", { t: Date.now(), n, ok: true });
+  } catch(e) { store.set("ghLast", { t: Date.now(), ok: false, err: e.message }); }
+  ghBusy = false; renderGh();
+}
+function renderGh(){
+  const el = $("#ghState"); if (!el) return;
+  const tok = store.get("ghTok", ""), qq = store.get("ghQ", null), l = store.get("ghLast", null), n = qq ? Object.keys(qq.fix).length + qq.nospot.length : 0;
+  if ($("#ghSum")) $("#ghSum").textContent = tok ? (n ? n + " warten" : "eingerichtet") : "nicht eingerichtet";
+  el.innerHTML = `${tok ? "✅ Schlüssel hinterlegt." : "Noch kein Schlüssel – Korrekturen bleiben nur auf diesem Handy."}${n ? ` · ${n} Korrektur${n === 1 ? "" : "en"} warten aufs Senden.` : ""}
+    ${l ? `<br>Zuletzt: ${new Date(l.t).toLocaleString("de-DE", { weekday: "short", hour: "2-digit", minute: "2-digit" })} – ${l.ok ? l.n + " gesendet ✓" : "Fehler: " + esc(l.err || "")}` : ""}`;
+}
+addEventListener("online", ghFlush); setTimeout(ghFlush, 4000);
+
 // ---------- QR-Scanner ----------
 let scanner = null, scanLock = false;
 async function startScanner(){
@@ -2956,6 +3000,13 @@ $("#saveCid").addEventListener("click", () => { store.set("clientId", $("#client
 $("#clearCache").addEventListener("click", () => { try { Object.keys(localStorage).filter(k => k.startsWith("trk")).forEach(k => localStorage.removeItem(k)); } catch(e){} alert("Cache geleert."); });
 $("#syncStart").addEventListener("click", syncRun);
 $("#syncExport").addEventListener("click", syncExport);
+$("#ghSave").addEventListener("click", async () => { const t = $("#ghTok").value.trim(); if (!t) return;
+  try { const r = await fetch(`https://api.github.com/repos/${GH_REPO}`, { headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json" } });
+    if (!r.ok) throw 0; store.set("ghTok", t); $("#ghTok").value = ""; ghFlush(); alert("Gespeichert ✓ Korrekturen gehen ab jetzt automatisch raus."); }
+  catch(e) { alert("Der Schlüssel funktioniert nicht – bitte prüfen (Zugriff auf WillyBeLate/mixtape, Recht „Issues: Read and write“)."); } });
+$("#ghSend").addEventListener("click", ghFlush);
+$("#ghDel").addEventListener("click", () => { store.del("ghTok"); renderGh(); });
+renderGh();
 $("#plGo").addEventListener("click", async () => {
   const m = ($("#plUrl").value || "").match(/playlist[\/:]([A-Za-z0-9]{10,})/);
   if (!m) { $("#plMsg").textContent = "Das sieht nicht nach einem Playlist-Link aus."; return; }
@@ -3286,7 +3337,8 @@ function rsFixOpen(k, list, box){
   const M = (t, c = "ok") => $("#rsFixM").innerHTML = `<div class="msg ${c}">${t}</div>`;
   $("#rsFixX").onclick = () => el.innerHTML = "";
   const save = r => { store.set("fix:" + k, r); store.set("trk3:" + k, r); store.set("syncok:" + k, true); store.del("cov:" + k);
-    M(`Gespeichert ✓ „${esc(r.name || "Spotify-Track")}“ ist jetzt die Version für „${esc(showT(s))}“. Mit „Exportieren“ im Spotify-Abgleich schickst du mir die Korrektur – dann gilt sie auf allen Geräten.`);
+    ghQueue("fix", k, { id: r.uri.split(":").pop(), name: r.name || "", artist: r.artist || "", album: r.album || "", date: r.date || "" });
+    M(`Gespeichert ✓ „${esc(r.name || "Spotify-Track")}“ ist jetzt die Version für „${esc(showT(s))}“. ${store.get("ghTok", "") ? "Die Korrektur geht automatisch an die nächtliche Prüfung – ab morgen gilt sie auf allen Geräten." : "Damit sie auf allen Geräten gilt: unter Einstellungen „Automatische Prüfung“ einrichten."}`);
     rsCovers(box); };
   const search = async q => {
     const L = $("#rsFixL"); if (!sp.tok()) { L.textContent = "Zum Suchen erst bei Spotify anmelden – oder unten einen Link einfügen."; return; }
@@ -3308,13 +3360,13 @@ function rsFixOpen(k, list, box){
   };
   $("#rsFixNone").onclick = () => {
     if (!confirm(`„${showT(s)}“ aus allen Spielen entfernen, weil es den Song bei Spotify nicht gibt?`)) return;
-    store.set("nospot:" + k, true); store.del("fix:" + k);
+    store.set("nospot:" + k, true); store.del("fix:" + k); ghQueue("nospot", k);
     if (rs && !rs.done) { const Y = rs.years[rs.pos]; const i = Y.opts.indexOf(k);
       if (i >= 0) { Y.opts.splice(i, 1); const pool = rsIsA(rs) ? (KUENSTLER_10[Y.y] || []) : (RETTE_8[Y.y] || []);
         const add = pool.filter(x => RS_BY.has(x) && !Y.opts.includes(x) && !noSpot(RS_BY.get(x)))[0]; if (add) Y.opts.push(add);
         if (rsSel === k) rsSel = null; if (rsNow === k) rsStop(); rsSave(); } }
     rsRender();
-    setTimeout(() => { const m = $("#rsMsg"); if (m) m.innerHTML = `<div class="msg ok">„${esc(showT(s))}“ ist raus – aus allen Spielen. Mit „Exportieren“ im Spotify-Abgleich bekomme ich die Info, dann lösche ich ihn fest.</div>`; }, 50);
+    setTimeout(() => { const m = $("#rsMsg"); if (m) m.innerHTML = `<div class="msg ok">„${esc(showT(s))}“ ist raus – aus allen Spielen${store.get("ghTok", "") ? ", ab morgen auf allen Geräten" : ""}.</div>`; }, 50);
   };
   search($("#rsFixQ").value);
 }

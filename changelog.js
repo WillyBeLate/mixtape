@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.0", d: "2026-11-27", e: [
+    ["neu", "Automatische Prüfung: Jede Nacht gleicht Mixtape neue Songs selbstständig mit Spotify und MusicBrainz ab – ohne dass ein Handy laufen muss. Eindeutige Treffer gelten morgens auf allen Geräten."],
+    ["neu", "Einstellungen → 🌙 Automatische Prüfung: Mit einem GitHub-Schlüssel gehen eure „Falscher Song“-Korrekturen von selbst an die nächtliche Prüfung."],
+  ]},
   { v: "0.11.1", d: "2026-11-27", e: [
     ["neu", "Rette einen Song: Oben rechts gibt es „Falscher Song“. Dort legst du die richtige Spotify-Version fest (suchen, anhören, ✓ – oder Link einfügen) oder markierst, dass es den Song bei Spotify nicht gibt. Dann fliegt er aus allen Spielen."],
     ["change", "Rette einen Song nimmt bevorzugt geprüfte Songs (feste Spotify-Version und geprüftes Jahr). Noch ungeprüfte kommen nur dazu, wenn sonst keine 8 zusammenkommen."],
