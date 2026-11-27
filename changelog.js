@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.10.3", d: "2026-11-27", e: [
+    ["neu", "Linkin Park als Künstler-Kategorie (33 Songs von One Step Closer bis The Emptiness Machine) und bei „Rette einen Song – Nach Künstlern“."],
+  ]},
   { v: "0.10.2", d: "2026-11-27", e: [
     ["change", "Spielmodi zeigen jetzt klein an, ob ihr die gedruckten Jahreskarten braucht oder ohne Karten spielt."],
   ]},
