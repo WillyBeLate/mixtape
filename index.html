@@ -532,6 +532,19 @@
   .rsBig{font-size:46px;font-weight:900;text-align:center;line-height:1}
   .rsDec{display:flex;gap:4px;align-items:flex-end;height:70px;margin:10px 0 2px}.rsDec div{flex:1;text-align:center;font-size:10px;color:#bfb3df}
   .rsDec i{display:block;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent),var(--accent2));margin-bottom:3px}
+  /* ---------- Tablet (iPad & Co.): breitere Spalte, größere Schrift, mehr Kacheln nebeneinander ---------- */
+  @media (min-width:760px){
+    .wrap{max-width:820px;padding:26px 30px 130px;zoom:1.08}
+    .topbar{margin:0 -30px 16px;padding:12px 30px}
+    .mgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .mt.wide{grid-column:1/-1}
+    .mt:not(.wide) .mts{padding-right:26px}
+    #rsOpts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+    #rsOpts .rsOpt{margin:5px 0}
+    .nav{padding-left:max(8px,calc(50% - 440px));padding-right:max(8px,calc(50% - 440px))}
+    .nav button{font-size:13px}
+    .pop .wp{width:min(520px,100%)}
+  }
 </style>
 </head>
 <body>
@@ -792,7 +805,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.12.6";
+const APP_VERSION = "0.12.7";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;

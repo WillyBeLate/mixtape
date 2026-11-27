@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.12.7", d: "2026-11-27", e: [
+    ["neu", "Eigene Ansicht für iPad und Tablets: breitere Spalte, etwas größere Schrift, drei Spielmodi nebeneinander und bei „Rette einen Song“ die Songs zweispaltig."],
+  ]},
   { v: "0.12.6", d: "2026-11-27", e: [
     ["fix", "Die Modus-Icons oben links bei „Rette einen Song“ und „Zeitsprung“ werden jetzt vollständig mit Farbverlauf gezeichnet."],
   ]},
