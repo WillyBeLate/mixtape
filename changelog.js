@@ -4,6 +4,12 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.14.2", d: "2026-11-27", e: [
+    ["change", "Alle Emojis in der App sind jetzt gezeichnete Neon-Icons im Stil der Spielmodi – in Auswertungen, Einstellungen, Meldungen und Spielen."],
+    ["fix", "iPad: Mixtape erkennt das iPad jetzt richtig als iPad (Safari gibt sich dort als Mac aus) und findet Spotify darauf zuverlässiger."],
+    ["fix", "iPhone/iPad: Ist Spotify kurz im Hintergrund und fehlt deshalb in der Geräteliste, nimmt Mixtape trotzdem das zuletzt genutzte Handy, statt „Spotify schläft“ zu melden."],
+    ["fix", "Yakari: Der Titelsong spielt jetzt eine Version, die nicht mehr hängt."],
+  ]},
   { v: "0.14.1", d: "2026-11-27", e: [
     ["change", "Nächtliche Prüfung: Gibt es einen Song bei Spotify nicht, kommt automatisch ein passender Ersatz dazu – gleiches Jahr und gleiche Kategorie. Bei „Rette einen Song“ bleiben es 20 pro Jahr, bei den Künstlern bleibt die Anzahl gleich."],
   ]},

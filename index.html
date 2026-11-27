@@ -256,7 +256,7 @@
   details.fold>summary::-webkit-details-marker{display:none}
   details.fold>summary::after{content:"";width:9px;height:9px;border-right:2px solid #cfc6e8;border-bottom:2px solid #cfc6e8;transform:rotate(45deg);margin:-4px 4px 0 auto;transition:transform .2s;flex:none}
   details.fold[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
-  details.fold .ft{font-weight:800;font-size:17px}
+  details.fold .ft{font-weight:800;font-size:17px;display:flex;align-items:center;gap:6px;flex:none;white-space:nowrap}details.fold .ft .dw{margin:0}details.fold .fs{flex:1;min-width:0}
   details.fold .fs{font-size:12px;color:#cfc6e8}
   details.fold[open]{padding-bottom:4px}
   details.fold .panel{background:#ffffff0d}
@@ -513,6 +513,7 @@
   #zsEarlier{background:linear-gradient(135deg,#ff5a5f,#d62f5c);box-shadow:0 6px 18px #ff4d4d55}
   .zsRes{border-radius:20px;padding:12px;margin:6px 0}.zsRes.ok{background:#2ecc7122;border:1px solid #2ecc7188}.zsRes.no{background:#ff4d4d22;border:1px solid #ff4d4d88}
   .zsV{font-size:20px;font-weight:900;text-align:center;margin-bottom:8px}
+  .dw{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:.1em;flex:none}.dw svg{width:100%;height:100%;overflow:visible}
   .zsPl.ex .zsP span{color:#fff;letter-spacing:0;font-weight:800}
   .bsSlots{margin:10px 0}.bsRow{display:flex;align-items:center;gap:8px;margin:6px 0;border-radius:20px}
   .bsRow.bad .zsCard{box-shadow:0 0 0 2px #ff4d6d inset}.bsRow .zsCard{flex:1;padding:6px 8px}.bsRow .zsCard .cv{width:42px;height:42px}.bsRow .zsY{font-size:22px}
@@ -602,7 +603,7 @@
       <p class="small" id="modeDesc" style="margin:12px 2px"></p>
       <div id="teamEd"></div>
       <div id="zielEd"></div>
-      <button class="btn small sec" id="modeRules">📖 Regeln zu diesem Modus</button>
+      <button class="btn small sec" id="modeRules"><span class=dw data-dw=book></span> Regeln zu diesem Modus</button>
     </div>
 
     <div id="tvNote" class="panel small" style="display:none">In diesem Modus braucht ihr keinen Mix und keine Karten – die Titelmelodien kommen aus allen Jahrzehnten.</div>
@@ -644,7 +645,7 @@
     <div id="tvBox"></div>
     <div id="reader"></div>
     <div id="scanMsg"></div>
-    <button class="btn" id="scanBtn">📷 Scanner starten</button>
+    <button class="btn" id="scanBtn"><span class=dw data-dw=camera></span> Scanner starten</button>
     <div class="panel" id="manPanel">
       <label>Oder Jahr manuell eingeben (zum Testen)</label>
       <div class="row" style="margin-top:8px"><input type="number" id="manYear" placeholder="z. B. 1987" min="1900" max="2100">
@@ -682,9 +683,9 @@
   <!-- ======================= REGELN ======================= -->
   <section class="view" id="v-rules">
     <div class="row noprint"><span class="small">Spielanleitung · v<span class="verTag"></span></span>
-      <button class="btn small" id="rulesPdf">📄 Als PDF speichern</button></div>
+      <button class="btn small" id="rulesPdf"><span class=dw data-dw=doc></span> Als PDF speichern</button></div>
     <div id="rulesBox"></div>
-    <button class="btn" id="rulesPdf2">📄 Spielanleitung als PDF speichern</button>
+    <button class="btn" id="rulesPdf2"><span class=dw data-dw=doc></span> Spielanleitung als PDF speichern</button>
   </section>
 
   <!-- ======================= KARTEN ======================= -->
@@ -703,21 +704,21 @@
       <div class="small" style="margin-top:10px">Drucken: beidseitig, <b>an langer Kante spiegeln</b>, 100 % Größe (nicht „an Seite anpassen“). Rückseiten sind schon passend gespiegelt angeordnet.</div>
     </div>
     <div id="cardInfo"></div>
-    <button class="btn" id="printBtn">🖨 Druckansicht öffnen</button>
+    <button class="btn" id="printBtn"><span class=dw data-dw=print></span> Druckansicht öffnen</button>
     <div class="panel"><b>Profi-Druck (z. B. MakePlayingCards)</b>
       <div class="small" style="margin-top:4px">Erzeugt jede Kartenseite als einzelnes Bild – quadratisch 2,75″ (69,85 mm), 600 dpi (1794 × 1794 px), mit Beschnittzugabe, wichtige Inhalte im Sicherheitsbereich. Es zählt dieselbe Auswahl wie oben (Zeitraum bzw. Jahrzehnt-Verteilung). Ergebnis: eine ZIP-Datei mit „vorne“ und „hinten“ je Karte.</div>
-      <button class="btn small" id="mpcBtn" style="margin-top:8px">📦 Bilder für Kartendruckerei (ZIP)</button>
+      <button class="btn small" id="mpcBtn" style="margin-top:8px"><span class=dw data-dw=box></span> Bilder für Kartendruckerei (ZIP)</button>
       <div id="mpcMsg" class="small"></div>
-      <details style="margin-top:10px"><summary class="small" style="cursor:pointer"><b>🎁 Box-Design ansehen</b></summary>
+      <details style="margin-top:10px"><summary class="small" style="cursor:pointer"><b><span class=dw data-dw=gift></span> Box-Design ansehen</b></summary>
         <div style="display:flex;gap:6px;margin-top:8px"><img src="druck/mixtape-box-3d-vorne.jpg" alt="Box vorne (3D)" loading="lazy" style="width:50%;border-radius:12px"><img src="druck/mixtape-box-3d-hinten.jpg" alt="Box hinten (3D)" loading="lazy" style="width:50%;border-radius:12px"></div>
         <a href="druck/mixtape-box-vorschau.jpg" target="_blank"><img src="druck/mixtape-box-vorschau.jpg" alt="Box-Design (aufgeklappt)" loading="lazy" style="width:100%;border-radius:12px;margin-top:8px;display:block"></a>
         <div class="small" style="margin-top:4px">Aufgeklappte Box: Mitte vorne, links hinten, daneben die Seiten, oben der Deckel, unten der Boden. Antippen = groß.</div></details>
-      <a class="btn small sec" href="druck/mixtape-box-mpc-square-2.75.pdf" download style="display:inline-block;margin-top:8px;text-decoration:none">🎁 Box-Design für MPC (Tuck Box, 38,5 mm)</a>
+      <a class="btn small sec" href="druck/mixtape-box-mpc-square-2.75.pdf" download style="display:inline-block;margin-top:8px;text-decoration:none"><span class=dw data-dw=gift></span> Box-Design für MPC (Tuck Box, 38,5 mm)</a>
       <div class="small" style="margin-top:4px">Passt genau auf MPCs Vorlage „Tuck Box 2.75″ × 2.75″, Deck-Dicke 38,5 mm“ als PDF. Bei MPC im Schritt „Customize Box“ hochladen.</div>
-      <details style="margin-top:10px"><summary class="small" style="cursor:pointer"><b>📖 Regelheft ansehen</b></summary>
+      <details style="margin-top:10px"><summary class="small" style="cursor:pointer"><b><span class=dw data-dw=book></span> Regelheft ansehen</b></summary>
         <a href="druck/mixtape-regelheft-vorschau.jpg" target="_blank"><img src="druck/mixtape-regelheft-vorschau.jpg" alt="Regelheft (oben außen, unten innen)" loading="lazy" style="width:100%;border-radius:12px;margin-top:8px;display:block"></a>
         <div class="small" style="margin-top:4px">Oben die Außenseite (links Rückseite, rechts Titel), unten die Innenseite. Gelb = Schnittkante, Strich = Falz.</div></details>
-      <a class="btn small sec" href="druck/mixtape-regelheft-mpc-square-2.75.pdf" download style="display:inline-block;margin-top:8px;text-decoration:none">📖 Regelheft für MPC (Bi-fold, PDF)</a>
+      <a class="btn small sec" href="druck/mixtape-regelheft-mpc-square-2.75.pdf" download style="display:inline-block;margin-top:8px;text-decoration:none"><span class=dw data-dw=book></span> Regelheft für MPC (Bi-fold, PDF)</a>
       <a class="btn small sec" href="druck/mixtape-regelheft-aussen.jpg" download style="display:inline-block;margin-top:8px;text-decoration:none">Außen (JPG)</a>
       <a class="btn small sec" href="druck/mixtape-regelheft-innen.jpg" download style="display:inline-block;margin-top:8px;text-decoration:none">Innen (JPG)</a>
       <div class="small" style="margin-top:4px">Bei MPC unter „Booklets“ <b>Bi-fold (4 sides)</b> wählen. Format 5,74″ × 2,99″ inkl. Beschnitt, 600 dpi.</div></div>
@@ -729,7 +730,7 @@
     <h2 class="adm" style="margin-top:6px">Datenbank-Check</h2>
     <p class="sub adm">Wie gut deckt jede Kategorie den Kartenzeitraum ab? Grün = mindestens ein Song im Jahr. Zum Aufklappen antippen.</p>
     <div id="dataBox" class="adm"></div>
-    <details class="fold" data-fold="auto"><summary><span class="ft">🌙 Automatische Prüfung</span><span class="fs" id="ghSum"></span></summary>
+    <details class="fold" data-fold="auto"><summary><span class="ft"><span class=dw data-dw=moon></span> Automatische Prüfung</span><span class="fs" id="ghSum"></span></summary>
     <div style="padding:0 2px 12px">
       <div class="small">Jede Nacht gleicht Mixtape von selbst alle neuen Songs mit Spotify und MusicBrainz ab – ganz ohne Handy. Eindeutige Treffer gelten am Morgen auf allen Geräten, unsichere schaut sich Claude an.
         Damit auch eure Korrekturen über „Falscher Song“ automatisch dort landen, hier einmal den GitHub-Schlüssel einfügen (auf jedem Handy).</div>
@@ -745,7 +746,7 @@
       <div id="mbNote" class="small" style="color:#ffe2a8;min-height:1em"></div>
       <button class="btn small" id="mbStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Prüfung starten</button>
       <button class="btn small sec" id="mbCopy"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> Bericht kopieren</button>
-      <button class="btn small sec" id="mbExport">📤 Ergebnisse exportieren</button>
+      <button class="btn small sec" id="mbExport"><span class=dw data-dw=upload></span> Ergebnisse exportieren</button>
       <button class="btn small sec" id="mbReset">Ergebnisse löschen</button>
       <div id="mbList"></div>
     </div></details>
@@ -756,28 +757,28 @@
       <div class="small">Sucht einmal alle Songs bei Spotify und merkt sich die genaue Aufnahme. Auffällige Treffer werden markiert – die könnt ihr direkt anhören. Danach „Exportieren“ und die Datei im Chat hochladen, dann trage ich alle Songs fest ein. Wegen Spotifys Kontingent höchstens 400 Songs pro Tag – also lieber in Etappen; Bildschirm anlassen.</div>
       <div id="syncStats" style="margin:10px 0"></div>
       <button class="btn small" id="syncStart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z" fill="currentColor"/></svg> Abgleich starten</button>
-      <button class="btn small sec" id="syncExport">📤 Exportieren</button>
+      <button class="btn small sec" id="syncExport"><span class=dw data-dw=upload></span> Exportieren</button>
       <div id="syncList"></div>
     </div></details>
     <details class="fold adm" data-fold="plimport"><summary><span class="ft">Playlist importieren</span><span class="fs">Songs aus einer Spotify-Playlist an Claude schicken</span></summary>
     <div class="panel" style="margin-top:6px">
       <div class="small">Link einer (öffentlichen) Spotify-Playlist einfügen. Mixtape liest alle Songs mit Titel, Interpret, Album, Erscheinungsdatum und Spotify-ID aus und speichert sie als Datei – die ladet ihr im Chat hoch.</div>
       <input type="text" id="plUrl" placeholder="https://open.spotify.com/playlist/…" style="margin-top:8px">
-      <button class="btn small" id="plGo">📥 Auslesen &amp; speichern</button>
+      <button class="btn small" id="plGo"><span class=dw data-dw=download></span> Auslesen &amp; speichern</button>
       <div id="plMsg" class="small"></div>
     </div></details>
-    <details class="fold noadm-open" data-fold="spiel" open><summary><span class="ft">🎮 Spiel</span><span class="fs">Vollbild, Songstart</span></summary>
+    <details class="fold noadm-open" data-fold="spiel" open><summary><span class="ft"><span class=dw data-dw=gamepad></span> Spiel</span><span class="fs">Vollbild, Songstart</span></summary>
     <div style="padding:0 2px 12px">
       <div class="row"><label for="fsOn"><b>Vollbild beim Spielen</b><br><span class="small">Blendet die Statusleiste oben aus – dort zeigen neue Handys sonst den laufenden Song an.</span></label><input type="checkbox" id="fsOn"></div>
       <div class="row" style="margin-top:12px"><label for="bigFont"><b>Große Schrift</b><br><span class="small">Alles etwas größer – angenehm beim Spieleabend, wenn das Handy auf dem Tisch liegt.</span></label><input type="checkbox" id="bigFont"></div>
       <div class="row" style="margin-top:12px"><label for="randStart"><b>Zufälliger Startpunkt im Song</b><br><span class="small">Der Song startet irgendwo in der Mitte statt am Anfang – schwerer, weil das bekannte Intro fehlt.</span></label><input type="checkbox" id="randStart"></div>
     </div></details>
-    <details class="fold" data-fold="spotify"><summary><span class="ft">🎧 Spotify</span><span class="fs" id="spSum"></span></summary>
+    <details class="fold" data-fold="spotify"><summary><span class="ft"><span class=dw data-dw=headphones></span> Spotify</span><span class="fs" id="spSum"></span></summary>
     <div style="padding:0 2px 12px">
       <div id="spState" class="small" style="margin-bottom:8px"></div>
       <div class="row" style="margin:4px 0 10px"><label for="keepAlive"><b>Spotify wachhalten (iPhone)</b><br><span class="small">Nach jedem Song spielt Spotify unhörbar Stille weiter. So friert das iPhone Spotify nicht ein und Mixtape muss es nicht neu öffnen.</span></label><input type="checkbox" id="keepAlive"></div>
       <div id="silBox" class="small" style="margin:-4px 0 10px"></div>
-      <button class="btn small sec" id="devPickBtn">🔊 Wiedergabegerät wählen</button>
+      <button class="btn small sec" id="devPickBtn"><span class=dw data-dw=speaker></span> Wiedergabegerät wählen</button>
       <button class="btn small sec" id="logoutBtn">Abmelden</button>
       <div id="devPickBox"></div>
       <details style="margin-top:10px"><summary class="small" style="cursor:pointer">Einrichtung (nur einmal nötig)</summary>
@@ -787,21 +788,21 @@
         <button class="btn small" id="saveCid">Speichern</button>
       </details>
     </div></details>
-    <details class="fold" data-fold="speicher"><summary><span class="ft">🧹 Verlauf &amp; Speicher</span><span class="fs">bei Problemen</span></summary>
+    <details class="fold" data-fold="speicher"><summary><span class="ft"><span class=dw data-dw=broom></span> Verlauf &amp; Speicher</span><span class="fs">bei Problemen</span></summary>
     <div style="padding:0 2px 12px">
       <div class="small"><b>Song-Verlauf löschen:</b> Kürzlich gespielte Songs kommen danach wieder genauso oft wie alle anderen, und „Zuletzt gespielt“ ist leer.</div>
       <button class="btn small sec" id="clearPlayed">Song-Verlauf löschen</button>
       <div class="small" style="margin-top:10px"><b>Song-Cache leeren:</b> Vergisst, welche Spotify-Aufnahme für Songs ohne feste ID gefunden wurde. Hilft, wenn ein Song falsch klingt – kostet beim nächsten Spielen aber Spotify-Anfragen.</div>
       <button class="btn small sec" id="clearCache">Song-Cache leeren</button>
     </div></details>
-    <details class="fold" data-fold="backup"><summary><span class="ft">💾 Sicherung</span><span class="fs">vor Neuinstallation oder Handywechsel</span></summary>
+    <details class="fold" data-fold="backup"><summary><span class="ft"><span class=dw data-dw=save></span> Sicherung</span><span class="fs">vor Neuinstallation oder Handywechsel</span></summary>
     <div style="padding:0 2px 12px">
       <div class="small">Speichert alles, was diese App auf dem Handy weiß, in eine Datei: Spotify-Einrichtung und Anmeldung, Teams, Song-Verlauf, Mixtapes, Einstellungen und Prüf-Ergebnisse. Auf einem neuen oder neu installierten Gerät „Sicherung laden“ tippen und die Datei wählen.</div>
-      <button class="btn small" id="bkSave">📤 Sicherung speichern</button>
-      <button class="btn small sec" id="bkLoad">📥 Sicherung laden</button><input type="file" id="bkFile" accept=".json,application/json" hidden>
+      <button class="btn small" id="bkSave"><span class=dw data-dw=upload></span> Sicherung speichern</button>
+      <button class="btn small sec" id="bkLoad"><span class=dw data-dw=download></span> Sicherung laden</button><input type="file" id="bkFile" accept=".json,application/json" hidden>
       <div id="bkMsg" class="small"></div>
     </div></details>
-    <details class="fold" data-fold="news" id="newsFold"><summary><span class="ft">📝 Neuigkeiten</span><span class="fs" id="newsSum"></span></summary>
+    <details class="fold" data-fold="news" id="newsFold"><summary><span class="ft"><span class=dw data-dw=pencil></span> Neuigkeiten</span><span class="fs" id="newsSum"></span></summary>
     <div id="newsBox" style="padding:0 2px 12px"></div></details>
     <div class="panel"><h2 style="margin-top:0">App</h2>
       <div class="small"><span id="verTap">Version <b id="appVer"></b></span> · © Willy · Updates laden automatisch beim nächsten Start (Internet nötig).</div>
@@ -829,7 +830,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.14.1";
+const APP_VERSION = "0.14.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1197,7 +1198,7 @@ async function getDevice(){
   let p = me && (d.find(x => x.id === me.id) || d.find(x => x.name === me.name));
   if (!p) {
     // gemerktes Handy nicht in der Liste (iPhone vergibt teils neue Geräte-IDs) → passendes Handy suchen
-    const ios = /iphone|ipad/i.test(navigator.userAgent), isI = x => /iphone|ipad/i.test(x.name);
+    const ios = IS_IOS, isI = x => /iphone|ipad/i.test(x.name);   // iPad meldet sich in Safari als „Mac“ – deshalb IS_IOS
     let ph = d.filter(isMob);
     const hint = ph.filter(x => isI(x) === ios);               // iPhone-Namen auf dem iPhone, sonst die anderen
     const sure = ios ? hint.length > 0 : hint.length > 0 && hint.length < ph.length;
@@ -1206,11 +1207,15 @@ async function getDevice(){
     p = ph.length === 1 && (guess || sure) ? ph[0] : ph.find(x => x.is_active) || null;
     if (p && ph.length === 1 && (guess || sure)) store.set("myPhone", { id: p.id, name: p.name });   // eindeutig → (neu) merken
   }
-  if (!p && !d.some(isMob)) { const pc = d.find(x => x.type === "Computer"); if (pc && !/android|iphone|ipad/i.test(navigator.userAgent)) p = pc; }  // am PC: der PC
+  if (!p && !d.some(isMob)) { const pc = d.find(x => x.type === "Computer"); if (pc && !IS_IOS && !/android/i.test(navigator.userAgent)) p = pc; }  // am PC: der PC
+  // iPhone/iPad: Spotify verschwindet im Hintergrund oft aus der Geräteliste, obwohl es noch läuft.
+  // Dann zeigt /me/player trotzdem noch das zuletzt genutzte Gerät – ist es dieses Handy, nehmen wir es.
+  if (!p) { try { const pl = await sp.api("/me/player"), dv = pl?.device;
+    if (dv?.id && isMob(dv) && (me ? dv.id === me.id || dv.name === me.name : IS_IOS === isI(dv))) p = dv; } catch(e) {} }
   return p || null;              // Handy gerade nicht erreichbar → Mixtape bietet „Spotify wecken“ an (öffnet Spotify auf diesem Handy)
 }
 store.del("devPref");     // alte Festlegung (0.9.71) entfällt
-const DEV_IC = { Smartphone: "📱", Computer: "💻", Speaker: "🔊", TV: "📺", Tablet: "📱", CastVideo: "📺", CastAudio: "🔊", AVR: "🔊", Automobile: "🚗" };
+const DEV_IC = { Smartphone: "<span class=dw data-dw=phone></span>", Computer: "<span class=dw data-dw=laptop></span>", Speaker: "<span class=dw data-dw=speaker></span>", TV: "<span class=dw data-dw=tv></span>", Tablet: "<span class=dw data-dw=phone></span>", CastVideo: "<span class=dw data-dw=tv></span>", CastAudio: "<span class=dw data-dw=speaker></span>", AVR: "<span class=dw data-dw=speaker></span>", Automobile: "<span class=dw data-dw=car></span>" };
 async function openDevPicker(el){
   el = typeof el === "string" ? $(el) : el; if (!el) return;
   el.innerHTML = `<div class="msg ok">Suche Spotify-Geräte …</div>`;
@@ -1220,7 +1225,7 @@ async function openDevPicker(el){
     el.innerHTML = `<div class="panel devpk"><b>Wo soll die Musik laufen?</b>
       <div class="small" style="margin:4px 0 8px">Normal spielt Mixtape auf diesem Handy – außer es läuft gerade schon Musik über einen Lautsprecher. Tippe auf dein Handy, damit Mixtape es sich merkt. Fehlt ein Gerät: dort kurz Spotify öffnen, dann „Neu laden“.</div>
       ${all.map(x => `<button class="btn sec small dv ${cur?.id === x.id ? "on" : ""}" data-dv="${esc(x.id)}" style="display:flex;width:100%;align-items:center;gap:8px;text-align:left">
-        <span>${DEV_IC[x.type] || "🔈"}</span><span style="flex:1">${esc(x.name)}${me?.id === x.id ? ' <span class="small" style="opacity:.8">· dieses Handy</span>' : ""}${x.is_active ? ' <span class="small" style="opacity:.7">· aktiv</span>' : ""}</span></button>`).join("") || `<div class="msg warn">Kein Gerät gefunden – öffne Spotify auf diesem Handy und tippe auf „Neu laden“.</div>`}
+        <span>${DEV_IC[x.type] || "<span class=dw data-dw=speaker></span>"}</span><span style="flex:1">${esc(x.name)}${me?.id === x.id ? ' <span class="small" style="opacity:.8">· dieses Handy</span>' : ""}${x.is_active ? ' <span class="small" style="opacity:.7">· aktiv</span>' : ""}</span></button>`).join("") || `<div class="msg warn">Kein Gerät gefunden – öffne Spotify auf diesem Handy und tippe auf „Neu laden“.</div>`}
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn sec small" id="dvReload">↻ Neu laden</button>${me ? `<button class="btn sec small" id="dvAuto">„Dieses Handy“ vergessen</button>` : ""}<button class="btn sec small" id="dvClose">Schließen</button></div></div>`;
     el.querySelectorAll("[data-dv]").forEach(b => b.onclick = async () => {
       const d = all.find(x => x.id === b.dataset.dv);
@@ -1228,8 +1233,8 @@ async function openDevPicker(el){
       store.set("lastDev", { id: d.id, t: Date.now() });                     // Lautsprecher = nur für diese Runde
       const pl = await sp.api("/me/player").catch(() => null);
       await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [d.id], play: !!pl?.is_playing }) }).catch(() => {});
-      el.innerHTML = `<div class="msg ok">${DEV_IC[d.type] || "🔈"} Musik läuft jetzt auf <b>${esc(d.name)}</b>${isMob(d) ? " – gemerkt als „dieses Handy“." : " (für diese Spielrunde)."}</div>`;
-      if ($("#playDev")?.textContent) $("#playDev").innerHTML = `🔊 Läuft auf: ${esc(d.name)} · <a href="#" class="devchg">ändern</a>`;
+      el.innerHTML = `<div class="msg ok">${DEV_IC[d.type] || "<span class=dw data-dw=speaker></span>"} Musik läuft jetzt auf <b>${esc(d.name)}</b>${isMob(d) ? " – gemerkt als „dieses Handy“." : " (für diese Spielrunde)."}</div>`;
+      if ($("#playDev")?.textContent) $("#playDev").innerHTML = `<span class=dw data-dw=speaker></span> Läuft auf: ${esc(d.name)} · <a href="#" class="devchg">ändern</a>`;
     });
     $("#dvReload").onclick = () => openDevPicker(el);
     $("#dvAuto")?.addEventListener("click", () => { store.del("myPhone"); openDevPicker(el); });
@@ -1312,7 +1317,7 @@ async function playCurrent(fromStart){
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
     if (pl?.is_playing) {
       if (pl.device?.id) store.set("lastDev", { id: pl.device.id, t: Date.now() });   // merkt: diese Runde läuft hier
-      $("#playDev").innerHTML = "🔊 Läuft auf: " + esc(pl.device?.name || "?") + ` · <a href="#" class="devchg">ändern</a>`;
+      $("#playDev").innerHTML = "<span class=dw data-dw=speaker></span> Läuft auf: " + esc(pl.device?.name || "?") + ` · <a href="#" class="devchg">ändern</a>`;
       if (pl.device?.volume_percent != null) store.set("vol", pl.device.volume_percent);
       renderVol();
       state.paused = false; updatePlayUI(); return;
@@ -1380,15 +1385,15 @@ document.addEventListener("visibilitychange", async () => {
 // Verständliche Fehlermeldung mit genau einem Knopf zur Lösung (plus ggf. Alternative)
 function friendlyErr(e){
   const off = !navigator.onLine || e instanceof TypeError || /failed to fetch|network/i.test(e?.message || "");
-  if (off) return { i: "📶", t: "Keine Internetverbindung", d: "Prüf WLAN oder mobile Daten – dann einfach nochmal tippen.", btn: "Nochmal versuchen" };
-  if (e?.quota) return { i: "⏳", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst – Songs mit fester Aufnahme laufen oft trotzdem.", btn: "Nochmal versuchen" };
-  if (e?.status === 429) return { i: "⏳", t: "Spotify bremst kurz", d: "Zu viele Anfragen auf einmal. Ein paar Sekunden warten, dann nochmal tippen.", btn: "Nochmal versuchen" };
-  if (e?.status === 401) return { i: "🔑", t: "Spotify-Anmeldung abgelaufen", d: "Einmal neu anmelden, danach geht's direkt weiter.", btn: "Neu anmelden", act: () => sp.login() };
-  if (e?.status === 403) return { i: "🔒", t: "Spotify lässt nicht abspielen", d: "Abspielen geht nur mit Spotify Premium und wenn dein Konto in der App freigeschaltet ist.", btn: "Nochmal versuchen" };
-  if (e?.status === 404) return { i: "📱", t: "Kein Spotify-Gerät gefunden", d: "Öffne Spotify kurz auf dem Handy oder Lautsprecher, dann nochmal tippen.", btn: "Spotify öffnen", act: r => openSpotify(r) };
-  if (/nicht gefunden|keine passende/i.test(e?.message || "")) return { i: "🔎", t: "Song bei Spotify nicht gefunden", d: e.message, btn: "Anderen Song ziehen", other: true };
-  if (e?.status >= 500) return { i: "🛠", t: "Spotify hat gerade Probleme", d: "Das liegt nicht an euch. Kurz warten, dann nochmal versuchen.", btn: "Nochmal versuchen" };
-  return { i: "😕", t: "Da hat etwas nicht geklappt", d: e?.message || String(e), btn: "Nochmal versuchen" };
+  if (off) return { i: "<span class=dw data-dw=wifi></span>", t: "Keine Internetverbindung", d: "Prüf WLAN oder mobile Daten – dann einfach nochmal tippen.", btn: "Nochmal versuchen" };
+  if (e?.quota) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst – Songs mit fester Aufnahme laufen oft trotzdem.", btn: "Nochmal versuchen" };
+  if (e?.status === 429) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify bremst kurz", d: "Zu viele Anfragen auf einmal. Ein paar Sekunden warten, dann nochmal tippen.", btn: "Nochmal versuchen" };
+  if (e?.status === 401) return { i: "<span class=dw data-dw=key></span>", t: "Spotify-Anmeldung abgelaufen", d: "Einmal neu anmelden, danach geht's direkt weiter.", btn: "Neu anmelden", act: () => sp.login() };
+  if (e?.status === 403) return { i: "<span class=dw data-dw=lock></span>", t: "Spotify lässt nicht abspielen", d: "Abspielen geht nur mit Spotify Premium und wenn dein Konto in der App freigeschaltet ist.", btn: "Nochmal versuchen" };
+  if (e?.status === 404) return { i: "<span class=dw data-dw=phone></span>", t: "Kein Spotify-Gerät gefunden", d: "Öffne Spotify kurz auf dem Handy oder Lautsprecher, dann nochmal tippen.", btn: "Spotify öffnen", act: r => openSpotify(r) };
+  if (/nicht gefunden|keine passende/i.test(e?.message || "")) return { i: "<span class=dw data-dw=search></span>", t: "Song bei Spotify nicht gefunden", d: e.message, btn: "Anderen Song ziehen", other: true };
+  if (e?.status >= 500) return { i: "<span class=dw data-dw=wrench></span>", t: "Spotify hat gerade Probleme", d: "Das liegt nicht an euch. Kurz warten, dann nochmal versuchen.", btn: "Nochmal versuchen" };
+  return { i: "<span class=dw data-dw=sad></span>", t: "Da hat etwas nicht geklappt", d: e?.message || String(e), btn: "Nochmal versuchen" };
 }
 function showErr(e, retry, other){
   const f = friendlyErr(e), useOther = f.other && other;
@@ -1463,7 +1468,7 @@ function reveal(){
       <div class="t" style="font-size:28px;margin:0">${esc(s.serie)}</div>
       <div class="a" style="margin-top:10px">„${esc(c.trName || s.t)}“${(c.trArtist || s.a) ? " · " + esc(c.trArtist || s.a) : ""}</div>
       <div class="meta">${flag(s.land)} ${LAENDER[s.land] || s.land} · ${tvW(s).seit} ${s.y}</div>
-      <button class="btn small sec" id="fixBtn" style="margin-top:12px">🎵 Falscher Song? Richtige Version wählen</button></div><div id="fixBox"></div><div id="awardBox"></div>`;
+      <button class="btn small sec" id="fixBtn" style="margin-top:12px"><span class=dw data-dw=music></span> Falscher Song? Richtige Version wählen</button></div><div id="fixBox"></div><div id="awardBox"></div>`;
     $("#fixBtn").onclick = () => openTvPicker();
     tvImage(s, c.uri).then(u => { const box = $("#tvImg"); if (u && box && state.current === c) box.innerHTML = `<img src="${esc(u)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`; });
     $("#revealBtn").style.display = "none"; $("#nextBtn").style.display = "block";
@@ -1629,21 +1634,21 @@ function statsHtml(){
   const hits = T.map((_, i) => L.filter(e => e.d[i] > 0));
   if (T.length > 1) {
     const hc = hits.map(h => h.length), best = Math.max(...hc);
-    if (best > 0) { const w = hc.indexOf(best); out.push(["🎯", "Treffsicher", `${nm(w)} hat bei ${best} von ${L.length} Songs gepunktet`]); }
+    if (best > 0) { const w = hc.indexOf(best); out.push(["<span class=dw data-dw=target></span>", "Treffsicher", `${nm(w)} hat bei ${best} von ${L.length} Songs gepunktet`]); }
     if (a.zug === "reihum") {
       const streak = (i, want) => { let b = 0, k = 0; for (const e of L.filter(e => e.turn === i)) { k = (e.d[i] > 0) === want ? k + 1 : 0; b = Math.max(b, k); } return b; };
       const hs = T.map((_, i) => streak(i, true)), ms = T.map((_, i) => streak(i, false));
-      const hb = Math.max(...hs); if (hb >= 2) out.push(["🔥", "Längste Serie", `${nm(hs.indexOf(hb))}: ${hb} Treffer am Stück`]);
-      const mb = Math.max(...ms); if (mb >= 3) out.push(["🙈", "Pechsträhne", `${nm(ms.indexOf(mb))}: ${mb}× in Folge leer ausgegangen`]);
+      const hb = Math.max(...hs); if (hb >= 2) out.push(["<span class=dw data-dw=fire></span>", "Längste Serie", `${nm(hs.indexOf(hb))}: ${hb} Treffer am Stück`]);
+      const mb = Math.max(...ms); if (mb >= 3) out.push(["<span class=dw data-dw=blind></span>", "Pechsträhne", `${nm(ms.indexOf(mb))}: ${mb}× in Folge leer ausgegangen`]);
     }
   }
   // Jahrzehnt-Profi: meiste Treffer in einem Jahrzehnt
   let dp = null; T.forEach((_, i) => { const cnt = {}; hits[i].forEach(e => { if (e.y) { const d = Math.floor(e.y / 10) * 10; cnt[d] = (cnt[d] || 0) + 1; } });
     for (const d in cnt) if (!dp || cnt[d] > dp.n) dp = { i, d, n: cnt[d] }; });
-  if (dp && dp.n >= 2) out.push(["📼", "Jahrzehnt-Profi", `${T.length > 1 ? nm(dp.i) + ": " : ""}${dp.n} Treffer in den ${String(dp.d).slice(2)}ern`]);
+  if (dp && dp.n >= 2) out.push(["<span class=dw data-dw=cassette></span>", "Jahrzehnt-Profi", `${T.length > 1 ? nm(dp.i) + ": " : ""}${dp.n} Treffer in den ${String(dp.d).slice(2)}ern`]);
   // Zeitreisender: ältester Song, bei dem gepunktet wurde
   const old = L.filter(e => e.y && e.d.some(x => x > 0)).sort((p, q) => p.y - q.y)[0];
-  if (old) { const w = old.d.findIndex(x => x > 0); out.push(["🦖", "Zeitreisender", `${T.length > 1 ? nm(w) + " kannte " : ""}„${esc(old.t)}“ von ${old.y}`]); }
+  if (old) { const w = old.d.findIndex(x => x > 0); out.push(["<span class=dw data-dw=history></span>", "Zeitreisender", `${T.length > 1 ? nm(w) + " kannte " : ""}„${esc(old.t)}“ von ${old.y}`]); }
   const head = `${L.length} Songs${min ? ` · ${min} Min.` : ""}${ys.length ? ` · ${Math.min(...ys)}–${Math.max(...ys)}` : ""}`;
   return `<div class="stats"><h4>Feierabend-Statistik · ${head}</h4>${out.map(([ic, t, x]) => `<div class="aw1"><i>${ic}</i><div><span class="at">${t}</span><span>${x}</span></div></div>`).join("") || '<div class="small">Noch zu wenig gespielt für Auszeichnungen.</div>'}</div>`;
 }
@@ -1679,10 +1684,10 @@ function showWin(st){
   const head = lose ? "Knapp vorbei" : ti >= 0 ? esc(st.team.n) : modeDef().app.koop ? "Geschafft!" : "Unentschieden!";
   const el = document.createElement("div"); el.id = "winPop"; el.className = "pop";
   el.innerHTML = `<div class="wp" style="--wc:${lose ? "#ff6f61" : ti >= 0 ? teamCol(ti) : "#ffd23f"}">
-    <div class="tro">${lose ? "⏳" : "🏆"}</div><div class="wl">${lose ? "Verloren" : "Gewonnen"}</div><div class="wn">${head}</div><div class="wt">${st.text}</div>
+    <div class="tro">${lose ? "<span class=dw data-dw=hourglass></span>" : "<span class=dw data-dw=trophy></span>"}</div><div class="wl">${lose ? "Verloren" : "Gewonnen"}</div><div class="wn">${head}</div><div class="wt">${st.text}</div>
     ${g.teams.length > 1 ? `<div class="wsc">${g.teams.map((t, i) => `<span style="--c:${teamCol(i)}">${esc(t.n)} <b>${t.p}</b></span>`).join("")}</div>` : ""}
     ${statsHtml()}
-    <button class="btn" id="wpNew">🔁 Neue Runde – gleiche Teams &amp; Mix</button>
+    <button class="btn" id="wpNew"><span class=dw data-dw=repeat></span> Neue Runde – gleiche Teams &amp; Mix</button>
     <button class="btn sec" id="wpGo">${IC_PLAY} Trotzdem weiterspielen</button>
     <button class="btn sec small" id="wpSetup">Modus oder Mix ändern</button></div>`;
   document.body.appendChild(el); if (!lose) confetti();
@@ -1708,7 +1713,7 @@ function renderHistory(){
     const id = e.uri?.split(":").pop();
     rows += `<div class="hist"><span class="hy">${e.y || ""}</span><div class="ht">${esc(e.serie || e.t)}<span>${e.serie ? "„" + esc(e.t) + "“ · " : ""}${esc(e.a || "")}</span></div>
       ${id ? `<a href="https://open.spotify.com/track/${id}" target="_blank" rel="noopener" title="In Spotify öffnen">${IC_PLAY}</a>` : ""}</div>`; }
-  box.innerHTML = `<summary>🎵 Zuletzt gespielt${h.length ? ` (${Math.min(h.length, 100)})` : ""}</summary>${rows || '<div class="small">Noch keine Songs gespielt.</div>'}
+  box.innerHTML = `<summary><span class=dw data-dw=music></span> Zuletzt gespielt${h.length ? ` (${Math.min(h.length, 100)})` : ""}</summary>${rows || '<div class="small">Noch keine Songs gespielt.</div>'}
     ${h.length ? '<div class="small" style="margin-top:8px;opacity:.7">' + IC_PLAY + ' öffnet den Song in Spotify – zum Liken oder für eure Playlist.</div>' : ""}`;
   box.open = open;
 }
@@ -1939,6 +1944,89 @@ const SPARK = (x, y, s = 1.6, c = "#3ee8ff") => `<path d="M${x} ${y - s * 2}v${s
 const NOTE = (x, y, c = "#ffd23f", k = 1) => `<g transform="translate(${x} ${y}) scale(${k})" stroke="${c}" stroke-width="1.6"><path d="M2 0v7"/><circle cx="0" cy="7.5" r="2" fill="${c}" stroke="none"/><path d="M2 0l4 1.4"/></g>`;
 // Farbverläufe der Modus-Icons einmal dauerhaft ins Dokument (in ausgeblendeten Bereichen würden sie sonst nicht gezeichnet)
 document.body.insertAdjacentHTML("afterbegin", MI_DEFS);
+// Gezeichnete Neon-Icons statt Emojis (Stil wie die Modus-Icons). Einsatz: <span class=dw data-dw=name></span> – wird automatisch gefüllt.
+const DI = {
+  book: [`<path d="M24 12c-5-4-12-4-18-2v28c6-2 13-2 18 2 5-4 12-4 18-2V10c-6-2-13-2-18 2z" stroke="url(#miC)" stroke-width="3"/><path d="M24 12v28" stroke="#ff4fb0" stroke-width="2.6"/>`, "#3ee8ff"],
+  camera: [`<rect x="5" y="14" width="38" height="26" rx="5" stroke="url(#miA)" stroke-width="3"/><path d="M16 14l3-6h10l3 6" stroke="url(#miA)" stroke-width="3"/><circle cx="24" cy="27" r="7" stroke="#ffd23f" stroke-width="3"/>`],
+  doc: [`<path d="M11 5h18l9 9v29H11z" stroke="url(#miC)" stroke-width="3"/><path d="M29 5v9h9" stroke="url(#miC)" stroke-width="3"/><path d="M17 24h14M17 31h14M17 38h8" stroke="#ff4fb0" stroke-width="2.6"/>`, "#3ee8ff"],
+  print: [`<path d="M13 18V6h22v12" stroke="url(#miC)" stroke-width="3"/><rect x="5" y="18" width="38" height="16" rx="4" stroke="url(#miA)" stroke-width="3"/><path d="M13 28h22v14H13z" stroke="#ffd23f" stroke-width="3"/><circle cx="36" cy="24" r="1.6" fill="#9be15d" stroke="none"/>`],
+  box: [`<path d="M24 4l18 9v22l-18 9-18-9V13z" stroke="url(#miB)" stroke-width="3"/><path d="M6 13l18 9 18-9M24 22v22" stroke="url(#miB)" stroke-width="2.6"/><path d="M15 8.5l18 9" stroke="#ff4fb0" stroke-width="2.4"/>`, "#ffb23d"],
+  gift: [`<rect x="6" y="18" width="36" height="10" rx="2" stroke="url(#miA)" stroke-width="3"/><path d="M9 28v15h30V28M24 18v25" stroke="url(#miA)" stroke-width="3"/><path d="M24 18c-3-8-12-10-12-4 0 4 8 4 12 4zm0 0c3-8 12-10 12-4 0 4-8 4-12 4z" stroke="#ffd23f" stroke-width="2.6"/>`],
+  moon: [`<path d="M38 30A16 16 0 0 1 18 8a16 16 0 1 0 20 22z" stroke="url(#miC)" stroke-width="3"/>${"<path d='M36 8v6M33 11h6' stroke='#ffd23f' stroke-width='2.2'/>"}<circle cx="42" cy="20" r="1.4" fill="#ff4fb0" stroke="none"/>`, "#b06cff"],
+  upload: [`<path d="M24 30V6M15 15l9-9 9 9" stroke="url(#miA)" stroke-width="3.2"/><path d="M6 30v8a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4v-8" stroke="url(#miC)" stroke-width="3"/>`],
+  download: [`<path d="M24 6v24M15 21l9 9 9-9" stroke="url(#miA)" stroke-width="3.2"/><path d="M6 30v8a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4v-8" stroke="url(#miC)" stroke-width="3"/>`],
+  headphones: [`<path d="M8 30v-6a16 16 0 0 1 32 0v6" stroke="url(#miA)" stroke-width="3"/><rect x="5" y="28" width="9" height="14" rx="3" stroke="#3ee8ff" stroke-width="3"/><rect x="34" y="28" width="9" height="14" rx="3" stroke="#ff4fb0" stroke-width="3"/>`],
+  speaker: [`<path d="M6 19h8l11-9v28l-11-9H6z" stroke="url(#miA)" stroke-width="3"/><path d="M32 17a10 10 0 0 1 0 14M37 11a18 18 0 0 1 0 26" stroke="#3ee8ff" stroke-width="3"/>`, "#3ee8ff"],
+  broom: [`<path d="M36 5L22 25" stroke="url(#miB)" stroke-width="3.2"/><path d="M17 22l10 7-4 14c-7-1-14-6-17-12z" stroke="url(#miA)" stroke-width="3"/><path d="M13 33l6 3M11 38l5 2" stroke="#ffd23f" stroke-width="2.2"/>`, "#ffb23d"],
+  save: [`<path d="M8 6h26l7 7v29H8z" stroke="url(#miB)" stroke-width="3"/><path d="M15 6v10h16V6" stroke="#ffd23f" stroke-width="2.6"/><rect x="14" y="25" width="20" height="13" rx="2" stroke="#ff4fb0" stroke-width="2.6"/>`, "#ffb23d"],
+  pencil: [`<path d="M30 8l10 10-22 22H8V30z" stroke="url(#miA)" stroke-width="3"/><path d="M26 12l10 10" stroke="#ffd23f" stroke-width="2.6"/><path d="M8 44h32" stroke="#3ee8ff" stroke-width="2.4"/>`],
+  phone: [`<rect x="13" y="4" width="22" height="40" rx="5" stroke="url(#miC)" stroke-width="3"/><path d="M21 9h6" stroke="#ff4fb0" stroke-width="2.6"/><circle cx="24" cy="38" r="1.8" fill="#ffd23f" stroke="none"/>`, "#3ee8ff"],
+  laptop: [`<rect x="9" y="9" width="30" height="21" rx="3" stroke="url(#miC)" stroke-width="3"/><path d="M3 38h42l-4-8H7z" stroke="url(#miA)" stroke-width="3"/>`, "#3ee8ff"],
+  tv: [`<rect x="4" y="12" width="40" height="26" rx="4" stroke="url(#miA)" stroke-width="3"/><path d="M17 4l7 8 7-8M16 44h16" stroke="#3ee8ff" stroke-width="2.6"/>`],
+  car: [`<path d="M6 32v-7l5-11h26l5 11v7z" stroke="url(#miA)" stroke-width="3"/><path d="M6 25h36" stroke="#3ee8ff" stroke-width="2.4"/><circle cx="14" cy="34" r="4" stroke="#ffd23f" stroke-width="3"/><circle cx="34" cy="34" r="4" stroke="#ffd23f" stroke-width="3"/>`],
+  wifi: [`<path d="M4 18a28 28 0 0 1 40 0M10 25a20 20 0 0 1 28 0M16 32a11 11 0 0 1 16 0" stroke="url(#miA)" stroke-width="3.2"/><circle cx="24" cy="39" r="2.6" fill="#ffd23f" stroke="none"/>`],
+  hourglass: [`<path d="M12 4h24M12 44h24M14 4c0 12 20 12 20 20S14 32 14 44M34 4c0 12-20 12-20 20s20 8 20 20" stroke="url(#miB)" stroke-width="3"/><path d="M19 40l5-5 5 5z" fill="#ffd23f" stroke="none"/>`, "#ffb23d"],
+  key: [`<circle cx="15" cy="30" r="9" stroke="url(#miB)" stroke-width="3"/><path d="M21 24L40 5M33 12l5 5M28 17l4 4" stroke="url(#miB)" stroke-width="3"/>`, "#ffb23d"],
+  lock: [`<rect x="8" y="21" width="32" height="22" rx="4" stroke="url(#miA)" stroke-width="3"/><path d="M15 21v-6a9 9 0 0 1 18 0v6" stroke="#3ee8ff" stroke-width="3"/><path d="M24 29v6" stroke="#ffd23f" stroke-width="3"/>`],
+  search: [`<circle cx="20" cy="20" r="13" stroke="url(#miC)" stroke-width="3.2"/><path d="M30 30l13 13" stroke="#ff4fb0" stroke-width="3.6"/>`, "#3ee8ff"],
+  wrench: [`<path d="M29 6a11 11 0 0 0-10 15L5 35l8 8 14-14A11 11 0 0 0 42 19l-7 4-6-6 4-7z" stroke="url(#miB)" stroke-width="3"/>`, "#ffb23d"],
+  sad: [`<circle cx="24" cy="24" r="18" stroke="url(#miC)" stroke-width="3"/><path d="M16 34c4-5 12-5 16 0" stroke="#ff4fb0" stroke-width="3"/><circle cx="18" cy="20" r="2" fill="#3ee8ff" stroke="none"/><circle cx="30" cy="20" r="2" fill="#3ee8ff" stroke="none"/>`, "#b06cff"],
+  smile: [`<circle cx="24" cy="24" r="18" stroke="url(#miB)" stroke-width="3"/><path d="M15 28c4 7 14 7 18 0" stroke="#ff4fb0" stroke-width="3"/><path d="M15 19c2-2 4-2 6 0M27 19c2-2 4-2 6 0" stroke="#3ee8ff" stroke-width="2.6"/>`, "#ffb23d"],
+  music: [`<path d="M18 36V10l22-5v26" stroke="url(#miA)" stroke-width="3"/><circle cx="12" cy="36" r="6" stroke="#ff4fb0" stroke-width="3"/><circle cx="34" cy="31" r="6" stroke="#3ee8ff" stroke-width="3"/><path d="M18 17l22-5" stroke="#ffd23f" stroke-width="2.4"/>`],
+  target: [`<circle cx="22" cy="26" r="17" stroke="url(#miA)" stroke-width="3"/><circle cx="22" cy="26" r="9" stroke="#3ee8ff" stroke-width="2.6"/><circle cx="22" cy="26" r="2.6" fill="#ffd23f" stroke="none"/><path d="M22 26L40 8M35 8h5v5" stroke="#ffd23f" stroke-width="2.6"/>`],
+  fire: [`<path d="M24 44c-9 0-15-6-15-14 0-9 8-12 9-22 6 4 9 9 9 14 2-2 3-4 3-7 5 4 9 9 9 15 0 8-6 14-15 14z" stroke="url(#miB)" stroke-width="3"/><path d="M24 44c-4 0-6-3-6-6 0-4 4-6 5-10 3 3 7 6 7 10 0 3-2 6-6 6z" stroke="#ff4fb0" stroke-width="2.4"/>`, "#ff6f61"],
+  blind: [`<path d="M4 24c5-8 12-12 20-12s15 4 20 12c-5 8-12 12-20 12S9 32 4 24z" stroke="url(#miC)" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke="#3ee8ff" stroke-width="2.6"/><path d="M8 40L40 8" stroke="#ff4fb0" stroke-width="3.2"/>`, "#b06cff"],
+  cassette: [`<rect x="4" y="10" width="40" height="28" rx="4" stroke="url(#miA)" stroke-width="3"/><circle cx="16" cy="23" r="4" stroke="#3ee8ff" stroke-width="2.6"/><circle cx="32" cy="23" r="4" stroke="#3ee8ff" stroke-width="2.6"/><path d="M20 23h8M12 38l3-6h18l3 6" stroke="#ffd23f" stroke-width="2.4"/>`],
+  history: [`<path d="M8 24a16 16 0 1 0 5-11.6" stroke="url(#miC)" stroke-width="3"/><path d="M6 6v8h8" stroke="#ff4fb0" stroke-width="3"/><path d="M24 15v10l7 4" stroke="#ffd23f" stroke-width="3"/>`, "#3ee8ff"],
+  trophy: [`<path d="M14 6h20v12a10 10 0 0 1-20 0z" stroke="url(#miB)" stroke-width="3"/><path d="M14 10H6c0 7 4 10 8 10M34 10h8c0 7-4 10-8 10M24 28v8M15 42h18l-2-6H17z" stroke="url(#miB)" stroke-width="3"/>${"<path d='M40 3v5M37.5 5.5h5' stroke='#3ee8ff' stroke-width='1.8'/>"}`, "#ffb23d"],
+  medal: [`<path d="M15 4l5 14M33 4l-5 14" stroke="url(#miA)" stroke-width="3"/><circle cx="24" cy="30" r="12" stroke="url(#miB)" stroke-width="3"/><path d="M24 24l2 4 4 .5-3 3 1 4-4-2-4 2 1-4-3-3 4-.5z" fill="#ffd23f" stroke="none"/>`, "#ffb23d"],
+  repeat: [`<path d="M8 22v-2a8 8 0 0 1 8-8h22M32 5l7 7-7 7" stroke="url(#miA)" stroke-width="3.2"/><path d="M40 26v2a8 8 0 0 1-8 8H10M16 43l-7-7 7-7" stroke="url(#miC)" stroke-width="3.2"/>`],
+  swords: [`<path d="M8 6l24 24M40 6L16 30" stroke="url(#miA)" stroke-width="3.2"/><path d="M28 34l6-6M14 28l6 6M33 33l8 8M15 33l-8 8" stroke="#ffd23f" stroke-width="3"/>`],
+  handshake: [`<path d="M4 18l8-6 8 3 6-3 8 1 10 6" stroke="url(#miA)" stroke-width="3"/><path d="M8 26l12 12c2 2 4 2 6 0l12-12M20 15l-6 8c2 2 5 2 7 0l5-5 10 10" stroke="url(#miB)" stroke-width="3"/>`, "#ffb23d"],
+  clapper: [`<rect x="6" y="20" width="36" height="22" rx="3" stroke="url(#miC)" stroke-width="3"/><path d="M6 13l34-7 1.4 6-34 7z" stroke="url(#miA)" stroke-width="2.8"/><path d="M15 11l4 6M24 9.4l4 6M33 7.6l4 6" stroke="#ff4fb0" stroke-width="2.4"/>`, "#3ee8ff"],
+  warn: [`<path d="M24 5l20 36H4z" stroke="url(#miB)" stroke-width="3"/><path d="M24 18v11" stroke="#ffd23f" stroke-width="3.4"/><circle cx="24" cy="35" r="2" fill="#ffd23f" stroke="none"/>`, "#ffb23d"],
+  ok: [`<circle cx="24" cy="24" r="18" stroke="url(#miE)" stroke-width="3"/><path d="M15 24l6 6 12-13" stroke="#9be15d" stroke-width="3.6"/>`, "#9be15d"],
+  stop: [`<circle cx="24" cy="24" r="18" stroke="#ff4d6d" stroke-width="3.2"/><path d="M11 11l26 26" stroke="#ff4d6d" stroke-width="3.2"/>`, "#ff4d6d"],
+  info: [`<circle cx="24" cy="24" r="18" stroke="url(#miC)" stroke-width="3"/><path d="M24 21v13" stroke="#3ee8ff" stroke-width="3.4"/><circle cx="24" cy="14.5" r="2.2" fill="#3ee8ff" stroke="none"/>`, "#3ee8ff"],
+  question: [`<circle cx="24" cy="24" r="18" stroke="url(#miC)" stroke-width="3"/><path d="M18 19a6 6 0 1 1 9 5c-2 1-3 2-3 5" stroke="#ffd23f" stroke-width="3"/><circle cx="24" cy="35" r="2" fill="#ffd23f" stroke="none"/>`, "#b06cff"],
+  globe: [`<circle cx="24" cy="24" r="18" stroke="url(#miC)" stroke-width="3"/><ellipse cx="24" cy="24" rx="8" ry="18" stroke="#3ee8ff" stroke-width="2.4"/><path d="M7 18h34M7 30h34" stroke="#9be15d" stroke-width="2.4"/>`, "#3ee8ff"],
+  sun: [`<circle cx="24" cy="24" r="9" stroke="url(#miB)" stroke-width="3"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4 4M34 34l4 4M38 10l-4 4M14 34l-4 4" stroke="#ffd23f" stroke-width="3"/>`, "#ffb23d"],
+  heart: [`<path d="M24 41S6 30 6 17a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 13-18 24-18 24z" stroke="url(#miA)" stroke-width="3"/>`, "#ff4fb0"],
+  hearts: [`<path d="M19 40S4 31 4 20a7.5 7.5 0 0 1 15-2.5A7.5 7.5 0 0 1 34 20c0 11-15 20-15 20z" stroke="url(#miA)" stroke-width="3"/><path d="M36 22s8-5 8-11a4 4 0 0 0-8-1.5 4 4 0 0 0-8 1.5" stroke="#ffd23f" stroke-width="2.6"/>`, "#ff4fb0"],
+  guitar: [`<path d="M28 20l12-12M37 5l6 6" stroke="url(#miB)" stroke-width="3"/><path d="M27 21c-3-3-9-2-10 3-1 3-6 2-9 5-4 4-2 11 3 13s10 1 12-3c2-3 1-7 4-8 5-1 6-7 3-10z" stroke="url(#miA)" stroke-width="3"/><circle cx="20" cy="30" r="3" stroke="#3ee8ff" stroke-width="2.4"/>`],
+  mic: [`<rect x="17" y="4" width="14" height="24" rx="7" stroke="url(#miA)" stroke-width="3"/><path d="M10 22a14 14 0 0 0 28 0M24 36v8M17 44h14" stroke="url(#miC)" stroke-width="3"/>`],
+  hat: [`<path d="M4 30c6 6 34 6 40 0M10 31l4-17c1-4 5-4 7-2l3 2 3-2c2-2 6-2 7 2l4 17" stroke="url(#miB)" stroke-width="3"/><path d="M12 26c8 3 16 3 24 0" stroke="#ff4fb0" stroke-width="2.4"/>`, "#ffb23d"],
+  speech: [`<path d="M6 8h36v24H20l-9 8v-8H6z" stroke="url(#miA)" stroke-width="3"/><path d="M14 17h20M14 24h12" stroke="#ffd23f" stroke-width="2.6"/>`],
+  disco: [`<path d="M24 2v6" stroke="#3ee8ff" stroke-width="2.4"/><circle cx="24" cy="26" r="17" stroke="url(#miA)" stroke-width="3"/><path d="M7 26h34M24 9v34M11 16h26M11 36h26" stroke="#b06cff" stroke-width="1.8"/><ellipse cx="24" cy="26" rx="8" ry="17" stroke="#ffd23f" stroke-width="1.8"/>`],
+  radio: [`<rect x="4" y="16" width="40" height="26" rx="4" stroke="url(#miA)" stroke-width="3"/><path d="M12 16L34 5" stroke="#3ee8ff" stroke-width="2.6"/><circle cx="16" cy="29" r="6" stroke="#ffd23f" stroke-width="2.6"/><path d="M28 24h10M28 30h10M28 36h6" stroke="#ff4fb0" stroke-width="2.4"/>`],
+  star: [`<path d="M24 4l6 13 14 1.6-10.5 9.6L36.4 42 24 35l-12.4 7 2.9-13.8L4 18.6 18 17z" stroke="url(#miB)" stroke-width="3"/>`, "#ffb23d"],
+  tree: [`<path d="M24 4l11 14h-6l9 11h-7l9 11H8l9-11h-7l9-11h-6z" stroke="url(#miE)" stroke-width="3"/><path d="M24 40v5" stroke="#ffb23d" stroke-width="3"/><circle cx="20" cy="25" r="1.8" fill="#ff4fb0" stroke="none"/><circle cx="28" cy="33" r="1.8" fill="#ffd23f" stroke="none"/>`, "#9be15d"],
+  dice: [`<rect x="6" y="6" width="36" height="36" rx="8" stroke="url(#miA)" stroke-width="3"/><circle cx="16" cy="16" r="2.6" fill="#ffd23f" stroke="none"/><circle cx="24" cy="24" r="2.6" fill="#3ee8ff" stroke="none"/><circle cx="32" cy="32" r="2.6" fill="#ff4fb0" stroke="none"/>`],
+  scale: [`<path d="M24 6v36M14 42h20M8 12h32" stroke="url(#miC)" stroke-width="3"/><path d="M8 12L3 26a6 6 0 0 0 10 0zM40 12l-5 14a6 6 0 0 0 10 0z" stroke="#ffd23f" stroke-width="2.6"/>`, "#3ee8ff"],
+  chart: [`<path d="M6 6v36h36" stroke="url(#miC)" stroke-width="3"/><path d="M12 34l9-10 7 6 13-15" stroke="url(#miA)" stroke-width="3.2"/><path d="M34 15h7v7" stroke="#ff4fb0" stroke-width="3"/>`],
+  dna: [`<path d="M14 4c0 12 20 16 20 40M34 4c0 12-20 16-20 40" stroke="url(#miA)" stroke-width="3"/><path d="M17 11h14M16 37h16M20 18h8M20 30h8" stroke="#ffd23f" stroke-width="2.4"/>`],
+  bolt: [`<path d="M28 3L9 27h14l-4 18 20-25H25z" stroke="url(#miB)" stroke-width="3"/>`, "#ffd23f"],
+  calendar: [`<rect x="5" y="9" width="38" height="34" rx="4" stroke="url(#miC)" stroke-width="3"/><path d="M5 19h38M15 4v9M33 4v9" stroke="url(#miA)" stroke-width="3"/><circle cx="16" cy="28" r="2" fill="#ffd23f" stroke="none"/><circle cx="24" cy="28" r="2" fill="#ff4fb0" stroke="none"/><circle cx="32" cy="35" r="2" fill="#3ee8ff" stroke="none"/>`, "#3ee8ff"],
+  eyes: [`<ellipse cx="14" cy="24" rx="9" ry="12" stroke="url(#miA)" stroke-width="3"/><ellipse cx="34" cy="24" rx="9" ry="12" stroke="url(#miA)" stroke-width="3"/><circle cx="18" cy="26" r="3" fill="#3ee8ff" stroke="none"/><circle cx="38" cy="26" r="3" fill="#3ee8ff" stroke="none"/>`],
+  party: [`<path d="M5 43l9-27 18 18z" stroke="url(#miB)" stroke-width="3"/><path d="M10 29l9 9M30 6c-2 5 2 6 0 11M36 18c4-3 6 0 9-2" stroke="#3ee8ff" stroke-width="2.6"/><circle cx="38" cy="8" r="2" fill="#ff4fb0" stroke="none"/><circle cx="42" cy="28" r="2" fill="#9be15d" stroke="none"/><circle cx="22" cy="6" r="1.8" fill="#ffd23f" stroke="none"/>`, "#ffb23d"],
+  sparkle: [`<path d="M20 6c1 9 5 13 14 14-9 1-13 5-14 14-1-9-5-13-14-14 9-1 13-5 14-14z" stroke="url(#miB)" stroke-width="3"/><path d="M37 30v12M31 36h12" stroke="#3ee8ff" stroke-width="2.6"/>`, "#ffd23f"],
+  secret: [`<circle cx="24" cy="22" r="16" stroke="url(#miC)" stroke-width="3"/><path d="M16 29h12" stroke="#ff4fb0" stroke-width="3"/><path d="M26 44V24a3 3 0 0 1 6 0v12" stroke="#ffd23f" stroke-width="3"/><path d="M15 17c2-2 4-2 6 0M27 17c2-2 4-2 6 0" stroke="#3ee8ff" stroke-width="2.4"/>`, "#b06cff"],
+  liar: [`<circle cx="20" cy="24" r="15" stroke="url(#miA)" stroke-width="3"/><path d="M28 25h16" stroke="#ffd23f" stroke-width="3.4"/><path d="M13 19c2-2 4-2 6 0M14 31c3 2 6 2 9 0" stroke="#3ee8ff" stroke-width="2.4"/>`],
+  ruler: [`<rect x="3" y="16" width="42" height="16" rx="3" stroke="url(#miB)" stroke-width="3"/><path d="M11 16v7M19 16v5M27 16v7M35 16v5" stroke="#3ee8ff" stroke-width="2.4"/>`, "#ffb23d"],
+  stopwatch: [`<circle cx="24" cy="27" r="16" stroke="url(#miC)" stroke-width="3"/><path d="M20 5h8M24 5v6M24 27l6-6M38 11l3 3" stroke="#ff4fb0" stroke-width="3"/>`, "#3ee8ff"],
+  run: [`<circle cx="30" cy="8" r="4" stroke="url(#miA)" stroke-width="3"/><path d="M14 22l8-6 8 4 4 7 6 1M22 16l-4 12 8 6-2 10M18 28l-9 4" stroke="url(#miA)" stroke-width="3"/>`],
+  teddy: [`<circle cx="12" cy="11" r="5" stroke="url(#miB)" stroke-width="3"/><circle cx="36" cy="11" r="5" stroke="url(#miB)" stroke-width="3"/><circle cx="24" cy="24" r="15" stroke="url(#miB)" stroke-width="3"/><ellipse cx="24" cy="30" rx="6" ry="4.5" stroke="#ff4fb0" stroke-width="2.4"/><circle cx="18" cy="21" r="1.8" fill="#3ee8ff" stroke="none"/><circle cx="30" cy="21" r="1.8" fill="#3ee8ff" stroke="none"/>`, "#ffb23d"],
+  castle: [`<path d="M6 44V22l5-5 5 5v22M32 44V22l5-5 5 5v22M16 44V16l8-9 8 9v28M4 44h40" stroke="url(#miD)" stroke-width="2.8"/><path d="M20 44v-7a4 4 0 0 1 8 0v7" stroke="#ff6fb5" stroke-width="2.4"/>`, "#ff6fb5"],
+  gamepad: [`<path d="M14 14h20c6 0 10 5 10 12 0 7-2 12-6 12-3 0-5-4-8-6h-12c-3 2-5 6-8 6-4 0-6-5-6-12 0-7 4-12 10-12z" stroke="url(#miA)" stroke-width="3"/><path d="M14 21v8M10 25h8" stroke="#3ee8ff" stroke-width="3"/><circle cx="32" cy="22" r="2.2" fill="#ff4fb0" stroke="none"/><circle cx="36" cy="28" r="2.2" fill="#ffd23f" stroke="none"/>`, "#ff4fb0"],
+  updown: [`<path d="M16 40V8M8 16l8-8 8 8" stroke="#9be15d" stroke-width="3.2"/><path d="M32 8v32M24 32l8 8 8-8" stroke="#ff4fb0" stroke-width="3.2"/>`],
+  play: [`<rect x="4" y="4" width="40" height="40" rx="10" stroke="url(#miA)" stroke-width="3"/><path d="M19 15v18l14-9z" fill="#ffd23f" stroke="none"/>`],
+};
+function dwFill(root = document){
+  root.querySelectorAll?.("[data-dw]").forEach(el => { if (el.firstChild) return; const d = DI[el.dataset.dw]; if (!d) return; el.innerHTML = MI(d[0], d[1] || "#ff4fb0"); });
+}
+const dwObs = new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) { if (n.dataset?.dw) dwFill(n.parentNode || document); else dwFill(n); } });
+dwObs.observe(document.body, { childList: true, subtree: true });
+dwFill();
 const MODE_ICON = {
   duell: MI(`<circle cx="24" cy="25" r="15" stroke="url(#miC)" stroke-width="2"/><circle cx="24" cy="25" r="10" stroke="#b06cff" stroke-width="1" opacity=".6"/><circle cx="24" cy="25" r="3" fill="#3ee8ff" stroke="none" opacity=".7"/>
     <path d="M10 39L34 10" stroke="#ff4fb0" stroke-width="3"/><path d="M34 10l3-2-1 3.6" stroke="#ff4fb0" stroke-width="2"/><path d="M11 32l6 6" stroke="#ff4fb0" stroke-width="2.4"/><path d="M8 41l3-3" stroke="#ff4fb0" stroke-width="3.4"/>
@@ -2043,7 +2131,7 @@ function renderModePanel(){
   const P1 = `<svg viewBox="0 0 10 14"><circle cx="5" cy="3.2" r="2.6"/><path d="M0.6 14v-2.6C0.6 8.8 2.6 7.4 5 7.4s4.4 1.4 4.4 4V14z"/></svg>`;
   const P2 = `<svg viewBox="0 0 18 14"><circle cx="5" cy="3.2" r="2.6"/><path d="M0.6 14v-2.6C0.6 8.8 2.6 7.4 5 7.4s4.4 1.4 4.4 4V14z"/><circle cx="13" cy="3.2" r="2.6"/><path d="M8.6 14v-2.6c0-2.6 2-4 4.4-4s4.4 1.4 4.4 4V14z"/></svg>`;
   const PG = `<svg viewBox="0 0 24 14"><circle cx="5" cy="4.2" r="2.2" opacity=".75"/><path d="M1.4 14v-2c0-2.2 1.6-3.4 3.6-3.4s3.6 1.2 3.6 3.4v2z" opacity=".75"/><circle cx="19" cy="4.2" r="2.2" opacity=".75"/><path d="M15.4 14v-2c0-2.2 1.6-3.4 3.6-3.4s3.6 1.2 3.6 3.4v2z" opacity=".75"/><circle cx="12" cy="3.2" r="2.6"/><path d="M7.6 14v-2.6c0-2.6 2-4 4.4-4s4.4 1.4 4.4 4V14z"/></svg>`;
-  const MIC = { duell: "⚔️", frueher: "↕️", staffel: "🏃", wunsch: "🎁", zeitstrahl: "📏", punktejagd: "🎯", sprint: "⏱️", gemeinsam: "🤝", tv: "📺", kids: "🧸", games: "🎮", disney: "🏰", film: "🎬" };
+  const MIC = { duell: "<span class=dw data-dw=swords></span>", frueher: "<span class=dw data-dw=updown></span>", staffel: "<span class=dw data-dw=run></span>", wunsch: "<span class=dw data-dw=gift></span>", zeitstrahl: "<span class=dw data-dw=ruler></span>", punktejagd: "<span class=dw data-dw=target></span>", sprint: "<span class=dw data-dw=stopwatch></span>", gemeinsam: "<span class=dw data-dw=handshake></span>", tv: "<span class=dw data-dw=tv></span>", kids: "<span class=dw data-dw=teddy></span>", games: "<span class=dw data-dw=gamepad></span>", disney: "<span class=dw data-dw=castle></span>", film: "<span class=dw data-dw=clapper></span>" };
   const ppl = x => { const a = x.app, [lo2, hi2] = a.teams;
     if (a.koop) return `<span class="ppl">${PG}alle</span>`;
     if (a.namen === "Spieler") return `<span class="ppl">${lo2 === 2 && hi2 === 2 ? P2 : PG}${lo2 === hi2 ? lo2 : lo2 + "–" + hi2} Personen</span>`;
@@ -2052,7 +2140,7 @@ function renderModePanel(){
   // Kleine Info: braucht der Modus die gedruckten Jahreskarten?
   const CARD_IC = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="1.8" width="10" height="12.4" rx="1.8"/><path d="M5.8 5.5h4.4M5.8 8h4.4M5.8 10.5h2.6" stroke-linecap="round"/></svg>';
   const kart = need => need ? `<span class="mkt" title="Mit Jahreskarten" aria-label="Mit Jahreskarten">${CARD_IC}</span>` : "";
-  const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "🎵"}</span><span class="mtr">${kart(!x.app.ohneKarten)}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></span>
+  const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "<span class=dw data-dw=music></span>"}</span><span class="mtr">${kart(!x.app.ohneKarten)}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></span>
       <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span><span class="minfo" data-info="${x.id}" role="button" aria-label="Kurz erklärt">i</span></button>`;
   const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
@@ -2293,8 +2381,8 @@ async function playTV(){
   } catch(e) {
     if (state.current !== cur) return;
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – danach startet die Melodie automatisch.");
-    else if (/keine passende|nicht gefunden/i.test(e.message)) { $("#playMsg").innerHTML = `<div class="errbox"><div class="ei">🔎</div><b>Melodie nicht gefunden</b><div class="small">${esc(e.message)}</div>
-        <button class="btn" id="tvSkip">Andere Melodie</button><button class="btn sec small" id="fixNow">🎵 Richtige Version selbst auswählen</button></div>`;
+    else if (/keine passende|nicht gefunden/i.test(e.message)) { $("#playMsg").innerHTML = `<div class="errbox"><div class="ei"><span class=dw data-dw=search></span></div><b>Melodie nicht gefunden</b><div class="small">${esc(e.message)}</div>
+        <button class="btn" id="tvSkip">Andere Melodie</button><button class="btn sec small" id="fixNow"><span class=dw data-dw=music></span> Richtige Version selbst auswählen</button></div>`;
       $("#fixNow").onclick = () => openTvPicker(); $("#tvSkip").onclick = () => { state.current = null; playTV(); }; }
     else showErr(e, async () => { if (!cur.uri) { const tr = await resolveTV(x); Object.assign(cur, { uri: tr.uri, dur: tr.dur, trName: tr.name, trArtist: tr.artist }); } await playCurrent(true); },
       () => { state.current = null; playTV(); });
@@ -2377,11 +2465,11 @@ function renderSync(){
   const cool = sp.coolUntil - Date.now();
   const coolTxt = sp.quota() ? sp.quotaMsg() : cool > 0 ? (cool > 90000 ? "Spotify-Sperre bis " + new Date(sp.coolUntil).toLocaleTimeString("de-DE", { hour:"2-digit", minute:"2-digit" }) : "Spotify bremst – kurz warten") : "";
   $("#syncSum").textContent = `${done.length + fixed}/${DB.length} festgelegt${syncRunning ? (cool > 0 ? " · wartet" : " · läuft") : ""}`;
-  $("#syncStats").innerHTML = `${coolTxt ? `<div class="small" style="color:#ffb86b;margin-bottom:4px">⏳ ${coolTxt}. Der Fortschritt bleibt gespeichert – danach einfach weiter abgleichen.</div>` : ""}<div class="small">${fixed} fest eingetragen · ${done.length}/${all.length} abgeglichen · ⚠️ ${serious.length} prüfen · ℹ️ ${info.length} Hinweise</div>
+  $("#syncStats").innerHTML = `${coolTxt ? `<div class="small" style="color:#ffb86b;margin-bottom:4px"><span class=dw data-dw=hourglass></span> ${coolTxt}. Der Fortschritt bleibt gespeichert – danach einfach weiter abgleichen.</div>` : ""}<div class="small">${fixed} fest eingetragen · ${done.length}/${all.length} abgeglichen · <span class=dw data-dw=warn></span> ${serious.length} prüfen · <span class=dw data-dw=info></span> ${info.length} Hinweise</div>
     <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100 * done.length / Math.max(1, all.length)}%;background:var(--accent);border-radius:3px"></div></div>`;
   $("#syncStart").innerHTML = syncRunning ? IC_PAUSE + " Abgleich anhalten" : IC_PLAY + " Abgleich starten";
   $("#syncList").innerHTML = serious.length ? `<h4 style="margin:12px 0 4px">Bitte kurz prüfen (${serious.length})</h4>` + serious.slice(0, 150).map(([s, r, f]) => `<div class="fixit">
-      <div><b>${esc(s.t)}</b> · ${esc(s.a)} (${s.y})<br><span>${r ? "Spotify: „" + esc(r.name) + "“ · " + esc(r.artist) + " · " + esc(r.album) : ""}<br>⚠️ ${esc(f.join(" · "))}</span></div>
+      <div><b>${esc(s.t)}</b> · ${esc(s.a)} (${s.y})<br><span>${r ? "Spotify: „" + esc(r.name) + "“ · " + esc(r.artist) + " · " + esc(r.album) : ""}<br><span class=dw data-dw=warn></span> ${esc(f.join(" · "))}</span></div>
       <div style="display:flex;gap:6px">${r ? `<button class="btn small sec" data-sync="${s.i}">${IC_PLAY}</button><button class="btn small sec" data-syncok="${s.i}" title="Passt so">✓</button>` : ""}</div></div>`).join("") : "";
   document.querySelectorAll("[data-syncok]").forEach(b => b.onclick = () => {
     const s = DB[+b.dataset.syncok]; store.set("syncok:" + s.t + "|" + s.a, true); renderSync();
@@ -2467,7 +2555,7 @@ function renderGh(){
   const el = $("#ghState"); if (!el) return;
   const tok = store.get("ghTok", ""), qq = store.get("ghQ", null), l = store.get("ghLast", null), n = qq ? Object.keys(qq.fix).length + qq.nospot.length : 0;
   if ($("#ghSum")) $("#ghSum").textContent = tok ? (n ? n + " warten" : "eingerichtet") : "nicht eingerichtet";
-  el.innerHTML = `${tok ? "✅ Schlüssel hinterlegt." : "Noch kein Schlüssel – Korrekturen bleiben nur auf diesem Handy."}${n ? ` · ${n} Korrektur${n === 1 ? "" : "en"} warten aufs Senden.` : ""}
+  el.innerHTML = `${tok ? "<span class=dw data-dw=ok></span> Schlüssel hinterlegt." : "Noch kein Schlüssel – Korrekturen bleiben nur auf diesem Handy."}${n ? ` · ${n} Korrektur${n === 1 ? "" : "en"} warten aufs Senden.` : ""}
     ${l ? `<br>Zuletzt: ${new Date(l.t).toLocaleString("de-DE", { weekday: "short", hour: "2-digit", minute: "2-digit" })} – ${l.ok ? l.n + " gesendet ✓" : "Fehler: " + esc(l.err || "")}` : ""}`;
 }
 addEventListener("online", ghFlush); setTimeout(ghFlush, 4000);
@@ -2493,7 +2581,7 @@ function stopScanner(){
   const sc = scanner; scanner = null;
   if (sc) { try { sc.pause(true); } catch(e){}
     try { Promise.resolve(sc.stop()).catch(()=>{}).finally(() => { try { sc.clear(); } catch(e){} }); } catch(e){} }
-  $("#scanBtn").textContent = "📷 Scanner starten";
+  $("#scanBtn").innerHTML = "<span class=dw data-dw=camera></span> Scanner starten";
 }
 
 // =====================================================================
@@ -2540,12 +2628,12 @@ function renderCats(){
   $("#startBtn").disabled = !mains.length && modeDef().app.typ !== "tv" && !modeDef().app.ohneMix;
 }
 // Kategorie-Bild: Künstler = Foto von Spotify (einmal geladen, dann gespeichert), sonst passendes Symbol auf dem Farbkreis
-const CAT_ICON = { global:"🌍", dehits:"🇩🇪", film:"🎬", sommer:"☀️", balladen:"💕", rock:"🎸", indie:"🎧", hiphop:"🎤", country:"🤠",
-  deutsch:"🗣️", schlager:"💃", ndw:"📻", esc:"🏆", italienisch:"🇮🇹", finnland:"🇫🇮", tuerkei:"🇹🇷", polen:"🇵🇱", onehit:"⭐", xmas:"🎄" };
+const CAT_ICON = { global:"<span class=dw data-dw=globe></span>", dehits:flagSvg("DE", 15), film:"<span class=dw data-dw=clapper></span>", sommer:"<span class=dw data-dw=sun></span>", balladen:"<span class=dw data-dw=hearts></span>", rock:"<span class=dw data-dw=guitar></span>", indie:"<span class=dw data-dw=headphones></span>", hiphop:"<span class=dw data-dw=mic></span>", country:"<span class=dw data-dw=hat></span>",
+  deutsch:"<span class=dw data-dw=speech></span>", schlager:"<span class=dw data-dw=disco></span>", ndw:"<span class=dw data-dw=radio></span>", esc:"<span class=dw data-dw=trophy></span>", italienisch:flagSvg("IT", 15), finnland:flagSvg("FI", 15), tuerkei:flagSvg("TR", 15), polen:flagSvg("PL", 15), onehit:"<span class=dw data-dw=star></span>", xmas:"<span class=dw data-dw=tree></span>" };
 function catDot(c){
   const img = c.typ === "kuenstler" && store.get("artimg:" + c.id, null);
   if (img) return `<div class="dot" style="background:#222 url('${img}') center/cover"></div>`;
-  return `<div class="dot" style="background:${catColor(c.id)};display:grid;place-items:center;font-size:20px">${CAT_ICON[c.id] || (c.typ === "kuenstler" ? "🎙️" : "🎵")}</div>`;
+  return `<div class="dot" style="background:${catColor(c.id)};display:grid;place-items:center;font-size:20px">${CAT_ICON[c.id] || (c.typ === "kuenstler" ? "<span class=dw data-dw=mic></span>" : "<span class=dw data-dw=music></span>")}</div>`;
 }
 let artImgBusy = false, artImgRan = false;   // pro App-Start nur ein Durchlauf (kein Dauerfeuer bei Fehlern)
 // Künstlerbild: 1) Künstler-Suche, 2) Künstler einzeln abrufen, 3) notfalls Albumcover eines Songs des Künstlers
@@ -2849,12 +2937,12 @@ function renderMb(){
   res.forEach(([s, r]) => c[mbStatus(r)]++);
   const done = all.length - c.offen;
   if ($("#mbSum")) $("#mbSum").textContent = `${done}/${all.length} geprüft${mbRunning ? " · läuft" : ""}`;
-  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · ✅ ${c.ok} bestätigt · ⚠️ ${c["früher"]} früher · ❓ ${c["nicht gefunden"]} nicht gefunden
-    <br>ℹ️ ${c["später (alt)"]} Songs, bei denen MusicBrainz nur spätere Wiederveröffentlichungen kennt (kein Fehler)</div>
+  $("#mbStats").innerHTML = `<div class="small">${done} / ${all.length} geprüft · <span class=dw data-dw=ok></span> ${c.ok} bestätigt · <span class=dw data-dw=warn></span> ${c["früher"]} früher · <span class=dw data-dw=question></span> ${c["nicht gefunden"]} nicht gefunden
+    <br><span class=dw data-dw=info></span> ${c["später (alt)"]} Songs, bei denen MusicBrainz nur spätere Wiederveröffentlichungen kennt (kein Fehler)</div>
     <div style="height:6px;background:#ffffff1a;border-radius:3px;margin-top:6px"><div style="height:6px;width:${100*done/all.length}%;background:var(--accent);border-radius:3px"></div></div>`;
   const probs = res.filter(([s, r]) => r && MB_RELEVANT(mbStatus(r))).sort((a, b) => a[0].y - b[0].y);
   $("#mbList").innerHTML = probs.length ? `<table style="margin-top:10px"><tr><th>Song</th><th>Wir</th><th>MB</th></tr>${probs.map(([s, r]) =>
-    `<tr><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td>${s.y}</td><td>${r.mb ?? "–"}${r.mb != null && r.mb < s.y ? " ⚠️" : ""}</td></tr>`).join("")}</table>` : "";
+    `<tr><td><b>${esc(s.t)}</b><br><span class="small">${esc(s.a)}</span></td><td>${s.y}</td><td>${r.mb ?? "–"}${r.mb != null && r.mb < s.y ? " <span class=dw data-dw=warn></span>" : ""}</td></tr>`).join("")}</table>` : "";
   $("#mbStart").innerHTML = mbRunning ? IC_PAUSE + " Prüfung anhalten" : (c.offen ? IC_PLAY + " Prüfung starten" : "✓ Alles geprüft");
 }
 async function mbRun(){
@@ -2928,7 +3016,7 @@ function renderData(){
   const fixes = Object.values(TV_DATEN).flatMap(D => D.liste).filter(x => tvFix(x));
   const fixPanel = `<div class="panel"><b>Eure Titelmelodie-Korrekturen: ${fixes.length}</b>
     <div class="small" style="margin:4px 0 8px">Beim Auflösen könnt ihr mit „Falscher Song?“ die richtige Version festlegen. Exportiert die Liste und schickt sie mir – dann trage ich sie fest ein, damit sie auf allen Geräten gilt.</div>
-    ${fixes.length ? `<button class="btn small" id="fixExport">📤 Korrekturen exportieren</button>` : ""}</div>
+    ${fixes.length ? `<button class="btn small" id="fixExport"><span class=dw data-dw=upload></span> Korrekturen exportieren</button>` : ""}</div>
     <div class="panel"><div class="row"><label for="tvUnsafe"><b>Ungesicherte Serien/Spiele mitspielen (${unsafe.length})</b></label><input type="checkbox" id="tvUnsafe" ${store.get("tvUnsafe", false) ? "checked" : ""}></div>
     <div class="small" style="margin-top:6px">Für diese Serien und Spiele gibt es noch keine feste Spotify-Version – die automatische Suche kann danebenliegen. Eingeschaltet könnt ihr sie spielen und per „Falscher Song?“ korrigieren; danach gelten sie als gesichert.</div>
     <div class="small" style="margin-top:6px;opacity:.7">${unsafe.map(x => esc(x.serie)).join(" · ")}</div></div>`;
@@ -2947,7 +3035,7 @@ function renderData(){
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);
   });
   $("#spSum").textContent = sp.tok() ? "verbunden" : (sp.cid() ? "nicht angemeldet" : "nicht eingerichtet");
-  if ($("#spState")) $("#spState").textContent = sp.tok() ? "✅ Mit Spotify verbunden. Abmelden nur, wenn ihr ein anderes Konto nutzen wollt." : sp.cid() ? "Nicht angemeldet – unter „Spiel“ auf „Mit Spotify verbinden“ tippen." : "Noch nicht eingerichtet – unten unter „Einrichtung“ die Client-ID eintragen.";
+  if ($("#spState")) $("#spState").innerHTML = sp.tok() ? "<span class=dw data-dw=ok></span> Mit Spotify verbunden. Abmelden nur, wenn ihr ein anderes Konto nutzen wollt." : sp.cid() ? "Nicht angemeldet – unter „Spiel“ auf „Mit Spotify verbinden“ tippen." : "Noch nicht eingerichtet – unten unter „Einrichtung“ die Client-ID eintragen.";
   const pl = DB.filter(s => s.pruefen).sort((a, b) => a.y - b.y);
   $("#checkSum").textContent = pl.length ? `${pl.length} Songs offen` : "leer – alles geprüft";
   $("#checkPanel").innerHTML = `
@@ -3175,9 +3263,9 @@ window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); instal
 function renderInstall(){
   const box = $("#installBox"); if (!box) return;
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const ios = IS_IOS;
   if (standalone) box.innerHTML = `<div class="msg ok">Als App installiert ✓</div>`;
-  else if (installEvt) { box.innerHTML = `<button class="btn" id="instBtn">📲 Mixtape installieren</button>`;
+  else if (installEvt) { box.innerHTML = `<button class="btn" id="instBtn"><span class=dw data-dw=phone></span> Mixtape installieren</button>`;
     $("#instBtn").onclick = async () => { installEvt.prompt(); await installEvt.userChoice; installEvt = null; renderInstall(); }; }
   else if (ios) box.innerHTML = `<div class="msg warn">iPhone: In Safari unten auf <b>Teilen</b> (□↑) tippen → <b>„Zum Home-Bildschirm“</b>.</div>`;
   else box.innerHTML = `<div class="msg warn">Android: Chrome-Menü (⋮) → <b>„App installieren“</b> bzw. „Zum Startbildschirm hinzufügen“.</div>`;
@@ -3270,7 +3358,7 @@ async function rsPlay(k){
   let cd = null;
   if (wait > 1500 && m) {
     const end = sp.coolUntil, upd = () => { const r = Math.ceil((end - Date.now()) / 1000); if (stale() || r <= 0) { clearInterval(cd); if (!stale() && m) m.innerHTML = ""; return; }
-      m.innerHTML = `<div class="msg ok">⏳ Spotify bremst kurz (zu viele Anfragen) – der Song startet in ${r} s.</div>`; };
+      m.innerHTML = `<div class="msg ok"><span class=dw data-dw=hourglass></span> Spotify bremst kurz (zu viele Anfragen) – der Song startet in ${r} s.</div>`; };
     upd(); cd = setInterval(upd, 500);
   }
   const fail = e => { if (stale()) return; rsLoad = null; rsMark(); clearInterval(cd); const f = friendlyErr(e); if (m) m.innerHTML = `<div class="msg warn"><b>${f.t}</b><br>${esc(f.d)}</div>`; };
@@ -3327,7 +3415,7 @@ function rsSetup(box){
       : "Für jedes Jahr kommen 8 prägende Songs – jede Runde neu gemischt aus 20 großen Hits des Jahres, quer durch die Genres, mit deutschen Hits dazwischen. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit " + IC_PLAY + " aufdeckst. Du darfst nur einen retten, die anderen sind weg."}</p>
     ${isA ? `<div class="panel"><b>Künstler</b> <span class="small">(${o.artists.length} gewählt)</span>
       <div class="chips" id="rsArts">${RS_ART.map(a => `<button data-a2="${esc(a)}" class="${o.artists.includes(a) ? "on" : ""}">${esc(a)}</button>`).join("")}</div>
-      <div style="display:flex;gap:6px;margin-top:8px"><button class="btn sec small" id="rsAll">Alle</button><button class="btn sec small" id="rsNone">Keine</button><button class="btn sec small" id="rsRnd">🎲 10 zufällige</button></div></div>` : ""}
+      <div style="display:flex;gap:6px;margin-top:8px"><button class="btn sec small" id="rsAll">Alle</button><button class="btn sec small" id="rsNone">Keine</button><button class="btn sec small" id="rsRnd"><span class=dw data-dw=dice></span> 10 zufällige</button></div></div>` : ""}
     <div class="panel" style="${isA ? "display:none" : ""}"><b>Zeitraum</b>
       <div class="row" style="margin-top:8px"><input type="number" id="rsFrom" value="${o.from}" min="${RS_MINY}" max="${RS_MAXY}"><span>bis</span><input type="number" id="rsTo" value="${o.to}" min="${RS_MINY}" max="${RS_MAXY}"></div>
       <div class="small" style="margin-top:6px">Möglich: ${RS_MINY}–${RS_MAXY}. Tipp: Ab deinem Geburtsjahr wird's persönlich.</div></div>
@@ -3336,12 +3424,12 @@ function rsSetup(box){
       <input type="text" id="rsN1" placeholder="Dein Name" value="${esc(o.names[0] || "")}" style="margin-top:10px">
       <input type="text" id="rsN2" placeholder="Name Person 2" value="${esc(o.names[1] || "")}" style="margin-top:8px;${o.zwei ? "" : "display:none"}">
       <div class="small" style="margin-top:6px;${o.zwei ? "" : "display:none"}" id="rsZinfo">Ihr wählt ${isA ? "Künstler für Künstler" : "Jahr für Jahr"}: erst Person 1, dann Person 2 – aus denselben Songs. ${o.tipp ? "Was der andere gerettet hat, bleibt geheim – ihr tippt es." : "Ihr seht, was der andere gerettet hat"}, und am Ende gibt's eure Geschmacks-Statistik.</div>
-      <div id="rsTippBox" style="margin-top:10px;${o.zwei ? "" : "display:none"}"><b style="font-size:14px">🎯 Partner-Tipp</b>
+      <div id="rsTippBox" style="margin-top:10px;${o.zwei ? "" : "display:none"}"><b style="font-size:14px"><span class=dw data-dw=target></span> Partner-Tipp</b>
         <div class="seg" id="rsTipp" style="margin-top:6px"><button data-t="0" class="${o.tipp ? "" : "on"}">Aus</button><button data-t="1" class="${o.tipp ? "on" : ""}">An</button></div>
         <div class="small" style="margin-top:6px">Nach jedem gerettetem Song tippst du, welchen der andere rettet. Am Ende: Wie gut kennt ihr euch?</div></div></div>
     <div id="rsMsg"></div>
     <button class="btn" id="rsGo">${open ? "Neues Mixtape starten" : "Los geht's"}</button>
-    ${arch.length ? `<details class="panel"><summary><b>Fertige Mixtapes (${arch.length})</b></summary>${arch.map((a, i) => `<button class="btn sec small" data-a="${i}" style="display:block;width:100%;text-align:left">${esc(a.names.join(" & "))} · ${rsIsA(a) ? "🎤 " : ""}${rsLbl(a)} · ${new Date(a.date).toLocaleDateString("de-DE")}</button>`).join("")}</details>` : ""}`;
+    ${arch.length ? `<details class="panel"><summary><b>Fertige Mixtapes (${arch.length})</b></summary>${arch.map((a, i) => `<button class="btn sec small" data-a="${i}" style="display:block;width:100%;text-align:left">${esc(a.names.join(" & "))} · ${rsIsA(a) ? "<span class=dw data-dw=mic></span> " : ""}${rsLbl(a)} · ${new Date(a.date).toLocaleDateString("de-DE")}</button>`).join("")}</details>` : ""}`;
   const keep = () => { const n = [$("#rsN1").value.trim(), $("#rsN2").value.trim()]; store.set("retteOpt", { ...o, names: n }); return n; };
   $("#rsBack").onclick = () => { keep(); show("setup"); };
   box.querySelectorAll("#rsZwei button").forEach(b => b.onclick = () => { o.zwei = b.dataset.z === "1"; store.set("retteOpt", { ...o, names: keep() }); rsSetup(box); });
@@ -3379,7 +3467,7 @@ const rsDoneCount = r => r.years.reduce((a, y) => a + y.picks.filter(p => p).len
 function rsHand(box){
   const nm = rs.names[rs.pl];
   box.innerHTML = rsTop("Rette einen Song", rsLbl(rs)) + `<div class="panel" style="text-align:center;padding:30px 18px">
-    <div style="font-size:48px">🤝</div><h2 style="margin:10px 0">${esc(rs.names[rs.pl - 1])} ist fertig!</h2>
+    <div style="font-size:48px"><span class=dw data-dw=handshake></span></div><h2 style="margin:10px 0">${esc(rs.names[rs.pl - 1])} ist fertig!</h2>
     <p class="sub">Gib das Handy jetzt an <b>${esc(nm)}</b>. Du bekommst dieselben Songs – was ${esc(rs.names[rs.pl - 1])} gerettet hat, bleibt bis zum Schluss geheim.</p>
     <button class="btn" id="rsHandGo">Ich bin ${esc(nm)} – los!</button></div>`;
   $("#rsBack").onclick = () => { rs.view = "setup"; rsSave(); rsRender(); };
@@ -3393,9 +3481,9 @@ function rsChoose(box){
   const sub = (two ? esc(rs.names[pl]) + " wählt · " : "") + `${rsIsA(rs) ? "Künstler" : "Jahr"} ${rs.pos + 1} von ${total}`;
   // Vorjahr kurz zeigen (zu zweit: wer was gerettet hat)
   const prev = rs.pos > 0 && pl === 0 ? rs.years[rs.pos - 1] : null;
-  const pv = prev && two ? (prev.picks[0] && prev.picks[0] === prev.picks[1] && prev.picks[0] !== "-" ? `💞 ${esc(String(prev.y))}: Beide haben „${esc(showT(rsSong(prev.picks[0])))}“ gerettet`
+  const pv = prev && two ? (prev.picks[0] && prev.picks[0] === prev.picks[1] && prev.picks[0] !== "-" ? `<span class=dw data-dw=hearts></span> ${esc(String(prev.y))}: Beide haben „${esc(showT(rsSong(prev.picks[0])))}“ gerettet`
     : `${esc(String(prev.y))}: ` + rs.names.map((n, i) => `<b style="color:${PC[i]}">${esc(n)}</b> ${prev.picks[i] && prev.picks[i] !== "-" ? "„" + esc(showT(rsSong(prev.picks[i]))) + "“" : "–"}`).join(" · ")) : "";
-  const tipRes = prev && two && rs.tipp && prev.tipps ? " · 🎯 " + rs.names.map((n, i) => { const t = prev.tipps[i], o = prev.picks[1 - i];
+  const tipRes = prev && two && rs.tipp && prev.tipps ? " · <span class=dw data-dw=target></span> " + rs.names.map((n, i) => { const t = prev.tipps[i], o = prev.picks[1 - i];
       return t && t !== "-" && o && o !== "-" ? `${esc(n)} ${t === o ? "✓" : "✗"}` : ""; }).filter(Boolean).join(" ") : "";
   const who = k => two && !rs.tipp ? rs.names.map((n, i) => i !== pl && Y.picks[i] === k ? `<span class="rsWho" style="--c:${PC[i]}">${esc(n)}</span>` : "").join("") : "";
   // Überraschung: Songs kommen nacheinander – der nächste bleibt verdeckt, bis man auf ▶ tippt
@@ -3408,7 +3496,7 @@ function rsChoose(box){
     ${pv ? `<div class="rsPrev">${pv}${tipRes}</div>` : ""}
     <div class="rsYear"><div class="y" ${rsIsA(rs) ? `style="font-size:${String(Y.y).length > 14 ? 30 : 38}px;line-height:1.1"` : ""}>${esc(String(Y.y))}</div><div class="w">${two ? `<span class="rsWho rsMe" style="--c:${PC[pl]}">${esc(rs.names[pl])}</span> welchen Song rettest du?` : "Welchen Song rettest du?"}</div></div>
     <div id="rsOpts" style="--pc:${two ? PC[pl] : "var(--accent)"}">${Y.opts.slice(0, shown).map(k => { const s = rsSong(k); return `<div class="rsOpt ${rsSel === k ? "on" : ""} ${fresh === k ? "rsNew" : ""}" data-k="${esc(k)}">
-      <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span>${who(k)}</div>
+      <div class="cvw"><div class="cv" data-cov="${esc(k)}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span>${who(k)}</div>
       <button class="pl" data-k="${esc(k)}" aria-label="Reinhören">${IC_PLAY}</button></div>`; }).join("")}
       ${shown < n ? `<div class="rsOpt hid" id="rsHid"><div class="cvw"><div class="cv">?</div></div><div class="tx"><b>Song ${shown + 1} von ${n}</b><span>Tippe auf Play zum Aufdecken</span></div>
       <button class="pl" id="rsRev" aria-label="Aufdecken und anhören">${IC_PLAY}</button></div>` : ""}</div>
@@ -3460,7 +3548,7 @@ function rsFixOpen(k, list, box){
     <div class="row" style="gap:6px"><input type="text" id="rsFixQ" value="${esc(cleanTitle(s.t) + " " + s.a)}"><button class="btn small" id="rsFixGo">Suchen</button></div>
     <div id="rsFixL" class="small" style="margin-top:8px">Suche …</div>
     <div class="row" style="gap:6px;margin-top:10px"><input type="text" id="rsFixLink" placeholder="oder Spotify-Link einfügen (open.spotify.com/track/…)"><button class="btn small sec" id="rsFixLinkOk">OK</button></div>
-    <button class="btn sec small" id="rsFixNone" style="margin-top:10px;width:100%">🚫 Diesen Song gibt es bei Spotify nicht</button>
+    <button class="btn sec small" id="rsFixNone" style="margin-top:10px;width:100%"><span class=dw data-dw=stop></span> Diesen Song gibt es bei Spotify nicht</button>
     <div id="rsFixM"></div></div>`;
   el.scrollIntoView({ behavior: "smooth", block: "start" });
   const M = (t, c = "ok") => $("#rsFixM").innerHTML = `<div class="msg ${c}">${t}</div>`;
@@ -3503,10 +3591,10 @@ function rsFixOpen(k, list, box){
 function rsTip(box){
   const Y = rs.years[rs.pos], pl = rs.pl, ot = 1 - pl, PC = ["#ff5fa2", "#2de2e6"], done = Y.picks[ot] != null;
   box.innerHTML = rsTop("Rette einen Song", `${esc(rs.names[pl])} tippt · ${esc(String(Y.y))}`) + `
-    <div class="rsYear"><div style="font-size:40px;line-height:1">🎯</div><div class="w"><span class="rsWho rsMe" style="--c:${PC[pl]}">${esc(rs.names[pl])}</span> welchen Song ${done ? "hat" : "rettet"} <span class="rsWho rsMe" style="--c:${PC[ot]}">${esc(rs.names[ot])}</span> ${done ? "gerettet" : ""}?</div></div>
+    <div class="rsYear"><div style="font-size:40px;line-height:1"><span class=dw data-dw=target></span></div><div class="w"><span class="rsWho rsMe" style="--c:${PC[pl]}">${esc(rs.names[pl])}</span> welchen Song ${done ? "hat" : "rettet"} <span class="rsWho rsMe" style="--c:${PC[ot]}">${esc(rs.names[ot])}</span> ${done ? "gerettet" : ""}?</div></div>
     <div class="small" style="text-align:center;margin:-4px 0 8px">Dein Song: „${esc(showT(rsSong(Y.picks[pl])))}“ – die Auflösung kommt ${done ? "gleich" : "nach " + esc(rs.names[ot]) + "s Wahl"}.</div>
     <div id="rsOpts" style="--pc:${PC[pl]}">${Y.opts.map(k => { const s = rsSong(k); return `<div class="rsOpt" data-tk="${esc(k)}">
-      <div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div></div>`; }).join("")}</div>
+      <div class="cvw"><div class="cv" data-cov="${esc(k)}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div></div>`; }).join("")}</div>
     <div style="display:flex;gap:6px;justify-content:center"><button class="btn sec small" id="rsNoTip">Kein Tipp</button></div>`;
   rsCovers(box);
   $("#rsBack").onclick = () => { rs.view = "setup"; rsSave(); rsRender(); };
@@ -3581,39 +3669,39 @@ function rsStatsHtml(r, st){
   let h = "";
   // 1 Genre-Profil
   const gl = RS_GEN.map(g => g[0]).filter(g => st.P.some(p => p.gs[g])).sort((a, b) => Math.max(...st.P.map(p => p.gs[b] || 0)) - Math.max(...st.P.map(p => p.gs[a] || 0))).slice(0, 7);
-  h += `<div class="panel rsSt"><b>🎸 Genre-Profil</b><div class="rsLbl">${st.P.map((p, i) => `${two ? nm(i) + ": " : ""}<span>${lbl(i)}</span>`).join(" · ")}</div>
+  h += `<div class="panel rsSt"><b><span class=dw data-dw=guitar></span> Genre-Profil</b><div class="rsLbl">${st.P.map((p, i) => `${two ? nm(i) + ": " : ""}<span>${lbl(i)}</span>`).join(" · ")}</div>
     ${gl.map(g => `<div class="rsGb"><span>${RS_GN[g][1]}</span><div>${st.P.map((p, i) => `<i style="width:${Math.round((p.gs[g] || 0) * 100)}%;background:${PC[i]}"></i><em>${Math.round((p.gs[g] || 0) * 100)}%</em>`).join("")}</div></div>`).join("")}
     <div class="small" style="margin-top:4px">Anteil eurer geretteten Songs – ein Song kann mehrere Genres haben.</div></div>`;
   // 2 Deutsch / international + Flaggen
-  h += `<div class="panel rsSt"><b>🌍 Deutsch oder international?</b>${st.P.map((p, i) => `<div class="rsDe">${two ? nm(i) : ""}
+  h += `<div class="panel rsSt"><b><span class=dw data-dw=globe></span> Deutsch oder international?</b>${st.P.map((p, i) => `<div class="rsDe">${two ? nm(i) : ""}
     <div class="rsSplit"><i style="width:${p.de}%"></i></div><div class="small">${p.de} % deutschsprachig · ${100 - p.de} % international</div>
     <div class="rsFl">${p.land.slice(0, 8).map(([c, n]) => `<span>${flagSvg(c, 13)}${n > 1 ? `<em>${n}×</em>` : ""}</span>`).join("")}</div></div>`).join("")}</div>`;
   // 3 Mainstream + 4 Lieblingskünstler
-  const mt = m => m >= 75 ? "Hit-Jäger 🏆" : m <= 45 ? "Geheimtipp-Finder 🔍" : "Gute Mischung ⚖️";
-  h += `<div class="panel rsSt"><b>📈 Mainstream oder Geheimtipp?</b>${st.P.map((p, i) => `<div class="rsDe">${two ? nm(i) + " · " : ""}<span>${mt(p.main)}</span>
+  const mt = m => m >= 75 ? "Hit-Jäger <span class=dw data-dw=trophy></span>" : m <= 45 ? "Geheimtipp-Finder <span class=dw data-dw=search></span>" : "Gute Mischung <span class=dw data-dw=scale></span>";
+  h += `<div class="panel rsSt"><b><span class=dw data-dw=chart></span> Mainstream oder Geheimtipp?</b>${st.P.map((p, i) => `<div class="rsDe">${two ? nm(i) + " · " : ""}<span>${mt(p.main)}</span>
     <div class="rsSplit ms"><i style="width:${p.main}%"></i></div><div class="small">${p.main} % große Hits · ${100 - p.main} % Geheimtipps</div></div>`).join("")}
-    ${!A && st.P.some(p => p.fav.length) ? `<div style="margin-top:8px"><b>⭐ Lieblingskünstler</b>${st.P.map((p, i) => p.fav.length ? `<div class="small" style="margin-top:3px">${two ? nm(i) + ": " : ""}${p.fav.map(([a, n]) => `${esc(a)} ${n}×`).join(", ")}</div>` : "").join("")}</div>` : ""}</div>`;
+    ${!A && st.P.some(p => p.fav.length) ? `<div style="margin-top:8px"><b><span class=dw data-dw=star></span> Lieblingskünstler</b>${st.P.map((p, i) => p.fav.length ? `<div class="small" style="margin-top:3px">${two ? nm(i) + ": " : ""}${p.fav.map(([a, n]) => `${esc(a)} ${n}×`).join(", ")}</div>` : "").join("")}</div>` : ""}</div>`;
   if (!two) return h;
   // 5 Geschmacks-Match mit halben Treffern
-  h += `<div class="panel rsSt" style="text-align:center"><b>🧬 Geschmacks-Match</b><div class="rsBig" style="font-size:40px;margin-top:6px">${st.match} %</div>
+  h += `<div class="panel rsSt" style="text-align:center"><b><span class=dw data-dw=dna></span> Geschmacks-Match</b><div class="rsBig" style="font-size:40px;margin-top:6px">${st.match} %</div>
     <div class="small">Gleicher Song zählt voll, gleicher Künstler ⅗, gleiches Genre ein knappes Drittel.${st.half ? ` ${st.half}× lagt ihr nah beieinander, ohne denselben Song zu nehmen.` : ""}</div></div>`;
   // 6 einigste und strittigste Phase
   const ph = [];
-  if (st.same[0] >= 2) ph.push(`💞 <b>Einigste Phase:</b> ${A ? `${st.same[0]} Künstler in Folge (${yr(st.same[1])} bis ${yr(st.same[2])})` : `${yr(st.same[1])}–${yr(st.same[2])} – ${st.same[0]}× in Folge derselbe Song`}`);
-  if (st.diff[0] >= 2) ph.push(`⚡ <b>Strittigste Phase:</b> ${A ? `${st.diff[0]} Künstler in Folge komplett verschieden (${yr(st.diff[1])} bis ${yr(st.diff[2])})` : `${yr(st.diff[1])}–${yr(st.diff[2])} – ${st.diff[0]}× in Folge komplett verschieden`}`);
+  if (st.same[0] >= 2) ph.push(`<span class=dw data-dw=hearts></span> <b>Einigste Phase:</b> ${A ? `${st.same[0]} Künstler in Folge (${yr(st.same[1])} bis ${yr(st.same[2])})` : `${yr(st.same[1])}–${yr(st.same[2])} – ${st.same[0]}× in Folge derselbe Song`}`);
+  if (st.diff[0] >= 2) ph.push(`<span class=dw data-dw=bolt></span> <b>Strittigste Phase:</b> ${A ? `${st.diff[0]} Künstler in Folge komplett verschieden (${yr(st.diff[1])} bis ${yr(st.diff[2])})` : `${yr(st.diff[1])}–${yr(st.diff[2])} – ${st.diff[0]}× in Folge komplett verschieden`}`);
   const dd = st.dec.filter(d => d.n >= 2);
   if (dd.length > 1) { const hi = dd.reduce((a, b) => b.m > a.m ? b : a), lo = dd.reduce((a, b) => b.m < a.m ? b : a);
-    if (hi.d !== lo.d) ph.push(`🏅 <b>Bestes Jahrzehnt:</b> ${String(hi.d).slice(2)}er (${hi.m} % Match) · <b>schwierigstes:</b> ${String(lo.d).slice(2)}er (${lo.m} %)`); }
-  if (A) { const s1 = r.years.filter((y, i) => st.sc[i] === 1).map(y => esc(y.y)); if (s1.length) ph.push(`💞 <b>Einig bei:</b> ${s1.join(", ")}`); }
-  if (ph.length) h += `<div class="panel rsSt"><b>📅 Eure Phasen</b>${ph.map(x => `<div class="rsPh">${x}</div>`).join("")}</div>`;
+    if (hi.d !== lo.d) ph.push(`<span class=dw data-dw=medal></span> <b>Bestes Jahrzehnt:</b> ${String(hi.d).slice(2)}er (${hi.m} % Match) · <b>schwierigstes:</b> ${String(lo.d).slice(2)}er (${lo.m} %)`); }
+  if (A) { const s1 = r.years.filter((y, i) => st.sc[i] === 1).map(y => esc(y.y)); if (s1.length) ph.push(`<span class=dw data-dw=hearts></span> <b>Einig bei:</b> ${s1.join(", ")}`); }
+  if (ph.length) h += `<div class="panel rsSt"><b><span class=dw data-dw=calendar></span> Eure Phasen</b>${ph.map(x => `<div class="rsPh">${x}</div>`).join("")}</div>`;
   // 7 Jahrzehnt-Duell
-  if (dd.length) h += `<div class="panel rsSt"><b>⚔️ Jahrzehnt-Duell</b>${dd.map(d => `<div class="rsDu"><span class="d">${String(d.d).slice(2)}er</span>${d.g[0] === d.g[1]
-      ? `<span>beide <b>${RS_GN[d.g[0]][1]}</b> 🤝</span>` : `<span>${nm(0)} ${RS_GN[d.g[0]][1]} · ${nm(1)} ${RS_GN[d.g[1]][1]}</span>`}<span class="m">${d.m} %</span></div>`).join("")}
+  if (dd.length) h += `<div class="panel rsSt"><b><span class=dw data-dw=swords></span> Jahrzehnt-Duell</b>${dd.map(d => `<div class="rsDu"><span class="d">${String(d.d).slice(2)}er</span>${d.g[0] === d.g[1]
+      ? `<span>beide <b>${RS_GN[d.g[0]][1]}</b> <span class=dw data-dw=handshake></span></span>` : `<span>${nm(0)} ${RS_GN[d.g[0]][1]} · ${nm(1)} ${RS_GN[d.g[1]][1]}</span>`}<span class="m">${d.m} %</span></div>`).join("")}
     <div class="small" style="margin-top:4px">Stärkstes Genre je Jahrzehnt · rechts euer Match.</div></div>`;
   // 10 Partner-Tipp
-  if (st.tip) h += `<div class="panel rsSt" style="text-align:center"><b>🎯 Partner-Tipp</b>${[0, 1].map(i => { const t = st.tip[i], q = t.n ? Math.round(t.ok / t.n * 100) : 0;
+  if (st.tip) h += `<div class="panel rsSt" style="text-align:center"><b><span class=dw data-dw=target></span> Partner-Tipp</b>${[0, 1].map(i => { const t = st.tip[i], q = t.n ? Math.round(t.ok / t.n * 100) : 0;
       return `<div style="margin-top:8px">${nm(i)} kennt ${nm(1 - i)} zu <span class="rsTq">${q} %</span><div class="small">${t.ok} von ${t.n} richtig getippt</div></div>`; }).join("")}
-    ${st.tip[0].n && st.tip[1].n ? `<div class="small" style="margin-top:6px">${st.tip[0].ok === st.tip[1].ok ? "Unentschieden – ihr kennt euch gleich gut 😄" : `${nm(st.tip[0].ok > st.tip[1].ok ? 0 : 1)} kennt den anderen besser 👀`}</div>` : ""}</div>`;
+    ${st.tip[0].n && st.tip[1].n ? `<div class="small" style="margin-top:6px">${st.tip[0].ok === st.tip[1].ok ? "Unentschieden – ihr kennt euch gleich gut <span class=dw data-dw=smile></span>" : `${nm(st.tip[0].ok > st.tip[1].ok ? 0 : 1)} kennt den anderen besser <span class=dw data-dw=eyes></span>`}</div>` : ""}</div>`;
   return h;
 }
 // ---------- Auswertung als Bild (zum Teilen) ----------
@@ -3642,8 +3730,8 @@ async function rsShareImg(r, st, btn){
   y += 50;
   const line = (t, col = "#fff") => { txt(t, W / 2, y, F(600, 32), col); y += 50; };
   st.P.forEach((p, i) => line(`${two ? r.names[i] + ": " : ""}${p.de} % deutsch · ${p.main} % große Hits`, two ? PC[i] : "#fff"));
-  if (two && st.same[0] >= 2) line(`💞 ${st.same[0]}× in Folge einig (${r.years[st.same[1]].y}–${r.years[st.same[2]].y})`);
-  if (st.tip) st.tip.forEach((t, i) => t.n && line(`🎯 ${r.names[i]} kennt ${r.names[1 - i]} zu ${Math.round(t.ok / t.n * 100)} %`, PC[i]));
+  if (two && st.same[0] >= 2) line(`${st.same[0]}× in Folge einig (${r.years[st.same[1]].y}–${r.years[st.same[2]].y})`);
+  if (st.tip) st.tip.forEach((t, i) => t.n && line(`${r.names[i]} kennt ${r.names[1 - i]} zu ${Math.round(t.ok / t.n * 100)} %`, PC[i]));
   txt("willybelate.github.io/mixtape", W / 2, H - 50, F(500, 26), "#a99cc9");
   const blob = await new Promise(ok => c.toBlob(ok, "image/png")); if (!blob) return;
   const file = new File([blob], "mixtape-auswertung.png", { type: "image/png" });
@@ -3656,7 +3744,7 @@ function rsResult(box, r, fromArch){
   const both = r.years.filter(y => y.picks.every(p => p && p !== "-"));
   const same = both.filter(y => y.picks[0] === y.picks[1]);
   const pct = both.length ? Math.round(same.length / both.length * 100) : 0;
-  const verdict = pct >= 60 ? "Ihr hört quasi mit einem Ohr! 🎧" : pct >= 40 ? "Ziemlich gleicher Geschmack 💞" : pct >= 25 ? "Ein paar gemeinsame Hits – der Rest wird diskutiert 😄" : "Gegensätze ziehen sich an 🔥";
+  const verdict = pct >= 60 ? "Ihr hört quasi mit einem Ohr! <span class=dw data-dw=headphones></span>" : pct >= 40 ? "Ziemlich gleicher Geschmack <span class=dw data-dw=hearts></span>" : pct >= 25 ? "Ein paar gemeinsame Hits – der Rest wird diskutiert <span class=dw data-dw=smile></span>" : "Gegensätze ziehen sich an <span class=dw data-dw=fire></span>";
   // Übereinstimmung pro Jahrzehnt
   const dec = {}; if (!rsIsA(r)) both.forEach(y => { const d = Math.floor(y.y / 10) * 10; (dec[d] ??= [0, 0])[1]++; if (y.picks[0] === y.picks[1]) dec[d][0]++; });
   const decHtml = Object.keys(dec).length > 1 ? `<div class="rsDec">${Object.entries(dec).map(([d, [a, b]]) => `<div><i style="height:${Math.max(3, a / b * 52)}px"></i>${String(d).slice(2)}er</div>`).join("")}</div><div class="small" style="text-align:center">Übereinstimmung je Jahrzehnt</div>` : "";
@@ -3664,7 +3752,7 @@ function rsResult(box, r, fromArch){
     const one = (k, i) => !k || k === "-" ? `<div class="${i ? "p2" : ""}"><span>${two ? esc(r.names[i]) + ": " : ""}– übersprungen –</span></div>`
       : `<div class="${i ? "p2" : ""}">${two ? `<span>${esc(r.names[i])}:</span> ` : ""}<b>${esc(showT(rsSong(k)))}</b><br><span>${esc(showA(rsSong(k)))}</span></div>`;
     const first = ks.find(k => k && k !== "-");
-    return `<div class="rsRow"><div class="yy" ${rsIsA(r) ? `style="width:72px;font-size:12px;line-height:1.2"` : ""}>${esc(String(y.y))}</div><div class="cv" ${first ? `data-cov="${esc(first)}"` : ""}></div><div class="tx">${sm ? one(ks[0], 0).replace(/<span>[^<]*:<\/span> /, "") : ks.map(one).join("")}</div>${two ? `<div class="m">${sm ? "💞" : ""}</div>` : ""}</div>`; };
+    return `<div class="rsRow"><div class="yy" ${rsIsA(r) ? `style="width:72px;font-size:12px;line-height:1.2"` : ""}>${esc(String(y.y))}</div><div class="cv" ${first ? `data-cov="${esc(first)}"` : ""}></div><div class="tx">${sm ? one(ks[0], 0).replace(/<span>[^<]*:<\/span> /, "") : ks.map(one).join("")}</div>${two ? `<div class="m">${sm ? "<span class=dw data-dw=hearts></span>" : ""}</div>` : ""}</div>`; };
   box.innerHTML = rsTop("" + (two ? "Eure Mixtapes" : rsIsA(r) ? "Dein Künstler-Mixtape" : "Dein Lebens-Mixtape"), `${rsLbl(r)} · ${ys.length} Songs`) + `
     ${two ? `<div class="panel" style="text-align:center"><div class="small">${esc(r.names[0])} &amp; ${esc(r.names[1])}</div><div class="rsBig">${pct} %</div>
       <div style="margin-top:6px">Gleicher Song bei <b>${same.length}</b> von ${both.length} ${rsUnit(r, both.length)}</div><div class="small" style="margin-top:4px">${verdict}</div>${decHtml}</div>` : ""}
@@ -3797,7 +3885,7 @@ function zsSetup(box){
       ${o.names.length < 6 ? `<button class="lk" id="zsAdd" style="background:none;border:0;color:#ffd1e6;font-weight:700;cursor:pointer;padding:4px 0">+ Person hinzufügen</button>` : ""}</div>
     <div class="panel"><b>Welche Songs?</b> <span class="small">(${zsPool(o.cats).length} Songs im Mix)</span>
       ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-zc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}</div>
-    ${Object.keys(rek).length ? `<div class="panel"><b>🏆 Rekorde</b>${Object.entries(rek).sort((a, b) => b[1].serie - a[1].serie).slice(0, 8).map(([n, r]) => `<div class="row small" style="margin-top:6px"><span>${esc(n)}</span><span>längste Serie <b>${r.serie}</b> · beste Runde <b>${r.punkte}</b></span></div>`).join("")}</div>` : ""}
+    ${Object.keys(rek).length ? `<div class="panel"><b><span class=dw data-dw=trophy></span> Rekorde</b>${Object.entries(rek).sort((a, b) => b[1].serie - a[1].serie).slice(0, 8).map(([n, r]) => `<div class="row small" style="margin-top:6px"><span>${esc(n)}</span><span>längste Serie <b>${r.serie}</b> · beste Runde <b>${r.punkte}</b></span></div>`).join("")}</div>` : ""}
     <div id="zsMsg"></div>
     <button class="btn" id="zsGo">${open ? "Neue Runde starten" : "Los geht's"}</button>`;
   const names = () => [...box.querySelectorAll("[data-zn]")].map(el => el.value.trim());
@@ -3819,14 +3907,14 @@ function zsSetup(box){
   };
 }
 const zsCard = (s, hide, extra = "") => `<div class="zsCard ${hide ? "hid" : ""}">${hide ? `<div class="zsQ">?</div><div class="tx"><b>Neuer Song läuft …</b><span>Titel und Jahr bleiben geheim</span></div>`
-  : `<div class="cvw"><div class="cv" data-cov="${esc(zsKey(s))}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div><div class="zsY">${s.y}</div>`}${extra}</div>`;
+  : `<div class="cvw"><div class="cv" data-cov="${esc(zsKey(s))}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div><div class="zsY">${s.y}</div>`}${extra}</div>`;
 function zsGame(box){
   const P = zs.players, act = P[zs.turn], ref = zsSong(zs.ref), cur = zsSong(zs.cur), L = zs.last;
   const multi = P.length > 1;
   const lvl = zsLvl(zs.n);
   box.innerHTML = zsTop(`Schwierigkeit ${"●".repeat(lvl)}${"○".repeat(5 - lvl)}${multi ? " · " + esc(act.n) + " ist dran" : ""}`) + `
     <div class="zsPl">${P.map((p, i) => `<div class="zsP ${i === zs.turn && !L ? "on" : ""} ${p.l <= 0 ? "out" : ""}" style="--c:${ZS_COL[i % 6]}"><b>${esc(p.n)}</b><span>${"♥".repeat(Math.max(0, p.l))}<i>${"♥".repeat(ZS_LIVES - Math.max(0, p.l))}</i></span><small>${p.p} richtig</small></div>`).join("")}</div>
-    ${L ? `<div class="zsRes ${L.ok ? "ok" : "no"}"><div class="zsV">${L.ok ? (L.same ? "🎯 Gleiches Jahr – zählt!" : "✓ Richtig!") : "✗ Daneben" + (L.leben === 0 ? " – " + esc(P[L.who].n) + " ist raus" : "")}</div>
+    ${L ? `<div class="zsRes ${L.ok ? "ok" : "no"}"><div class="zsV">${L.ok ? (L.same ? "<span class=dw data-dw=target></span> Gleiches Jahr – zählt!" : "✓ Richtig!") : "✗ Daneben" + (L.leben === 0 ? " – " + esc(P[L.who].n) + " ist raus" : "")}</div>
         ${zsCard(cur, false)}<div class="small" style="text-align:center;margin-top:4px">${cur.y === ref.y ? "Gleiches Jahr wie" : cur.y > ref.y ? "Später als" : "Früher als"} ${esc(ref.t)} (${ref.y})</div></div>
       <button class="btn" id="zsNext">Nächster Song →</button>`
     : `<div class="small zsLbl">Bekannt</div>${zsCard(ref, false)}
@@ -3869,12 +3957,12 @@ function zsFinish(){
 function zsEnd(box){
   const P = [...zs.players].sort((a, b) => b.p - a.p || b.l - a.l), multi = P.length > 1, win = multi ? P[0] : null;
   box.innerHTML = zsTop("Runde vorbei") + `
-    <div class="panel" style="text-align:center"><div style="font-size:44px">${multi ? "🏆" : "⏳"}</div>
+    <div class="panel" style="text-align:center"><div style="font-size:44px">${multi ? "<span class=dw data-dw=trophy></span>" : "<span class=dw data-dw=hourglass></span>"}</div>
       <h2 style="margin:6px 0">${multi ? esc(win.n) + " gewinnt!" : P[0].p + " richtig"}</h2>
       <div class="small">${multi ? `Zusammen ${zs.n} richtig · ` : ""}erreichte Schwierigkeit ${zsLvl(zs.n)} von 5</div></div>
-    ${zs.neu?.length ? `<div class="panel" style="border:1px solid #ffd23f88"><b>🎉 Neuer Rekord</b>${zs.neu.map(x => `<div class="small" style="margin-top:4px">${esc(x)}</div>`).join("")}</div>` : ""}
+    ${zs.neu?.length ? `<div class="panel" style="border:1px solid #ffd23f88"><b><span class=dw data-dw=party></span> Neuer Rekord</b>${zs.neu.map(x => `<div class="small" style="margin-top:4px">${esc(x)}</div>`).join("")}</div>` : ""}
     <div class="panel">${P.map((p, i) => `<div class="row" style="padding:6px 0"><span><b>${i + 1}. ${esc(p.n)}</b></span><span class="small">${p.p} richtig · beste Serie ${p.best}</span></div>`).join("")}</div>
-    <button class="btn" id="zsAgainGame">🔁 Nochmal – gleiche Leute</button>
+    <button class="btn" id="zsAgainGame"><span class=dw data-dw=repeat></span> Nochmal – gleiche Leute</button>
     <button class="btn sec" id="zsSetupBtn">Leute oder Songs ändern</button>`;
   $("#zsBack").onclick = () => { zs.view = "setup"; zsSave(); show("setup"); };
   $("#zsSetupBtn").onclick = () => { zs = null; store.del("zs"); zsRender(); };
@@ -3940,12 +4028,12 @@ function exBindPl(){ $("#exPl")?.addEventListener("click", e => { const k = e.cu
 // ---------- Gemeinsame Bausteine ----------
 const exTop = sub => `<div class="topbar"><button class="backbtn" id="exBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <div><div class="tbt"><span class="tbi">${MODE_ICON[ex.game] || ""}</span>${EX_DEF[ex.game].name}</div><div class="tbs">${sub || ""}</div></div></div>`;
-const exCard = (k, extra = "", yr = true) => { const s = exS(k); return `<div class="zsCard"><div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div>${yr ? `<div class="zsY">${s.y}</div>` : ""}${extra}</div>`; };
+const exCard = (k, extra = "", yr = true) => { const s = exS(k); return `<div class="zsCard"><div class="cvw"><div class="cv" data-cov="${esc(k)}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div>${yr ? `<div class="zsY">${s.y}</div>` : ""}${extra}</div>`; };
 const exHid = (t, sub) => `<div class="zsCard hid"><div class="zsQ">?</div><div class="tx"><b>${t}</b><span>${sub || "Titel und Jahr bleiben geheim"}</span></div></div>`;
 const exScore = (key = "p", fmt = v => v) => `<div class="zsPl ex">${ex.players.map((p, i) => `<div class="zsP ${i === ex.turn ? "on" : ""} ${p.out ? "out" : ""}" style="--c:${EX_COL[i % 6]}"><b>${esc(p.n)}</b><span>${fmt(p[key])}</span></div>`).join("")}</div>`;
 const exName = i => `<span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(ex.players[i].n)}</span>`;
 function exHand(box, i, why, go){
-  box.innerHTML = exTop(why) + `<div class="panel" style="text-align:center;padding:30px 18px"><div style="font-size:46px">🤝</div>
+  box.innerHTML = exTop(why) + `<div class="panel" style="text-align:center;padding:30px 18px"><div style="font-size:46px"><span class=dw data-dw=handshake></span></div>
     <h2 style="margin:10px 0">Handy an ${esc(ex.players[i].n)}</h2><p class="sub">${why}</p><button class="btn" id="exHandGo">Ich bin ${esc(ex.players[i].n)}</button></div>`;
   exBackBind(); $("#exHandGo").onclick = go;
 }
@@ -4012,11 +4100,11 @@ function exEnd(box){
   const P = ex.players.map((p, i) => ({ ...p, i })).sort((a, b) => b[key] - a[key]), multi = P.length > 1;
   const tie = multi && P[0][key] === P[1][key];
   box.innerHTML = exTop("Runde vorbei") + `
-    <div class="panel" style="text-align:center"><div style="font-size:44px">🏆</div>
+    <div class="panel" style="text-align:center"><div style="font-size:44px"><span class=dw data-dw=trophy></span></div>
       <h2 style="margin:6px 0">${multi ? (tie ? "Unentschieden!" : esc(P[0].n) + " gewinnt!") : P[0][key] + " " + unit}</h2>
       ${ex.game === "memo" && !multi ? `<div class="small">von ${ex.qs.length} Fragen richtig</div>` : ""}</div>
     ${multi ? `<div class="panel">${P.map((p, r) => `<div class="row" style="padding:6px 0"><span><b>${r + 1}. ${esc(p.n)}</b></span><span class="small">${p[key]} ${unit}</span></div>`).join("")}</div>` : ""}
-    <button class="btn" id="exAgainG">🔁 Nochmal – gleiche Leute</button>
+    <button class="btn" id="exAgainG"><span class=dw data-dw=repeat></span> Nochmal – gleiche Leute</button>
     <button class="btn sec" id="exSetupB">Leute oder Songs ändern</button>`;
   exBackBind();
   $("#exSetupB").onclick = () => { ex = { game: ex.game, view: "setup" }; exSave(); exRender(); };
@@ -4036,7 +4124,7 @@ function exBlind(box){
   const done = C.i >= 5, res = done ? exBlindScore(C.slots) : null, k = C.songs[C.i];
   const lbl = ["ältester", "", "", "", "neuester"];
   box.innerHTML = exTop(`Runde ${ex.round} von ${ex.R}${multi ? " · " + esc(P[ex.turn].n) + " ist dran" : ""}`) + (multi ? exScore() : "") + `
-    ${done ? `<div class="zsRes ${res.ok === 4 ? "ok" : ""}"><div class="zsV">${res.ok === 4 ? "🎯 Perfekt sortiert! +5" : `${res.ok} von 4 Paaren richtig · +${res.pts}`}</div></div>`
+    ${done ? `<div class="zsRes ${res.ok === 4 ? "ok" : ""}"><div class="zsV">${res.ok === 4 ? "<span class=dw data-dw=target></span> Perfekt sortiert! +5" : `${res.ok} von 4 Paaren richtig · +${res.pts}`}</div></div>`
       : `<div class="small zsLbl">${multi ? exName(ex.turn) + " " : ""}Song ${C.i + 1} von 5 – wohin damit?</div>${exHid("Song " + (C.i + 1) + " läuft …", "Tippe auf einen freien Platz")}
         <div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(k)}</div><div id="exMsg"></div>`}
     <div class="bsSlots">${C.slots.map((s, i) => `<div class="bsRow ${res && (res.bad.includes(i) || res.bad.includes(i - 1)) ? "bad" : ""}"><div class="bsN">${i + 1}<small>${lbl[i]}</small></div>
@@ -4095,7 +4183,7 @@ function exPoker(box){
   }
   // Auflösung
   const r = ex.res;
-  box.innerHTML = exTop(sub) + `<div class="zsRes ok"><div class="zsV">${r.best === 0 ? "🎯 Volltreffer! Die Bank verdoppelt den Pot" : "Am nächsten dran: " + r.best + " Jahr" + (r.best === 1 ? "" : "e")}</div>${exCard(ex.song)}</div>
+  box.innerHTML = exTop(sub) + `<div class="zsRes ok"><div class="zsV">${r.best === 0 ? "<span class=dw data-dw=target></span> Volltreffer! Die Bank verdoppelt den Pot" : "Am nächsten dran: " + r.best + " Jahr" + (r.best === 1 ? "" : "e")}</div>${exCard(ex.song)}</div>
     <div class="panel">${ex.bets.map(x => `<div class="row" style="padding:5px 0"><span>${exName(x.i)}</span><span class="small">tippt <b>${x.y}</b> · setzt ${x.b} ${r.win.includes(x.i) ? `· <b style="color:#9be15d">+${r.share} Chips</b>` : ""}</span></div>`).join("")}</div>
     ${exScore("chips", v => v + " Chips")}
     <button class="btn" id="exNext">${ex.round >= ex.R || P.filter(q => !q.out).length < 2 ? "Ergebnis" : "Nächster Song →"}</button>`;
@@ -4112,7 +4200,7 @@ function exDj(box){
   if (ex.phase === "hand") return exHand(box, d, "Du bist DJ – nur du darfst gleich aufs Handy schauen", () => { ex.phase = "secret"; exSave(); exRender(); });
   if (ex.phase === "secret") {
     const fakes = exShuf([-7, -4, -2, 2, 3, 6].map(x => s.y + x).filter(y => y >= 1920 && y <= new Date().getFullYear() && y !== s.y)).slice(0, 3);
-    box.innerHTML = exTop(sub) + `<div class="small zsLbl">🤫 Nur für ${exName(d)}</div>${exCard(ex.song)}
+    box.innerHTML = exTop(sub) + `<div class="small zsLbl"><span class=dw data-dw=secret></span> Nur für ${exName(d)}</div>${exCard(ex.song)}
       <div class="rsYear"><div class="w">Welches Jahr sagst du an?</div></div>
       <div class="djC"><button class="btn" data-cl="${s.y}">Die Wahrheit: ${s.y}</button>${fakes.map(y => `<button class="btn sec" data-cl="${y}">Lügen: ${y}</button>`).join("")}</div>
       <div class="small" style="text-align:center;margin-top:6px">Danach startet der Song, du sagst das Jahr laut an und gibst das Handy weiter.</div><div id="exMsg"></div>`;
@@ -4138,7 +4226,7 @@ function exDj(box){
     return;
   }
   const r = ex.res, G = P.map((p, i) => i).filter(i => i !== d);
-  box.innerHTML = exTop(sub) + `<div class="zsRes ${r.truth ? "ok" : "no"}"><div class="zsV">${r.truth ? "✓ Das war die Wahrheit!" : `🤥 Gelogen! Gesagt: ${ex.claim}`}</div>${exCard(ex.song)}</div>
+  box.innerHTML = exTop(sub) + `<div class="zsRes ${r.truth ? "ok" : "no"}"><div class="zsV">${r.truth ? "✓ Das war die Wahrheit!" : `<span class=dw data-dw=liar></span> Gelogen! Gesagt: ${ex.claim}`}</div>${exCard(ex.song)}</div>
     <div class="panel">${G.map(i => `<div class="row" style="padding:5px 0"><span>${exName(i)}</span><span class="small">${ex.votes[i] ? "glaubte es" : "rief „Gelogen!“"} · ${ex.votes[i] === r.truth ? "<b style=\"color:#9be15d\">+1</b>" : "reingelegt"}</span></div>`).join("")}
       <div class="row" style="padding:5px 0"><span>${exName(d)} (DJ)</span><span class="small">${r.fooled ? `<b style="color:#9be15d">+${r.fooled}</b> fürs Reinlegen` : "niemanden reingelegt"}</span></div></div>
     ${exScore()}
@@ -4176,7 +4264,7 @@ function exMemo(box){
     const run = ex.i >= 0;
     box.innerHTML = exTop(run ? `Song ${ex.i + 1} von 6` : "Gut zuhören!") + `
       <div class="memoBar">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < ex.i ? "done" : i === ex.i ? "on" : ""}"></i>`).join("")}</div>
-      ${run ? exHid(`Song ${ex.i + 1} von 6 läuft …`, "Merk ihn dir – Titel kommen erst bei den Fragen") : `<div class="panel" style="text-align:center"><div style="font-size:42px">🎧</div><p class="sub">Gleich laufen 6 Songs, je 15 Sekunden. Merkt euch Reihenfolge, Stimmen und Stimmung – danach gibt es ${ex.qs.length} Fragen.</p></div>`}
+      ${run ? exHid(`Song ${ex.i + 1} von 6 läuft …`, "Merk ihn dir – Titel kommen erst bei den Fragen") : `<div class="panel" style="text-align:center"><div style="font-size:42px"><span class=dw data-dw=headphones></span></div><p class="sub">Gleich laufen 6 Songs, je 15 Sekunden. Merkt euch Reihenfolge, Stimmen und Stimmung – danach gibt es ${ex.qs.length} Fragen.</p></div>`}
       <div id="exMsg"></div>
       ${run ? "" : `<button class="btn" id="memoGo">${IC_PLAY} Mixtape starten</button>`}`;
     exBackBind(); $("#exBack").onclick = () => { clearTimeout(exMemoT); exStop(); ex.view = "setup"; if (ex.i >= 0) { ex.i = -1; } exSave(); show("setup"); };
@@ -4187,7 +4275,7 @@ function exMemo(box){
   box.innerHTML = exTop(`Frage ${ex.qi + 1} von ${ex.qs.length}`) + (multi ? exScore() : "") + `
     <div class="rsYear"><div class="w">${multi ? exName(who) + " " : ""}<b>${esc(q.t)}</b></div></div>
     <div id="rsOpts">${exShuf(ex.songs).sort((x, y) => ex._ord ? ex._ord.indexOf(x) - ex._ord.indexOf(y) : 0).map(k => { const s = exS(k), cls = A ? (k === q.a ? "good" : k === A ? "badc" : "") : "";
-      return `<div class="rsOpt memoO ${cls}" data-mk="${esc(k)}"><div class="cvw"><div class="cv" data-cov="${esc(k)}">🎵</div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}${A ? ` · ${s.y}` : ""}</span></div></div>`; }).join("")}</div>
+      return `<div class="rsOpt memoO ${cls}" data-mk="${esc(k)}"><div class="cvw"><div class="cv" data-cov="${esc(k)}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}${A ? ` · ${s.y}` : ""}</span></div></div>`; }).join("")}</div>
     ${A ? `<div class="zsRes ${A === q.a ? "ok" : "no"}"><div class="zsV">${A === q.a ? "✓ Richtig!" : "✗ Leider nicht"}</div></div><button class="btn" id="exNext">${ex.qi + 1 >= ex.qs.length ? "Ergebnis" : "Nächste Frage →"}</button>` : ""}`;
   if (!ex._ord) { ex._ord = [...box.querySelectorAll("[data-mk]")].map(e => e.dataset.mk); exSave(); }
   exBackBind(); rsCovers(box);
@@ -4235,7 +4323,7 @@ function showNewsBanner(){
   const show = fresh.slice(0, 5), more = fresh.length - show.length, vers = [...new Set(fresh.map(e => e.v))];
   const el = document.createElement("div"); el.className = "panel"; el.id = "newsBanner"; el.style.border = "1px solid #ff5fa266"; el.style.position = "relative";
   el.innerHTML = `<button class="xbtn" id="nbX" aria-label="Schließen" style="position:absolute;right:10px;top:8px;background:none;border:0;color:#d3c8ef;font-size:18px;cursor:pointer">✕</button>
-    <div id="nbHead" style="cursor:pointer;padding-right:28px"><b>✨ Neu für dich${vers.length === 1 ? ` in Version ${esc(vers[0])}` : ` seit Version ${esc(vers[vers.length - 1])}`}</b>
+    <div id="nbHead" style="cursor:pointer;padding-right:28px"><b><span class=dw data-dw=sparkle></span> Neu für dich${vers.length === 1 ? ` in Version ${esc(vers[0])}` : ` seit Version ${esc(vers[vers.length - 1])}`}</b>
       <span class="small" style="opacity:.8;white-space:nowrap"> (${fresh.length}) <span id="nbArr" style="display:inline-block;transition:transform .2s">▾</span></span></div>
     <div id="nbBody" hidden>
     ${show.map(e => `<div class="cle" style="display:flex;gap:8px;margin-top:6px;font-size:14px"><span class="clt ${e.t}">${CL_LBL[e.t]}</span><span>${esc(e.txt)}</span></div>`).join("")}

@@ -2726,7 +2726,7 @@ const KINDERTHEMEN = [
   ["Peppa Wutz", "Peppa Wutz", "", 2004, "GB", "2slrB5aSxDuH6UJKnvFB0k"],
   ["Avatar – Der Herr der Elemente", "Avatar", "", 2005, "US"],
   ["Ben 10", "Ben 10", "", 2005, "US"],
-  ["Yakari", "Yakari Titelsong", "Yakari", 2005, "FR", "3MM0dIifaJWoZcwA2qgQua"],
+  ["Yakari", "Yakari Titelsong", "Yakari", 2005, "FR", "4PYrhgbD3YXDnrk5qkY0Nj"],
   ["Zoey 101", "Follow Me", "Jamie Lynn Spears", 2005, "US", "6MUTdxlrm5PTOcC9whzL4q"],
   ["Hannah Montana", "The Best of Both Worlds", "Hannah Montana", 2006, "US", "6Z0F3Mqj7tq1CBZo5qMlUg"],
   ["H2O – Plötzlich Meerjungfrau", "No Ordinary Girl", "H2O - Plötzlich Meerjungfrau!", 2006, "AU", "6777AhXNlazZV226I4pYMI"],
