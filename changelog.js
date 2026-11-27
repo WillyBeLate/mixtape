@@ -4,8 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.13.2", d: "2026-11-27", e: [
+    ["change", "Jahreskarten: Die 2030er bekommen jetzt Pastell von Lavendel zu Rosé, damit sie sich klar von den blauen 2000ern abheben."],
+  ]},
   { v: "0.13.1", d: "2026-11-27", e: [
-    ["neu", "Jahreskarten: Die 2030er haben schon ihre eigene Farbe – „Aurora“ von Mint zu Elektroblau."],
+    ["neu", "Jahreskarten: Die 2030er haben schon ihre eigene Farbe – Pastell von Lavendel zu Rosé."],
   ]},
   { v: "0.13.0", d: "2026-11-27", e: [
     ["neu", "Lautstärke direkt in Mixtape: Plus/Minus beim Spielen und bei „Rette einen Song“ – praktisch, wenn die Musik auf der Alexa läuft."],
