@@ -765,7 +765,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.10.3";
+const APP_VERSION = "0.10.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -1864,7 +1864,7 @@ const MODE_TWIST = {
   disney: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Disney-Film am Song. Mit anderen Extras mischbar."],
   film: ["Keine Jahreszahlen und keine Karten.", "Erkennt den Film an der Musik. Mit anderen Extras mischbar."],
   zeitsprung: ["Higher or Lower mit Jahren – ganz ohne Karten.", "Ein Song ist bekannt, der nächste läuft: früher oder später? Die Serie wächst, die Jahre rücken näher zusammen. 3 Leben pro Person."],
-  rette: ["Kein Wettkampf, sondern Geschmack.", "Pro Jahr – oder pro Künstler – rettest du einen von 10 Songs. Am Ende steht dein Mixtape – zu zweit mit Vergleich, wie gut ihr zusammenpasst."],
+  rette: ["Kein Wettkampf, sondern Geschmack.", "Pro Jahr – oder pro Künstler – rettest du einen von 8 Songs – jede Runde neu gemischt. Am Ende steht dein Mixtape – zu zweit mit Vergleich, wie gut ihr zusammenpasst."],
 };
 function showModeInfo(id){
   $("#modePop")?.remove();
@@ -2991,16 +2991,18 @@ function renderInstall(){
 // =====================================================================
 const rsKey = s => s.t + "|" + s.a;
 const RS_BY = new Map(DB.map(s => [rsKey(s), s]));
-// Feste Auswahl: 10 prägende Songs pro Jahr (RETTE_8 in daten.js)
+// Pro Jahr ein Pool von 20 prägenden Songs (RETTE_8 in daten.js) – jede Runde kommen zufällig RS_N davon
 const RS_YEARS = Object.keys(typeof RETTE_8 !== "undefined" ? RETTE_8 : {}).map(Number).sort((a, b) => a - b);
 const RS_MINY = RS_YEARS[0] || 1960, RS_MAXY = RS_YEARS[RS_YEARS.length - 1] || 2025;
-const rsOpts = y => (RETTE_8[y] || []).filter(k => RS_BY.has(k)).map(k => ({ k, r: Math.random() })).sort((a, b) => a.r - b.r).map(x => x.k);
+const RS_N = 8;   // so viele Songs stehen pro Jahr bzw. Künstler zur Wahl
+const rsPick = l => l.filter(k => RS_BY.has(k)).map(k => ({ k, r: Math.random() })).sort((a, b) => a.r - b.r).slice(0, RS_N).map(x => x.k);
+const rsOpts = y => rsPick(RETTE_8[y] || []);
 let rs = store.get("rette", null);              // laufende oder zuletzt fertige Runde
 let rsSel = null, rsNow = null, rsShow = null;   // Auswahl, gerade laufender Song, angezeigtes Archiv-Mixtape
 const rsSave = () => store.set("rette", rs);
 // Nach Künstlern (KUENSTLER_10 in daten.js)
 const RS_ART = Object.keys(typeof KUENSTLER_10 !== "undefined" ? KUENSTLER_10 : {});
-const rsOptsA = a => (KUENSTLER_10[a] || []).filter(k => RS_BY.has(k)).map(k => ({ k, r: Math.random() })).sort((a, b) => a.r - b.r).map(x => x.k);
+const rsOptsA = a => rsPick(KUENSTLER_10[a] || []);
 const rsIsA = r => r && r.kind === "kuenstler";
 const rsLbl = r => rsIsA(r) ? `${r.years.length} Künstler` : `${r.from}–${r.to}`;
 const rsUnit = (r, n) => rsIsA(r) ? (n === 1 ? "Künstler" : "Künstlern") : (n === 1 ? "Jahr" : "Jahren");
@@ -3117,8 +3119,8 @@ function rsSetup(box){
     ${open ? `<div class="panel"><div class="small">Angefangenes Mixtape: <b>${rsLbl(open)}</b> · ${esc(open.names.join(" & "))} · ${rsDoneCount(open)} von ${open.years.length * open.names.length} gewählt</div>
       <button class="btn" id="rsCont">${IC_PLAY} Weitermachen</button></div>` : ""}
     <div class="seg" id="rsMode"><button data-m="jahre" class="${isA ? "" : "on"}">📅 Nach Jahren</button><button data-m="kuenstler" class="${isA ? "on" : ""}">🎤 Nach Künstlern</button></div>
-    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler zeigt Mixtape 10 seiner bekanntesten Songs. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."
-      : "Für jedes Jahr zeigt Mixtape 10 prägende Songs – die großen Hits, quer durch die Genres, mit deutschen Hits dazwischen. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."}</p>
+    <p class="sub" style="margin-top:8px">${isA ? "Pro Künstler kommen 8 seiner bekanntesten Songs – jede Runde neu gemischt. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."
+      : "Für jedes Jahr kommen 8 prägende Songs – jede Runde neu gemischt aus 20 großen Hits des Jahres, quer durch die Genres, mit deutschen Hits dazwischen. Die Songs kommen nacheinander – der nächste bleibt verdeckt, bis du ihn mit ${IC_PLAY} aufdeckst. Du darfst nur einen retten, die anderen sind weg."}</p>
     ${isA ? `<div class="panel"><b>Künstler</b> <span class="small">(${o.artists.length} gewählt)</span>
       <div class="chips" id="rsArts">${RS_ART.map(a => `<button data-a2="${esc(a)}" class="${o.artists.includes(a) ? "on" : ""}">${esc(a)}</button>`).join("")}</div>
       <div style="display:flex;gap:6px;margin-top:8px"><button class="btn sec small" id="rsAll">Alle</button><button class="btn sec small" id="rsNone">Keine</button><button class="btn sec small" id="rsRnd">🎲 10 zufällige</button></div></div>` : ""}
