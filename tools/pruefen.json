@@ -1,5 +1,1739 @@
 {
- "spotify": {},
+ "spotify": {
+  "Oh, Pretty Woman|Roy Orbison": {
+   "status": "unsicher",
+   "id": "48i055G1OT5KxGGftwFxWy",
+   "name": "Oh, Pretty Woman",
+   "artist": "Roy Orbison",
+   "album": "Oh, Pretty Woman",
+   "date": "1962",
+   "typ": "compilation",
+   "jahr": 1964,
+   "flags": [
+    "Spotify-Album von 1962 – älter als unser Jahr 1964",
+    "nur auf Sampler"
+   ]
+  },
+  "Non ho l'età|Gigliola Cinquetti": {
+   "status": "unsicher",
+   "id": "1OirNzKoxdffqy2iPNrbUf",
+   "name": "Non ho l'età/Per amarti",
+   "artist": "Gigliola Cinquetti",
+   "album": "Il meglio",
+   "date": "1999-05-16",
+   "typ": "album",
+   "jahr": 1964,
+   "flags": [
+    "nur spätere Ausgabe (1999)"
+   ]
+  },
+  "Marmor, Stein und Eisen bricht|Drafi Deutscher": {
+   "status": "unsicher",
+   "id": "29UKO8pkgQ6oKjDqHO8rHw",
+   "name": "Marmor, Stein und Eisen bricht (Neuaufnahme) - Radio Edit",
+   "artist": "Drafi Deutscher",
+   "album": "Marmor, Stein und Eisen bricht",
+   "date": "2002-06-01",
+   "typ": "single",
+   "jahr": 1965,
+   "flags": [
+    "nur spätere Ausgabe (2002)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Dream a Little Dream of Me|Ozzie Nelson": {
+   "status": "unsicher",
+   "id": "4dy4mVS0BvO6vZljeXW7hq",
+   "name": "Dream A Little Dream Of Me",
+   "artist": "Harriet Nelson, OZZIE",
+   "album": "It's Gonna Be You",
+   "date": "2015-01-30",
+   "typ": "album",
+   "jahr": 1931,
+   "flags": [
+    "nur spätere Ausgabe (2015)"
+   ]
+  },
+  "Caravan|Duke Ellington": {
+   "status": "unsicher",
+   "id": "3Jw4lBWbcznhlitliEMW0x",
+   "name": "Caravan",
+   "artist": "Duke Ellington",
+   "album": "Jazz Profile: Duke Ellington",
+   "date": "1997-01-01",
+   "typ": "album",
+   "jahr": 1937,
+   "flags": [
+    "nur spätere Ausgabe (1997)"
+   ]
+  },
+  "The Twist|Chubby Checker": {
+   "status": "unsicher",
+   "id": "59ZswYtwcU6EP581dK7UHC",
+   "name": "The Twist",
+   "artist": "Chubby Checker",
+   "album": "Twist With Chubby Checker",
+   "date": "2020-09-25",
+   "typ": "album",
+   "jahr": 1960,
+   "flags": [
+    "nur spätere Ausgabe (2020)"
+   ]
+  },
+  "All Kinds of Everything|Dana": {
+   "status": "unsicher",
+   "id": "3SJPRPwpF0MTFKPrshBeKM",
+   "name": "All Kinds of Everything",
+   "artist": "Dana",
+   "album": "The Collection",
+   "date": "2015-08-25",
+   "typ": "album",
+   "jahr": 1970,
+   "flags": [
+    "nur spätere Ausgabe (2015)"
+   ]
+  },
+  "What's Another Year|Johnny Logan": {
+   "status": "unsicher",
+   "id": "2VPyWgAjdIRlMvk4XQCO44",
+   "name": "What's Another Year",
+   "artist": "Johnny Logan",
+   "album": "The Best Of",
+   "date": "1996-04-30",
+   "typ": "compilation",
+   "jahr": 1980,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Guildo hat euch lieb!|Guildo Horn": {
+   "status": "unsicher",
+   "id": "4kuPmhBSsnW8K9n40vPUIj",
+   "name": "Guildo hat euch lieb! - Jazz",
+   "artist": "Guildo Horn, Die Orthopädischen Strümpfe",
+   "album": "Guildo hat euch lieb! (25 Jahre Piep)",
+   "date": "2023-04-28",
+   "typ": "single",
+   "jahr": 1998,
+   "flags": [
+    "nur spätere Ausgabe (2023)"
+   ]
+  },
+  "Irgendwie, irgendwo, irgendwann|Nena": {
+   "status": "unsicher",
+   "id": "2KTxKoM4iUYCtuUGGIh9Qu",
+   "name": "Irgendwie, irgendwo, irgendwann",
+   "artist": "Nena",
+   "album": "Einmal ist keinmal",
+   "date": "2004-02-16",
+   "typ": "compilation",
+   "jahr": 1984,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Heimweh|Freddy Quinn": {
+   "status": "unsicher",
+   "id": "51k3mGI9uLAIRdTCTw1TNG",
+   "name": "Heimweh nach St. Pauli",
+   "artist": "Freddy Quinn",
+   "album": "Auf hoher See",
+   "date": "1961-01-01",
+   "typ": "album",
+   "jahr": 1956,
+   "flags": [
+    "nur spätere Ausgabe (1961)"
+   ]
+  },
+  "Liebeskummer lohnt sich nicht|Siw Malmkvist": {
+   "status": "unsicher",
+   "id": "5wfSJoeeGeyovIOYHyqi2O",
+   "name": "Liebeskummer Lohnt Sich Nicht",
+   "artist": "Siw Malmkvist",
+   "album": "Liebeskummer lohnt sich nicht",
+   "date": "1983",
+   "typ": "album",
+   "jahr": 1964,
+   "flags": [
+    "nur spätere Ausgabe (1983)"
+   ]
+  },
+  "Er gehört zu mir|Marianne Rosenberg": {
+   "status": "unsicher",
+   "id": "6COzABVCHQzyvc3rTMtrXn",
+   "name": "Er gehört zu mir",
+   "artist": "Marianne Rosenberg",
+   "album": "Er gehört zu mir",
+   "date": "1994-02-14",
+   "typ": "album",
+   "jahr": 1975,
+   "flags": [
+    "nur spätere Ausgabe (1994)"
+   ]
+  },
+  "Ti amo|Howard Carpendale": {
+   "status": "unsicher",
+   "id": "5EN1kqbfogZx1RoltrtMCw",
+   "name": "Ti Amo",
+   "artist": "Howard Carpendale",
+   "album": "Bilder meines Lebens",
+   "date": "1995-01-01",
+   "typ": "album",
+   "jahr": 1977,
+   "flags": [
+    "nur spätere Ausgabe (1995)"
+   ]
+  },
+  "Hello Again|Howard Carpendale": {
+   "status": "unsicher",
+   "id": "06fTDU8DR3pTESMgOFXR4T",
+   "name": "Hello Again",
+   "artist": "Howard Carpendale",
+   "album": "Bilder meines Lebens",
+   "date": "1995-01-01",
+   "typ": "album",
+   "jahr": 1984,
+   "flags": [
+    "nur spätere Ausgabe (1995)"
+   ]
+  },
+  "Jugendliebe|Ute Freudenberg": {
+   "status": "unsicher",
+   "id": "09lapMdIWmm0sXZoiRrSV7",
+   "name": "Jugendliebe",
+   "artist": "Ute Freudenberg",
+   "album": "Jubilee",
+   "date": "1999-01-11",
+   "typ": "album",
+   "jahr": 1980,
+   "flags": [
+    "nur spätere Ausgabe (1999)"
+   ]
+  },
+  "Sherry|The Four Seasons": {
+   "status": "unsicher",
+   "id": "1bxhyiGlRMaMqtf25qxnvG",
+   "name": "Sherry",
+   "artist": "Frankie Valli & The Four Seasons",
+   "album": "The Classic Albums Box",
+   "date": "2014-06-27",
+   "typ": "album",
+   "jahr": 1962,
+   "flags": [
+    "nur spätere Ausgabe (2014)"
+   ]
+  },
+  "Diana|Paul Anka": {
+   "status": "unsicher",
+   "id": "2k6qpHJsrKCCyvsHv2cPqR",
+   "name": "Diana",
+   "artist": "Paul Anka",
+   "album": "Sings His Favorites",
+   "date": "1966",
+   "typ": "album",
+   "jahr": 1957,
+   "flags": [
+    "nur spätere Ausgabe (1966)"
+   ]
+  },
+  "Butterfly|Danyel Gérard": {
+   "status": "unsicher",
+   "id": "5ZyaRhPJN5DlcJeJ1Fw1l0",
+   "name": "Butterfly",
+   "artist": "Danyel Gerard",
+   "album": "Ein Hit des Jahrhunderts: Butterfly",
+   "date": "2016-07-29",
+   "typ": "album",
+   "jahr": 1970,
+   "flags": [
+    "nur spätere Ausgabe (2016)"
+   ]
+  },
+  "High Noon (Do Not Forsake Me)|Frankie Laine": {
+   "status": "unsicher",
+   "id": "0ns2AQy1XC8xBYebbVho3I",
+   "name": "High Noon (Do Not Forsake Me)",
+   "artist": "Frankie Laine",
+   "album": "Command Performance",
+   "date": "1955-02-14",
+   "typ": "album",
+   "jahr": 1952,
+   "flags": [
+    "nur spätere Ausgabe (1955)"
+   ]
+  },
+  "It's Hard out Here for a Pimp|Three 6 Mafia": {
+   "status": "nicht gefunden",
+   "jahr": 2005
+  },
+  "Der Mussolini|Deutsch Amerikanische Freundschaft": {
+   "status": "nicht gefunden",
+   "jahr": 1981
+  },
+  "Ein Song namens Schunder|Die Ärzte": {
+   "status": "nicht gefunden",
+   "jahr": 1995
+  },
+  "Ein Schwein namens Männer|Die Ärzte": {
+   "status": "nicht gefunden",
+   "jahr": 1998
+  },
+  "Friedenspanzer|Die Ärzte": {
+   "status": "unsicher",
+   "id": "13dU58mUedjJCioEHEUw8A",
+   "name": "Friedenspanzer - Neue Super-Fassung, ehrlich!",
+   "artist": "Die Ärzte",
+   "album": "Das Beste von kurz nach früher bis jetze",
+   "date": "1994-09-29",
+   "typ": "compilation",
+   "jahr": 2007,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Teardrops on My Guitar|Taylor Swift": {
+   "status": "unsicher",
+   "id": "11j9B5N8LJoxXQPRpjae9R",
+   "name": "Teardrops On My Guitar - Pop Version",
+   "artist": "Taylor Swift",
+   "album": "Taylor Swift (Big Machine Radio Release Special)",
+   "date": "2006-10-24",
+   "typ": "album",
+   "jahr": 2006,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "ME!|Taylor Swift": {
+   "status": "unsicher",
+   "id": "1P17dC1amhFzptugyAO7Il",
+   "name": "Look What You Made Me Do",
+   "artist": "Taylor Swift",
+   "album": "reputation",
+   "date": "2017-11-10",
+   "typ": "album",
+   "jahr": 2019,
+   "flags": [
+    "Spotify-Album von 2017 – älter als unser Jahr 2019"
+   ]
+  },
+  "Is It Over Now?|Taylor Swift": {
+   "status": "nicht gefunden",
+   "jahr": 2023
+  },
+  "Ievan Polkka|Loituma": {
+   "status": "unsicher",
+   "id": "1qOzRiVOyLsDkUaHzgIMqx",
+   "name": "Ieva's Polka (Ievan Polkka)",
+   "artist": "Loituma",
+   "album": "Ieva's Polka (Ievan Polkka)",
+   "date": "2006-01-01",
+   "typ": "single",
+   "jahr": 1995,
+   "flags": [
+    "nur spätere Ausgabe (2006)"
+   ]
+  },
+  "Tańczące Eurydyki|Anna German": {
+   "status": "nicht gefunden",
+   "jahr": 1964
+  },
+  "Sen o Warszawie|Czesław Niemen": {
+   "status": "unsicher",
+   "id": "4BLSrkVbRZGb9uKB420hAc",
+   "name": "Sen o Warszawie - 1967",
+   "artist": "Niemen",
+   "album": "Pamiętam ten dzień",
+   "date": "2023-04-14",
+   "typ": "album",
+   "jahr": 1966,
+   "flags": [
+    "nur spätere Ausgabe (2023)"
+   ]
+  },
+  "Chodź, pomaluj mój świat|2 plus 1": {
+   "status": "nicht gefunden",
+   "jahr": 1972
+  },
+  "Kolorowe jarmarki|Maryla Rodowicz": {
+   "status": "nicht gefunden",
+   "jahr": 1977
+  },
+  "Jolka, Jolka pamiętasz|Budka Suflera": {
+   "status": "nicht gefunden",
+   "jahr": 1982
+  },
+  "Biała flaga|Republika": {
+   "status": "nicht gefunden",
+   "jahr": 1982
+  },
+  "Baśka|Wilki": {
+   "status": "unsicher",
+   "id": "7IgMV8ly65ucFmoWghpFsd",
+   "name": "Baśka",
+   "artist": "Wilki",
+   "album": "4",
+   "date": "2005-04-01",
+   "typ": "album",
+   "jahr": 1992,
+   "flags": [
+    "nur spätere Ausgabe (2005)"
+   ]
+  },
+  "Orła cień|Varius Manx": {
+   "status": "nicht gefunden",
+   "jahr": 1996
+  },
+  "Prawy do lewego|Kayah & Goran Bregović": {
+   "status": "nicht gefunden",
+   "jahr": 1999
+  },
+  "Shake It Up Şekerim|Kenan Doğulu": {
+   "status": "nicht gefunden",
+   "jahr": 2007
+  },
+  "Martılar|Edis": {
+   "status": "nicht gefunden",
+   "jahr": 2016
+  },
+  "Pişman Değilim|Semicenk": {
+   "status": "nicht gefunden",
+   "jahr": 2021
+  },
+  "Marina|Rocco Granata": {
+   "status": "unsicher",
+   "id": "3pFT1UfjSdKwjIS0tWg7ka",
+   "name": "Marina",
+   "artist": "Rocco Granata",
+   "album": "20 Hits",
+   "date": "1988-01-01",
+   "typ": "album",
+   "jahr": 1959,
+   "flags": [
+    "nur spätere Ausgabe (1988)"
+   ]
+  },
+  "Cuore|Rita Pavone": {
+   "status": "unsicher",
+   "id": "4sl48xN2HDhAKnkShgZ6nk",
+   "name": "Cuore",
+   "artist": "Rita Pavone",
+   "album": "La Partita",
+   "date": "1999",
+   "typ": "album",
+   "jahr": 1963,
+   "flags": [
+    "nur spätere Ausgabe (1999)"
+   ]
+  },
+  "Felicità|Al Bano & Romina Power": {
+   "status": "nicht gefunden",
+   "jahr": 1982
+  },
+  "Un'estate italiana|Edoardo Bennato": {
+   "status": "unsicher",
+   "id": "7iNCutCNzD4zRsDLw6SPKZ",
+   "name": "Un'Estate Italiana (Notti Magiche)",
+   "artist": "Edoardo Bennato, Gianna Nannini",
+   "album": "Un'Estate Italiana (Notti Magiche)",
+   "date": "1987-01-01",
+   "typ": "single",
+   "jahr": 1990,
+   "flags": [
+    "Spotify-Album von 1987 – älter als unser Jahr 1990"
+   ]
+  },
+  "Perdono|Tiziano Ferro": {
+   "status": "nicht gefunden",
+   "jahr": 2001
+  },
+  "Mambo Italiano|Rosemary Clooney": {
+   "status": "unsicher",
+   "id": "058S4TvddoM07bKZo98CNi",
+   "name": "Mambo Italiano",
+   "artist": "Rosemary Clooney",
+   "album": "The Rosemary Clooney Show: Songs From The Classic Television Series",
+   "date": "2004-01-01",
+   "typ": "album",
+   "jahr": 1954,
+   "flags": [
+    "nur spätere Ausgabe (2004)"
+   ]
+  },
+  "Banana Boat Song (Day-O)|Harry Belafonte": {
+   "status": "unsicher",
+   "id": "6FH2WiSVFv5qglEg1O8xNn",
+   "name": "Day-O (The Banana Boat Song)",
+   "artist": "Harry Belafonte",
+   "album": "Very Best Of Harry Belafonte",
+   "date": "2001",
+   "typ": "compilation",
+   "jahr": 1956,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Coco Jamboo|Mr. President": {
+   "status": "unsicher",
+   "id": "5fSNNNIGZy7LbBFPQVOFWN",
+   "name": "Coco Jamboo - Groove Version",
+   "artist": "Mr. President, DJ Steven Edwards, Neimanas",
+   "album": "Coco Jamboo",
+   "date": "1996-03-29",
+   "typ": "single",
+   "jahr": 1996,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Samba de Janeiro|Bellini": {
+   "status": "unsicher",
+   "id": "4YopUHLBgDj3l17HYm2OoX",
+   "name": "Samba de Janeiro - Radio Edit",
+   "artist": "Bellini",
+   "album": "Samba de Janeiro",
+   "date": "1997-01-01",
+   "typ": "single",
+   "jahr": 1997,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Ab in den Süden|Buddy": {
+   "status": "unsicher",
+   "id": "3vMGCjltw259VcpFRLm8Ct",
+   "name": "Ab in den Süden",
+   "artist": "Buddy",
+   "album": "Fussball Hits 2016: Europameisterschaft in Frankreich",
+   "date": "2016-04-29",
+   "typ": "compilation",
+   "jahr": 2003,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Danza Kuduro|Don Omar": {
+   "status": "unsicher",
+   "id": "33w3gWxtTPBrbxBbViBY8W",
+   "name": "Danza Kuduro 2019 - Luigi Ramirez Mix",
+   "artist": "Lucenzo, Don Omar, Big Ali, Luigi Ramirez",
+   "album": "Emigrante Del Mundo",
+   "date": "2020-12-04",
+   "typ": "album",
+   "jahr": 2010,
+   "flags": [
+    "nur spätere Ausgabe (2020)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Hot Fun in the Summertime|Sly and the Family Stone": {
+   "status": "nicht gefunden",
+   "jahr": 1969
+  },
+  "Copacabana|Barry Manilow": {
+   "status": "unsicher",
+   "id": "5FMXrphygZ4z3gVDHGWxgl",
+   "name": "Copacabana (At the Copa) - Short Version",
+   "artist": "Barry Manilow",
+   "album": "Dance Vault Mixes - Copacabana (At The Copa)",
+   "date": "2006-09-12",
+   "typ": "single",
+   "jahr": 1978,
+   "flags": [
+    "nur spätere Ausgabe (2006)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Ein Stern (der deinen Namen trägt)|DJ Ötzi": {
+   "status": "unsicher",
+   "id": "26SdjORAhHkgWjxZ121K7C",
+   "name": "Ein Stern (der deinen Namen trägt) - Radio Mix",
+   "artist": "DJ Ötzi, Nik P.",
+   "album": "Ein Stern (der deinen Namen trägt)",
+   "date": "2007-01-01",
+   "typ": "single",
+   "jahr": 2007,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Bailando|Enrique Iglesias": {
+   "status": "nicht gefunden",
+   "jahr": 2014
+  },
+  "Taki Taki|DJ Snake": {
+   "status": "nicht gefunden",
+   "jahr": 2018
+  },
+  "Gut genug|KitschKrieg": {
+   "status": "nicht gefunden",
+   "jahr": 2026
+  },
+  "Blue Velvet|Bobby Vinton": {
+   "status": "unsicher",
+   "id": "5EkXVDjRmK7lPa49fYiZS2",
+   "name": "Blue Velvet",
+   "artist": "Bobby Vinton",
+   "album": "Bobby Vinton's Greatest Hits",
+   "date": "1964-07-23",
+   "typ": "compilation",
+   "jahr": 1963,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Die Liebe meines Lebens (Für immer du)|Claudia Jung": {
+   "status": "unsicher",
+   "id": "4B4cqYhat1RCTtR9rn2hUZ",
+   "name": "Die Liebe meines Lebens (Für Immer Du) - Classic Mix",
+   "artist": "Claudia Jung",
+   "album": "Liebe meines Lebens (Für Immer Du)",
+   "date": "2026-06-26",
+   "typ": "single",
+   "jahr": 2026,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Jenseits von Eden|Nino de Angelo": {
+   "status": "unsicher",
+   "id": "7sPG6wNhvZEmlxgINSLs7d",
+   "name": "Jenseits von Eden - Single Version",
+   "artist": "Nino de Angelo",
+   "album": "Jenseits von Eden",
+   "date": "2014-01-01",
+   "typ": "album",
+   "jahr": 1983,
+   "flags": [
+    "nur spätere Ausgabe (2014)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Tretboot in Seenot|Frl. Menke": {
+   "status": "unsicher",
+   "id": "4OEzeI7g60KK3ZgShPmgkG",
+   "name": "Tretboot in Seenot - Adrian Vernet Mix",
+   "artist": "Frl. Menke, De Lancaster",
+   "album": "Tretboot in Seenot",
+   "date": "2017-01-13",
+   "typ": "single",
+   "jahr": 1982,
+   "flags": [
+    "nur spätere Ausgabe (2017)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Join Me in Death|HIM": {
+   "status": "nicht gefunden",
+   "jahr": 1999
+  },
+  "Under Attack|ABBA": {
+   "status": "unsicher",
+   "id": "3MsQJQPi172pXgXcYGlenx",
+   "name": "Under Attack",
+   "artist": "ABBA",
+   "album": "The Visitors (Deluxe Edition)",
+   "date": "1981",
+   "typ": "album",
+   "jahr": 1982,
+   "flags": [
+    "Spotify-Album von 1981 – älter als unser Jahr 1982"
+   ]
+  },
+  "Little Things|ABBA": {
+   "status": "unsicher",
+   "id": "3cdKeskxQVmi5DcIQaouio",
+   "name": "The Little Things",
+   "artist": "Abbas Premjee",
+   "album": "A Whimsical Journey",
+   "date": "2018-12-18",
+   "typ": "album",
+   "jahr": 2021,
+   "flags": [
+    "Spotify-Album von 2018 – älter als unser Jahr 2021"
+   ]
+  },
+  "Flash|Queen": {
+   "status": "unsicher",
+   "id": "3QdH6L7ugbM2lYEvoEDQag",
+   "name": "Flash - Single Version",
+   "artist": "Queen",
+   "album": "Flash Gordon (Original Soundtrack - Deluxe Edition)",
+   "date": "1980-12-05",
+   "typ": "album",
+   "jahr": 1980,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "No-One but You (Only the Good Die Young)|Queen": {
+   "status": "unsicher",
+   "id": "4KBfPQE3DV3Jnah2Tk5WKU",
+   "name": "No One But You (Only The Good Die Young)",
+   "artist": "Queen",
+   "album": "Greatest Hits III",
+   "date": "1999-11-09",
+   "typ": "compilation",
+   "jahr": 1997,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Lost!|Coldplay": {
+   "status": "unsicher",
+   "id": "1RNtm45kw0hPMBz7gKiIYu",
+   "name": "Everything's Not Lost - Includes Hidden Track 'Life Is For Living'",
+   "artist": "Coldplay",
+   "album": "Parachutes",
+   "date": "2000-07-10",
+   "typ": "album",
+   "jahr": 2008,
+   "flags": [
+    "Spotify-Album von 2000 – älter als unser Jahr 2008"
+   ]
+  },
+  "Atlas|Coldplay": {
+   "status": "unsicher",
+   "id": "2DI0fZ4QZmLtapszYaoG6F",
+   "name": "Atlas - From “The Hunger Games: Catching Fire” Soundtrack",
+   "artist": "Coldplay",
+   "album": "Atlas (From “The Hunger Games: Catching Fire” Soundtrack)",
+   "date": "2013-01-01",
+   "typ": "single",
+   "jahr": 2013,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Cry|Michael Jackson": {
+   "status": "unsicher",
+   "id": "3GZA4ZkofOs9jApP3khAge",
+   "name": "You Can Cry On My Shoulder",
+   "artist": "Michael Jackson",
+   "album": "Ben",
+   "date": "1972-08-04",
+   "typ": "album",
+   "jahr": 2001,
+   "flags": [
+    "Spotify-Album von 1972 – älter als unser Jahr 2001"
+   ]
+  },
+  "This Is It|Michael Jackson": {
+   "status": "unsicher",
+   "id": "4U2OZTPQpckTblTAhvaJhe",
+   "name": "This Is It",
+   "artist": "ポール・アンカ, Michael Jackson, 1966カルテット",
+   "album": "Thrillar: Michael Jackson on Classics",
+   "date": "2012-11-21",
+   "typ": "album",
+   "jahr": 2009,
+   "flags": [
+    "nur spätere Ausgabe (2012)"
+   ]
+  },
+  "End Game|Taylor Swift": {
+   "status": "nicht gefunden",
+   "jahr": 2017
+  },
+  "Land unter|Herbert Grönemeyer": {
+   "status": "unsicher",
+   "id": "1JxOFJEIFsPrqW29yAIQAR",
+   "name": "Land unter - Remastered 2016",
+   "artist": "Herbert Grönemeyer",
+   "album": "Chaos (Remastered 2016)",
+   "date": "1993-05-24",
+   "typ": "album",
+   "jahr": 1988,
+   "flags": [
+    "nur spätere Ausgabe (1993)"
+   ]
+  },
+  "Herr Sorge|Die Ärzte": {
+   "status": "nicht gefunden",
+   "jahr": 2020
+  },
+  "Stark|Ich + Ich": {
+   "status": "unsicher",
+   "id": "5xQJpUdXkQfec2yuM1LZl3",
+   "name": "Stark - Long Version",
+   "artist": "Ich + Ich, Adel Tawil",
+   "album": "Stark",
+   "date": "2007-11-09",
+   "typ": "single",
+   "jahr": 2007,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "The Rhythm of the Night|Corona": {
+   "status": "unsicher",
+   "id": "2yPlM0STf1Ch8T5PtBeyH1",
+   "name": "The Rhythm of the Night - Club Mix",
+   "artist": "Corona",
+   "album": "The Rhythm of the Night",
+   "date": "1994-01-30",
+   "typ": "single",
+   "jahr": 1993,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Gonna Make You Sweat (Everybody Dance Now)|C+C Music Factory": {
+   "status": "unsicher",
+   "id": "1KgLHqBIq6DHeJA78rk22R",
+   "name": "Gonna Make You Sweat (Everybody Dance Now) (feat. Freedom Williams) - Radio Mix",
+   "artist": "C & C Music Factory, Freedom Williams",
+   "album": "Gonna Make You Sweat (Everybody Dance Now)",
+   "date": "1990",
+   "typ": "single",
+   "jahr": 1990,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Gimme Hope Jo'anna|Eddy Grant": {
+   "status": "unsicher",
+   "id": "4gS3ZgBNvWGkVXKVPYiLCH",
+   "name": "Gimme Hope Jo'anna",
+   "artist": "Eddy Grant",
+   "album": "File Under Rock",
+   "date": "2026-03-20",
+   "typ": "album",
+   "jahr": 1988,
+   "flags": [
+    "nur spätere Ausgabe (2026)"
+   ]
+  },
+  "Narcotic|Liquido": {
+   "status": "unsicher",
+   "id": "6esrIQuXxZaThJbYtPIppl",
+   "name": "Narcotic - Radio Edit",
+   "artist": "Liquido",
+   "album": "Narcotic",
+   "date": "1998-08-31",
+   "typ": "single",
+   "jahr": 1998,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Wunder gibt es immer wieder|Katja Ebstein": {
+   "status": "unsicher",
+   "id": "5RwHsUNR6Vrx5fFbgfTxmy",
+   "name": "Wunder Gibt Es Immer Wieder",
+   "artist": "Katja Ebstein",
+   "album": "Witkiewicz",
+   "date": "2005-12-02",
+   "typ": "album",
+   "jahr": 1970,
+   "flags": [
+    "nur spätere Ausgabe (2005)"
+   ]
+  },
+  "Ich find dich scheiße|Tic Tac Toe": {
+   "status": "nicht gefunden",
+   "jahr": 1995
+  },
+  "Soda Pop|Saja Boys": {
+   "status": "unsicher",
+   "id": "5FOHvkngjmWUrQi929GQEn",
+   "name": "Soda Pop - version française",
+   "artist": "Saja Boys, Doryan Ben, Thomas Bernier, Guillaume Beaujolais, Loaï Rahman, Bastien Jacquemart, KPop Demon Hunters Cast",
+   "album": "KPop Demon Hunters, la bande originale du film Netflix",
+   "date": "2025-06-01",
+   "typ": "album",
+   "jahr": 2025,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Ein Festival der Liebe|Jürgen Marcus": {
+   "status": "unsicher",
+   "id": "1tkdoFgqAhvCa7RfIeF45X",
+   "name": "Ein Festival der Liebe",
+   "artist": "Jürgen Marcus",
+   "album": "Ein Lied zieht hinaus in die Welt",
+   "date": "1975",
+   "typ": "album",
+   "jahr": 1973,
+   "flags": [
+    "nur spätere Ausgabe (1975)"
+   ]
+  },
+  "Sexy|Marius Müller-Westernhagen": {
+   "status": "unsicher",
+   "id": "516D7goJWPLuGruSxvHDlp",
+   "name": "Sexy - Single Version",
+   "artist": "Westernhagen",
+   "album": "Sexy",
+   "date": "1989-08-01",
+   "typ": "single",
+   "jahr": 1989,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Mit keinem Andern|Helene Fischer": {
+   "status": "unsicher",
+   "id": "1hoVVOyaCgcYpqFccb3Woo",
+   "name": "Mit keinem Andern",
+   "artist": "Helene Fischer",
+   "album": "Farbenspiel",
+   "date": "2013-01-01",
+   "typ": "album",
+   "jahr": 2008,
+   "flags": [
+    "nur spätere Ausgabe (2013)"
+   ]
+  },
+  "Ich will immer wieder... dieses Fieber spür'n|Helene Fischer": {
+   "status": "unsicher",
+   "id": "70fRUZsAxNKuxTy8gp4nKT",
+   "name": "Ich will immer wieder... dieses Fieber spür'n",
+   "artist": "Helene Fischer",
+   "album": "So Wie Ich Bin",
+   "date": "2009-01-01",
+   "typ": "album",
+   "jahr": 2011,
+   "flags": [
+    "Spotify-Album von 2009 – älter als unser Jahr 2011"
+   ]
+  },
+  "Phänomen|Helene Fischer": {
+   "status": "unsicher",
+   "id": "3yzqpXgvSiP8T9fKyZwY1i",
+   "name": "Phänomen",
+   "artist": "Helene Fischer",
+   "album": "Für einen Tag (Helene Fischer Show Edition)",
+   "date": "2011",
+   "typ": "album",
+   "jahr": 2013,
+   "flags": [
+    "Spotify-Album von 2011 – älter als unser Jahr 2013"
+   ]
+  },
+  "Flieger|Helene Fischer": {
+   "status": "unsicher",
+   "id": "3OeEcwfq3UxY9iNrM4a2uV",
+   "name": "Flieger",
+   "artist": "Helene Fischer",
+   "album": "Helene Fischer (Deluxe Version)",
+   "date": "2017-05-12",
+   "typ": "album",
+   "jahr": 2013,
+   "flags": [
+    "nur spätere Ausgabe (2017)"
+   ]
+  },
+  "Die Hölle morgen früh|Helene Fischer": {
+   "status": "unsicher",
+   "id": "3ZmQjNmGSVfo37tTws8EU9",
+   "name": "Die Hölle morgen früh",
+   "artist": "Helene Fischer",
+   "album": "Für einen Tag (Helene Fischer Show Edition)",
+   "date": "2011",
+   "typ": "album",
+   "jahr": 2021,
+   "flags": [
+    "Spotify-Album von 2011 – älter als unser Jahr 2021"
+   ]
+  },
+  "Ein Augenblick|Peter Fox": {
+   "status": "nicht gefunden",
+   "jahr": 2008
+  },
+  "Weil du nur einmal lebst|Peter Fox": {
+   "status": "nicht gefunden",
+   "jahr": 2022
+  },
+  "Treasure|Bruno Mars": {
+   "status": "unsicher",
+   "id": "55h7vJchibLdUkxdlX3fK7",
+   "name": "Treasure",
+   "artist": "Bruno Mars",
+   "album": "Unorthodox Jukebox",
+   "date": "2012-12-07",
+   "typ": "album",
+   "jahr": 2013,
+   "flags": [
+    "Spotify-Album von 2012 – älter als unser Jahr 2013"
+   ]
+  },
+  "Photograph|Ed Sheeran": {
+   "status": "unsicher",
+   "id": "3FSPaBp49Clqq2p4zc9dbA",
+   "name": "Photograph",
+   "artist": "Ed Sheeran",
+   "album": "x (Wembley Edition)",
+   "date": "2013",
+   "typ": "album",
+   "jahr": 2014,
+   "flags": [
+    "Spotify-Album von 2013 – älter als unser Jahr 2014"
+   ]
+  },
+  "Happier Than Ever|Billie Eilish": {
+   "status": "unsicher",
+   "id": "32BeYxKPrig1LefHsC0Xuo",
+   "name": "Happier Than Ever - Edit",
+   "artist": "Billie Eilish",
+   "album": "Happier Than Ever (Edit)",
+   "date": "2021-07-28",
+   "typ": "single",
+   "jahr": 2021,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "194 Länder|Mark Forster": {
+   "status": "unsicher",
+   "id": "6rnJn3QbXeYUQpdFsr3kzm",
+   "name": "194 Länder",
+   "artist": "Mark Forster",
+   "album": "LIEBE",
+   "date": "2018-11-16",
+   "typ": "album",
+   "jahr": 2016,
+   "flags": [
+    "nur spätere Ausgabe (2018)"
+   ]
+  },
+  "Hinterm Horizont|Udo Lindenberg": {
+   "status": "unsicher",
+   "id": "0fjpL0HiBnugMBPCNpmVKJ",
+   "name": "Hinterm Horizont geht's weiter",
+   "artist": "Udo Lindenberg, Das Deutsche Filmorchester Babelsberg",
+   "album": "Belcanto (Remastered)",
+   "date": "1997-09-01",
+   "typ": "album",
+   "jahr": 1987,
+   "flags": [
+    "nur spätere Ausgabe (1997)"
+   ]
+  },
+  "Bonnie & Clyde|Die Toten Hosen": {
+   "status": "unsicher",
+   "id": "2hZAJcLnFGk6V50TiD7yzm",
+   "name": "Bonnie & Clyde",
+   "artist": "Die Toten Hosen",
+   "album": "Opium für's Volk (Deluxe-Edition mit Bonus-Tracks)",
+   "date": "1996",
+   "typ": "album",
+   "jahr": 1993,
+   "flags": [
+    "nur spätere Ausgabe (1996)"
+   ]
+  },
+  "Steh auf, wenn du am Boden bist|Die Toten Hosen": {
+   "status": "unsicher",
+   "id": "2xSTNXJaxrZSw536qlCr34",
+   "name": "Steh auf, wenn du am Boden bist",
+   "artist": "Die Toten Hosen",
+   "album": "Auswärtsspiel (Deluxe-Edition mit Bonus-Tracks)",
+   "date": "2002",
+   "typ": "album",
+   "jahr": 1996,
+   "flags": [
+    "nur spätere Ausgabe (2002)"
+   ]
+  },
+  "Pon de Replay|Rihanna": {
+   "status": "unsicher",
+   "id": "3Op7R5YNeIVoZUCxXVZW2k",
+   "name": "Pon de Replay - Radio Edit",
+   "artist": "Rihanna",
+   "album": "Pon de Replay",
+   "date": "2005-05-24",
+   "typ": "single",
+   "jahr": 2005,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Mele Kalikimaka|Bing Crosby": {
+   "status": "unsicher",
+   "id": "04vLj9QUXoKdRlsp3gkURo",
+   "name": "Mele Kalikimaka (Merry Christmas)",
+   "artist": "Bing Crosby, The Andrews Sisters",
+   "album": "White Christmas",
+   "date": "1945-01-01",
+   "typ": "compilation",
+   "jahr": 1950,
+   "flags": [
+    "Spotify-Album von 1945 – älter als unser Jahr 1950",
+    "nur auf Sampler"
+   ]
+  },
+  "Christmas (Baby Please Come Home)|Darlene Love": {
+   "status": "unsicher",
+   "id": "4kcXZH4jWafsgd7RMSKLYw",
+   "name": "Christmas (Baby, Please Come Home) [with Darlene Love]",
+   "artist": "Cher, Darlene Love",
+   "album": "Christmas",
+   "date": "2023-10-20",
+   "typ": "album",
+   "jahr": 1963,
+   "flags": [
+    "nur spätere Ausgabe (2023)"
+   ]
+  },
+  "Do You Hear What I Hear?|Bing Crosby": {
+   "status": "unsicher",
+   "id": "7GrscO8fw62ZByqMluUFTo",
+   "name": "Do You Hear What I Hear",
+   "artist": "Bing Crosby, London Symphony Orchestra",
+   "album": "Bing At Christmas",
+   "date": "2019-11-22",
+   "typ": "album",
+   "jahr": 1963,
+   "flags": [
+    "nur spätere Ausgabe (2019)"
+   ]
+  },
+  "A Holly Jolly Christmas|Burl Ives": {
+   "status": "unsicher",
+   "id": "7MOBQpfxrtjPu5hYT21yaG",
+   "name": "A Holly Jolly Christmas - From \"Rudolph The Red-Nosed Reindeer\" Soundtrack",
+   "artist": "Burl Ives",
+   "album": "Rudolph The Red-Nosed Reindeer",
+   "date": "1965-12-01",
+   "typ": "album",
+   "jahr": 1964,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Merry Christmas Darling|Carpenters": {
+   "status": "unsicher",
+   "id": "0iUUPVLjGOraXTCBn7YXXI",
+   "name": "Merry Christmas, Darling",
+   "artist": "Carpenters, Royal Philharmonic Orchestra",
+   "album": "Ticket To Ride / Yesterday Once More / Merry Christmas, Darling",
+   "date": "2018-11-16",
+   "typ": "single",
+   "jahr": 1970,
+   "flags": [
+    "nur spätere Ausgabe (2018)"
+   ]
+  },
+  "Lonely This Christmas|Mud": {
+   "status": "unsicher",
+   "id": "6f9X6BtyHtqHChuyh5il36",
+   "name": "Lonely This Christmas",
+   "artist": "Mud",
+   "album": "Lonely This Christmas",
+   "date": "1994",
+   "typ": "single",
+   "jahr": 1974,
+   "flags": [
+    "nur spätere Ausgabe (1994)"
+   ]
+  },
+  "Mary's Boy Child – Oh My Lord|Boney M.": {
+   "status": "unsicher",
+   "id": "3Zw7UgXEfOr7ZLmQb7FHyO",
+   "name": "Mary's Boy Child / Oh My Lord - Long Version",
+   "artist": "Boney M.",
+   "album": "Christmas Party",
+   "date": "1981-11-16",
+   "typ": "album",
+   "jahr": 1978,
+   "flags": [
+    "nur spätere Ausgabe (1981)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Christmas Wrapping|The Waitresses": {
+   "status": "unsicher",
+   "id": "0YJ7VvNTbPGRSZjFeUCdxr",
+   "name": "Christmas Wrapping (Single Edit)",
+   "artist": "The Waitresses",
+   "album": "Wasn't Tomorrow Wonderful?",
+   "date": "1982-01-01",
+   "typ": "album",
+   "jahr": 1981,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Peace on Earth / Little Drummer Boy|David Bowie": {
+   "status": "unsicher",
+   "id": "1QUv3FPj15gBjZe4KAca4n",
+   "name": "Peace On Earth / Little Drummer Boy",
+   "artist": "Bing Crosby, David Bowie",
+   "album": "Peace On Earth / Little Drummer Boy",
+   "date": "1977",
+   "typ": "single",
+   "jahr": 1982,
+   "flags": [
+    "Spotify-Album von 1977 – älter als unser Jahr 1982"
+   ]
+  },
+  "Christmas Time|Bryan Adams": {
+   "status": "unsicher",
+   "id": "7LoFMtL7hxP9tr5HYyyUrJ",
+   "name": "Christmas Time",
+   "artist": "Bryan Adams",
+   "album": "Christmas EP",
+   "date": "2019-11-15",
+   "typ": "single",
+   "jahr": 1985,
+   "flags": [
+    "nur spätere Ausgabe (2019)"
+   ]
+  },
+  "Mistletoe and Wine|Cliff Richard": {
+   "status": "unsicher",
+   "id": "0hrT3VRXa1TJQI2QJL7A6i",
+   "name": "Weihnachtszeit - Mistletoe And Wine",
+   "artist": "Claudia Jung, Cliff Richard",
+   "album": "Winterträume",
+   "date": "1996-01-01",
+   "typ": "album",
+   "jahr": 1988,
+   "flags": [
+    "nur spätere Ausgabe (1996)"
+   ]
+  },
+  "8 Days of Christmas|Destiny's Child": {
+   "status": "unsicher",
+   "id": "3WrG9BpOPQWUus3FjA1Tny",
+   "name": "8 Days of Christmas",
+   "artist": "Destiny's Child",
+   "album": "The Writing's On The Wall",
+   "date": "1999-09-07",
+   "typ": "album",
+   "jahr": 2001,
+   "flags": [
+    "Spotify-Album von 1999 – älter als unser Jahr 2001"
+   ]
+  },
+  "Wonderful Dream (Holidays Are Coming)|Melanie Thornton": {
+   "status": "unsicher",
+   "id": "0SvD6EdetxVtXei2JhkV4B",
+   "name": "Wonderful Dream (Holidays Are Coming) - Radio Version",
+   "artist": "Melanie Thornton",
+   "album": "Ready To Fly",
+   "date": "2001-01-01",
+   "typ": "album",
+   "jahr": 2001,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "It's Beginning to Look a Lot Like Christmas|Michael Bublé": {
+   "status": "unsicher",
+   "id": "3it2BvJfyhPEWF3kD2TZJ1",
+   "name": "It's Beginning to Look a Lot like Christmas",
+   "artist": "Michael Bublé",
+   "album": "Christmas (Deluxe 10th Anniversary Edition)",
+   "date": "2024-12-05",
+   "typ": "album",
+   "jahr": 2011,
+   "flags": [
+    "nur spätere Ausgabe (2024)"
+   ]
+  },
+  "A Nonsense Christmas|Sabrina Carpenter": {
+   "status": "unsicher",
+   "id": "7yogx3TwxGwSxO2QITsT2q",
+   "name": "A Nonsense Christmas",
+   "artist": "Sabrina Carpenter",
+   "album": "A Nonsense Christmas",
+   "date": "2022-12-07",
+   "typ": "single",
+   "jahr": 2023,
+   "flags": [
+    "Spotify-Album von 2022 – älter als unser Jahr 2023"
+   ]
+  },
+  "Für mich soll's rote Rosen regnen|Hildegard Knef": {
+   "status": "unsicher",
+   "id": "2jiP4FsXJCrCmYLnDsrkHa",
+   "name": "Für mich soll's rote Rosen regnen",
+   "artist": "Hildegard Knef",
+   "album": "Halt mich fest (Remastered)",
+   "date": "1967-03-06",
+   "typ": "album",
+   "jahr": 1968,
+   "flags": [
+    "Spotify-Album von 1967 – älter als unser Jahr 1968"
+   ]
+  },
+  "Der Junge mit der Mundharmonika|Bernd Clüver": {
+   "status": "unsicher",
+   "id": "5OzgLgIKGntgxS5dk8GltU",
+   "name": "Der Junge mit der Mundharmonika ('94er Version)",
+   "artist": "Bernd Clüver",
+   "album": "Sag' noch einmal ich liebe Dich",
+   "date": "1994",
+   "typ": "album",
+   "jahr": 1973,
+   "flags": [
+    "nur spätere Ausgabe (1994)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Schifoan|Wolfgang Ambros": {
+   "status": "unsicher",
+   "id": "3p2R6sc2J9ESsqddoWJGoh",
+   "name": "Schifoan",
+   "artist": "Wolfgang Ambros",
+   "album": "De (40 aller) best'n Liada",
+   "date": "1975",
+   "typ": "album",
+   "jahr": 1976,
+   "flags": [
+    "Spotify-Album von 1975 – älter als unser Jahr 1976"
+   ]
+  },
+  "Kreuzberger Nächte|Gebrüder Blattschuss": {
+   "status": "unsicher",
+   "id": "55jve2EgUo7koEDdnySj18",
+   "name": "Kreuzberger Nächte 2008",
+   "artist": "Gebrüder Blattschuss",
+   "album": "Alles Drauf",
+   "date": "2002-11-11",
+   "typ": "album",
+   "jahr": 1978,
+   "flags": [
+    "nur spätere Ausgabe (2002)"
+   ]
+  },
+  "Macho Macho|Rainhard Fendrich": {
+   "status": "unsicher",
+   "id": "1SYXYTih1lSzqduLW0LZsf",
+   "name": "Macho, Macho",
+   "artist": "Rainhard Fendrich",
+   "album": "So weit so gut (Die größten Hits aus 25 Jahren)",
+   "date": "2005-02-28",
+   "typ": "album",
+   "jahr": 1988,
+   "flags": [
+    "nur spätere Ausgabe (2005)"
+   ]
+  },
+  "Mama Laudaaa|Almklausi": {
+   "status": "unsicher",
+   "id": "1RcWWgnw5fVm3wcNq11zBu",
+   "name": "Mama Laudaaa",
+   "artist": "Almklausi, Specktakel",
+   "album": "Mama Laudaaa",
+   "date": "2018-02-07",
+   "typ": "single",
+   "jahr": 2010,
+   "flags": [
+    "nur spätere Ausgabe (2018)"
+   ]
+  },
+  "Wolke 7|Vanessa Mai": {
+   "status": "unsicher",
+   "id": "7nxDltjGAdjRAPQGDw1DX2",
+   "name": "Wolke 7",
+   "artist": "Wolkenfrei, Vanessa Mai",
+   "album": "Wolke 7",
+   "date": "2015-05-22",
+   "typ": "single",
+   "jahr": 2016,
+   "flags": [
+    "Spotify-Album von 2015 – älter als unser Jahr 2016"
+   ]
+  },
+  "Na und?!|Ben Zucker": {
+   "status": "unsicher",
+   "id": "7xwS7J91zhkUjycL6iPQP4",
+   "name": "Na und?! - Rico Bernasconi Edit",
+   "artist": "Ben Zucker",
+   "album": "Na und?! (Rico Bernasconi Edit)",
+   "date": "2017-05-26",
+   "typ": "single",
+   "jahr": 2017,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Bettina, zieh dir bitte etwas an|Fred Sonnenschein": {
+   "status": "nicht gefunden",
+   "jahr": 1983
+  },
+  "Kleine Taschenlampe brenn'|Markus": {
+   "status": "unsicher",
+   "id": "2ywPDQaAPiDCoJCPplEc0u",
+   "name": "Kleine Taschenlampe brenn' - Remake",
+   "artist": "Peter Markus",
+   "album": "Rote Karte",
+   "date": "2008-11-21",
+   "typ": "single",
+   "jahr": 1983,
+   "flags": [
+    "nur spätere Ausgabe (2008)"
+   ]
+  },
+  "Eisgekühlter Bommerlunder|Die Toten Hosen": {
+   "status": "unsicher",
+   "id": "31vf35YB7M8muNPXoGtf9b",
+   "name": "Eisgekühlter Bommerlunder",
+   "artist": "Die Toten Hosen",
+   "album": "Reich & Sexy (Deluxe-Edition mit Bonus-Tracks)",
+   "date": "1993-11-02",
+   "typ": "album",
+   "jahr": 1983,
+   "flags": [
+    "nur spätere Ausgabe (1993)"
+   ]
+  },
+  "Taxi nach Paris|Felix de Luxe": {
+   "status": "unsicher",
+   "id": "4IALADnQ5JO3LbRxFMRM9S",
+   "name": "Taxi nach Paris",
+   "artist": "Felix De Luxe",
+   "album": "Felix Deluxe",
+   "date": "1992-03-16",
+   "typ": "compilation",
+   "jahr": 1984,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Tausendmal berührt|Klaus Lage": {
+   "status": "nicht gefunden",
+   "jahr": 1984
+  },
+  "Harper Valley P.T.A.|Jeannie C. Riley": {
+   "status": "unsicher",
+   "id": "4U5N86E6lSEEe57PrDrTHP",
+   "name": "Harper Valley P.T.A. - Mono / Remastered 2022",
+   "artist": "Jeannie C. Riley",
+   "album": "Harper Valley P.T.A. (Mono / Remastered 2022)",
+   "date": "1968-01-01",
+   "typ": "album",
+   "jahr": 1968,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "A Boy Named Sue|Johnny Cash": {
+   "status": "unsicher",
+   "id": "1YjIjip6wBvtSUlmci3XCj",
+   "name": "A Boy Named Sue",
+   "artist": "Johnny Cash",
+   "album": "A Boy Named Sue",
+   "date": "2009-08-03",
+   "typ": "compilation",
+   "jahr": 1969,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Coal Miner's Daughter|Loretta Lynn": {
+   "status": "unsicher",
+   "id": "1RNAW7UdfNOTuAMV6MSe7l",
+   "name": "Coal Miners Daughter - Re-recording",
+   "artist": "Loretta Lynn",
+   "album": "Somebody Somewhere",
+   "date": "2001-01-09",
+   "typ": "album",
+   "jahr": 1970,
+   "flags": [
+    "nur spätere Ausgabe (2001)"
+   ]
+  },
+  "Convoy|C.W. McCall": {
+   "status": "unsicher",
+   "id": "4WinP2xwxkT5w0GKUioeYi",
+   "name": "Convoy",
+   "artist": "C.W. McCall",
+   "album": "The Real Mccall",
+   "date": "1990-06-12",
+   "typ": "album",
+   "jahr": 1975,
+   "flags": [
+    "nur spätere Ausgabe (1990)"
+   ]
+  },
+  "Lucille|Kenny Rogers": {
+   "status": "unsicher",
+   "id": "15ADURMdkO25JGD5mIcodM",
+   "name": "Lucille",
+   "artist": "Kenny Rogers",
+   "album": "Kenny Rogers",
+   "date": "1976-10-18",
+   "typ": "album",
+   "jahr": 1977,
+   "flags": [
+    "Spotify-Album von 1976 – älter als unser Jahr 1977"
+   ]
+  },
+  "How Do I Live|LeAnn Rimes": {
+   "status": "unsicher",
+   "id": "4tPtLVyfmEJXidbOBaQh9Q",
+   "name": "How Do I Live - Mr. Mig Dance Radio Edit",
+   "artist": "LeAnn Rimes, Mr. Mig",
+   "album": "How Do I Live (Dance Mixes)",
+   "date": "1997-06-03",
+   "typ": "single",
+   "jahr": 1997,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Picture|Kid Rock": {
+   "status": "unsicher",
+   "id": "69j0KoPJuwpnbGWrfn7Yll",
+   "name": "Picture (feat. Sheryl Crow)",
+   "artist": "Kid Rock, Sheryl Crow",
+   "album": "Cocky",
+   "date": "2001",
+   "typ": "album",
+   "jahr": 2002,
+   "flags": [
+    "Spotify-Album von 2001 – älter als unser Jahr 2002"
+   ]
+  },
+  "Austin (Boots Stop Workin')|Dasha": {
+   "status": "unsicher",
+   "id": "69wVo2cAAD7O9XSpSpTBAu",
+   "name": "Austin (Boots Stop Workin')",
+   "artist": "Dasha",
+   "album": "Austin (Boots Stop Workin')",
+   "date": "2023-11-16",
+   "typ": "single",
+   "jahr": 2024,
+   "flags": [
+    "Spotify-Album von 2023 – älter als unser Jahr 2024"
+   ]
+  },
+  "Quando quando quando|Tony Renis": {
+   "status": "unsicher",
+   "id": "3WdMKKW3Z6cB3zwyh9snjh",
+   "name": "Quando Quando Quando",
+   "artist": "Tony Renis",
+   "album": "Cartoline Da Un Jukebox",
+   "date": "1958-06-03",
+   "typ": "album",
+   "jahr": 1962,
+   "flags": [
+    "Spotify-Album von 1958 – älter als unser Jahr 1962"
+   ]
+  },
+  "Pensieri e parole|Lucio Battisti": {
+   "status": "unsicher",
+   "id": "0JKQwuA2iAVwCplWaHBaTz",
+   "name": "Pensieri e parole - Extended Version",
+   "artist": "Lucio Battisti",
+   "album": "Lucio Battisti - Rarities",
+   "date": "2020-09-25",
+   "typ": "album",
+   "jahr": 1971,
+   "flags": [
+    "nur spätere Ausgabe (2020)",
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Grande grande grande|Mina": {
+   "status": "unsicher",
+   "id": "7djxemkRcsWAqrWTye4Vxt",
+   "name": "Grande, grande, grande - 2001 Remaster",
+   "artist": "Mina",
+   "album": "Mina (2001 Remaster)",
+   "date": "1971-11",
+   "typ": "album",
+   "jahr": 1972,
+   "flags": [
+    "Spotify-Album von 1971 – älter als unser Jahr 1972"
+   ]
+  },
+  "Gente di mare|Umberto Tozzi": {
+   "status": "unsicher",
+   "id": "53nH5n25h89QqNx5GIiXFD",
+   "name": "Gente Di Mare",
+   "artist": "Marshall & Alexander, Raffaele Riefoli, Umberto Tozzi",
+   "album": "Try To Remember",
+   "date": "2006-03-24",
+   "typ": "album",
+   "jahr": 1987,
+   "flags": [
+    "nur spätere Ausgabe (2006)"
+   ]
+  },
+  "Mare mare|Luca Carboni": {
+   "status": "unsicher",
+   "id": "5pv2bpJXi0vspHETP1QjIy",
+   "name": "Mare mare",
+   "artist": "Luca Carboni",
+   "album": "Carboni",
+   "date": "1991-11-30",
+   "typ": "album",
+   "jahr": 1992,
+   "flags": [
+    "Spotify-Album von 1991 – älter als unser Jahr 1992"
+   ]
+  },
+  "Ti scatterò una foto|Tiziano Ferro": {
+   "status": "unsicher",
+   "id": "2IDNV0ttledZreT0JtzFMp",
+   "name": "Ti scatterò una foto",
+   "artist": "Tiziano Ferro",
+   "album": "Nessuno è solo",
+   "date": "2006-06-23",
+   "typ": "album",
+   "jahr": 2007,
+   "flags": [
+    "Spotify-Album von 2006 – älter als unser Jahr 2007"
+   ]
+  },
+  "Due vite|Marco Mengoni": {
+   "status": "unsicher",
+   "id": "4eI0ncpnZuv4A3ssTJRSDY",
+   "name": "Due Vite",
+   "artist": "Marco Mengoni",
+   "album": "MATERIA (PELLE)",
+   "date": "2022-12-25",
+   "typ": "album",
+   "jahr": 2023,
+   "flags": [
+    "Spotify-Album von 2022 – älter als unser Jahr 2023"
+   ]
+  },
+  "Sleeping Sun|Nightwish": {
+   "status": "unsicher",
+   "id": "64v7AaXu9qmbefvFwOtbvm",
+   "name": "Sleeping Sun",
+   "artist": "Nightwish",
+   "album": "Oceanborn",
+   "date": "1998-01-01",
+   "typ": "album",
+   "jahr": 1999,
+   "flags": [
+    "Spotify-Album von 1998 – älter als unser Jahr 1999"
+   ]
+  },
+  "Hunting High and Low|Stratovarius": {
+   "status": "unsicher",
+   "id": "24Gd54pEdzav5qS5Wu5nfN",
+   "name": "Hunting High And Low - Alternative Edit",
+   "artist": "Stratovarius",
+   "album": "Hunting High And Low",
+   "date": "2000-02-02",
+   "typ": "single",
+   "jahr": 2000,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "First Day of My Life|The Rasmus": {
+   "status": "unsicher",
+   "id": "12PHZ4pgRdRJdyiS5jmRKv",
+   "name": "First Day of My Life",
+   "artist": "The Rasmus",
+   "album": "Dead Letters",
+   "date": "2003-03-24",
+   "typ": "album",
+   "jahr": 2005,
+   "flags": [
+    "Spotify-Album von 2003 – älter als unser Jahr 2005"
+   ]
+  },
+  "Arkadaşım Eşek|Barış Manço": {
+   "status": "unsicher",
+   "id": "1yFGVUY5FzwROepu9RCWgL",
+   "name": "Arkadaşım Eşek",
+   "artist": "Barış Manço",
+   "album": "Pop Ninniler, Vol. 1 (Sevgi, Uyku & Oyun Şarkıları)",
+   "date": "2015-01-01",
+   "typ": "compilation",
+   "jahr": 1981,
+   "flags": [
+    "nur auf Sampler"
+   ]
+  },
+  "Şıkıdım|Tarkan": {
+   "status": "nicht gefunden",
+   "jahr": 1994
+  },
+  "Araba|Mustafa Sandal": {
+   "status": "unsicher",
+   "id": "3QW3PwG13D34yd1GfPJZHV",
+   "name": "Araba",
+   "artist": "Mustafa Sandal",
+   "album": "Gölgede Aynı",
+   "date": "1996-05-24",
+   "typ": "album",
+   "jahr": 1998,
+   "flags": [
+    "Spotify-Album von 1996 – älter als unser Jahr 1998"
+   ]
+  },
+  "Ona tańczy dla mnie|Weekend": {
+   "status": "unsicher",
+   "id": "4g24iNyydF0mPY2uR6mBPE",
+   "name": "Ona Tańczy dla Mnie - Radio Edit",
+   "artist": "Weekend",
+   "album": "Ona Tańczy dla Mnie",
+   "date": "2012-07-01",
+   "typ": "single",
+   "jahr": 2012,
+   "flags": [
+    "Versionshinweis im Titel"
+   ]
+  },
+  "Solo|Blanka": {
+   "status": "unsicher",
+   "id": "3xxjYOFR1y7By2wNDS51XV",
+   "name": "Solo",
+   "artist": "BLANKA",
+   "album": "Solo",
+   "date": "2022-09-23",
+   "typ": "single",
+   "jahr": 2023,
+   "flags": [
+    "Spotify-Album von 2022 – älter als unser Jahr 2023"
+   ]
+  },
+  "Tom Pillibi|Jacqueline Boyer": {
+   "status": "unsicher",
+   "id": "5wvvEX3p2QVwiy25dxqbRv",
+   "name": "Tom Pillibi",
+   "artist": "Jacqueline Boyer",
+   "album": "Tom Pillibi",
+   "date": "2010-09-29",
+   "typ": "album",
+   "jahr": 1960,
+   "flags": [
+    "nur spätere Ausgabe (2010)"
+   ]
+  },
+  "Nous les amoureux|Jean-Claude Pascal": {
+   "status": "unsicher",
+   "id": "35PWl4T8d2U3a5AboajXXw",
+   "name": "Nous les amoureux",
+   "artist": "Jean-Claude Pascal",
+   "album": "nous les amoureux",
+   "date": "1997",
+   "typ": "album",
+   "jahr": 1961,
+   "flags": [
+    "nur spätere Ausgabe (1997)"
+   ]
+  },
+  "Ein Lied kann eine Brücke sein|Joy Fleming": {
+   "status": "unsicher",
+   "id": "68yLDTNBd1PZMl67k6fbY5",
+   "name": "Ein Lied kann eine Brücke sein",
+   "artist": "Joy Fleming",
+   "album": "Joy Fleming und ihre großen Erfolge",
+   "date": "1992",
+   "typ": "album",
+   "jahr": 1975,
+   "flags": [
+    "nur spätere Ausgabe (1992)"
+   ]
+  },
+  "A-Ba-Ni-Bi|Izhar Cohen": {
+   "status": "nicht gefunden",
+   "jahr": 1978
+  }
+ },
  "jahr": {
   "Ich will immer wieder... dieses Fieber spür'n|Helene Fischer": {
    "wir": 2011,

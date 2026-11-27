@@ -2244,4 +2244,7 @@ const MB_GEPRUEFT = {
   "Sports car|Tate McRae": [2025, 2025],
   "Your Idol|Saja Boys": [2025, 2025],
   "Tears|Sabrina Carpenter": [2025, 2025],
+  "ROCKSTAR|DaBaby": [2020, 2020],
+  "INDUSTRY BABY|Lil Nas X": [2021, 2021],
+  "Downtown|Petula Clark": [1964, 1976],
 };
