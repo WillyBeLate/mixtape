@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.0", d: "2026-11-28", e: [
+    ["neu", "Vier neue Zusatz-Kategorien: Disco & Funk (83 Songs), Electro & EDM (68), K-Pop & J-Pop (82) und Spanisch & Latino (75, nur Songs mit spanischem Text). Die neuen Songs prüft die Nachtprüfung in den nächsten Nächten (Spotify-Version und Jahr)."],
+  ]},
   { v: "0.18.1", d: "2026-11-28", e: [
     ["fix", "Namensfeld unter Einstellungen → Online-Spiele sieht jetzt aus wie die anderen Eingabefelder der App."],
   ]},

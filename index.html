@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.18.1"></script>
-<script src="regeln.js?v=0.18.1"></script>
-<script src="changelog.js?v=0.18.1"></script>
-<script src="geprueft.js?v=0.18.1"></script>
-<script src="ids.js?v=0.18.1"></script>
+<script src="daten.js?v=0.19.0"></script>
+<script src="regeln.js?v=0.19.0"></script>
+<script src="changelog.js?v=0.19.0"></script>
+<script src="geprueft.js?v=0.19.0"></script>
+<script src="ids.js?v=0.19.0"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.18.1";
+const APP_VERSION = "0.19.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -958,7 +958,8 @@ const FLAGS = {
   DE: FLG_H("#000", "#dd0000", "#ffce00"), AT: FLG_H("#ed2939", "#fff", "#ed2939"), NL: FLG_H("#ae1c28", "#fff", "#21468b"), RU: FLG_H("#fff", "#0039a6", "#d52b1e"),
   HU: FLG_H("#cd2a3e", "#fff", "#436f4d"), UA: FLG_H("#0057b7", "#ffd700"), PL: FLG_H("#fff", "#dc143c"), CO: `<rect width="30" height="10" fill="#fcd116"/><rect y="10" width="30" height="5" fill="#003893"/><rect y="15" width="30" height="5" fill="#ce1126"/>`,
   FR: FLG_V("#0055a4", "#fff", "#ef4135"), IT: FLG_V("#009246", "#fff", "#ce2b37"), IE: FLG_V("#169b62", "#fff", "#ff883e"), BE: FLG_V("#000", "#fdda24", "#ef3340"), RO: FLG_V("#002b7f", "#fcd116", "#ce1126"),
-  ES: `<rect width="30" height="20" fill="#aa151b"/><rect y="5" width="30" height="10" fill="#f1bf00"/>`, PT: `<rect width="30" height="20" fill="#da291c"/><rect width="12" height="20" fill="#046a38"/><circle cx="12" cy="10" r="3.4" fill="#ffe900"/>`,
+  ES: `<rect width="30" height="20" fill="#aa151b"/><rect y="5" width="30" height="10" fill="#f1bf00"/>`, MX: `<rect width="30" height="20" fill="#fff"/><rect width="10" height="20" fill="#006847"/><rect x="20" width="10" height="20" fill="#ce1126"/><circle cx="15" cy="10" r="2.6" fill="#8c5a2b"/>`,
+  AR: `<rect width="30" height="20" fill="#74acdf"/><rect y="6.67" width="30" height="6.67" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#f6b40e"/>`, PT: `<rect width="30" height="20" fill="#da291c"/><rect width="12" height="20" fill="#046a38"/><circle cx="12" cy="10" r="3.4" fill="#ffe900"/>`,
   SE: FLG_N("#006aa7", "#fecc00"), FI: FLG_N("#fff", "#003580"), DK: FLG_N("#c8102e", "#fff"), NO: FLG_N("#ba0c2f", "#fff", "#00205b"), IS: FLG_N("#02529c", "#fff", "#dc1e35"),
   CH: `<rect width="30" height="20" fill="#d52b1e"/><path d="M15 5v10M10 10h10" stroke="#fff" stroke-width="3.2"/>`,
   TR: `<rect width="30" height="20" fill="#e30a17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#e30a17"/><circle cx="17.6" cy="10" r="1.7" fill="#fff"/>`,
@@ -2688,7 +2689,8 @@ function renderCats(){
 }
 // Kategorie-Bild: Künstler = Foto von Spotify (einmal geladen, dann gespeichert), sonst passendes Symbol auf dem Farbkreis
 const CAT_ICON = { global:"<span class=dw data-dw=globe></span>", dehits:flagSvg("DE", 15), film:"<span class=dw data-dw=clapper></span>", sommer:"<span class=dw data-dw=sun></span>", balladen:"<span class=dw data-dw=hearts></span>", rock:"<span class=dw data-dw=guitar></span>", indie:"<span class=dw data-dw=headphones></span>", hiphop:"<span class=dw data-dw=mic></span>", country:"<span class=dw data-dw=hat></span>",
-  deutsch:"<span class=dw data-dw=speech></span>", schlager:"<span class=dw data-dw=disco></span>", ndw:"<span class=dw data-dw=radio></span>", esc:"<span class=dw data-dw=trophy></span>", italienisch:flagSvg("IT", 15), finnland:flagSvg("FI", 15), tuerkei:flagSvg("TR", 15), polen:flagSvg("PL", 15), onehit:"<span class=dw data-dw=star></span>", xmas:"<span class=dw data-dw=tree></span>" };
+  deutsch:"<span class=dw data-dw=speech></span>", schlager:"<span class=dw data-dw=disco></span>", ndw:"<span class=dw data-dw=radio></span>", esc:"<span class=dw data-dw=trophy></span>", italienisch:flagSvg("IT", 15), finnland:flagSvg("FI", 15), tuerkei:flagSvg("TR", 15), polen:flagSvg("PL", 15), onehit:"<span class=dw data-dw=star></span>", xmas:"<span class=dw data-dw=tree></span>",
+  disco:"<span class=dw data-dw=party></span>", edm:"<span class=dw data-dw=bolt></span>", kpop:"<span class=dw data-dw=sparkle></span>", latino:"<span class=dw data-dw=fire></span>" };
 function catDot(c){
   const img = c.typ === "kuenstler" && store.get("artimg:" + c.id, null);
   if (img) return `<div class="dot" style="background:#222 url('${img}') center/cover"></div>`;
