@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.0", d: "2026-11-28", e: [
+    ["neu", "Viele Modi gibt es jetzt auch online – jeder spielt am eigenen Handy, ein Handy spielt die Musik: Punktejagd, Intro-Sprint, Duell-Zeitstrahl, Wunschkonzert, TV-, Kinder-, Spiele-, Disney- und Film-Quiz (Mix-Schritt bzw. vor dem Start „Online“ wählen) sowie Zeit-Poker, Der DJ lügt und Gedächtnis-Mixtape (in ihren Einstellungen „Online“ wählen)."],
+    ["neu", "Online-Quizze: Jeder sieht vier Antworten auf seinem Handy – wer zuerst richtig tippt, bekommt den Punkt. Beim Intro-Sprint läuft der Song erst 3, dann 7, dann 15 Sekunden."],
+    ["change", "Das Handy-Symbol auf den Kacheln zeigt, welche Modi online spielbar sind."],
+  ]},
   { v: "0.16.2", d: "2026-11-28", e: [
     ["change", "Spielmodus-Kacheln aufgeräumt: Stern, Karten- und Online-Symbol stehen immer gleich oben rechts, einzelne Kacheln gehen über die ganze Breite, und die vielen „NEU“-Schilder sind weg – Neues steht im Neu-für-dich-Hinweis."],
   ]},

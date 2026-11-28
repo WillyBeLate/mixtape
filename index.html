@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.16.2"></script>
-<script src="regeln.js?v=0.16.2"></script>
-<script src="changelog.js?v=0.16.2"></script>
-<script src="geprueft.js?v=0.16.2"></script>
-<script src="ids.js?v=0.16.2"></script>
+<script src="daten.js?v=0.17.0"></script>
+<script src="regeln.js?v=0.17.0"></script>
+<script src="changelog.js?v=0.17.0"></script>
+<script src="geprueft.js?v=0.17.0"></script>
+<script src="ids.js?v=0.17.0"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -536,6 +536,7 @@
   .zlRow.zlNew{box-shadow:0 0 0 2px #9be15d inset;background:#2ecc7122}
   .zlGap{display:block;width:100%;margin:3px 0;padding:8px;border-radius:12px;border:2px dashed #ffffff40;background:#ffffff08;color:#ffd1e6;font:700 13px system-ui,sans-serif;cursor:pointer;text-align:center}
   .zlGap:not(div):active{background:#ff5fa22a;border-color:var(--accent)}.zlGap.on{border-color:var(--accent);background:#ff5fa22a;color:#fff}.zlGap.bad{border-color:#ff4d6d;background:#ff4d4d22;color:#fff}.zlSp{height:4px}
+  .olOpts .rsOpt{width:100%;text-align:left;font:inherit;color:inherit}.olOpts .rsOpt:disabled{opacity:1}
   .blCode{font-size:46px;font-weight:900;letter-spacing:8px;margin:4px 0;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .memoBar{display:flex;gap:6px;margin:8px 0 12px}.memoBar i{flex:1;height:8px;border-radius:9px;background:#ffffff1c}.memoBar i.done{background:#b06cff}.memoBar i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));animation:memoP 1s infinite alternate}@keyframes memoP{to{opacity:.55}}
   .rsOpt.good{border-color:#2ecc71;background:#2ecc7122}.rsOpt.badc{border-color:#ff4d6d;background:#ff4d4d22}
@@ -626,7 +627,6 @@
     <div id="setupStep2" style="display:none">
     <div class="topbar"><button class="backbtn" id="stepBack" aria-label="Zurück zum Spielmodus"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <div><div class="tbt"><span class="stepnr">2</span> Euer Mix</div><div class="tbs" id="stepSub"></div></div></div>
-    <div id="onlineSel"></div>
     <div id="mixSec">
     <div style="text-align:center"><span class="pill" id="mixCount">DEIN MIX 0 | 4</span></div>
     <div class="tabs" id="catTabs">
@@ -646,6 +646,7 @@
 
     </div>
     </div>
+    <div id="onlineSel"></div>
     <div id="startWrap"><button class="btn" id="startBtn">Los geht's</button>
     <div class="small" style="text-align:center;margin-top:-4px">Startet eine neue Runde – die Punktetafel beginnt von vorn.</div></div>
   </section>
@@ -827,7 +828,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.16.2";
+const APP_VERSION = "0.17.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2150,10 +2151,13 @@ function showModeInfo(id){
   $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : id === "zeitsprung" ? "#zsOpen" : EX_DEF[id] ? "#exOpen-" + id : `#modeGrid [data-mode="${id}"]`)?.click(); };
   $("#mpRules")?.addEventListener("click", () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + id)?.scrollIntoView(), 50); });
 }
+// Online-Varianten nutzen das Icon ihres Originals
+Object.entries({ pj: "punktejagd", spr: "sprint", duel: "duell", wun: "wunsch", tvq: "tv", pok: "poker", djo: "dj", memo2: "memo" }).forEach(([a, b]) => { if (!MODE_ICON[a]) Object.defineProperty(MODE_ICON, a, { get: () => MODE_ICON[b], enumerable: false }); });
 // Modi, die es auch online gibt (Spielmodus-ID → Online-Spiel). Online wählt man im Mix-Schritt.
-const MODE_ONLINE = { zeitstrahl: "zon" };
+const MODE_ONLINE = { zeitstrahl: "zon", punktejagd: "pj", sprint: "spr", duell: "duel", wunsch: "wun", tv: "tvq", kids: "tvq", games: "tvq", disney: "tvq", film: "tvq", sondermix: "tvq" };
+const EX_ONLINE = { poker: "pok", dj: "djo", memo: "memo2" };   // Extras mit Online-Variante (Umschalter in ihren Einstellungen)
 const NEU_IDS = [];   // „NEU“-Schild auf Kacheln (z. B. ["blitz"]) – Neuigkeiten stehen sonst im Neu-für-dich-Hinweis
-const EX_ONLY_MIX = ["zon"];   // keine eigene Kachel – erreichbar über den Spielmodus
+const EX_ONLY_MIX = ["zon", "pj", "spr", "pok", "djo", "memo2", "duel", "wun", "tvq"];   // keine eigene Kachel – erreichbar über den Spielmodus
 const ONLINE_IC = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="4" width="5.5" height="9" rx="1.3"/><rect x="9" y="4" width="5.5" height="9" rx="1.3"/><path d="M5.6 2.2c1.4-.9 3.4-.9 4.8 0"/><circle cx="4.25" cy="11" r=".5" fill="currentColor"/><circle cx="11.75" cy="11" r=".5" fill="currentColor"/></svg>';
 const playOnline = () => !!MODE_ONLINE[state.game.mode] && store.get("online:" + state.game.mode, false);
 // ---------- Favoriten: Stern auf jeder Kachel, Favoriten stehen oben in eigener Gruppe ----------
@@ -2206,7 +2210,7 @@ function renderModePanel(){
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="mtr"></span></span>
       <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="mtr"></span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).filter(([k]) => !EX_ONLY_MIX.includes(k)).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#2de2e6", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="mtr">${onl(k === "blitz")}</span></span>
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).filter(([k]) => !EX_ONLY_MIX.includes(k)).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#2de2e6", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="mtr">${onl(k === "blitz" || EX_ONLINE[k])}</span></span>
       <span class="mtx"><span class="mtn">${d.name}${NEU_IDS.includes(k) ? '<span class="tag">NEU</span>' : ""}</span><span class="mts"><span class="ppl">${d.min > 1 ? P2 : PG}${d.wer}</span><span>${d.sub}</span></span></span><span class="minfo" data-info="${k}" role="button" aria-label="Kurz erklärt">i</span></button>`).join("")}` : ""}</div>`; }).join("");
   modeFavs();
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
@@ -3004,7 +3008,7 @@ function renderSetupStep(){
   $("#setupStep1").style.display = setupStep === 1 ? "" : "none";
   $("#setupStep2").style.display = setupStep === 2 ? "" : "none";
   $("#toMixBtn").style.display = setupStep === 1 && !noMix ? "" : "none";
-  $("#startWrap").style.display = setupStep === 2 || noMix ? "" : "none";
+  $("#startWrap").style.display = $("#onlineSel").style.display = setupStep === 2 || noMix ? "" : "none";
   if (setupStep === 2) $("#stepSub").textContent = m.name + (playOnline() ? " · online" : " · " + state.game.teams.map(t => t.n).join(", "));
   renderOnlineSel();
 }
@@ -3054,7 +3058,8 @@ document.addEventListener("click", e => {
 $("#startBtn").addEventListener("click", async () => {
   if (playOnline()) {   // Online-Variante: Raum mit dem gewählten Mix
     store.set("exOpt", { ...store.get("exOpt", {}), cats: [...state.sel] });
-    ex = { game: MODE_ONLINE[state.game.mode], view: "setup", fromMix: true, cats: [...state.sel], used: [] }; exSave(); show("extra"); return;
+    const m = modeDef(), sets = m.app.typ === "tv" ? (m.app.daten === "mix" ? sonderSel() : [m.app.daten]) : null;
+    ex = { game: MODE_ONLINE[state.game.mode], view: "setup", fromMix: true, cats: [...state.sel], used: [], ...(sets ? { sets } : {}) }; exSave(); show("extra"); return;
   }
   // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
   if (!await okToReset()) return;
@@ -3854,17 +3859,35 @@ const EX_DEF = {
     info: ["Tippen, setzen, bluffen.", "Ein Song läuft. Reihum tippt jeder verdeckt ein Jahr und setzt 1–5 Chips. Wer am nächsten dran ist, gewinnt alle Einsätze – bei genau richtigem Jahr legt die Bank den Pot noch einmal drauf. Wer keine Chips mehr hat, ist raus."] },
   dj: { name: "Der DJ lügt", wer: "2–6 Personen", sub: "Lüge erkennen", R: [[1, "1×"], [2, "2×"], [3, "3×"]], Rd: 2, Rl: "DJ-Runden pro Person", min: 2,
     info: ["Nur der DJ kennt das Jahr – und vielleicht lügt er.", "Reihum ist einer DJ, sieht als Einziger Titel und Jahr und sagt ein Jahr an – echt oder gelogen. Die anderen tippen: „Glaub ich“ oder „Gelogen!“. Richtig getippt gibt einen Punkt, der DJ bekommt einen für jeden, den er reinlegt."] },
-  blitz: { name: "Jahres-Blitz", wer: "2–8 Personen", sub: "jeder am eigenen Handy", min: 2,
+  blitz: { name: "Jahres-Blitz", wer: "2–8 Personen", sub: "jeder am eigenen Handy", min: 2, opt: { vals: [5, 10, 15], unit: "Songs", def: 10 },
     info: ["Wer kennt das Jahr am schnellsten?", "Ein Handy eröffnet einen Raum und spielt die Musik, alle anderen treten mit dem Raum-Code am eigenen Handy bei. Ein Song läuft, alle tippen gleichzeitig das Jahr. Punkte gibt es für jeden: genau richtig 5, ein Jahr daneben 3, bis drei Jahre daneben 1. Bei Punktgleichstand am Ende gewinnt, wer insgesamt schneller getippt hat."] },
-  zon: { name: "Zeitstrahl online", wer: "2–6 Personen", sub: "Hitster ohne Karten", min: 2,
+  zon: { name: "Zeitstrahl online", wer: "2–6 Personen", sub: "Hitster ohne Karten", min: 2, opt: { vals: [3, 5, 7], unit: "Karten", def: 5 },
     info: ["Der Zeitstrahl – nur digital und jeder am eigenen Handy.", "Ein Handy eröffnet einen Raum und spielt die Musik, die anderen treten mit dem Code bei. Alle sehen denselben Zeitstrahl. Jeder hat verdeckte Handkarten. Wer dran ist, hört einen Song aus seiner Hand und legt ihn an die passende Stelle. Richtig: Die Karte bleibt im Zeitstrahl. Falsch: Sie fliegt raus und du ziehst eine neue. Wer zuerst keine Karten mehr hat, gewinnt."] },
+  pj: { name: "Punktejagd online", wer: "2–8 Personen", sub: "alle legen gleichzeitig", min: 2, opt: { vals: [10, 18, 25], unit: "Songs", def: 18 },
+    info: ["Alle legen gleichzeitig – verdeckt am eigenen Handy.", "Ein Song läuft, jeder tippt die Lücke im gemeinsamen Zeitstrahl, in die er gehört. Wer richtig liegt, bekommt einen Punkt. Danach kommt die Karte an ihren Platz."] },
+  spr: { name: "Intro-Sprint online", wer: "2–10 Personen", sub: "wer erkennt's zuerst?", min: 2, opt: { vals: [10, 15, 20], unit: "Punkte", def: 15 },
+    info: ["Erst ein paar Sekunden, dann mehr.", "Der Song läuft kurz an, jeder sieht vier Antworten. Wer zuerst richtig tippt, bekommt die Punkte der Stufe – je früher, desto mehr. Falsch getippt heißt: raus für diesen Song."] },
+  pok: { name: "Zeit-Poker online", wer: "2–8 Personen", sub: "verdeckt tippen & setzen", min: 2, opt: { vals: [6, 8, 12], unit: "Songs", def: 8 },
+    info: ["Tippen, setzen, bluffen – jeder am eigenen Handy.", "Jeder tippt verdeckt ein Jahr und setzt Chips. Wer am nächsten dran ist, gewinnt den Pot, bei genau richtig verdoppelt die Bank."] },
+  djo: { name: "Der DJ lügt online", wer: "2–8 Personen", sub: "Wahrheit oder Lüge?", min: 2, opt: { vals: [1, 2, 3], unit: "× DJ", def: 2 },
+    info: ["Nur der DJ sieht das Jahr – auf seinem Handy.", "Der DJ sagt ein Jahr an, echt oder gelogen. Alle anderen stimmen gleichzeitig ab: „Glaub ich“ oder „Gelogen!“."] },
+  memo2: { name: "Gedächtnis-Mixtape online", wer: "2–8 Personen", sub: "alle antworten gleichzeitig", min: 2, opt: { vals: [4, 6, 8], unit: "Fragen", def: 6 },
+    info: ["Gut zuhören – dann antworten alle gleichzeitig.", "6 Songs laufen je 15 Sekunden. Danach beantwortet jeder die Fragen auf seinem Handy."] },
+  duel: { name: "Duell-Zeitstrahl online", wer: "2 Personen", sub: "eigener Zeitstrahl, Klauen", min: 2, max: 2, opt: { vals: [5, 10], unit: "Karten", def: 10 },
+    info: ["Jeder baut seinen eigenen Zeitstrahl – am eigenen Handy.", "Wer dran ist, legt den Song in den eigenen Zeitstrahl. Der andere kann für eine Klau-Marke tippen, wo er wirklich hingehört. Wer Titel & Interpret erkennt, bekommt eine Marke."] },
+  wun: { name: "Wunschkonzert online", wer: "2–6 Personen", sub: "Kategorie verdeckt wählen", min: 2, opt: { vals: [5, 10], unit: "Karten", def: 10 },
+    info: ["Du suchst dem Nächsten die Kategorie aus – verdeckt.", "Der Vorgänger wählt auf seinem Handy eine von drei Kategorien, der Song läuft, und wer dran ist, ordnet ihn in den gemeinsamen Zeitstrahl ein."] },
+  tvq: { name: "Melodien-Quiz online", wer: "2–10 Personen", sub: "vier Antworten, wer zuerst?", min: 2, opt: { vals: [5, 10, 15], unit: "Punkte", def: 10 },
+    info: ["Melodie läuft – wer erkennt sie zuerst?", "Jeder sieht vier Antworten. Wer zuerst richtig tippt, bekommt den Punkt, falsch heißt raus für diese Melodie."] },
   memo: { name: "Gedächtnis-Mixtape", wer: "1–6 Personen", sub: "6 Songs merken", R: [[4, "4"], [6, "6"], [8, "8"]], Rd: 6, Rl: "Fragen", min: 1,
     info: ["Gut zuhören – danach wird gefragt.", "6 Songs laufen hintereinander, je 15 Sekunden, ohne Titel. Danach kommen Fragen: Welcher kam als vierter? Welcher war der älteste? Welcher kam direkt nach …? Reihum beantwortet jeder eine Frage."] },
 };
 const EX_COL = ZS_COL;
 let ex = store.get("ex", null), exNow = null, exTimer = null, exMemoT = null;
 const exSave = () => store.set("ex", ex);
-const exS = k => RS_BY.get(k);
+// Song (Titel|Interpret) oder Titelmelodie („tv:Serie“, „kids:…“ usw.)
+const TV_BY = new Map(Object.values(TV_DATEN).flatMap(D => D.liste).map(x => [x.i, x]));
+const exS = k => RS_BY.get(k) || TV_BY.get(k);
 const exShuf = a => a.map(x => [x, Math.random()]).sort((p, q) => p[1] - q[1]).map(x => x[0]);
 function exDraw(n, distinctYears){
   const pool = zsPool(ex.cats).filter(s => !offPlay(s)), used = new Set(ex.used), out = [], ys = new Set();
@@ -3883,11 +3906,11 @@ async function exPlay(k, o = {}){
   if (!sp.tok()) { if (m) m.innerHTML = `<div class="msg warn">Zum Abspielen erst unter „Spiel“ bei Spotify anmelden.</div>`; return false; }
   clearTimeout(exTimer); exNow = k; exMark();
   try {
-    const tr = await resolveTrack(exS(k)); if (exNow !== k) return false;
+    const it = exS(k), tr = it?.tv ? await resolveTV(it) : await resolveTrack(it); if (exNow !== k) return false;
     const dev = (rsDevC && Date.now() - rsDevC.t < 120000) ? rsDevC : await getDevice();
     if (!dev) { exNow = null; exMark(); if (m) { m.innerHTML = `<div class="msg warn">Spotify schläft gerade.</div><button class="btn" id="exWake">Spotify wecken &amp; abspielen</button>`; $("#exWake").onclick = () => openSpotify(() => exPlay(k, o)); } return false; }
     if (dev.is_active === false) { await sp.api("/me/player", { method: "PUT", body: JSON.stringify({ device_ids: [dev.id], play: false }) }).catch(() => {}); await sleep(600); }
-    const pos = tr.dur ? Math.floor(tr.dur * .3) : 40000, sil = await silentList().catch(() => null);
+    const pos = o.pos ?? (it?.tv ? 0 : tr.dur ? Math.floor(tr.dur * .3) : 40000), sil = await silentList().catch(() => null);
     await sp.api(`/me/player/play?device_id=${dev.id}`, { method: "PUT", body: JSON.stringify(sil ? { uris: [tr.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [tr.uri], position_ms: pos }) });
     rsDevC = { id: dev.id, t: Date.now() }; store.set("lastDev", { id: dev.id, t: Date.now() });
     if (o.stopMs) exTimer = setTimeout(exStop, o.stopMs);
@@ -3924,7 +3947,7 @@ function exOpen(g){
 }
 function exRender(){
   const box = $("#exBox"); if (!ex) return show("setup");
-  if (ex.game === "blitz" || ex.game === "zon") return blRender(box);
+  if (OL_GAMES.includes(ex.game)) return blRender(box);
   if (ex.view === "setup") return exSetup(box);
   if (ex.done) return exEnd(box);
   ({ blind: exBlind, poker: exPoker, dj: exDj, memo: exMemo })[ex.game](box);
@@ -3934,17 +3957,20 @@ function exSetup(box){
   const R = o["R_" + ex.game] ?? D.Rd, open = ex.players && !ex.done;
   const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
   if (o.names.length < D.min) o.names.push("");
+  const OLK = EX_ONLINE[ex.game], onl = !!OLK && store.get("online:" + ex.game, false);
   box.innerHTML = exTop(D.sub) + `
     ${open ? `<div class="panel"><div class="small">Laufende Runde: ${ex.players.map(p => esc(p.n)).join(" · ")}</div><button class="btn" id="exCont">${IC_PLAY} Weiterspielen</button></div>` : ""}
     <p class="sub" style="margin-top:4px"><b>${D.info[0]}</b> ${D.info[1]}</p>
-    <div class="panel"><b>Wer spielt?</b> <span class="small">(${D.wer}, das Handy geht reihum)</span>
+    ${OLK ? `<div class="panel"><b>Wie spielt ihr?</b><div class="seg" id="exOn" style="margin-top:8px"><button data-on="0" class="${onl ? "" : "on"}">An einem Handy</button><button data-on="1" class="${onl ? "on" : ""}">Online</button></div>
+      <div class="small" style="margin-top:6px">${onl ? "Jeder spielt am eigenen Handy, ein Handy spielt die Musik. Die anderen treten mit dem Raum-Code bei." : "Das Handy geht reihum."}</div></div>` : ""}
+    <div class="panel" ${onl ? 'style="display:none"' : ""}><b>Wer spielt?</b> <span class="small">(${D.wer}, das Handy geht reihum)</span>
       <div id="exNames" style="margin-top:8px">${o.names.map((n, i) => `<div class="row" style="margin-bottom:6px"><input type="text" data-xn="${i}" value="${esc(n)}" placeholder="Name ${i + 1}" maxlength="16">${o.names.length > D.min ? `<button class="btn sec small" data-xdel="${i}" style="width:auto;margin:0">✕</button>` : ""}</div>`).join("")}</div>
       ${o.names.length < 6 ? `<button id="exAdd" style="background:none;border:0;color:#ffd1e6;font-weight:700;cursor:pointer;padding:4px 0">+ Person hinzufügen</button>` : ""}</div>
-    <div class="panel"><b>${D.Rl}</b><div class="seg" id="exR" style="margin-top:8px">${D.R.map(([v, l]) => `<button data-r="${v}" class="${v === R ? "on" : ""}">${l}</button>`).join("")}</div></div>
+    <div class="panel" ${onl ? 'style="display:none"' : ""}><b>${D.Rl}</b><div class="seg" id="exR" style="margin-top:8px">${D.R.map(([v, l]) => `<button data-r="${v}" class="${v === R ? "on" : ""}">${l}</button>`).join("")}</div></div>
     <div class="panel"><b>Welche Songs?</b> <span class="small">(${zsPool(o.cats).length} Songs im Mix)</span>
       ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}</div>
     <div id="exMsg"></div>
-    <button class="btn" id="exGo">${open ? "Neue Runde starten" : "Los geht's"}</button>`;
+    <button class="btn" id="exGo">${onl ? "Online-Raum öffnen" : open ? "Neue Runde starten" : "Los geht's"}</button>`;
   const names = () => [...box.querySelectorAll("[data-xn]")].map(el => el.value.trim());
   const saveO = () => store.set("exOpt", { ...o, names: names() });
   exBackBind(); $("#exBack").onclick = () => { saveO(); show("setup"); };
@@ -3955,7 +3981,9 @@ function exSetup(box){
   $("#exAdd")?.addEventListener("click", () => { o.names = [...names(), ""]; store.set("exOpt", o); exSetup(box); });
   box.querySelectorAll("[data-xdel]").forEach(b => b.onclick = () => { o.names = names().filter((_, i) => i !== +b.dataset.xdel); store.set("exOpt", o); exSetup(box); });
   box.querySelectorAll("[data-xn]").forEach(el => el.oninput = saveO);
+  box.querySelectorAll("#exOn [data-on]").forEach(b => b.onclick = () => { saveO(); store.set("online:" + ex.game, b.dataset.on === "1"); exSetup(box); });
   $("#exGo").onclick = async () => {
+    if (onl) { saveO(); store.set("exOpt", { ...store.get("exOpt", {}), cats: o.cats }); ex = { game: OLK, view: "setup", fromMix: true, cats: [...o.cats], used: [] }; exSave(); return exRender(); }
     const nm = names(), ns = nm.map((n, i) => n || (nm.length > 1 ? "Person " + (i + 1) : "Ich")); saveO();
     if (ns.length < D.min) { $("#exMsg").innerHTML = `<div class="msg warn">Für ${D.name} braucht ihr mindestens ${D.min} Personen.</div>`; return; }
     if (zsPool(o.cats).length < 30) { $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`; return; }
@@ -4197,7 +4225,8 @@ function blConnect(){
 function blClose(){ try { bl.es?.close(); } catch(_) {} bl.es = null; }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && bl.code && curView === "extra" && blOnline() && (!bl.es || bl.es.readyState === 2)) blConnect(); });
 const blMe = () => bl.st?.players?.[blPid()];
-const blOnline = () => ex?.game === "blitz" || ex?.game === "zon";
+const OL_GAMES = ["blitz", "zon", "pj", "spr", "pok", "djo", "memo2", "duel", "wun", "tvq"];
+const blOnline = () => OL_GAMES.includes(ex?.game);
 // Nur Tipps dieser Runde von Leuten, die noch im Raum sind
 const blGuesses = st => Object.fromEntries(Object.entries(st?.guess || {}).filter(([id, x]) => x && x.r === st.round && st.players?.[id]));
 const blHost = () => bl.st?.host === blPid();
@@ -4224,9 +4253,10 @@ function blRender(box){
         <div class="small">Die anderen öffnen Mixtape → Extras → ${esc(D.name)} → <b>Beitreten</b> und geben den Code ein.</div></div>
       <div class="panel"><b>Dabei (${P.length})</b>${P.map((p, i) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(p.n)}</span>${p.id === st.host ? " spielt die Musik" : ""}</span>${host && p.id !== blPid() ? `<button class="btn sec small" data-kick="${esc(p.id)}" style="width:auto;margin:0">✕</button>` : ""}</div>`).join("")}</div>
       <div id="exMsg"></div>
-      ${host ? `<button class="btn" id="blGo" ${P.length < 2 ? "disabled" : ""}>${P.length < 2 ? "Warte auf Mitspieler …" : st.game === "zon" ? `Los geht's (${st.cfg?.hand || 5} Karten je Person)` : `Los geht's (${R} Songs)`}</button>` : `<div class="panel small" style="text-align:center">Warte, bis ${esc(st.players?.[st.host]?.n || "der Host")} startet …</div>`}
+      ${host ? `<button class="btn" id="blGo" ${P.length < (D.min || 2) || (D.max && P.length > D.max) ? "disabled" : ""}>${P.length < (D.min || 2) ? "Warte auf Mitspieler …" : D.max && P.length > D.max ? `Nur ${D.max} Personen möglich` : `Los geht's (${st.cfg?.v ?? R} ${D.opt?.unit || "Songs"})`}</button>` : `<div class="panel small" style="text-align:center">Warte, bis ${esc(st.players?.[st.host]?.n || "der Host")} startet …</div>`}
       <button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
   } else if (st.game === "zon") return zonRender(box, st, P, host);
+  else if (OL[st.game]) return OL[st.game].render(box, st, P, host);
   else if (st.phase === "play") {
     const g = blGuesses(st), mine = g[blPid()], n = Object.keys(g).length;
     box.innerHTML = exTop(`Song ${st.round} von ${R}`) + score + `${exHid("Song " + st.round + " läuft …", host ? "Nur du hörst über dein Spotify – stell die Musik laut" : "Hör genau hin")}
@@ -4260,7 +4290,7 @@ function blRender(box){
     try { await fb(host ? bl.code : `${bl.code}/players/${blPid()}`, "DELETE"); } catch(_) {}
     blLeave(); blRender(box); });
   box.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => fb(`${bl.code}/players/${b.dataset.kick}`, "DELETE").catch(() => {}));
-  $("#blGo")?.addEventListener("click", () => st.game === "zon" ? zonStart() : blRound(1));
+  $("#blGo")?.addEventListener("click", () => st.game === "zon" ? zonStart() : OL[st.game] ? OL[st.game].start(st, P) : blRound(1));
   $("#blNext")?.addEventListener("click", () => st.round >= R ? fb(bl.code, "PATCH", { phase: "end" }).then(exStop).catch(() => {}) : blRound(st.round + 1));
   $("#blAgain")?.addEventListener("click", () => { const up = { phase: "lobby", round: 0, guess: null, reveal: null }; P.forEach(p => { up[`players/${p.id}/pts`] = 0; up[`players/${p.id}/zt`] = 0; }); fb(bl.code, "PATCH", up).catch(() => {}); });
   $("#blRev")?.addEventListener("click", blReveal);
@@ -4270,21 +4300,23 @@ function blRender(box){
 function blBack(){ $("#exBack").onclick = () => { blClose(); show("setup"); }; }
 // Start: eröffnen oder beitreten
 function blStart(box){
-  const D = EX_DEF[ex.game] || EX_DEF.blitz, zon = ex.game === "zon", o = { cats: ["global", "dehits"], ...store.get("exOpt", {}) }, R = store.get("blitzR", 10), Hn = store.get("zonHand", 5), name = store.get("blitzName", "");
+  const D = EX_DEF[ex.game] || EX_DEF.blitz, o = { cats: ["global", "dehits"], ...store.get("exOpt", {}) }, OV = store.get("olOpt:" + ex.game, D.opt?.def ?? 10), name = store.get("blitzName", "");
   const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
   box.innerHTML = exTop(D.sub) + `<p class="sub" style="margin-top:4px"><b>${D.info[0]}</b> ${D.info[1]}</p>
     <div class="panel"><b>Dein Name</b><input type="text" id="blName" value="${esc(name)}" placeholder="Name" maxlength="16" style="margin-top:6px"></div>
     <div class="panel"><b>Mitspielen</b><div class="row" style="gap:6px;margin-top:6px"><input type="text" id="blCodeIn" placeholder="Raum-Code" maxlength="5" style="text-transform:uppercase;letter-spacing:3px;font-weight:800"><button class="btn" id="blJoin" style="width:auto;margin:0">Beitreten</button></div></div>
     <div class="panel"><b>Oder selbst eröffnen</b> <span class="small">(dein Handy spielt die Musik über Spotify)</span>
-      <div class="seg" id="blR" style="margin-top:8px">${(zon ? [[3, "3"], [5, "5"], [7, "7"]] : [[5, "5"], [10, "10"], [15, "15"]]).map(([v, l]) => `<button data-r="${v}" class="${v === (zon ? Hn : R) ? "on" : ""}">${l} ${zon ? "Karten" : "Songs"}</button>`).join("")}</div>
-      ${ex.fromMix ? `<div class="small" style="margin-top:8px">Songs aus eurem Mix: ${o.cats.map(c => esc(CAT[c]?.name || c)).join(", ")}</div>`
+      <div class="seg" id="blR" style="margin-top:8px">${(D.opt?.vals || [10]).map(v => `<button data-r="${v}" class="${v === OV ? "on" : ""}">${v} ${D.opt?.unit || ""}</button>`).join("")}</div>
+      ${ex.game === "tvq" ? `<div class="small" style="margin-top:8px">Melodien aus: ${(ex.sets || ["tv"]).map(k => esc(TV_DATEN[k]?.name || k)).join(", ")}</div>`
+        : ex.game === "wun" ? `<div class="small" style="margin-top:8px">Es spielen alle Kategorien mit.</div>`
+        : ex.fromMix ? `<div class="small" style="margin-top:8px">Songs aus eurem Mix: ${o.cats.map(c => esc(CAT[c]?.name || c)).join(", ")}</div>`
         : groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}
       <button class="btn" id="blNew" style="margin-top:10px">Raum eröffnen</button></div>
     <div id="exMsg">${bl.err ? `<div class="msg warn">${esc(bl.err)}</div>` : ""}</div>`;
   bl.err = ""; blBack();
   const nm = () => { const n = $("#blName").value.trim(); store.set("blitzName", n); return n; };
   $("#blName").oninput = nm;
-  box.querySelectorAll("#blR button").forEach(b => b.onclick = () => { nm(); store.set(zon ? "zonHand" : "blitzR", +b.dataset.r); blStart(box); });
+  box.querySelectorAll("#blR button").forEach(b => b.onclick = () => { nm(); store.set("olOpt:" + ex.game, +b.dataset.r); blStart(box); });
   box.querySelectorAll("[data-xc]").forEach(b => b.onclick = () => { nm(); const c = b.dataset.xc; o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c]; if (!o.cats.length) o.cats = [c]; store.set("exOpt", { ...store.get("exOpt", {}), cats: o.cats }); blStart(box); });
   $("#blJoin").onclick = () => { const c = $("#blCodeIn").value.trim().toUpperCase(), n = nm();
     if (!n) return $("#exMsg").innerHTML = `<div class="msg warn">Bitte erst deinen Namen eintragen.</div>`;
@@ -4293,9 +4325,9 @@ function blStart(box){
   $("#blNew").onclick = async () => { const n = nm();
     if (!n) return $("#exMsg").innerHTML = `<div class="msg warn">Bitte erst deinen Namen eintragen.</div>`;
     if (!sp.tok()) return $("#exMsg").innerHTML = `<div class="msg warn">Wer eröffnet, spielt die Musik – bitte erst unter „Spiel“ bei Spotify anmelden. Alle anderen können ohne Spotify beitreten.</div>`;
-    if (zsPool(o.cats).filter(s => !offPlay(s)).length < 30) return $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`;
+    if (!["tvq", "wun"].includes(ex.game) && zsPool(o.cats).filter(s => !offPlay(s)).length < 30) return $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`;
     const code = Array.from(crypto.getRandomValues(new Uint8Array(5)), x => BL_ABC[x % BL_ABC.length]).join("");
-    try { await fb(code, "PUT", { game: ex.game, host: blPid(), ts: SVT, phase: "lobby", round: 0, cfg: zon ? { hand: store.get("zonHand", 5) } : { rounds: store.get("blitzR", 10) }, players: { [blPid()]: { n, pts: 0, j: SVT } } });
+    try { await fb(code, "PUT", { game: ex.game, host: blPid(), ts: SVT, phase: "lobby", round: 0, cfg: { v: OV, rounds: OV, hand: OV, ...(ex.sets ? { sets: ex.sets } : {}) }, players: { [blPid()]: { n, pts: 0, j: SVT } } });
       ex.cats = o.cats; ex.used = []; exSave(); bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender(box);
     } catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; } };
 }
@@ -4392,6 +4424,337 @@ function zonRender(box, st, P, host){
     store.del("zonHost"); blLeave(); blRender(box); });
   if (host && st.phase === "play" && pend >= 0) zonResolve(st);
 }
+
+// =====================================================================
+//  WEITERE ONLINE-MODI (gleicher Raum-Mechanismus wie Jahres-Blitz / Zeitstrahl online)
+//  Host = Handy, das die Musik spielt. Geheimes (Song, Antworten) kennt nur der Host (bl.h, lokal gespeichert).
+// =====================================================================
+const olHost = () => { if (bl.h?.code === bl.code) return bl.h; const h = store.get("olHost", null); bl.h = h?.code === bl.code ? h : { code: bl.code }; return bl.h; };
+const olSave = () => store.set("olHost", bl.h);
+const olPatch = up => fb(bl.code, "PATCH", up);
+const olOnce = tag => { bl.once ??= new Set(); const t = bl.code + "|" + tag; if (bl.once.has(t)) return false; bl.once.add(t); return true; };
+// Einträge dieser Runde (z. B. Tipps) von Leuten, die noch im Raum sind
+const olIn = (st, key) => Object.fromEntries(Object.entries(st?.[key] || {}).filter(([id, x]) => x && x.r === st.round && st.players?.[id]));
+const olCol = (P, id) => EX_COL[Math.max(0, P.findIndex(p => p.id === id)) % 6];
+const olName = (st, id) => esc(st.players?.[id]?.n || "?");
+const olTag = (P, st, id) => `<span class="rsWho rsMe" style="--c:${olCol(P, id)}">${olName(st, id)}</span>`;
+const olScore = (P, st, val = p => p.pts || 0, on = null) => `<div class="zsPl ex">${P.map(p => `<div class="zsP ${p.id === (on ?? blPid()) ? "on" : ""} ${p.out ? "out" : ""}" style="--c:${olCol(P, p.id)}"><b>${esc(p.n)}${p.id === st.host ? " <span class=dw data-dw=music></span>" : ""}</b><span>${val(p)}</span></div>`).join("")}</div>`;
+const olGapLbl = (tl, j) => !tl.length ? "irgendwo" : j === 0 ? "vor " + tl[0].y : j >= tl.length ? "nach " + tl.at(-1).y : `zwischen ${tl[j - 1].y} und ${tl[j].y}`;
+const olOk = (tl, j, y) => (j === 0 || tl[j - 1].y <= y) && (j >= tl.length || y <= tl[j].y);
+const olIns = (tl, k, y) => { const t = [...tl]; let j = t.findIndex(c => c.y > y); if (j < 0) j = t.length; t.splice(j, 0, { k, y }); return [t, j]; };
+// Zeitstrahl mit Lücken. o.click: Lücken antippbar · o.mark(j): Text in der Lücke · o.hi: Index der neuen Karte
+function olLine(tl, o = {}){
+  const row = (c, j) => !exS(c.k) ? "" : `<div class="zlRow ${o.hi === j ? "zlNew" : ""}"><b>${c.y}</b><span>${esc(showT(exS(c.k)))} · ${esc(showA(exS(c.k)))}</span></div>`;
+  const gap = j => o.click ? `<button class="zlGap" data-gap="${j}">hier einordnen</button>` : o.mark?.(j) ? `<div class="zlGap on">${o.mark(j)}</div>` : `<div class="zlSp"></div>`;
+  return `<div class="zlLine">${tl.map((c, j) => gap(j) + row(c, j)).join("")}${gap(tl.length)}</div>`;
+}
+// Antwortauswahl (Songs oder Texte). o.mine: gewählter Index · o.ok: richtiger Index (nach Auflösen)
+function olOpts(list, o = {}){
+  return `<div class="olOpts">${list.map((x, j) => { const s = typeof x === "string" && !exS(x) ? null : exS(x);
+    const cls = o.ok != null ? (j === o.ok ? "good" : j === o.mine ? "badc" : "") : j === o.mine ? "on" : "";
+    return `<button class="rsOpt ${cls}" data-opt="${j}" ${o.lock ? "disabled" : ""}><div class="tx"><b>${esc(s ? showT(s) : String(x))}</b>${s ? `<span>${esc(showA(s))}</span>` : ""}</div></button>`; }).join("")}</div>`;
+}
+const olRank = (P, val) => [...P].sort((a, b) => val(b) - val(a));
+function olEnd(P, st, val, unit){
+  const R = olRank(P, val), tie = R.length > 1 && val(R[0]) === val(R[1]);
+  return `<div class="panel" style="text-align:center"><div style="font-size:44px"><span class=dw data-dw=trophy></span></div><h2 style="margin:6px 0">${tie ? "Unentschieden!" : esc(R[0]?.n || "") + " gewinnt!"}</h2></div>
+    <div class="panel">${R.map((p, r) => `<div class="row" style="padding:5px 0"><span><b>${r + 1}. ${esc(p.n)}</b></span><span class="small">${val(p)} ${unit}</span></div>`).join("")}</div>`;
+}
+const olFoot = (st, host, P) => `${host && st.phase === "end" ? `<button class="btn" id="olAgain">Nochmal – gleiche Leute</button>` : ""}<button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
+function olBindCommon(box, st, P, host, reset){
+  rsCovers(box); blBack(); exBindPl();
+  $("#olAgain")?.addEventListener("click", () => { const up = { phase: "lobby", round: 0, ...reset }; P.forEach(p => { up[`players/${p.id}/pts`] = 0; up[`players/${p.id}/out`] = null; }); olPatch(up).catch(() => {}); });
+  $("#blQuit")?.addEventListener("click", async () => {
+    if (!await ask(host ? "Raum für alle schließen?" : "Raum verlassen?")) return;
+    try { await fb(host ? bl.code : `${bl.code}/players/${blPid()}`, "DELETE"); } catch(_) {}
+    store.del("olHost"); blLeave(); blRender(box); });
+}
+const olPool = () => { ex.cats ??= store.get("exOpt", {}).cats || ["global", "dehits"]; ex.used ??= []; return exShuf(zsPool(ex.cats).filter(s => !offPlay(s)).map(zsKey)); };
+const olPlayBtn = (host, k) => host && k ? `<div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(k)}</div>` : "";
+// vier Antworten zum Song: richtiger + 3 andere (verschiedene Titel)
+function olChoices(k, pool){
+  const t = showT(exS(k)).toLowerCase(), out = [k];
+  for (const x of exShuf(pool)) { if (out.length >= 4) break; if (x !== k && !out.some(o => showT(exS(o)).toLowerCase() === showT(exS(x)).toLowerCase()) && showT(exS(x)).toLowerCase() !== t) out.push(x); }
+  return exShuf(out);
+}
+const olYearPick = id => `<div class="pkY"><button class="btn sec small" data-dy="-10">−10</button><button class="btn sec small" data-dy="-1">−1</button><div class="pkV" id="${id}">${bl.y}</div><button class="btn sec small" data-dy="1">+1</button><button class="btn sec small" data-dy="10">+10</button></div>`;
+function olBindYear(box, id){ box.querySelectorAll("[data-dy]").forEach(x => x.onclick = () => { bl.y = Math.max(1920, Math.min(new Date().getFullYear(), bl.y + +x.dataset.dy)); $("#" + id).textContent = bl.y; }); }
+const olPut = (path, v) => fb(`${bl.code}/${path}`, "PUT", v).catch(e => { const m = $("#exMsg"); if (m) m.innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; });
+
+// ---------- Punktejagd online: alle legen gleichzeitig verdeckt in den gemeinsamen Zeitstrahl ----------
+const PJ = {
+  async start(st, P){ const h = olHost(); h.deck = olPool(); const a = h.deck.pop(), b = h.deck.pop();
+    const tl = [{ k: a, y: exS(a).y }, { k: b, y: exS(b).y }].sort((x, y) => x.y - y.y); olSave(); await PJ.round(1, tl); },
+  async round(r, tl){ const h = olHost(); h.song = h.deck.pop(); olSave();
+    await olPatch({ phase: "play", round: r, tl, pick: null, rev: null }); exPlay(h.song); },
+  async reveal(st, P){ const h = olHost(); if (!h.song || !olOnce("pj" + st.round)) return; exStop();
+    const k = h.song, y = exS(k).y, tl = st.tl || [], picks = olIn(st, "pick"), ok = {}, lbl = {}, up = {};
+    for (const [id, x] of Object.entries(picks)) { ok[id] = olOk(tl, x.i, y); lbl[id] = olGapLbl(tl, x.i); if (ok[id]) up[`players/${id}/pts`] = (st.players[id].pts || 0) + 1; }
+    const [nt, j] = olIns(tl, k, y);
+    await olPatch({ ...up, phase: "reveal", tl: nt, rev: { k, y, ok, lbl, j } }); },
+  render(box, st, P, host){
+    const R = st.cfg?.v || 18, tl = st.tl || [], picks = olIn(st, "pick"), mine = picks[blPid()], n = Object.keys(picks).length, rv = st.rev || {};
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Song ${st.round} von ${R}`) + olScore(P, st);
+    if (st.phase === "play") h += exHid(`Song ${st.round} läuft …`, mine ? `Dein Tipp: ${olGapLbl(tl, mine.i)} · warte auf die anderen (${n}/${P.length})` : "Wohin gehört er? Tippe auf die Lücke – die anderen sehen deinen Tipp nicht")
+      + olPlayBtn(host, olHost().song) + `<div id="exMsg"></div>` + (host ? `<button class="btn sec" id="pjRev">Auflösen${n < P.length ? ` (${n}/${P.length} getippt)` : ""}</button>` : "")
+      + olLine(tl, { click: !mine, mark: j => mine?.i === j ? "dein Tipp" : "" });
+    else if (st.phase === "reveal" && rv.k) h += `<div class="zsRes ok">${exCard(rv.k)}</div><div class="panel">${P.map(p => `<div class="row" style="padding:4px 0"><span>${olTag(P, st, p.id)}</span><span class="small">${rv.lbl?.[p.id] ? esc(rv.lbl[p.id]) + (rv.ok?.[p.id] ? ` · <b style="color:#9be15d">+1</b>` : " · daneben") : "kein Tipp"}</span></div>`).join("")}</div>`
+      + `<div id="exMsg"></div>` + (host ? `<button class="btn" id="pjNext">${st.round >= R ? "Ergebnis" : "Nächster Song →"}</button>` : "") + olLine(tl, { hi: rv.j });
+    else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "Punkte") + olLine(tl);
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { tl: null, pick: null, rev: null });
+    box.querySelectorAll("[data-gap]").forEach(b => b.onclick = () => { box.querySelectorAll("[data-gap]").forEach(x => x.disabled = true); olPut(`pick/${blPid()}`, { i: +b.dataset.gap, r: st.round }); });
+    $("#pjRev")?.addEventListener("click", () => PJ.reveal(st, P));
+    $("#pjNext")?.addEventListener("click", () => st.round >= R ? olPatch({ phase: "end" }) : PJ.round(st.round + 1, st.tl));
+    if (host && st.phase === "play" && n >= P.length) PJ.reveal(st, P);
+  },
+};
+
+// ---------- Intro-Sprint online: kurze Ausschnitte, vier Antworten, wer zuerst richtig tippt ----------
+const SPR_ST = () => SPIELMODI.find(m => m.id === "sprint")?.app.stufen || [[3, 3], [7, 2], [15, 1]];
+const SPR = {
+  async start(){ const h = olHost(); h.deck = olPool(); olSave(); await SPR.round(1); },
+  async round(r){ const h = olHost(); h.song = h.deck.pop(); const opts = olChoices(h.song, h.deck.slice(-60)); h.ok = opts.indexOf(h.song); olSave();
+    await olPatch({ phase: "play", round: r, stage: 0, opts, ans: null, rev: null }); SPR.play(0); },
+  play(k){ const s = SPR_ST()[k]; exPlay(olHost().song, { pos: 0, stopMs: s[0] * 1000 }); },
+  async reveal(st, P, win){ const h = olHost(); if (!olOnce("spr" + st.round)) return; exStop();
+    const pts = win ? SPR_ST()[st.ans[win].k][1] : 0, up = { phase: "reveal", rev: { k: h.song, ok: h.ok, win: win || null, pts } };
+    if (win) up[`players/${win}/pts`] = (st.players[win].pts || 0) + pts;
+    await olPatch(up); },
+  render(box, st, P, host){
+    const Z = st.cfg?.v || 15, S = SPR_ST(), k = st.stage || 0, ans = olIn(st, "ans"), mine = ans[blPid()], rv = st.rev || {}, h0 = olHost();
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Song ${st.round} · bis ${Z} Punkte`) + olScore(P, st);
+    if (st.phase === "play") h += `<div class="panel" style="text-align:center"><b>Stufe ${k + 1}: ${S[k][0]} Sekunden</b><div class="small">richtig jetzt: ${S[k][1]} ${S[k][1] === 1 ? "Punkt" : "Punkte"} · jeder hat einen Versuch pro Song</div></div>`
+      + olPlayBtn(host, h0.song) + `<div id="exMsg"></div>`
+      + (mine ? `<div class="panel small" style="text-align:center">Antwort abgegeben – warte auf die Auflösung</div>` : "")
+      + olOpts(st.opts || [], { mine: mine?.o, lock: !!mine })
+      + (host ? (k < S.length - 1 ? `<button class="btn sec" id="spMore">Länger hören (${S[k + 1][0]} s · ${S[k + 1][1]} ${S[k + 1][1] === 1 ? "Punkt" : "Punkte"})</button>` : "") + `<button class="btn sec" id="spRev">Auflösen</button>` : "");
+    else if (st.phase === "reveal") h += `<div class="zsRes ${rv.win ? "ok" : "no"}"><div class="zsV">${rv.win ? `${olName(st, rv.win)} wusste es! +${rv.pts}` : "Niemand hat's erkannt"}</div>${rv.k ? exCard(rv.k) : ""}</div>`
+      + olOpts(st.opts || [], { ok: rv.ok, mine: mine?.o, lock: true }) + `<div id="exMsg"></div>`
+      + (host ? `<button class="btn" id="spNext">${P.some(p => (p.pts || 0) >= Z) ? "Ergebnis" : "Nächster Song →"}</button>` : "");
+    else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "Punkte");
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { opts: null, ans: null, rev: null });
+    box.querySelectorAll("[data-opt]").forEach(b => b.onclick = () => { if (mine || st.phase !== "play") return; box.querySelectorAll("[data-opt]").forEach(x => x.disabled = true); b.classList.add("on"); olPut(`ans/${blPid()}`, { o: +b.dataset.opt, t: SVT, r: st.round, k }); });
+    $("#spMore")?.addEventListener("click", async () => { await olPatch({ stage: k + 1 }); SPR.play(k + 1); });
+    $("#spRev")?.addEventListener("click", () => SPR.reveal(st, P, null));
+    $("#spNext")?.addEventListener("click", () => P.some(p => (p.pts || 0) >= Z) ? olPatch({ phase: "end" }) : SPR.round(st.round + 1));
+    if (host && st.phase === "play") {   // erste richtige Antwort gewinnt; haben alle falsch getippt: auflösen
+      const right = Object.entries(ans).filter(([, a]) => a.o === h0.ok && a.t).sort((a, b) => a[1].t - b[1].t)[0];
+      if (right) SPR.reveal(st, P, right[0]); else if (Object.keys(ans).length >= P.length) SPR.reveal(st, P, null);
+    }
+  },
+};
+
+// ---------- Zeit-Poker online ----------
+const POK = {
+  async start(st, P){ const h = olHost(); h.deck = olPool(); olSave(); const up = {}; P.forEach(p => { up[`players/${p.id}/chips`] = 10; up[`players/${p.id}/out`] = null; }); await olPatch(up); await POK.round(1); },
+  async round(r){ const h = olHost(); h.song = h.deck.pop(); olSave(); await olPatch({ phase: "play", round: r, bet: null, rev: null }); exPlay(h.song); },
+  async reveal(st, P){ const h = olHost(); if (!olOnce("pok" + st.round)) return; exStop();
+    const y = exS(h.song).y, bets = Object.entries(olIn(st, "bet")), pot = bets.reduce((a, [, x]) => a + x.b, 0);
+    const best = Math.min(...bets.map(([, x]) => Math.abs(x.y - y))), win = bets.filter(([, x]) => Math.abs(x.y - y) === best).map(([id]) => id);
+    const bonus = best === 0 ? pot : 0, share = win.length ? Math.floor((pot + bonus) / win.length) : 0, up = { phase: "reveal", rev: { k: h.song, best, win, share, bonus: !!bonus } };
+    for (const p of P) { if (p.out) continue; const b = bets.find(([id]) => id === p.id)?.[1].b || 0, c = (p.chips ?? 10) - b + (win.includes(p.id) ? share : 0);
+      up[`players/${p.id}/chips`] = c; if (c <= 0) up[`players/${p.id}/out`] = true; }
+    await olPatch(up); },
+  render(box, st, P, host){
+    const R = st.cfg?.v || 8, alive = P.filter(p => !p.out), bets = olIn(st, "bet"), mine = bets[blPid()], me = st.players[blPid()], rv = st.rev || {}, n = Object.keys(bets).length;
+    if (st.phase === "play" && bl.lastRound !== "pok" + st.round) { bl.lastRound = "pok" + st.round; bl.y = 1995; bl.b = 1; }
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Song ${st.round} von ${R}`) + olScore(P, st, p => (p.chips ?? 10) + " Chips");
+    if (st.phase === "play") h += exHid(`Song ${st.round} läuft …`, "Tippt verdeckt ein Jahr und setzt Chips") + olPlayBtn(host, olHost().song) + `<div id="exMsg"></div>`
+      + (me?.out ? `<div class="panel small" style="text-align:center">Du hast keine Chips mehr – schau zu.</div>`
+        : mine ? `<div class="panel" style="text-align:center"><div class="small">Dein Tipp</div><div class="pkV" style="margin:auto">${mine.y}</div><div class="small">Einsatz ${mine.b} · warte (${n}/${alive.length})</div></div>`
+        : olYearPick("pkV2") + `<div class="panel"><b>Einsatz</b> <span class="small">(du hast ${me?.chips ?? 10})</span><div class="seg" id="pkB2" style="margin-top:8px">${[1, 2, 3, 4, 5].filter(b => b <= (me?.chips ?? 10)).map(b => `<button data-b="${b}" class="${b === (bl.b || 1) ? "on" : ""}">${b}</button>`).join("")}</div></div><button class="btn" id="pkGo">Verdeckt abgeben</button>`)
+      + (host ? `<button class="btn sec" id="pkRev">Auflösen (${n}/${alive.length})</button>` : "");
+    else if (st.phase === "reveal" && rv.k) { const y = exS(rv.k).y; h += `<div class="zsRes ok"><div class="zsV">${rv.bonus ? "Volltreffer! Die Bank verdoppelt den Pot" : `Am nächsten dran: ${rv.best} Jahr${rv.best === 1 ? "" : "e"}`}</div>${exCard(rv.k)}</div>
+      <div class="panel">${Object.entries(bets).map(([id, x]) => `<div class="row" style="padding:4px 0"><span>${olTag(P, st, id)}</span><span class="small">tippt <b>${x.y}</b> · setzt ${x.b}${rv.win?.includes(id) ? ` · <b style="color:#9be15d">+${rv.share}</b>` : ""}</span></div>`).join("")}</div><div id="exMsg"></div>`
+      + (host ? `<button class="btn" id="pkNext">${st.round >= R || P.filter(p => !p.out).length < 2 ? "Ergebnis" : "Nächster Song →"}</button>` : ""); }
+    else if (st.phase === "end") h += olEnd(P, st, p => p.chips ?? 0, "Chips");
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { bet: null, rev: null });
+    olBindYear(box, "pkV2");
+    box.querySelectorAll("#pkB2 button").forEach(x => x.onclick = () => { bl.b = +x.dataset.b; box.querySelectorAll("#pkB2 button").forEach(z => z.classList.toggle("on", z === x)); });
+    $("#pkGo")?.addEventListener("click", e => { e.target.disabled = true; olPut(`bet/${blPid()}`, { y: bl.y, b: Math.min(bl.b || 1, me?.chips ?? 10), r: st.round }); });
+    $("#pkRev")?.addEventListener("click", () => POK.reveal(st, P));
+    $("#pkNext")?.addEventListener("click", () => st.round >= R || P.filter(p => !p.out).length < 2 ? olPatch({ phase: "end" }) : POK.round(st.round + 1));
+    if (host && st.phase === "play" && n >= alive.length && n) POK.reveal(st, P);
+  },
+};
+
+// ---------- Der DJ lügt online ----------
+const DJO = {
+  async start(st, P){ const h = olHost(); h.deck = olPool(); olSave(); await DJO.round(1, P); },
+  async round(r, P){ const h = olHost(); h.song = h.deck.pop(); olSave();
+    await olPatch({ phase: "dj", round: r, dj: P[(r - 1) % P.length].id, secret: { k: h.song }, claim: null, vote: null, rev: null }); },
+  async reveal(st, P){ if (!olOnce("dj" + st.round)) return; exStop();
+    const y = exS(st.secret.k).y, truth = st.claim === y, votes = olIn(st, "vote"), up = { phase: "reveal", rev: { truth } }; let fooled = 0;
+    for (const [id, v] of Object.entries(votes)) { if (v.v === truth) up[`players/${id}/pts`] = (st.players[id].pts || 0) + 1; else fooled++; }
+    up[`players/${st.dj}/pts`] = (st.players[st.dj].pts || 0) + fooled; up.rev.fooled = fooled; await olPatch(up); },
+  render(box, st, P, host){
+    const R = (st.cfg?.v || 2) * P.length, isDj = st.dj === blPid(), votes = olIn(st, "vote"), mine = votes[blPid()], others = P.filter(p => p.id !== st.dj), rv = st.rev || {};
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Runde ${st.round} von ${R} · DJ: ${olName(st, st.dj)}`) + olScore(P, st, p => p.pts || 0, st.dj);
+    if (st.phase !== "end" && !exS(st.secret?.k)) { box.innerHTML = h + `<div class="panel small">Einen Moment …</div>` + olFoot(st, host, P); return olBindCommon(box, st, P, host, {}); }
+    if (st.phase === "dj") {
+      if (isDj) { const y = exS(st.secret.k).y, fakes = exShuf([-7, -4, -2, 2, 3, 6].map(x => y + x).filter(v => v >= 1920 && v <= new Date().getFullYear() && v !== y)).slice(0, 3);
+        h += `<div class="small zsLbl">Nur für dich als DJ</div>${exCard(st.secret.k)}<div class="rsYear"><div class="w">Welches Jahr sagst du an?</div></div>
+          <div class="djC"><button class="btn" data-cl="${y}">Die Wahrheit: ${y}</button>${fakes.map(v => `<button class="btn sec" data-cl="${v}">Lügen: ${v}</button>`).join("")}</div>`; }
+      else h += exHid(`${olName(st, st.dj)} ist DJ`, "Der DJ schaut sich gerade den Song an …");
+    } else if (st.phase === "vote") {
+      h += exHid("Song läuft …", `${olName(st, st.dj)} sagt: „Der ist von ${st.claim}“`) + olPlayBtn(host, st.secret?.k) + `<div id="exMsg"></div>`;
+      if (isDj) h += `<div class="panel small" style="text-align:center">Du bist DJ – mal sehen, wen du reinlegst (${Object.keys(votes).length}/${others.length} haben gewählt)</div>`;
+      else h += mine ? `<div class="panel small" style="text-align:center">Du sagst: <b>${mine.v ? "Glaub ich" : "Gelogen!"}</b> · warte auf die anderen</div>`
+        : `<div class="rsYear"><div class="w">Stimmt <b>${st.claim}</b>?</div></div><div class="zsBtns"><button class="btn" data-v="1" id="zsLater">Glaub ich</button><button class="btn" data-v="0" id="zsEarlier">Gelogen!</button></div>`;
+      if (host) h += `<button class="btn sec" id="djRev2">Auflösen</button>`;
+    } else if (st.phase === "reveal") h += `<div class="zsRes ${rv.truth ? "ok" : "no"}"><div class="zsV">${rv.truth ? "✓ Das war die Wahrheit!" : `Gelogen! Gesagt: ${st.claim}`}</div>${exCard(st.secret.k)}</div>
+      <div class="panel">${others.map(p => `<div class="row" style="padding:4px 0"><span>${olTag(P, st, p.id)}</span><span class="small">${votes[p.id] ? (votes[p.id].v ? "glaubte es" : "rief „Gelogen!“") + (votes[p.id].v === rv.truth ? ` · <b style="color:#9be15d">+1</b>` : " · reingelegt") : "keine Wahl"}</span></div>`).join("")}
+        <div class="row" style="padding:4px 0"><span>${olTag(P, st, st.dj)} (DJ)</span><span class="small">${rv.fooled ? `<b style="color:#9be15d">+${rv.fooled}</b> fürs Reinlegen` : "niemanden reingelegt"}</span></div></div><div id="exMsg"></div>`
+      + (host ? `<button class="btn" id="djNext2">${st.round >= R ? "Ergebnis" : "Nächster DJ →"}</button>` : "");
+    else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "Punkte");
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { secret: null, claim: null, vote: null, rev: null });
+    box.querySelectorAll("[data-cl]").forEach(b => b.onclick = () => olPatch({ claim: +b.dataset.cl, phase: "vote" }).catch(() => {}));
+    box.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { box.querySelectorAll("[data-v]").forEach(x => x.disabled = true); olPut(`vote/${blPid()}`, { v: b.dataset.v === "1", r: st.round }); });
+    $("#djRev2")?.addEventListener("click", () => DJO.reveal(st, P));
+    $("#djNext2")?.addEventListener("click", () => st.round >= R ? olPatch({ phase: "end" }) : DJO.round(st.round + 1, P));
+    if (host && st.phase === "vote" && olOnce("djplay" + st.round)) exPlay(st.secret.k);
+    if (host && st.phase === "vote" && Object.keys(votes).length >= others.length) DJO.reveal(st, P);
+  },
+};
+
+// ---------- Gedächtnis-Mixtape online: alle hören, alle antworten gleichzeitig ----------
+const MEMO = {
+  async start(st, P){ const h = olHost(); ex.cats ??= store.get("exOpt", {}).cats || ["global", "dehits"]; ex.used ??= [];
+    h.songs = exDraw(6, true); h.qs = exMemoQs(h.songs, st.cfg?.v || 6); olSave(); await olPatch({ phase: "listen", i: -1, round: 0, q: null, opts: null, ans: null, rev: null }); },
+  async listen(){ const h = olHost();
+    for (let i = 0; i < 6; i++) { if (!bl.code || bl.st?.phase !== "listen") return; await olPatch({ i }); exPlay(h.songs[i]); await sleep(15000); }
+    exStop(); await MEMO.ask(1); },
+  async ask(r){ const h = olHost(), q = h.qs[r - 1]; await olPatch({ phase: "q", round: r, q: q.t, opts: exShuf(h.songs), ans: null, rev: null }); },
+  async reveal(st, P){ const h = olHost(); if (!olOnce("memo" + st.round)) return; const a = h.qs[st.round - 1].a, ans = olIn(st, "ans"), up = { phase: "qrev", rev: { a } };
+    for (const [id, x] of Object.entries(ans)) if (x.k === a) up[`players/${id}/pts`] = (st.players[id].pts || 0) + 1;
+    await olPatch(up); },
+  render(box, st, P, host){
+    const Q = st.cfg?.v || 6, ans = olIn(st, "ans"), mine = ans[blPid()], n = Object.keys(ans).length, rv = st.rev || {}, opts = st.opts || [];
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : st.phase === "listen" ? (st.i >= 0 ? `Song ${st.i + 1} von 6` : "Gut zuhören!") : `Frage ${st.round} von ${Q}`) + olScore(P, st);
+    if (st.phase === "listen") h += `<div class="memoBar">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < st.i ? "done" : i === st.i ? "on" : ""}"></i>`).join("")}</div>`
+      + (st.i >= 0 ? exHid(`Song ${st.i + 1} von 6 läuft …`, "Merk ihn dir") : `<div class="panel" style="text-align:center"><p class="sub">Gleich laufen 6 Songs, je 15 Sekunden. Danach beantwortet jeder ${Q} Fragen auf seinem Handy.</p></div>`)
+      + `<div id="exMsg"></div>` + (host && st.i < 0 ? `<button class="btn" id="mmGo">${IC_PLAY} Mixtape starten</button>` : "");
+    else if (st.phase === "q" || st.phase === "qrev") {
+      const done = st.phase === "qrev";
+      h += `<div class="rsYear"><div class="w"><b>${esc(st.q || "")}</b></div></div>`
+        + olOpts(opts, { mine: mine ? opts.indexOf(mine.k) : undefined, ok: done ? opts.indexOf(rv.a) : undefined, lock: !!mine || done })
+        + (done ? `<div class="panel small">${P.map(p => `${olTag(P, st, p.id)} ${ans[p.id] ? (ans[p.id].k === rv.a ? "✓" : "✗") : "–"}`).join(" ")}</div>` : `<div class="small" style="text-align:center">${n}/${P.length} haben geantwortet</div>`)
+        + `<div id="exMsg"></div>` + (host ? (done ? `<button class="btn" id="mmNext">${st.round >= Q ? "Ergebnis" : "Nächste Frage →"}</button>` : `<button class="btn sec" id="mmRev">Auflösen</button>`) : "");
+    } else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "richtig");
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { i: null, q: null, opts: null, ans: null, rev: null });
+    $("#mmGo")?.addEventListener("click", MEMO.listen);
+    box.querySelectorAll("[data-opt]").forEach(b => b.onclick = () => { if (mine || st.phase !== "q") return; box.querySelectorAll("[data-opt]").forEach(x => x.disabled = true); olPut(`ans/${blPid()}`, { k: opts[+b.dataset.opt], t: SVT, r: st.round }); });
+    $("#mmRev")?.addEventListener("click", () => MEMO.reveal(st, P));
+    $("#mmNext")?.addEventListener("click", () => st.round >= Q ? olPatch({ phase: "end" }) : MEMO.ask(st.round + 1));
+    if (host && st.phase === "q" && n >= P.length) MEMO.reveal(st, P);
+  },
+};
+
+// ---------- Duell-Zeitstrahl online (2 Personen): eigener Zeitstrahl, Klau-Marken ----------
+const DUEL = {
+  async start(st, P){ const h = olHost(); h.deck = olPool(); olSave(); const up = {};
+    P.forEach(p => { const k = h.deck.pop(); up[`players/${p.id}/tl`] = [{ k, y: exS(k).y }]; up[`players/${p.id}/m`] = 2; }); await olPatch(up); await DUEL.round(1, P[0].id); },
+  async round(r, turn){ const h = olHost(); h.song = h.deck.pop(); const opts = olChoices(h.song, h.deck.slice(-60)); h.ok = opts.indexOf(h.song); olSave();
+    await olPatch({ phase: "play", round: r, turn, opts, pick: null, steal: null, tit: null, rev: null }); exPlay(h.song); },
+  async reveal(st, P){ const h = olHost(); if (!olOnce("du" + st.round)) return; exStop();
+    const k = h.song, y = exS(k).y, a = st.turn, o = P.find(p => p.id !== a)?.id, pa = st.players[a], po = st.players[o], ta = pa.tl || [], up = { phase: "reveal" };
+    const pick = st.pick, steal = st.steal?.r === st.round ? st.steal : null, ok = olOk(ta, pick.i, y); let stolen = false;
+    if (ok) up[`players/${a}/tl`] = olIns(ta, k, y)[0];
+    else if (steal && steal.i >= 0 && olOk(ta, steal.i, y)) { up[`players/${o}/tl`] = olIns(po.tl || [], k, y)[0]; stolen = true; }
+    let mo = po.m ?? 2, ma = pa.m ?? 2; if (steal && steal.i >= 0) mo--;
+    const tit = olIn(st, "tit"); if (tit[a]?.o === h.ok) ma = Math.min(5, ma + 1); if (tit[o]?.o === h.ok) mo = Math.min(5, mo + 1);
+    up[`players/${a}/m`] = ma; up[`players/${o}/m`] = Math.max(0, mo);
+    up.rev = { k, y, ok, stolen, steal: steal?.i ?? -1, pick: pick.i, okOpt: h.ok, tit: Object.fromEntries(Object.entries(tit).map(([id, x]) => [id, x.o === h.ok])) };
+    await olPatch(up); },
+  render(box, st, P, host){
+    const Z = st.cfg?.v || 10, me = blPid(), a = st.turn, act = a === me, o = P.find(p => p.id !== a)?.id, ta = st.players[a]?.tl || [], rv = st.rev || {};
+    const tit = olIn(st, "tit"), myT = tit[me], steal = st.steal?.r === st.round ? st.steal : null, pick = st.pick?.r === st.round ? st.pick : null;
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Zug ${st.round} · ${olName(st, a)} ist dran · Ziel ${Z} Karten`) + olScore(P, st, p => `${(p.tl || []).length} Karten · ${p.m ?? 2} Marken`, a);
+    if (st.phase === "play") {
+      h += exHid(act ? "Du bist dran – Song läuft …" : `${olName(st, a)} legt in den eigenen Zeitstrahl`, act ? (pick ? "Gelegt – warte, ob geklaut wird" : "Tippe die Lücke in deinem Zeitstrahl") : steal ? (steal.i >= 0 ? "Klau angemeldet: " + olGapLbl(ta, steal.i) : "Du klaust nicht") : "Liegt die Karte falsch? Für 1 Marke kannst du klauen")
+        + olPlayBtn(host, olHost().song) + `<div id="exMsg"></div>`;
+      if (!act && !steal) h += (st.players[me]?.m ?? 2) > 0 ? `<div class="panel small"><b>Klauen?</b> Tippe die Lücke, in die der Song wirklich gehört – oder <button class="btn sec small" id="duNo" style="width:auto;margin:4px 0 0">nicht klauen</button></div>` : `<button class="btn sec" id="duNo">Keine Marke – weiter</button>`;
+      h += `<div class="small zsLbl">Zeitstrahl von ${olName(st, a)}</div>` + olLine(ta, { click: act ? !pick : !steal && (st.players[me]?.m ?? 2) > 0, mark: j => pick?.i === j ? `${olName(st, a)} legt hierhin` : steal?.i === j && !act ? "dein Klau" : "" });
+      h += `<div class="panel"><b>Titel & Interpret?</b> <span class="small">richtig = +1 Marke (höchstens 5)</span>${olOpts(st.opts || [], { mine: myT?.o, lock: !!myT })}</div>`;
+    } else if (st.phase === "reveal" && rv.k) h += `<div class="zsRes ${rv.ok ? "ok" : "no"}"><div class="zsV">${rv.ok ? `✓ ${olName(st, a)} liegt richtig` : rv.stolen ? `Geklaut! ${olName(st, o)} bekommt die Karte` : "✗ Daneben – Karte ist raus"}</div>${exCard(rv.k)}</div>`
+      + `<div class="panel small">${P.map(p => `${olTag(P, st, p.id)} Titel: ${rv.tit?.[p.id] === undefined ? "–" : rv.tit[p.id] ? "✓ +1 Marke" : "✗"}`).join(" · ")}</div><div id="exMsg"></div>`
+      + (host ? `<button class="btn" id="duNext">${P.some(p => (p.tl || []).length >= Z) ? "Ergebnis" : "Nächster Zug →"}</button>` : "")
+      + P.map(p => `<div class="small zsLbl">Zeitstrahl von ${olName(st, p.id)}</div>` + olLine(p.tl || [])).join("");
+    else if (st.phase === "end") h += olEnd(P, st, p => (p.tl || []).length, "Karten") + P.map(p => `<div class="small zsLbl">Zeitstrahl von ${olName(st, p.id)}</div>` + olLine(p.tl || [])).join("");
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { opts: null, pick: null, steal: null, tit: null, rev: null });
+    box.querySelectorAll("[data-gap]").forEach(b => b.onclick = () => { box.querySelectorAll("[data-gap]").forEach(x => x.disabled = true); olPut(act ? "pick" : "steal", { i: +b.dataset.gap, r: st.round }); });
+    $("#duNo")?.addEventListener("click", () => olPut("steal", { i: -1, r: st.round }));
+    box.querySelectorAll("[data-opt]").forEach(b => b.onclick = () => { if (myT || st.phase !== "play") return; box.querySelectorAll("[data-opt]").forEach(x => x.disabled = true); olPut(`tit/${me}`, { o: +b.dataset.opt, r: st.round }); });
+    $("#duNext")?.addEventListener("click", () => P.some(p => (p.tl || []).length >= Z) ? olPatch({ phase: "end" }) : DUEL.round(st.round + 1, o));
+    if (host && st.phase === "play" && pick && steal) DUEL.reveal(st, P);
+  },
+};
+
+// ---------- Wunschkonzert online: Vorgänger wählt verdeckt die Kategorie, du ordnest ein ----------
+const WUN = {
+  async start(st, P){ const h = olHost(); h.used = []; olSave(); const k = exShuf(ACTIVE.map(zsKey))[0];
+    await WUN.round(1, P, 0, [{ k, y: exS(k).y }]); },
+  async round(r, P, ti, tl){ const h = olHost(), years = [...new Set(ACTIVE.map(s => s.y))], ys = exShuf(years);
+    let y, offers = [];
+    for (const cand of ys) { offers = exShuf(KATEGORIEN.filter(c => (byYearCat[c.id]?.[cand] || []).some(s => !h.used.includes(zsKey(s))))).slice(0, 3); if (offers.length >= 2) { y = cand; break; } }
+    h.offers = Object.fromEntries(offers.map(c => [c.id, zsKey(pickW(byYearCat[c.id][y].filter(s => !h.used.includes(zsKey(s)))))])); h.song = null; olSave();
+    const act = P[ti % P.length].id, ch = P[(ti + P.length - 1) % P.length].id;
+    await olPatch({ phase: "choose", round: r, ti, turn: act, chooser: ch, offers: offers.map(c => c.id), choice: null, pick: null, rev: null, ...(tl ? { tl } : {}) }); },
+  async reveal(st, P){ const h = olHost(); if (!olOnce("wu" + st.round)) return; exStop();
+    const k = h.song, y = exS(k).y, tl = st.tl || [], ok = olOk(tl, st.pick.i, y), up = { phase: "reveal", rev: { k, ok, c: st.choice?.c, i: st.pick.i } };
+    h.used.push(k); olSave();
+    if (ok) { const [nt, j] = olIns(tl, k, y); up.tl = nt; up.rev.j = j; up[`players/${st.turn}/pts`] = (st.players[st.turn].pts || 0) + 1; }
+    await olPatch(up); },
+  render(box, st, P, host){
+    const Z = st.cfg?.v || 10, me = blPid(), act = st.turn === me, isCh = st.chooser === me, tl = st.tl || [], rv = st.rev || {}, pick = st.pick?.r === st.round ? st.pick : null;
+    const done = (st.ti + 1) % P.length === 0 && P.some(p => (p.pts || 0) >= Z);   // erst am Ende einer Runde – jeder war gleich oft dran
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `${olName(st, st.turn)} ist dran · bis ${Z} Karten`) + olScore(P, st, p => (p.pts || 0) + " Karten", st.turn);
+    if (st.phase === "choose") h += isCh ? `<div class="rsYear"><div class="w">Du suchst für ${olName(st, st.turn)} die Kategorie aus – verdeckt:</div></div><div class="chips" style="justify-content:center">${(st.offers || []).map(c => `<button data-wc="${c}">${esc(CAT[c]?.name || c)}</button>`).join("")}</div>`
+      : exHid(`${olName(st, st.chooser)} wählt die Kategorie …`, act ? "Gleich läuft dein Song" : "");
+    else if (st.phase === "play") h += exHid(act ? "Du bist dran – Song läuft …" : `${olName(st, st.turn)} ordnet ein`, act ? (pick ? "Gelegt – gleich wird aufgelöst" : "Tippe die Lücke im Zeitstrahl") : isCh ? `Du hast „${esc(CAT[st.choice?.c]?.name || "")}“ gewählt` : "") + olPlayBtn(host, olHost().song) + `<div id="exMsg"></div>`
+      + olLine(tl, { click: act && !pick, mark: j => pick?.i === j ? `${olName(st, st.turn)} legt hierhin` : "" });
+    else if (st.phase === "reveal" && rv.k) h += `<div class="zsRes ${rv.ok ? "ok" : "no"}"><div class="zsV">${rv.ok ? `✓ Richtig – die Karte zählt für ${olName(st, st.turn)}` : "✗ Daneben – Karte ist raus"}</div>${exCard(rv.k)}<div class="small" style="text-align:center;margin-top:6px">Kategorie: ${esc(CAT[rv.c]?.name || "")}</div></div><div id="exMsg"></div>`
+      + (host ? `<button class="btn" id="wuNext">${done ? "Ergebnis" : "Nächster Zug →"}</button>` : "") + olLine(tl, { hi: rv.j });
+    else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "Karten") + olLine(tl);
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { tl: null, offers: null, choice: null, pick: null, rev: null });
+    box.querySelectorAll("[data-wc]").forEach(b => b.onclick = () => olPatch({ choice: { c: b.dataset.wc }, phase: "play" }).catch(() => {}));
+    box.querySelectorAll("[data-gap]").forEach(b => b.onclick = () => { box.querySelectorAll("[data-gap]").forEach(x => x.disabled = true); olPut("pick", { i: +b.dataset.gap, r: st.round }); });
+    $("#wuNext")?.addEventListener("click", () => done ? olPatch({ phase: "end" }) : WUN.round(st.round + 1, P, st.ti + 1));
+    if (host && st.phase === "play" && olOnce("wuplay" + st.round)) { const h0 = olHost(); h0.song = h0.offers?.[st.choice?.c]; olSave(); if (h0.song) exPlay(h0.song); }
+    if (host && st.phase === "play" && pick) WUN.reveal(st, P);
+  },
+};
+
+// ---------- TV-, Kinder-, Spiele-, Disney- und Film-Quiz online: Melodie läuft, vier Antworten, wer zuerst richtig tippt ----------
+const TVQ = {
+  list(st){ const L = (st.cfg?.sets || ["tv"]).flatMap(k => TV_DATEN[k]?.liste || []); return store.get("tvUnsafe", false) ? L : L.filter(tvSafe); },
+  async start(st){ const h = olHost(); h.deck = exShuf(TVQ.list(st).map(x => x.i)); olSave(); await TVQ.round(1); },
+  async round(r){ const h = olHost(); h.song = h.deck.pop(); const x = exS(h.song), names = [x.serie];
+    for (const k of exShuf(h.deck)) { if (names.length >= 4) break; const s = exS(k).serie; if (!names.includes(s)) names.push(s); }
+    const opts = exShuf(names); h.ok = opts.indexOf(x.serie); olSave();
+    await olPatch({ phase: "play", round: r, opts, ans: null, rev: null }); exPlay(h.song, { pos: 0 }); },
+  async reveal(st, P, win){ const h = olHost(); if (!olOnce("tv" + st.round)) return; exStop();
+    const up = { phase: "reveal", rev: { k: h.song, ok: h.ok, win: win || null } }; if (win) up[`players/${win}/pts`] = (st.players[win].pts || 0) + 1; await olPatch(up); },
+  render(box, st, P, host){
+    const Z = st.cfg?.v || 10, ans = olIn(st, "ans"), mine = ans[blPid()], rv = st.rev || {}, h0 = olHost(), W = tvW((st.cfg?.sets?.length > 1 ? "mix" : st.cfg?.sets?.[0] || "tv") + ":");
+    let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Melodie ${st.round} · bis ${Z} Punkte`) + olScore(P, st);
+    if (st.phase === "play") h += `<div class="rsYear"><div class="w"><b>${esc(W.frage)}</b> Wer zuerst richtig tippt, bekommt den Punkt – falsch heißt raus.</div></div>`
+      + olPlayBtn(host, h0.song) + `<div id="exMsg"></div>` + olOpts(st.opts || [], { mine: mine?.o, lock: !!mine })
+      + (host ? `<button class="btn sec" id="tvAgain">Nochmal von vorn</button><button class="btn sec" id="tvRev">Auflösen</button>` : "");
+    else if (st.phase === "reveal" && rv.k) { const x = exS(rv.k); h += `<div class="zsRes ${rv.win ? "ok" : "no"}"><div class="zsV">${rv.win ? `${olName(st, rv.win)} hat's erkannt! +1` : "Niemand hat's erkannt"}</div>
+        <div class="zsCard"><div class="tx"><b>${esc(x.serie)}</b><span>${esc(x.t)}${x.a ? " · " + esc(x.a) : ""} · ${W.seit} ${x.y}</span></div></div></div>`
+      + olOpts(st.opts || [], { ok: rv.ok, mine: mine?.o, lock: true }) + `<div id="exMsg"></div>` + (host ? `<button class="btn" id="tvNext2">${P.some(p => (p.pts || 0) >= Z) ? "Ergebnis" : (W.next || "Nächste Melodie") + " →"}</button>` : ""); }
+    else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "Punkte");
+    box.innerHTML = h + olFoot(st, host, P); olBindCommon(box, st, P, host, { opts: null, ans: null, rev: null });
+    box.querySelectorAll("[data-opt]").forEach(b => b.onclick = () => { if (mine || st.phase !== "play") return; box.querySelectorAll("[data-opt]").forEach(x => x.disabled = true); b.classList.add("on"); olPut(`ans/${blPid()}`, { o: +b.dataset.opt, t: SVT, r: st.round }); });
+    $("#tvAgain")?.addEventListener("click", () => exPlay(h0.song, { pos: 0 }));
+    $("#tvRev")?.addEventListener("click", () => TVQ.reveal(st, P, null));
+    $("#tvNext2")?.addEventListener("click", () => P.some(p => (p.pts || 0) >= Z) ? olPatch({ phase: "end" }) : TVQ.round(st.round + 1));
+    if (host && st.phase === "play") { const right = Object.entries(ans).filter(([, a]) => a.o === h0.ok && a.t).sort((a, b) => a[1].t - b[1].t)[0];
+      if (right) TVQ.reveal(st, P, right[0]); else if (Object.keys(ans).length >= P.length) TVQ.reveal(st, P, null); }
+  },
+};
+const OL = { pj: PJ, spr: SPR, pok: POK, djo: DJO, memo2: MEMO, duel: DUEL, wun: WUN, tvq: TVQ };
 
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
 const isAdmin = () => store.get("admin", false);
