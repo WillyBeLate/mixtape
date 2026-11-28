@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.5"></script>
-<script src="regeln.js?v=0.15.5"></script>
-<script src="changelog.js?v=0.15.5"></script>
-<script src="geprueft.js?v=0.15.5"></script>
-<script src="ids.js?v=0.15.5"></script>
+<script src="daten.js?v=0.15.6"></script>
+<script src="regeln.js?v=0.15.6"></script>
+<script src="changelog.js?v=0.15.6"></script>
+<script src="geprueft.js?v=0.15.6"></script>
+<script src="ids.js?v=0.15.6"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -525,6 +525,7 @@
   .pkV{font-size:44px;font-weight:900;min-width:110px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .djC{display:grid;grid-template-columns:1fr 1fr;gap:8px}.djC .btn{margin:0}.djC .btn:first-child{grid-column:1/-1;background:linear-gradient(135deg,#2ecc71,#14a37f)}
   .djV button{padding:8px 10px;font-size:13px}
+  .blCode{font-size:46px;font-weight:900;letter-spacing:8px;margin:4px 0;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .memoBar{display:flex;gap:6px;margin:8px 0 12px}.memoBar i{flex:1;height:8px;border-radius:9px;background:#ffffff1c}.memoBar i.done{background:#b06cff}.memoBar i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));animation:memoP 1s infinite alternate}@keyframes memoP{to{opacity:.55}}
   .rsOpt.good{border-color:#2ecc71;background:#2ecc7122}.rsOpt.badc{border-color:#ff4d6d;background:#ff4d4d22}
   #rsPick{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;box-shadow:0 8px 24px #12062e99}
@@ -813,7 +814,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.5";
+const APP_VERSION = "0.15.6";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2087,6 +2088,8 @@ const MODE_ICON = {
     <path d="M17 26h4M27 26h4" stroke="#ffd23f" stroke-width="2"/><path d="M24 4v12M19 9l5-5 5 5" stroke="#3ee8ff" stroke-width="2.2"/>${SPARK(41, 12, 1.4, "#ffd23f")}`, "#9be15d"),
   dj: MI(`<circle cx="18" cy="28" r="13" stroke="url(#miA)" stroke-width="2.4"/><circle cx="18" cy="28" r="4" stroke="#ffd23f" stroke-width="2"/><path d="M18 15a13 13 0 0 1 9 4" stroke="#3ee8ff" stroke-width="1.6"/>
     <path d="M32 8h12v10h-6l-4 4v-4h-2z" stroke="#ff4fb0" stroke-width="2"/><path d="M36 11.5c1-1.8 4-1.6 4 .4 0 1.6-2 1.6-2 3M38 17v.2" stroke="#ffd23f" stroke-width="1.6"/><path d="M34 34l8 6" stroke="#b06cff" stroke-width="2.4"/>`, "#ff4fb0"),
+  blitz: MI(`<path d="M27 3L10 27h12l-4 18 19-25H25z" stroke="url(#miB)" stroke-width="2.6"/><rect x="2" y="30" width="9" height="15" rx="2" stroke="#3ee8ff" stroke-width="2"/><rect x="37" y="30" width="9" height="15" rx="2" stroke="#ff4fb0" stroke-width="2"/>
+    <path d="M5 41h3M40 41h3" stroke="#9be15d" stroke-width="1.6"/>${SPARK(44, 8, 1.4, "#3ee8ff")}`, "#ffd23f"),
   memo: MI(`<path d="M24 40c-9 0-16-6-16-15 0-6 4-11 9-12 1-4 5-7 9-6 4-1 9 2 10 6 5 1 8 6 8 11 0 9-9 16-20 16z" stroke="url(#miD)" stroke-width="2.3"/>
     <path d="M24 9v30M16 18c3 0 5 2 5 5M32 18c-3 0-5 2-5 5M14 30c3-1 6 0 7 3M34 30c-3-1-6 0-7 3" stroke="#b06cff" stroke-width="1.7"/>${SPARK(42, 8, 1.5, "#ffd23f")}${SPARK(6, 10, 1.3, "#3ee8ff")}`, "#b06cff"),
   rette: MI(`<path d="M8 6h26l7 7v29H8z" stroke="url(#miB)" stroke-width="2.4"/><path d="M15 6v10h16V6" stroke="#ffd23f" stroke-width="2"/><path d="M26 9v4" stroke="#ffd23f" stroke-width="2"/>
@@ -2161,7 +2164,7 @@ function renderModePanel(){
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">${d.name}</span><span class="mts"><span class="ppl">${d.min > 1 ? P2 : PG}${d.wer}</span><span>${d.sub}</span></span></span><span class="minfo" data-info="${k}" role="button" aria-label="Kurz erklärt">i</span></button>`).join("")}` : ""}</div>`; }).join("");
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
   $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
@@ -3792,6 +3795,8 @@ const EX_DEF = {
     info: ["Tippen, setzen, bluffen.", "Ein Song läuft. Reihum tippt jeder verdeckt ein Jahr und setzt 1–5 Chips. Wer am nächsten dran ist, gewinnt alle Einsätze – bei genau richtigem Jahr legt die Bank den Pot noch einmal drauf. Wer keine Chips mehr hat, ist raus."] },
   dj: { name: "Der DJ lügt", wer: "2–6 Personen", sub: "Lüge erkennen", R: [[1, "1×"], [2, "2×"], [3, "3×"]], Rd: 2, Rl: "DJ-Runden pro Person", min: 2,
     info: ["Nur der DJ kennt das Jahr – und vielleicht lügt er.", "Reihum ist einer DJ, sieht als Einziger Titel und Jahr und sagt ein Jahr an – echt oder gelogen. Die anderen tippen: „Glaub ich“ oder „Gelogen!“. Richtig getippt gibt einen Punkt, der DJ bekommt einen für jeden, den er reinlegt."] },
+  blitz: { name: "Jahres-Blitz", wer: "2–8 Personen", sub: "jeder am eigenen Handy", min: 2,
+    info: ["Wer kennt das Jahr am schnellsten?", "Ein Handy eröffnet einen Raum und spielt die Musik, alle anderen treten mit dem Raum-Code am eigenen Handy bei. Ein Song läuft, alle tippen gleichzeitig das Jahr. Wer am nächsten dran ist, bekommt einen Punkt, genau richtig gibt drei – bei gleichem Abstand gewinnt, wer schneller war."] },
   memo: { name: "Gedächtnis-Mixtape", wer: "1–6 Personen", sub: "6 Songs merken", R: [[4, "4"], [6, "6"], [8, "8"]], Rd: 6, Rl: "Fragen", min: 1,
     info: ["Gut zuhören – danach wird gefragt.", "6 Songs laufen hintereinander, je 15 Sekunden, ohne Titel. Danach kommen Fragen: Welcher kam als vierter? Welcher war der älteste? Welcher kam direkt nach …? Reihum beantwortet jeder eine Frage."] },
 };
@@ -3858,6 +3863,7 @@ function exOpen(g){
 }
 function exRender(){
   const box = $("#exBox"); if (!ex) return show("setup");
+  if (ex.game === "blitz") return blRender(box);
   if (ex.view === "setup") return exSetup(box);
   if (ex.done) return exEnd(box);
   ({ blind: exBlind, poker: exPoker, dj: exDj, memo: exMemo })[ex.game](box);
@@ -4093,6 +4099,159 @@ function exMemo(box){
   exBackBind(); rsCovers(box);
   if (!A) box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { ex.ans = el.dataset.mk; if (ex.ans === q.a) P[who].p++; exSave(); exRender(); });
   $("#exNext")?.addEventListener("click", () => { if (ex.qi + 1 >= ex.qs.length) return exFinish(); ex.qi++; ex.ans = null; delete ex._ord; exSave(); exRender(); window.scrollTo(0, 0); });
+}
+
+// =====================================================================
+//  JAHRES-BLITZ – mehrere Handys, ein Raum (Firebase Realtime Database über REST + Live-Stream)
+//  Das Handy, das den Raum eröffnet, spielt die Musik (Spotify). Alle anderen tippen nur.
+// =====================================================================
+const FB_URL = "";   // Adresse der Firebase Realtime Database, z. B. https://mixtape-xxxx-default-rtdb.europe-west1.firebasedatabase.app
+const fbBase = () => (store.get("fbUrl", "") || FB_URL).replace(/\/+$/, "");
+const BL_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // ohne 0/O, 1/I
+const blPid = () => { let p = store.get("blitzPid", ""); if (!p) { p = Math.random().toString(36).slice(2, 10); store.set("blitzPid", p); } return p; };
+let bl = { code: store.get("blitzRoom", ""), st: null, es: null, got: false, y: 1995, err: "", song: store.get("blitzSong", null), rnd: store.get("blitzRnd", 0) };
+async function fb(path, method = "GET", body){
+  const r = await fetch(fbBase() + "/blitz/" + path + ".json", { method, body: body === undefined ? undefined : JSON.stringify(body) });
+  if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "Die Datenbank lässt das nicht zu (Regeln prüfen)." : "Verbindung zur Datenbank fehlgeschlagen (" + r.status + ").");
+  return r.json();
+}
+const SVT = { ".sv": "timestamp" };
+// Live-Verbindung: Firebase schickt „put“/„patch“ mit Pfad – daraus halten wir eine lokale Kopie des Raums
+function blSetPath(obj, path, val){
+  const ps = path.split("/").filter(Boolean); if (!ps.length) return val;
+  obj = obj && typeof obj === "object" ? obj : {}; let d = obj;
+  for (let i = 0; i < ps.length - 1; i++) { if (!d[ps[i]] || typeof d[ps[i]] !== "object") d[ps[i]] = {}; d = d[ps[i]]; }
+  if (val === null) delete d[ps.at(-1)]; else d[ps.at(-1)] = val;
+  return obj;
+}
+function blConnect(){
+  blClose(); if (!bl.code) return;
+  const es = new EventSource(fbBase() + "/blitz/" + bl.code + ".json"); bl.es = es;
+  const on = (ev, fn) => es.addEventListener(ev, e => { try { fn(JSON.parse(e.data)); } catch(_) {} if (curView === "extra" && ex?.game === "blitz") blRender($("#exBox")); });
+  on("put", d => { bl.got = true; bl.st = blSetPath(bl.st, d.path, d.data); });
+  on("patch", d => { for (const [k, v] of Object.entries(d.data || {})) bl.st = blSetPath(bl.st, (d.path + "/" + k).replace(/\/+/g, "/"), v); });
+  es.addEventListener("cancel", () => { bl.err = "Zugriff verweigert – Regeln der Datenbank prüfen."; blRender($("#exBox")); });
+}
+function blClose(){ try { bl.es?.close(); } catch(_) {} bl.es = null; }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && bl.code && curView === "extra" && ex?.game === "blitz" && (!bl.es || bl.es.readyState === 2)) blConnect(); });
+const blMe = () => bl.st?.players?.[blPid()];
+// Nur Tipps dieser Runde von Leuten, die noch im Raum sind
+const blGuesses = st => Object.fromEntries(Object.entries(st?.guess || {}).filter(([id, x]) => x && x.r === st.round && st.players?.[id]));
+const blHost = () => bl.st?.host === blPid();
+const blPlayers = () => Object.entries(bl.st?.players || {}).map(([id, p]) => ({ id, ...p })).sort((a, b) => (a.j || 0) - (b.j || 0));
+function blLeave(){ blClose(); bl.code = ""; bl.st = null; bl.got = false; bl.song = null; store.del("blitzRoom"); store.del("blitzSong"); exStop(); }
+
+function blRender(box){
+  if (!box) return;
+  const D = EX_DEF.blitz;
+  if (!fbBase()) { box.innerHTML = exTop(D.sub) + `<div class="panel"><b>Noch nicht eingerichtet</b><p class="small">Für den Jahres-Blitz braucht Mixtape eine kleine Online-Datenbank (Firebase), damit sich die Handys abgleichen. Claude richtet sie mit dir ein.</p></div>`; return exBackBind(); }
+  if (!bl.code) return blStart(box);
+  if (!bl.es) blConnect();
+  const st = bl.st;
+  if (!st) { box.innerHTML = exTop(bl.got ? "Raum geschlossen" : "Verbinde …") + `<div class="panel small">${bl.got ? `Den Raum <b>${esc(bl.code)}</b> gibt es nicht mehr – der Host hat ihn geschlossen.` : `Verbinde mit Raum <b>${esc(bl.code)}</b> …`}${bl.err ? `<div class="msg warn">${esc(bl.err)}</div>` : ""}</div><button class="btn sec" id="blQuit">${bl.got ? "Zurück" : "Abbrechen"}</button>`;
+    $("#blQuit").onclick = () => { blLeave(); blRender(box); }; return blBack(); }
+  if (!blMe()) { // aus dem Raum entfernt oder Raum neu
+    box.innerHTML = exTop("Raum " + esc(bl.code)) + `<div class="panel small">Du bist nicht (mehr) in diesem Raum.</div><button class="btn" id="blRe">Wieder beitreten</button><button class="btn sec" id="blQuit">Zurück</button>`;
+    $("#blRe").onclick = () => blJoin(bl.code, store.get("blitzName", "Ich")); $("#blQuit").onclick = () => { blLeave(); blRender(box); }; return blBack(); }
+  const P = blPlayers(), host = blHost(), R = st.cfg?.rounds || 10;
+  if (st.phase === "play" && bl.lastRound !== st.round) { bl.lastRound = st.round; bl.y = 1995; }
+  const score = `<div class="zsPl ex">${P.map((p, i) => `<div class="zsP ${p.id === blPid() ? "on" : ""}" style="--c:${EX_COL[i % 6]}"><b>${esc(p.n)}${p.id === st.host ? " <span class=dw data-dw=music></span>" : ""}</b><span>${p.pts || 0}</span></div>`).join("")}</div>`;
+  if (st.phase === "lobby") {
+    box.innerHTML = exTop("Warteraum") + `<div class="panel" style="text-align:center"><div class="small">Raum-Code</div><div class="blCode">${esc(bl.code)}</div>
+        <div class="small">Die anderen öffnen Mixtape → Extras → Jahres-Blitz → <b>Beitreten</b> und geben den Code ein.</div></div>
+      <div class="panel"><b>Dabei (${P.length})</b>${P.map((p, i) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(p.n)}</span>${p.id === st.host ? " spielt die Musik" : ""}</span>${host && p.id !== blPid() ? `<button class="btn sec small" data-kick="${esc(p.id)}" style="width:auto;margin:0">✕</button>` : ""}</div>`).join("")}</div>
+      <div id="exMsg"></div>
+      ${host ? `<button class="btn" id="blGo" ${P.length < 2 ? "disabled" : ""}>${P.length < 2 ? "Warte auf Mitspieler …" : `Los geht's (${R} Songs)`}</button>` : `<div class="panel small" style="text-align:center">Warte, bis ${esc(st.players?.[st.host]?.n || "der Host")} startet …</div>`}
+      <button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
+  } else if (st.phase === "play") {
+    const g = blGuesses(st), mine = g[blPid()], n = Object.keys(g).length;
+    box.innerHTML = exTop(`Song ${st.round} von ${R}`) + score + `${exHid("Song " + st.round + " läuft …", host ? "Nur du hörst über dein Spotify – stell die Musik laut" : "Hör genau hin")}
+      ${host && bl.song ? `<div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(bl.song)}</div>` : ""}<div id="exMsg"></div>
+      ${mine ? `<div class="panel" style="text-align:center"><div class="small">Dein Tipp</div><div class="pkV" style="margin:auto">${mine.y}</div><div class="small">${Math.max(0, (mine.t - st.start) / 1000).toFixed(1)} s · warte auf die anderen (${n}/${P.length})</div></div>`
+        : `<div class="rsYear"><div class="w">Aus welchem Jahr? Schnell sein lohnt sich!</div></div>
+      <div class="pkY"><button class="btn sec small" data-dy="-10">−10</button><button class="btn sec small" data-dy="-1">−1</button><div class="pkV" id="blV">${bl.y}</div><button class="btn sec small" data-dy="1">+1</button><button class="btn sec small" data-dy="10">+10</button></div>
+      <button class="btn" id="blTip">Tipp abgeben</button><div class="small" style="text-align:center">${n}/${P.length} haben getippt</div>`}
+      ${host ? `<button class="btn sec" id="blRev">Auflösen${n < P.length ? " (nicht alle haben getippt)" : ""}</button>` : ""}`;
+  } else if (st.phase === "reveal" || st.phase === "end") {
+    const rv = st.reveal || {}, g = blGuesses(st);
+    const rows = P.map(p => ({ p, gs: g[p.id] })).sort((a, b) => (a.gs ? Math.abs(a.gs.y - rv.y) : 999) - (b.gs ? Math.abs(b.gs.y - rv.y) : 999) || (a.gs?.t || 0) - (b.gs?.t || 0));
+    const end = st.phase === "end", rank = [...P].sort((a, b) => (b.pts || 0) - (a.pts || 0)), tie = rank.length > 1 && (rank[0].pts || 0) === (rank[1].pts || 0);
+    box.innerHTML = exTop(end ? "Spiel vorbei" : `Song ${st.round} von ${R}`) + (end ? `<div class="panel" style="text-align:center"><div style="font-size:44px"><span class=dw data-dw=trophy></span></div><h2 style="margin:6px 0">${tie ? "Unentschieden!" : esc(rank[0]?.n || "") + " gewinnt!"}</h2></div>` : "") +
+      (rv.k && RS_BY.has(rv.k) ? `<div class="zsRes ok"><div class="zsV">${rv.win ? `${esc(st.players?.[rv.win]?.n || "?")} ${rv.pts === 3 ? "trifft genau! +3" : "war am nächsten +1"}` : "Niemand hat getippt"}</div>${exCard(rv.k)}</div>` : "") +
+      (end ? "" : `<div class="panel">${rows.map(({ p, gs }) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[P.indexOf(p) % 6]}">${esc(p.n)}</span></span><span class="small">${gs ? `<b>${gs.y}</b> · ${Math.abs(gs.y - rv.y) === 0 ? "genau" : Math.abs(gs.y - rv.y) + " J. daneben"} · ${Math.max(0, (gs.t - st.start) / 1000).toFixed(1)} s` : "kein Tipp"}${rv.win === p.id ? ` · <b style="color:#9be15d">+${rv.pts}</b>` : ""}</span></div>`).join("")}</div>`) +
+      score + `<div id="exMsg"></div>` +
+      (host ? (end ? `<button class="btn" id="blAgain">Nochmal – gleiche Leute</button>` : `<button class="btn" id="blNext">${st.round >= R ? "Ergebnis" : "Nächster Song →"}</button>`) : `<div class="panel small" style="text-align:center">${end ? "Der Host kann eine neue Runde starten." : "Gleich kommt der nächste Song …"}</div>`) +
+      `<button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
+    rsCovers(box);
+  }
+  blBack(); exBindPl();
+  // ---- Bedienung ----
+  box.querySelectorAll("[data-dy]").forEach(x => x.onclick = () => { bl.y = Math.max(1920, Math.min(new Date().getFullYear(), bl.y + +x.dataset.dy)); $("#blV").textContent = bl.y; });
+  $("#blTip")?.addEventListener("click", async e => { e.target.disabled = true; try { await fb(`${bl.code}/guess/${blPid()}`, "PUT", { y: bl.y, t: SVT, r: st.round }); } catch(err) { e.target.disabled = false; $("#exMsg").innerHTML = `<div class="msg warn">${esc(err.message)}</div>`; } });
+  $("#blQuit")?.addEventListener("click", async () => {
+    if (!await ask(host ? "Raum für alle schließen?" : "Raum verlassen?")) return;
+    try { await fb(host ? bl.code : `${bl.code}/players/${blPid()}`, "DELETE"); } catch(_) {}
+    blLeave(); blRender(box); });
+  box.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => fb(`${bl.code}/players/${b.dataset.kick}`, "DELETE").catch(() => {}));
+  $("#blGo")?.addEventListener("click", () => blRound(1));
+  $("#blNext")?.addEventListener("click", () => st.round >= R ? fb(bl.code, "PATCH", { phase: "end" }).then(exStop).catch(() => {}) : blRound(st.round + 1));
+  $("#blAgain")?.addEventListener("click", () => { const up = { phase: "lobby", round: 0, guess: null, reveal: null }; P.forEach(p => up[`players/${p.id}/pts`] = 0); fb(bl.code, "PATCH", up).catch(() => {}); });
+  $("#blRev")?.addEventListener("click", blReveal);
+  // Host löst automatisch auf, sobald alle getippt haben
+  if (host && st.phase === "play" && Object.keys(blGuesses(st)).length >= P.length && !bl.revealing) blReveal();
+}
+function blBack(){ $("#exBack").onclick = () => { blClose(); show("setup"); }; }
+// Start: eröffnen oder beitreten
+function blStart(box){
+  const D = EX_DEF.blitz, o = { cats: ["global", "dehits"], ...store.get("exOpt", {}) }, R = store.get("blitzR", 10), name = store.get("blitzName", "");
+  const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
+  box.innerHTML = exTop(D.sub) + `<p class="sub" style="margin-top:4px"><b>${D.info[0]}</b> ${D.info[1]}</p>
+    <div class="panel"><b>Dein Name</b><input type="text" id="blName" value="${esc(name)}" placeholder="Name" maxlength="16" style="margin-top:6px"></div>
+    <div class="panel"><b>Mitspielen</b><div class="row" style="gap:6px;margin-top:6px"><input type="text" id="blCodeIn" placeholder="Raum-Code" maxlength="5" style="text-transform:uppercase;letter-spacing:3px;font-weight:800"><button class="btn" id="blJoin" style="width:auto;margin:0">Beitreten</button></div></div>
+    <div class="panel"><b>Oder selbst eröffnen</b> <span class="small">(dein Handy spielt die Musik über Spotify)</span>
+      <div class="seg" id="blR" style="margin-top:8px">${[[5, "5"], [10, "10"], [15, "15"]].map(([v, l]) => `<button data-r="${v}" class="${v === R ? "on" : ""}">${l} Songs</button>`).join("")}</div>
+      ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}
+      <button class="btn" id="blNew" style="margin-top:10px">Raum eröffnen</button></div>
+    <div id="exMsg">${bl.err ? `<div class="msg warn">${esc(bl.err)}</div>` : ""}</div>`;
+  bl.err = ""; blBack();
+  const nm = () => { const n = $("#blName").value.trim(); store.set("blitzName", n); return n; };
+  $("#blName").oninput = nm;
+  box.querySelectorAll("#blR button").forEach(b => b.onclick = () => { nm(); store.set("blitzR", +b.dataset.r); blStart(box); });
+  box.querySelectorAll("[data-xc]").forEach(b => b.onclick = () => { nm(); const c = b.dataset.xc; o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c]; if (!o.cats.length) o.cats = [c]; store.set("exOpt", { ...store.get("exOpt", {}), cats: o.cats }); blStart(box); });
+  $("#blJoin").onclick = () => { const c = $("#blCodeIn").value.trim().toUpperCase(), n = nm();
+    if (!n) return $("#exMsg").innerHTML = `<div class="msg warn">Bitte erst deinen Namen eintragen.</div>`;
+    if (!/^[A-Z2-9]{5}$/.test(c)) return $("#exMsg").innerHTML = `<div class="msg warn">Der Raum-Code hat 5 Zeichen.</div>`;
+    blJoin(c, n); };
+  $("#blNew").onclick = async () => { const n = nm();
+    if (!n) return $("#exMsg").innerHTML = `<div class="msg warn">Bitte erst deinen Namen eintragen.</div>`;
+    if (!sp.tok()) return $("#exMsg").innerHTML = `<div class="msg warn">Wer eröffnet, spielt die Musik – bitte erst unter „Spiel“ bei Spotify anmelden. Alle anderen können ohne Spotify beitreten.</div>`;
+    if (zsPool(o.cats).filter(s => !offPlay(s)).length < 30) return $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`;
+    const code = Array.from(crypto.getRandomValues(new Uint8Array(5)), x => BL_ABC[x % BL_ABC.length]).join("");
+    try { await fb(code, "PUT", { host: blPid(), ts: SVT, phase: "lobby", round: 0, cfg: { rounds: store.get("blitzR", 10) }, players: { [blPid()]: { n, pts: 0, j: SVT } } });
+      ex.cats = o.cats; ex.used = []; exSave(); bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender(box);
+    } catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; } };
+}
+async function blJoin(code, n){
+  try {
+    const st = await fb(code); if (!st) throw new Error("Diesen Raum gibt es nicht (mehr). Code prüfen.");
+    if (!st.players?.[blPid()]) await fb(`${code}/players/${blPid()}`, "PUT", { n, pts: 0, j: SVT });
+    bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender($("#exBox"));
+  } catch(e) { bl.err = e.message; bl.code = ""; blRender($("#exBox")); }
+}
+async function blRound(r){
+  ex.cats ??= store.get("exOpt", {}).cats || ["global", "dehits"]; ex.used ??= [];
+  const k = exDraw(1)[0]; bl.song = k; bl.rnd = r; store.set("blitzSong", k); store.set("blitzRnd", r); bl.revealing = false;
+  try { await fb(bl.code, "PATCH", { phase: "play", round: r, start: SVT, guess: null, reveal: null }); exSave(); exPlay(k); }
+  catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; }
+}
+async function blReveal(){
+  const st = bl.st; if (!st || st.phase !== "play" || bl.revealing || !bl.song || st.round !== bl.rnd) return; bl.revealing = true;
+  const s = exS(bl.song), g = Object.entries(blGuesses(st));
+  let win = null;   // am nächsten dran; bei gleichem Abstand der Schnellere
+  for (const [id, x] of g) { const d = Math.abs(x.y - s.y); if (!win || d < win.d || (d === win.d && x.t < win.t)) win = { id, d, t: x.t }; }
+  const pts = win ? (win.d === 0 ? 3 : 1) : 0, up = { phase: "reveal", reveal: { k: bl.song, y: s.y, win: win?.id || null, pts } };
+  if (win) up[`players/${win.id}/pts`] = (st.players[win.id].pts || 0) + pts;
+  try { await fb(bl.code, "PATCH", up); } catch(e) { bl.revealing = false; }
 }
 
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.

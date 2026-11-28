@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.6", d: "2026-11-28", e: [
+    ["neu", "Neues Spiel unter Extras: Jahres-Blitz – jeder spielt am eigenen Handy. Ein Handy eröffnet einen Raum und spielt die Musik, die anderen treten mit dem Raum-Code bei und tippen gleichzeitig das Jahr. Am nächsten dran gibt einen Punkt, genau richtig drei, bei Gleichstand gewinnt der Schnellere."],
+  ]},
   { v: "0.15.5", d: "2026-11-28", e: [
     ["change", "Schnellerer Start: Der QR-Scanner wird erst kurz nach dem Start im Hintergrund geladen statt sofort."],
   ]},
