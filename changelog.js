@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.2", d: "2026-11-28", e: [
+    ["change", "Kategorien mit zu wenigen geprüften Songs bleiben verborgen und erscheinen von selbst, sobald genug Songs die Nachtprüfung bestanden haben (Zusatz-Kategorien ab 15, Künstler ab 12 Songs)."],
+    ["fix", "Songs, die MusicBrainz gar nicht gefunden hat, gelten nicht mehr als geprüft – ihr Jahr wird erst bestätigt, bevor sie wieder ins Spiel kommen."],
+  ]},
   { v: "0.19.1", d: "2026-11-28", e: [
     ["fix", "Neue Songs sind erst spielbar, wenn die Nachtprüfung Spotify-Version und Jahr bestätigt hat – vorher kamen sie schon mit Spotify-Suche ins Spiel."],
   ]},

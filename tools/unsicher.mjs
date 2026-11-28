@@ -25,7 +25,7 @@ const [, from, to] = rd("index.html").match(/const DEFAULT_FROM = (\d+), DEFAULT
 const out = new Set(UNSICHER);
 // wie in der App: nur mit fester Spotify-ID und geprüftem Jahr spielbar
 const ok = ctx.SONGS.filter(s => typeof s[2] === "number" && !NOSPOT.has(key(s)) && !out.has(key(s)) && !ctx.PRUEFEN[key(s)] &&
-  (typeof s[5] === "string" || ctx.SPOTIFY_IDS[key(s)]) && (ctx.MB[key(s)]?.[0] === s[2] || ctx.BEST.has(key(s))));
+  (typeof s[5] === "string" || ctx.SPOTIFY_IDS[key(s)]) && ((ctx.MB[key(s)]?.[0] === s[2] && ctx.MB[key(s)][1] != null) || ctx.BEST.has(key(s))));
 const luecken = {};
 for (const c of ctx.KATEGORIEN.filter(c => c.typ === "main")) {
   const miss = [];

@@ -214,7 +214,9 @@ async function mbCheck(s){
   for (const s of todo) {
     if (Date.now() > deadline) break;
     try { const b = await mbCheck(s); MB_GEPRUEFT[key(s)] = [s[2], b ? b.y : null]; sum.mb++;
-      if (b && b.y < s[2]) { pruefen.jahr[key(s)] = { wir: s[2], mb: b.y, datum: b.d }; sum.review++; } }
+      if (b && b.y < s[2]) { pruefen.jahr[key(s)] = { wir: s[2], mb: b.y, datum: b.d }; sum.review++; }
+      else if (!b) { pruefen.jahr[key(s)] = { wir: s[2], mb: null, status: "bei MusicBrainz nicht gefunden – Jahr per Quelle prüfen" }; sum.review++; }
+      else delete pruefen.jahr[key(s)]; }
     catch(e) { console.log("MB:", s[0], e.message); }
     await sleep(1100);   // MusicBrainz: höchstens 1 Anfrage pro Sekunde
   }

@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.19.1"></script>
-<script src="regeln.js?v=0.19.1"></script>
-<script src="changelog.js?v=0.19.1"></script>
-<script src="geprueft.js?v=0.19.1"></script>
-<script src="ids.js?v=0.19.1"></script>
+<script src="daten.js?v=0.19.2"></script>
+<script src="regeln.js?v=0.19.2"></script>
+<script src="changelog.js?v=0.19.2"></script>
+<script src="geprueft.js?v=0.19.2"></script>
+<script src="ids.js?v=0.19.2"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.19.1";
+const APP_VERSION = "0.19.2";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -891,7 +891,8 @@ const UNS_JAHR = new Set(typeof UNSICHER_JAHR !== "undefined" ? UNSICHER_JAHR : 
 const MB_OK = typeof MB_GEPRUEFT !== "undefined" ? MB_GEPRUEFT : {}, JAHR_OK = typeof BESTAETIGT !== "undefined" ? BESTAETIGT : new Set();
 const unsicher = s => { const k = s.t + "|" + s.a, fx = store.get("fix:" + k, null);
   if (s.pruefen || UNS_JAHR.has(k)) return true;
-  if (!(MB_OK[k]?.[0] === s.y || JAHR_OK.has(k))) return true;     // Jahr noch nicht geprüft
+  const mb = MB_OK[k];                                              // Jahr geprüft: MusicBrainz fand das Lied mit passendem Jahr – oder von Hand bestätigt
+  if (!JAHR_OK.has(k) && !(mb && mb[0] === s.y && mb[1] != null)) return true;
   if (!s.sid && !fx?.uri) return true;                              // noch keine feste Spotify-Version
   return UNS_ALL.has(k) && !fx; };
 const offPlay = s => noSpot(s) || unsicher(s);
@@ -901,12 +902,22 @@ for (const s of ACTIVE) for (const c of s.cats) {
   if (!CAT[c]) console.warn("Unbekannte Kategorie", c, s);
   ((byYearCat[c] ??= {})[s.y] ??= []).push(s);
 }
+// Kategorien mit zu wenigen geprüften Songs (z. B. ganz neue, bevor die Nachtprüfung durch ist) bleiben verborgen –
+// sie erscheinen von selbst, sobald genug Songs geprüft sind. Main-Kategorien bleiben immer.
+const CAT_MIN = { support: 15, kuenstler: 12 };
+const CAT_IDX = Object.fromEntries(KATEGORIEN.map((c, i) => [c.id, i]));   // Farben bleiben gleich, auch wenn etwas verborgen ist
+const CAT_HIDDEN = new Set(KATEGORIEN.filter(c => c.typ !== "main" && ACTIVE.filter(s => s.cats.includes(c.id)).length < (CAT_MIN[c.typ] || 20)).map(c => c.id));
+for (let i = KATEGORIEN.length - 1; i >= 0; i--) if (CAT_HIDDEN.has(KATEGORIEN[i].id)) KATEGORIEN.splice(i, 1);
+for (const id of CAT_HIDDEN) delete byYearCat[id];
 const COLORS = ["#ff5fa2","#7c5cff","#38d6ff","#ffb020","#2ecc71","#ff7a45","#c06cff","#00c2a8"];
-const catColor = id => { const k = KATEGORIEN.findIndex(c => c.id === id); return `conic-gradient(${COLORS[k%8]}, ${COLORS[(k+3)%8]}, ${COLORS[k%8]})`; };
+const catColor = id => { const k = CAT_IDX[id] ?? 0; return `conic-gradient(${COLORS[k%8]}, ${COLORS[(k+3)%8]}, ${COLORS[k%8]})`; };
 
 // ---------- Zustand ----------
+// Gespeicherte Auswahl ohne verborgene/entfernte Kategorien
+const catOk = c => !!CAT[c] && !CAT_HIDDEN.has(c);
+{ const eo = store.get("exOpt", null); if (eo?.cats?.some(c => !catOk(c))) { eo.cats = eo.cats.filter(catOk); if (!eo.cats.length) eo.cats = ["global", "dehits"]; store.set("exOpt", eo); } }
 const state = {
-  sel: store.get("sel", ["global"]),
+  sel: (l => l.length ? l : ["global"])(store.get("sel", ["global"]).filter(catOk)),
   weight: store.get("weight", 75),
   randStart: store.get("randStart", false),
   range: store.get("range", [DEFAULT_FROM, DEFAULT_TO]),
