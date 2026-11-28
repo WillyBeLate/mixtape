@@ -1,0 +1,30 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "blitz": {
+      "$raum": {
+        ".read": "$raum.matches(/^[A-Z2-9]{5}$/)",
+        ".write": "$raum.matches(/^[A-Z2-9]{5}$/)",
+        "$a": {
+          ".validate": "$a.matches(/^[A-Za-z0-9_-]{1,40}$/) && (!newData.isString() || (newData.val().length <= 300 && !newData.val().contains('<') && !newData.val().contains('>')))",
+          "$b": {
+            ".validate": "$b.matches(/^[A-Za-z0-9_-]{1,40}$/) && (!newData.isString() || (newData.val().length <= 300 && !newData.val().contains('<') && !newData.val().contains('>')))",
+            "$c": {
+              ".validate": "$c.matches(/^[A-Za-z0-9_-]{1,40}$/) && (!newData.isString() || (newData.val().length <= 300 && !newData.val().contains('<') && !newData.val().contains('>')))",
+              "$d": {
+                ".validate": "$d.matches(/^[A-Za-z0-9_-]{1,40}$/) && (!newData.isString() || (newData.val().length <= 300 && !newData.val().contains('<') && !newData.val().contains('>')))",
+                "$e": {
+                  ".validate": "$e.matches(/^[A-Za-z0-9_-]{1,40}$/) && (!newData.isString() || (newData.val().length <= 300 && !newData.val().contains('<') && !newData.val().contains('>')))",
+                  "$f": {
+                    ".validate": "$f.matches(/^[A-Za-z0-9_-]{1,40}$/) && (!newData.isString() || (newData.val().length <= 300 && !newData.val().contains('<') && !newData.val().contains('>')))"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

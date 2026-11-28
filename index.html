@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.17.0"></script>
-<script src="regeln.js?v=0.17.0"></script>
-<script src="changelog.js?v=0.17.0"></script>
-<script src="geprueft.js?v=0.17.0"></script>
-<script src="ids.js?v=0.17.0"></script>
+<script src="daten.js?v=0.17.1"></script>
+<script src="regeln.js?v=0.17.1"></script>
+<script src="changelog.js?v=0.17.1"></script>
+<script src="geprueft.js?v=0.17.1"></script>
+<script src="ids.js?v=0.17.1"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -828,7 +828,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.17.0";
+const APP_VERSION = "0.17.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -3929,7 +3929,7 @@ function exBindPl(){ $("#exPl")?.addEventListener("click", e => { const k = e.cu
 // ---------- Gemeinsame Bausteine ----------
 const exTop = sub => `<div class="topbar"><button class="backbtn" id="exBack" aria-label="Zurück"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <div><div class="tbt"><span class="tbi">${MODE_ICON[ex.game] || ""}</span>${EX_DEF[ex.game].name}</div><div class="tbs">${sub || ""}</div></div></div>`;
-const exCard = (k, extra = "", yr = true) => { const s = exS(k); return `<div class="zsCard"><div class="cvw"><div class="cv" data-cov="${esc(k)}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div>${yr ? `<div class="zsY">${s.y}</div>` : ""}${extra}</div>`; };
+const exCard = (k, extra = "", yr = true) => { const s = exS(k); if (!s) return ""; return `<div class="zsCard"><div class="cvw"><div class="cv" data-cov="${esc(k)}"><span class=dw data-dw=music></span></div>${flagSvg(s.land, 11)}</div><div class="tx"><b>${esc(showT(s))}</b><span>${esc(showA(s))}</span></div>${yr ? `<div class="zsY">${s.y}</div>` : ""}${extra}</div>`; };
 const exHid = (t, sub) => `<div class="zsCard hid"><div class="zsQ">?</div><div class="tx"><b>${t}</b><span>${sub || "Titel und Jahr bleiben geheim"}</span></div></div>`;
 const exScore = (key = "p", fmt = v => v) => `<div class="zsPl ex">${ex.players.map((p, i) => `<div class="zsP ${i === ex.turn ? "on" : ""} ${p.out ? "out" : ""}" style="--c:${EX_COL[i % 6]}"><b>${esc(p.n)}</b><span>${fmt(p[key])}</span></div>`).join("")}</div>`;
 const exName = i => `<span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(ex.players[i].n)}</span>`;
@@ -4207,8 +4207,24 @@ async function fb(path, method = "GET", body){
 }
 const SVT = { ".sv": "timestamp" };
 // Live-Verbindung: Firebase schickt „put“/„patch“ mit Pfad – daraus halten wir eine lokale Kopie des Raums
+// Sicherheit: Alles aus der Datenbank kann von jedem mit Raum-Code geschrieben werden. Deshalb wird jeder Wert
+// beim Empfang bereinigt: bekannte Songschlüssel bleiben, sonstige Texte verlieren < > " ` (kein HTML möglich),
+// Zahlen müssen endlich sein, Feldnamen nur aus A–Z, 0–9, _ und -. Zusätzlich maskiert die Anzeige Texte mit esc().
+const OL_KEY = /^[A-Za-z0-9_-]{1,40}$/;
+function olClean(v, d = 0){
+  if (d > 8) return null;
+  if (typeof v === "string") return exS(v) ? v : v.replace(/[<>`]/g, "").replace(/"/g, "”").slice(0, 300);
+  if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+  if (typeof v === "boolean") return v;
+  if (Array.isArray(v)) return v.slice(0, 500).map(x => olClean(x, d + 1));
+  if (v && typeof v === "object") { const o = {}; for (const [k, x] of Object.entries(v)) if (OL_KEY.test(k)) o[k] = olClean(x, d + 1); return o; }
+  return null;
+}
+const olText = t => String(t ?? "").replace(/[<>`"]/g, "").slice(0, 16);
 function blSetPath(obj, path, val){
-  const ps = path.split("/").filter(Boolean); if (!ps.length) return val;
+  const ps = path.split("/").filter(Boolean); if (ps.some(x => !OL_KEY.test(x))) return obj;   // unbekannte Pfade ignorieren
+  val = olClean(val, ps.length);
+  if (!ps.length) { if (val && typeof val === "object" && val.game && !OL_GAMES.includes(val.game)) val.game = "blitz"; return val; }
   obj = obj && typeof obj === "object" ? obj : {}; let d = obj;
   for (let i = 0; i < ps.length - 1; i++) { if (!d[ps[i]] || typeof d[ps[i]] !== "object") d[ps[i]] = {}; d = d[ps[i]]; }
   if (val === null) delete d[ps.at(-1)]; else d[ps.at(-1)] = val;
@@ -4314,7 +4330,7 @@ function blStart(box){
       <button class="btn" id="blNew" style="margin-top:10px">Raum eröffnen</button></div>
     <div id="exMsg">${bl.err ? `<div class="msg warn">${esc(bl.err)}</div>` : ""}</div>`;
   bl.err = ""; blBack();
-  const nm = () => { const n = $("#blName").value.trim(); store.set("blitzName", n); return n; };
+  const nm = () => { const n = olText($("#blName").value.trim()); store.set("blitzName", n); return n; };
   $("#blName").oninput = nm;
   box.querySelectorAll("#blR button").forEach(b => b.onclick = () => { nm(); store.set("olOpt:" + ex.game, +b.dataset.r); blStart(box); });
   box.querySelectorAll("[data-xc]").forEach(b => b.onclick = () => { nm(); const c = b.dataset.xc; o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c]; if (!o.cats.length) o.cats = [c]; store.set("exOpt", { ...store.get("exOpt", {}), cats: o.cats }); blStart(box); });
@@ -4334,6 +4350,7 @@ function blStart(box){
 async function blJoin(code, n){
   try {
     const st = await fb(code); if (!st) throw new Error("Diesen Raum gibt es nicht (mehr). Code prüfen.");
+    if (!OL_GAMES.includes(st.game || "blitz")) throw new Error("Dieser Raum gehört zu keinem Mixtape-Spiel.");
     if ((st.game || "blitz") !== ex.game) { ex = { game: st.game || "blitz", view: "setup" }; exSave(); }   // Code eines anderen Online-Spiels: dorthin wechseln
     if (!st.players?.[blPid()]) await fb(`${code}/players/${blPid()}`, "PUT", { n, pts: 0, j: SVT });
     bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender($("#exBox"));
@@ -4517,11 +4534,11 @@ const SPR = {
     await olPatch({ phase: "play", round: r, stage: 0, opts, ans: null, rev: null }); SPR.play(0); },
   play(k){ const s = SPR_ST()[k]; exPlay(olHost().song, { pos: 0, stopMs: s[0] * 1000 }); },
   async reveal(st, P, win){ const h = olHost(); if (!olOnce("spr" + st.round)) return; exStop();
-    const pts = win ? SPR_ST()[st.ans[win].k][1] : 0, up = { phase: "reveal", rev: { k: h.song, ok: h.ok, win: win || null, pts } };
+    const pts = win ? (SPR_ST()[st.ans[win].k] || SPR_ST()[0])[1] : 0, up = { phase: "reveal", rev: { k: h.song, ok: h.ok, win: win || null, pts } };
     if (win) up[`players/${win}/pts`] = (st.players[win].pts || 0) + pts;
     await olPatch(up); },
   render(box, st, P, host){
-    const Z = st.cfg?.v || 15, S = SPR_ST(), k = st.stage || 0, ans = olIn(st, "ans"), mine = ans[blPid()], rv = st.rev || {}, h0 = olHost();
+    const Z = st.cfg?.v || 15, S = SPR_ST(), k = Math.min(S.length - 1, Math.max(0, Math.floor(Number(st.stage) || 0))), ans = olIn(st, "ans"), mine = ans[blPid()], rv = st.rev || {}, h0 = olHost();
     let h = exTop(st.phase === "end" ? "Spiel vorbei" : `Song ${st.round} · bis ${Z} Punkte`) + olScore(P, st);
     if (st.phase === "play") h += `<div class="panel" style="text-align:center"><b>Stufe ${k + 1}: ${S[k][0]} Sekunden</b><div class="small">richtig jetzt: ${S[k][1]} ${S[k][1] === 1 ? "Punkt" : "Punkte"} · jeder hat einen Versuch pro Song</div></div>`
       + olPlayBtn(host, h0.song) + `<div id="exMsg"></div>`
@@ -4564,7 +4581,7 @@ const POK = {
         : mine ? `<div class="panel" style="text-align:center"><div class="small">Dein Tipp</div><div class="pkV" style="margin:auto">${mine.y}</div><div class="small">Einsatz ${mine.b} · warte (${n}/${alive.length})</div></div>`
         : olYearPick("pkV2") + `<div class="panel"><b>Einsatz</b> <span class="small">(du hast ${me?.chips ?? 10})</span><div class="seg" id="pkB2" style="margin-top:8px">${[1, 2, 3, 4, 5].filter(b => b <= (me?.chips ?? 10)).map(b => `<button data-b="${b}" class="${b === (bl.b || 1) ? "on" : ""}">${b}</button>`).join("")}</div></div><button class="btn" id="pkGo">Verdeckt abgeben</button>`)
       + (host ? `<button class="btn sec" id="pkRev">Auflösen (${n}/${alive.length})</button>` : "");
-    else if (st.phase === "reveal" && rv.k) { const y = exS(rv.k).y; h += `<div class="zsRes ok"><div class="zsV">${rv.bonus ? "Volltreffer! Die Bank verdoppelt den Pot" : `Am nächsten dran: ${rv.best} Jahr${rv.best === 1 ? "" : "e"}`}</div>${exCard(rv.k)}</div>
+    else if (st.phase === "reveal" && exS(rv.k)) { h += `<div class="zsRes ok"><div class="zsV">${rv.bonus ? "Volltreffer! Die Bank verdoppelt den Pot" : `Am nächsten dran: ${rv.best} Jahr${rv.best === 1 ? "" : "e"}`}</div>${exCard(rv.k)}</div>
       <div class="panel">${Object.entries(bets).map(([id, x]) => `<div class="row" style="padding:4px 0"><span>${olTag(P, st, id)}</span><span class="small">tippt <b>${x.y}</b> · setzt ${x.b}${rv.win?.includes(id) ? ` · <b style="color:#9be15d">+${rv.share}</b>` : ""}</span></div>`).join("")}</div><div id="exMsg"></div>`
       + (host ? `<button class="btn" id="pkNext">${st.round >= R || P.filter(p => !p.out).length < 2 ? "Ergebnis" : "Nächster Song →"}</button>` : ""); }
     else if (st.phase === "end") h += olEnd(P, st, p => p.chips ?? 0, "Chips");
@@ -4741,7 +4758,7 @@ const TVQ = {
     if (st.phase === "play") h += `<div class="rsYear"><div class="w"><b>${esc(W.frage)}</b> Wer zuerst richtig tippt, bekommt den Punkt – falsch heißt raus.</div></div>`
       + olPlayBtn(host, h0.song) + `<div id="exMsg"></div>` + olOpts(st.opts || [], { mine: mine?.o, lock: !!mine })
       + (host ? `<button class="btn sec" id="tvAgain">Nochmal von vorn</button><button class="btn sec" id="tvRev">Auflösen</button>` : "");
-    else if (st.phase === "reveal" && rv.k) { const x = exS(rv.k); h += `<div class="zsRes ${rv.win ? "ok" : "no"}"><div class="zsV">${rv.win ? `${olName(st, rv.win)} hat's erkannt! +1` : "Niemand hat's erkannt"}</div>
+    else if (st.phase === "reveal" && exS(rv.k)) { const x = exS(rv.k); h += `<div class="zsRes ${rv.win ? "ok" : "no"}"><div class="zsV">${rv.win ? `${olName(st, rv.win)} hat's erkannt! +1` : "Niemand hat's erkannt"}</div>
         <div class="zsCard"><div class="tx"><b>${esc(x.serie)}</b><span>${esc(x.t)}${x.a ? " · " + esc(x.a) : ""} · ${W.seit} ${x.y}</span></div></div></div>`
       + olOpts(st.opts || [], { ok: rv.ok, mine: mine?.o, lock: true }) + `<div id="exMsg"></div>` + (host ? `<button class="btn" id="tvNext2">${P.some(p => (p.pts || 0) >= Z) ? "Ergebnis" : (W.next || "Nächste Melodie") + " →"}</button>` : ""); }
     else if (st.phase === "end") h += olEnd(P, st, p => p.pts || 0, "Punkte");

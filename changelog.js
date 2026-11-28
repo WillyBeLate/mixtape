@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.1", d: "2026-11-28", e: [
+    ["fix", "Sicherheit Online-Spiele: Alles, was aus der Online-Datenbank kommt, wird jetzt beim Empfang bereinigt – niemand kann über einen Raum fremden Code in die App einschleusen. Dazu passende, strengere Datenbank-Regeln."],
+    ["fix", "Online-Spiele bleiben nicht mehr hängen, wenn ein Song fehlt oder Daten unvollständig sind."],
+  ]},
   { v: "0.17.0", d: "2026-11-28", e: [
     ["neu", "Viele Modi gibt es jetzt auch online – jeder spielt am eigenen Handy, ein Handy spielt die Musik: Punktejagd, Intro-Sprint, Duell-Zeitstrahl, Wunschkonzert, TV-, Kinder-, Spiele-, Disney- und Film-Quiz (Mix-Schritt bzw. vor dem Start „Online“ wählen) sowie Zeit-Poker, Der DJ lügt und Gedächtnis-Mixtape (in ihren Einstellungen „Online“ wählen)."],
     ["neu", "Online-Quizze: Jeder sieht vier Antworten auf seinem Handy – wer zuerst richtig tippt, bekommt den Punkt. Beim Intro-Sprint läuft der Song erst 3, dann 7, dann 15 Sekunden."],
