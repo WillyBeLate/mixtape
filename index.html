@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.18.0"></script>
-<script src="regeln.js?v=0.18.0"></script>
-<script src="changelog.js?v=0.18.0"></script>
-<script src="geprueft.js?v=0.18.0"></script>
-<script src="ids.js?v=0.18.0"></script>
+<script src="daten.js?v=0.18.1"></script>
+<script src="regeln.js?v=0.18.1"></script>
+<script src="changelog.js?v=0.18.1"></script>
+<script src="geprueft.js?v=0.18.1"></script>
+<script src="ids.js?v=0.18.1"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -756,7 +756,7 @@
     <details class="fold" data-fold="online"><summary><span class="ft"><span class=dw data-dw=globe></span> Online-Spiele</span><span class="fs" id="olSum"></span></summary>
     <div style="padding:0 2px 12px">
       <label for="olNameSet"><b>Dein Name</b><br><span class="small">So sehen dich die anderen in Online-Spielen und beim Einladen.</span></label>
-      <input id="olNameSet" maxlength="16" placeholder="z. B. Willy" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px">
+      <input type="text" id="olNameSet" maxlength="16" placeholder="z. B. Willy" autocomplete="off" style="display:block;box-sizing:border-box;margin:8px 0 14px">
       <div class="row"><label for="olVis"><b>Für Einladungen sichtbar</b><br><span class="small">Solange Mixtape offen ist, sehen dich Leute im selben WLAN und frühere Mitspieler und können dich in ihren Raum einladen.</span></label><input type="checkbox" id="olVis"></div>
       <div id="olFrBox" class="small" style="margin-top:10px"></div>
     </div></details>
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.18.0";
+const APP_VERSION = "0.18.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
