@@ -2654,6 +2654,20 @@ const SONGS = [
   ["Ella Baila Sola", "Eslabon Armado", 2023, "US", "latino"],
   ["Shakira: Bzrp Music Sessions, Vol. 53", "Bizarrap", 2023, "AR", "latino"],
   ["Si Antes Te Hubiera Conocido", "KAROL G", 2024, "CO", "latino"],
+  // ---------------- UDO JÜRGENS – weitere Singles (Quelle: Diskografie, Jahr der Single) ----------------
+  ["Matador", "Udo Jürgens", 1969, "AT", "udo"],
+  ["Tausend Fenster", "Udo Jürgens", 1969, "AT", "udo"],
+  ["Spiel, Zigan", "Udo Jürgens", 1971, "AT", "udo"],
+  ["Zieh' den Kopf aus der Schlinge, Bruder John", "Udo Jürgens", 1974, "AT", "udo"],
+  ["Und dabei könnt' sie meine Tochter sein", "Udo Jürgens", 1976, "AT", "udo"],
+  ["Ein Lied für alle, die einsam sind", "Udo Jürgens", 1976, "AT", "udo"],
+  ["Ich weiß, was ich will", "Udo Jürgens", 1979, "AT", "udo"],
+  ["Das wünsch' ich dir", "Udo Jürgens", 1982, "AT", "udo"],
+  ["Rot blüht der Mohn", "Udo Jürgens", 1984, "AT", "udo"],
+  ["Gehet hin und vermehret euch", "Udo Jürgens", 1988, "AT", "udo"],
+  ["Café Größenwahn", "Udo Jürgens", 1994, "AT", "udo"],
+  ["Heute beginnt der Rest deines Lebens", "Udo Jürgens", 1995, "AT", "udo"],
+  ["Es lebe das Laster", "Udo Jürgens", 2002, "AT", "udo"],
 ];
 // =====================================================================
 //  PRÜFLISTE: Songs mit unsicherem Jahr.
