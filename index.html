@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.16.0"></script>
-<script src="regeln.js?v=0.16.0"></script>
-<script src="changelog.js?v=0.16.0"></script>
-<script src="geprueft.js?v=0.16.0"></script>
-<script src="ids.js?v=0.16.0"></script>
+<script src="daten.js?v=0.16.1"></script>
+<script src="regeln.js?v=0.16.1"></script>
+<script src="changelog.js?v=0.16.1"></script>
+<script src="geprueft.js?v=0.16.1"></script>
+<script src="ids.js?v=0.16.1"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -127,6 +127,7 @@
   .mt .mts{font-size:12px;color:#e4dcf7;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
   .mt .mkt{display:inline-grid;place-items:center;width:24px;height:22px;border-radius:999px;background:#ffb02033;color:#ffd9a8;flex:none}
   .mt .mkt svg{width:14px;height:14px}
+  .mt .mkt.mon{background:#2de2e633;color:#b5f7f8}
   .mt .ppl{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;border-radius:999px;background:color-mix(in srgb,var(--gc) 26%,transparent);color:#fff;font-weight:700;font-size:11.5px}
   .mt .ppl svg{height:13px;width:auto;fill:currentColor}
   .mt .tag{margin-left:0;font-size:9px;padding:1px 6px}
@@ -620,6 +621,7 @@
     <div id="setupStep2" style="display:none">
     <div class="topbar"><button class="backbtn" id="stepBack" aria-label="Zurück zum Spielmodus"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <div><div class="tbt"><span class="stepnr">2</span> Euer Mix</div><div class="tbs" id="stepSub"></div></div></div>
+    <div id="onlineSel"></div>
     <div id="mixSec">
     <div style="text-align:center"><span class="pill" id="mixCount">DEIN MIX 0 | 4</span></div>
     <div class="tabs" id="catTabs">
@@ -820,7 +822,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.16.0";
+const APP_VERSION = "0.16.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2111,7 +2113,7 @@ const MODE_TWIST = {
   frueher: ["Kein Zeitstrahl, nur ein Duell um jede Karte.", "Ein Team nennt ein Jahr, das andere wettet: früher oder später?"],
   staffel: ["Teamarbeit in drei Etappen: Jahrzehnt → Jahr → Titel.", "Jede Person übernimmt eine Etappe. Ein Fehler, und der Zug ist vorbei."],
   wunsch: ["Ein gemeinsamer Zeitstrahl für alle.", "Der Twist: Ihr sucht dem nächsten Team die Kategorie aus – nett oder fies."],
-  zeitstrahl: ["Ihr spielt mit Handkarten und scannt sie für das nächste Team.", "Wer zuerst keine Karten mehr hat, gewinnt. Keine Punkte nötig."],
+  zeitstrahl: ["Ihr spielt mit Handkarten und scannt sie für das nächste Team.", "Wer zuerst keine Karten mehr hat, gewinnt. Keine Punkte nötig. Geht auch online ohne Karten: im Mix-Schritt „Online“ wählen – dann spielt jeder am eigenen Handy."],
   punktejagd: ["Alle raten jeden Song gleichzeitig.", "Jedes Team setzt seinen Marker in den Zeitstrahl – keiner wartet, alle sind immer dran."],
   sprint: ["Es geht um Tempo, nicht um den Zeitstrahl.", "Der Song läuft erst {s1}, dann {s2}, dann {s3} Sekunden. Wer früher richtig liegt, bekommt mehr Punkte."],
   gemeinsam: ["Kooperativ: Ihr spielt zusammen gegen das Spiel.", "Gemeinsam schafft ihr Level für Level – niemand verliert gegen den anderen."],
@@ -2143,6 +2145,11 @@ function showModeInfo(id){
   $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : id === "zeitsprung" ? "#zsOpen" : EX_DEF[id] ? "#exOpen-" + id : `#modeGrid [data-mode="${id}"]`)?.click(); };
   $("#mpRules")?.addEventListener("click", () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + id)?.scrollIntoView(), 50); });
 }
+// Modi, die es auch online gibt (Spielmodus-ID → Online-Spiel). Online wählt man im Mix-Schritt.
+const MODE_ONLINE = { zeitstrahl: "zon" };
+const EX_ONLY_MIX = ["zon"];   // keine eigene Kachel – erreichbar über den Spielmodus
+const ONLINE_IC = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="4" width="5.5" height="9" rx="1.3"/><rect x="9" y="4" width="5.5" height="9" rx="1.3"/><path d="M5.6 2.2c1.4-.9 3.4-.9 4.8 0"/><circle cx="4.25" cy="11" r=".5" fill="currentColor"/><circle cx="11.75" cy="11" r=".5" fill="currentColor"/></svg>';
+const playOnline = () => !!MODE_ONLINE[state.game.mode] && store.get("online:" + state.game.mode, false);
 // ---------- Favoriten: Stern auf jeder Kachel, Favoriten stehen oben in eigener Gruppe ----------
 const FAV_ST = on => `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="${on ? "#ffd23f" : "none"}" stroke="${on ? "#ffd23f" : "#ffffff8c"}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
 const tileId = t => t.dataset.mode || (t.id === "zsOpen" ? "zeitsprung" : t.id === "rsOpen" ? "rette" : t.id.startsWith("exOpen-") ? t.id.slice(7) : "");
@@ -2168,7 +2175,7 @@ function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
   // nach Spielerzahl gruppiert
   const grp = x => x.app.typ === "tv" ? 4 : x.app.koop ? 3 : x.app.namen === "Spieler" ? 0 : x.app.teams[1] === 2 ? 1 : 2;
-  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extras: ohne Karten"];
+  const GN = ["Zu zweit", "Zwei Teams", "Mehrere Teams", "Alle zusammen", "Extras"];
   const GC = ["#ff5fa2", "#ffb020", "#2dc8e6", "#5fd36b", "#9b5cff"];
   // kleine Figuren: eine Person, zwei Personen, Gruppe
   const P1 = `<svg viewBox="0 0 10 14"><circle cx="5" cy="3.2" r="2.6"/><path d="M0.6 14v-2.6C0.6 8.8 2.6 7.4 5 7.4s4.4 1.4 4.4 4V14z"/></svg>`;
@@ -2183,7 +2190,8 @@ function renderModePanel(){
   // Kleine Info: braucht der Modus die gedruckten Jahreskarten?
   const CARD_IC = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="1.8" width="10" height="12.4" rx="1.8"/><path d="M5.8 5.5h4.4M5.8 8h4.4M5.8 10.5h2.6" stroke-linecap="round"/></svg>';
   const kart = need => need ? `<span class="mkt" title="Mit Jahreskarten" aria-label="Mit Jahreskarten">${CARD_IC}</span>` : "";
-  const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "<span class=dw data-dw=music></span>"}</span><span class="mtr">${kart(!x.app.ohneKarten)}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></span>
+  const onl = on => on ? `<span class="mkt mon" title="Online mit mehreren Handys" aria-label="Online mit mehreren Handys">${ONLINE_IC}</span>` : "";
+  const tile = (x, gi, wide) => `<button class="mt ${wide ? "wide" : ""} ${isOn(x) ? "on" : ""}" data-mode="${x.id}" style="--gc:${GC[gi]}"><span class="mhd"><span class="mic">${MODE_ICON[x.id] || MIC[x.id] || "<span class=dw data-dw=music></span>"}</span><span class="mtr">${kart(!x.app.ohneKarten)}${onl(MODE_ONLINE[x.id])}${x.neu ? '<span class="tag">NEU</span>' : ""}</span></span>
       <span class="mtx"><span class="mtn">${esc(x.name)}</span><span class="mts">${ppl(x)}${kurzSp(x) ? `<span>${kurzSp(x)}</span>` : ""}</span></span><span class="minfo" data-info="${x.id}" role="button" aria-label="Kurz erklärt">i</span></button>`;
   const sorted = [...SPIELMODI].filter(x => x.app.daten !== "mix").sort((a, b) => grp(a) - grp(b) || a.app.teams[1] - b.app.teams[1]);
   // Extras (ohne Jahreszahlen) lassen sich kombinieren: mehrere angetippt = intern Modus „sondermix“
@@ -2192,7 +2200,7 @@ function renderModePanel(){
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#2de2e6", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).filter(([k]) => !EX_ONLY_MIX.includes(k)).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#2de2e6", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="mtr">${onl(k === "blitz")}<span class="tag">NEU</span></span></span>
       <span class="mtx"><span class="mtn">${d.name}</span><span class="mts"><span class="ppl">${d.min > 1 ? P2 : PG}${d.wer}</span><span>${d.sub}</span></span></span><span class="minfo" data-info="${k}" role="button" aria-label="Kurz erklärt">i</span></button>`).join("")}` : ""}</div>`; }).join("");
   modeFavs();
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
@@ -2991,7 +2999,19 @@ function renderSetupStep(){
   $("#setupStep2").style.display = setupStep === 2 ? "" : "none";
   $("#toMixBtn").style.display = setupStep === 1 && !noMix ? "" : "none";
   $("#startWrap").style.display = setupStep === 2 || noMix ? "" : "none";
-  if (setupStep === 2) $("#stepSub").textContent = m.name + " · " + state.game.teams.map(t => t.n).join(", ");
+  if (setupStep === 2) $("#stepSub").textContent = m.name + (playOnline() ? " · online" : " · " + state.game.teams.map(t => t.n).join(", "));
+  renderOnlineSel();
+}
+// Spielmodi mit Online-Variante: im Mix-Schritt „Mit Karten“ oder „Online“ wählen
+function renderOnlineSel(){
+  const el = $("#onlineSel"); if (!el) return; const m = modeDef(), on = playOnline();
+  if (!MODE_ONLINE[m.id]) { el.innerHTML = ""; $("#startBtn").textContent = "Los geht's"; return; }
+  el.innerHTML = `<div class="panel"><b>Wie spielt ihr?</b><div class="seg" id="onSeg" style="margin-top:8px">
+      <button data-on="0" class="${on ? "" : "on"}">Mit Jahreskarten</button><button data-on="1" class="${on ? "on" : ""}">Online</button></div>
+    <div class="small" style="margin-top:6px">${on ? "Ohne Karten: Jeder spielt am eigenen Handy, ein Handy spielt die Musik. Die anderen treten mit dem Raum-Code bei." : "Klassisch mit den gedruckten Jahreskarten und einem Handy zum Scannen."}</div></div>`;
+  el.querySelectorAll("[data-on]").forEach(b => b.onclick = () => { store.set("online:" + m.id, b.dataset.on === "1"); renderSetupStep(); });
+  $("#startBtn").textContent = on ? "Online-Raum öffnen" : "Los geht's";
+  const hint = $("#startWrap .small"); if (hint) hint.textContent = on ? "Eröffnen oder mit Raum-Code beitreten – dein Mix gilt für die Songs." : "Startet eine neue Runde – die Punktetafel beginnt von vorn.";
 }
 function goStep(n){
   if (n === 2 && setupStep !== 2) { try { history.pushState({ mixStep: 2 }, ""); stepPushed = true; } catch(e){} }
@@ -3026,6 +3046,10 @@ document.addEventListener("click", e => {
   openSpotify(() => b.click());
 }, true);
 $("#startBtn").addEventListener("click", async () => {
+  if (playOnline()) {   // Online-Variante: Raum mit dem gewählten Mix
+    store.set("exOpt", { ...store.get("exOpt", {}), cats: [...state.sel] });
+    ex = { game: MODE_ONLINE[state.game.mode], view: "setup", fromMix: true, cats: [...state.sel], used: [] }; exSave(); show("extra"); return;
+  }
   // Modus + Mix gewählt = neue Runde: Punktetafel auf Start (Namen bleiben)
   if (!await okToReset()) return;
   newGame(state.game.mode, state.game.teams.map(t => t.n));
@@ -4247,7 +4271,8 @@ function blStart(box){
     <div class="panel"><b>Mitspielen</b><div class="row" style="gap:6px;margin-top:6px"><input type="text" id="blCodeIn" placeholder="Raum-Code" maxlength="5" style="text-transform:uppercase;letter-spacing:3px;font-weight:800"><button class="btn" id="blJoin" style="width:auto;margin:0">Beitreten</button></div></div>
     <div class="panel"><b>Oder selbst eröffnen</b> <span class="small">(dein Handy spielt die Musik über Spotify)</span>
       <div class="seg" id="blR" style="margin-top:8px">${(zon ? [[3, "3"], [5, "5"], [7, "7"]] : [[5, "5"], [10, "10"], [15, "15"]]).map(([v, l]) => `<button data-r="${v}" class="${v === (zon ? Hn : R) ? "on" : ""}">${l} ${zon ? "Karten" : "Songs"}</button>`).join("")}</div>
-      ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}
+      ${ex.fromMix ? `<div class="small" style="margin-top:8px">Songs aus eurem Mix: ${o.cats.map(c => esc(CAT[c]?.name || c)).join(", ")}</div>`
+        : groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}
       <button class="btn" id="blNew" style="margin-top:10px">Raum eröffnen</button></div>
     <div id="exMsg">${bl.err ? `<div class="msg warn">${esc(bl.err)}</div>` : ""}</div>`;
   bl.err = ""; blBack();

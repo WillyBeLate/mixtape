@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.16.1", d: "2026-11-28", e: [
+    ["change", "Zeitstrahl online steckt jetzt im normalen Zeitstrahl: Im Mix-Schritt wählst du „Mit Jahreskarten“ oder „Online“. Dein Mix gilt dann auch online."],
+    ["neu", "Neben dem Karten-Symbol zeigt ein Handy-Symbol, welche Modi sich online mit mehreren Handys spielen lassen."],
+    ["change", "Die Gruppe „Extras: ohne Karten“ heißt jetzt einfach „Extras“."],
+  ]},
   { v: "0.16.0", d: "2026-11-28", e: [
     ["neu", "Zeitstrahl online: Der Zeitstrahl ganz ohne Karten, jeder am eigenen Handy. Alle sehen denselben Zeitstrahl, jeder hat verdeckte Handkarten. Wer dran ist, hört einen Song aus seiner Hand und legt ihn an die passende Stelle – falsch gelegt heißt: Karte raus, neue Karte ziehen. Wer zuerst keine Karten mehr hat, gewinnt."],
     ["neu", "Favoriten: Tippe auf den Stern einer Spielmodus-Kachel – deine Favoriten stehen dann ganz oben."],
