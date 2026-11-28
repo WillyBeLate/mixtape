@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.16.2", d: "2026-11-28", e: [
+    ["change", "Spielmodus-Kacheln aufgeräumt: Stern, Karten- und Online-Symbol stehen immer gleich oben rechts, einzelne Kacheln gehen über die ganze Breite, und die vielen „NEU“-Schilder sind weg – Neues steht im Neu-für-dich-Hinweis."],
+  ]},
   { v: "0.16.1", d: "2026-11-28", e: [
     ["change", "Zeitstrahl online steckt jetzt im normalen Zeitstrahl: Im Mix-Schritt wählst du „Mit Jahreskarten“ oder „Online“. Dein Mix gilt dann auch online."],
     ["neu", "Neben dem Karten-Symbol zeigt ein Handy-Symbol, welche Modi sich online mit mehreren Handys spielen lassen."],
