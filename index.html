@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.7"></script>
-<script src="regeln.js?v=0.15.7"></script>
-<script src="changelog.js?v=0.15.7"></script>
-<script src="geprueft.js?v=0.15.7"></script>
-<script src="ids.js?v=0.15.7"></script>
+<script src="daten.js?v=0.15.8"></script>
+<script src="regeln.js?v=0.15.8"></script>
+<script src="changelog.js?v=0.15.8"></script>
+<script src="geprueft.js?v=0.15.8"></script>
+<script src="ids.js?v=0.15.8"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -814,7 +814,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.7";
+const APP_VERSION = "0.15.8";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -3796,7 +3796,7 @@ const EX_DEF = {
   dj: { name: "Der DJ lügt", wer: "2–6 Personen", sub: "Lüge erkennen", R: [[1, "1×"], [2, "2×"], [3, "3×"]], Rd: 2, Rl: "DJ-Runden pro Person", min: 2,
     info: ["Nur der DJ kennt das Jahr – und vielleicht lügt er.", "Reihum ist einer DJ, sieht als Einziger Titel und Jahr und sagt ein Jahr an – echt oder gelogen. Die anderen tippen: „Glaub ich“ oder „Gelogen!“. Richtig getippt gibt einen Punkt, der DJ bekommt einen für jeden, den er reinlegt."] },
   blitz: { name: "Jahres-Blitz", wer: "2–8 Personen", sub: "jeder am eigenen Handy", min: 2,
-    info: ["Wer kennt das Jahr am schnellsten?", "Ein Handy eröffnet einen Raum und spielt die Musik, alle anderen treten mit dem Raum-Code am eigenen Handy bei. Ein Song läuft, alle tippen gleichzeitig das Jahr. Wer am nächsten dran ist, bekommt einen Punkt, genau richtig gibt drei – bei gleichem Abstand gewinnt, wer schneller war."] },
+    info: ["Wer kennt das Jahr am schnellsten?", "Ein Handy eröffnet einen Raum und spielt die Musik, alle anderen treten mit dem Raum-Code am eigenen Handy bei. Ein Song läuft, alle tippen gleichzeitig das Jahr. Punkte gibt es für jeden: genau richtig 5, ein Jahr daneben 3, bis drei Jahre daneben 1. Bei Punktgleichstand am Ende gewinnt, wer insgesamt schneller getippt hat."] },
   memo: { name: "Gedächtnis-Mixtape", wer: "1–6 Personen", sub: "6 Songs merken", R: [[4, "4"], [6, "6"], [8, "8"]], Rd: 6, Rl: "Fragen", min: 1,
     info: ["Gut zuhören – danach wird gefragt.", "6 Songs laufen hintereinander, je 15 Sekunden, ohne Titel. Danach kommen Fragen: Welcher kam als vierter? Welcher war der älteste? Welcher kam direkt nach …? Reihum beantwortet jeder eine Frage."] },
 };
@@ -4107,7 +4107,8 @@ function exMemo(box){
 // =====================================================================
 const FB_URL = "https://mixtape-7-default-rtdb.europe-west1.firebasedatabase.app";   // Adresse der Firebase Realtime Database, z. B. https://mixtape-xxxx-default-rtdb.europe-west1.firebasedatabase.app
 const fbBase = () => (store.get("fbUrl", "") || FB_URL).replace(/\/+$/, "");
-const BL_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // ohne 0/O, 1/I
+const BL_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const BL_PTS = d => d === 0 ? 5 : d === 1 ? 3 : d <= 3 ? 1 : 0;   // ohne 0/O, 1/I
 const blPid = () => { let p = store.get("blitzPid", ""); if (!p) { p = Math.random().toString(36).slice(2, 10); store.set("blitzPid", p); } return p; };
 let bl = { code: store.get("blitzRoom", ""), st: null, es: null, got: false, y: 1995, err: "", song: store.get("blitzSong", null), rnd: store.get("blitzRnd", 0) };
 async function fb(path, method = "GET", body){
@@ -4175,10 +4176,13 @@ function blRender(box){
   } else if (st.phase === "reveal" || st.phase === "end") {
     const rv = st.reveal || {}, g = blGuesses(st);
     const rows = P.map(p => ({ p, gs: g[p.id] })).sort((a, b) => (a.gs ? Math.abs(a.gs.y - rv.y) : 999) - (b.gs ? Math.abs(b.gs.y - rv.y) : 999) || (a.gs?.t || 0) - (b.gs?.t || 0));
-    const end = st.phase === "end", rank = [...P].sort((a, b) => (b.pts || 0) - (a.pts || 0)), tie = rank.length > 1 && (rank[0].pts || 0) === (rank[1].pts || 0);
-    box.innerHTML = exTop(end ? "Spiel vorbei" : `Song ${st.round} von ${R}`) + (end ? `<div class="panel" style="text-align:center"><div style="font-size:44px"><span class=dw data-dw=trophy></span></div><h2 style="margin:6px 0">${tie ? "Unentschieden!" : esc(rank[0]?.n || "") + " gewinnt!"}</h2></div>` : "") +
-      (rv.k && RS_BY.has(rv.k) ? `<div class="zsRes ok"><div class="zsV">${rv.win ? `${esc(st.players?.[rv.win]?.n || "?")} ${rv.pts === 3 ? "trifft genau! +3" : "war am nächsten +1"}` : "Niemand hat getippt"}</div>${exCard(rv.k)}</div>` : "") +
-      (end ? "" : `<div class="panel">${rows.map(({ p, gs }) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[P.indexOf(p) % 6]}">${esc(p.n)}</span></span><span class="small">${gs ? `<b>${gs.y}</b> · ${Math.abs(gs.y - rv.y) === 0 ? "genau" : Math.abs(gs.y - rv.y) + " J. daneben"} · ${Math.max(0, (gs.t - st.start) / 1000).toFixed(1)} s` : "kein Tipp"}${rv.win === p.id ? ` · <b style="color:#9be15d">+${rv.pts}</b>` : ""}</span></div>`).join("")}</div>`) +
+    const rk = (a, b) => (b.pts || 0) - (a.pts || 0) || (a.zt || 0) - (b.zt || 0);
+    const end = st.phase === "end", rank = [...P].sort(rk), tie = rank.length > 1 && (rank[0].pts || 0) === (rank[1].pts || 0) && (rank[0].zt || 0) === (rank[1].zt || 0);
+    const rp = rv.pts || {}, top = Object.entries(rp).sort((a, b) => b[1] - a[1])[0];
+    box.innerHTML = exTop(end ? "Spiel vorbei" : `Song ${st.round} von ${R}`) + (end ? `<div class="panel" style="text-align:center"><div style="font-size:44px"><span class=dw data-dw=trophy></span></div><h2 style="margin:6px 0">${tie ? "Unentschieden!" : esc(rank[0]?.n || "") + " gewinnt!"}</h2>${!tie && rank.length > 1 && (rank[0].pts || 0) === (rank[1].pts || 0) ? `<div class="small">Punktgleich – ${esc(rank[0].n)} war insgesamt schneller.</div>` : ""}</div>
+      <div class="panel">${rank.map((p, r) => `<div class="row" style="padding:5px 0"><span><b>${r + 1}. ${esc(p.n)}</b></span><span class="small">${p.pts || 0} ${(p.pts || 0) === 1 ? "Punkt" : "Punkte"} · ${((p.zt || 0) / 1000).toFixed(1)} s Tippzeit</span></div>`).join("")}</div>` : "") +
+      (rv.k && RS_BY.has(rv.k) ? `<div class="zsRes ok"><div class="zsV">${top && top[1] ? `${esc(st.players?.[top[0]]?.n || "?")} ${top[1] === 5 ? "trifft genau! +5" : top[1] === 3 ? "nur 1 Jahr daneben +3" : "nah dran +1"}` : Object.keys(g).length ? "Niemand nah genug dran" : "Niemand hat getippt"}</div>${exCard(rv.k)}</div>` : "") +
+      (end ? "" : `<div class="panel">${rows.map(({ p, gs }) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[P.indexOf(p) % 6]}">${esc(p.n)}</span></span><span class="small">${gs ? `<b>${gs.y}</b> · ${Math.abs(gs.y - rv.y) === 0 ? "genau" : Math.abs(gs.y - rv.y) + " J. daneben"} · ${Math.max(0, (gs.t - st.start) / 1000).toFixed(1)} s` : "kein Tipp"}${rp[p.id] ? ` · <b style="color:#9be15d">+${rp[p.id]}</b>` : ""}</span></div>`).join("")}</div>`) +
       score + `<div id="exMsg"></div>` +
       (host ? (end ? `<button class="btn" id="blAgain">Nochmal – gleiche Leute</button>` : `<button class="btn" id="blNext">${st.round >= R ? "Ergebnis" : "Nächster Song →"}</button>`) : `<div class="panel small" style="text-align:center">${end ? "Der Host kann eine neue Runde starten." : "Gleich kommt der nächste Song …"}</div>`) +
       `<button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
@@ -4195,7 +4199,7 @@ function blRender(box){
   box.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => fb(`${bl.code}/players/${b.dataset.kick}`, "DELETE").catch(() => {}));
   $("#blGo")?.addEventListener("click", () => blRound(1));
   $("#blNext")?.addEventListener("click", () => st.round >= R ? fb(bl.code, "PATCH", { phase: "end" }).then(exStop).catch(() => {}) : blRound(st.round + 1));
-  $("#blAgain")?.addEventListener("click", () => { const up = { phase: "lobby", round: 0, guess: null, reveal: null }; P.forEach(p => up[`players/${p.id}/pts`] = 0); fb(bl.code, "PATCH", up).catch(() => {}); });
+  $("#blAgain")?.addEventListener("click", () => { const up = { phase: "lobby", round: 0, guess: null, reveal: null }; P.forEach(p => { up[`players/${p.id}/pts`] = 0; up[`players/${p.id}/zt`] = 0; }); fb(bl.code, "PATCH", up).catch(() => {}); });
   $("#blRev")?.addEventListener("click", blReveal);
   // Host löst automatisch auf, sobald alle getippt haben
   if (host && st.phase === "play" && Object.keys(blGuesses(st)).length >= P.length && !bl.revealing) blReveal();
@@ -4247,10 +4251,11 @@ async function blRound(r){
 async function blReveal(){
   const st = bl.st; if (!st || st.phase !== "play" || bl.revealing || !bl.song || st.round !== bl.rnd) return; bl.revealing = true;
   const s = exS(bl.song), g = Object.entries(blGuesses(st));
-  let win = null;   // am nächsten dran; bei gleichem Abstand der Schnellere
-  for (const [id, x] of g) { const d = Math.abs(x.y - s.y); if (!win || d < win.d || (d === win.d && x.t < win.t)) win = { id, d, t: x.t }; }
-  const pts = win ? (win.d === 0 ? 3 : 1) : 0, up = { phase: "reveal", reveal: { k: bl.song, y: s.y, win: win?.id || null, pts } };
-  if (win) up[`players/${win.id}/pts`] = (st.players[win.id].pts || 0) + pts;
+  // Punkte für jeden: genau 5 · 1 Jahr daneben 3 · bis 3 Jahre 1. Tippzeit zählt für den Gleichstand am Ende.
+  const pts = {}, up = { phase: "reveal", reveal: { k: bl.song, y: s.y, pts } };
+  for (const [id, x] of g) { const d = Math.abs(x.y - s.y), p = BL_PTS(d); pts[id] = p;
+    if (p) up[`players/${id}/pts`] = (st.players[id].pts || 0) + p;
+    up[`players/${id}/zt`] = (st.players[id].zt || 0) + Math.max(0, (x.t || 0) - (st.start || 0)); }
   try { await fb(bl.code, "PATCH", up); } catch(e) { bl.revealing = false; }
 }
 

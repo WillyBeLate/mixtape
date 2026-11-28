@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.8", d: "2026-11-28", e: [
+    ["change", "Jahres-Blitz: Punkte gibt es jetzt für jeden – genau richtig 5, ein Jahr daneben 3, bis drei Jahre daneben 1. Bei Punktgleichstand am Ende gewinnt, wer insgesamt schneller getippt hat."],
+  ]},
   { v: "0.15.7", d: "2026-11-28", e: [
     ["neu", "Jahres-Blitz ist eingerichtet und spielbereit."],
   ]},
