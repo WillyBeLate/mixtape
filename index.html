@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.17.3"></script>
-<script src="regeln.js?v=0.17.3"></script>
-<script src="changelog.js?v=0.17.3"></script>
-<script src="geprueft.js?v=0.17.3"></script>
-<script src="ids.js?v=0.17.3"></script>
+<script src="daten.js?v=0.17.4"></script>
+<script src="regeln.js?v=0.17.4"></script>
+<script src="changelog.js?v=0.17.4"></script>
+<script src="geprueft.js?v=0.17.4"></script>
+<script src="ids.js?v=0.17.4"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -828,7 +828,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.17.3";
+const APP_VERSION = "0.17.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -903,6 +903,19 @@ const state = {
 };
 // Alte Merkliste (gespielt ja/nein) einmalig übernehmen
 if (!state.playedAt) { state.playedAt = {}; [...state.played].forEach(i => state.playedAt[i] = ++state.playN); }
+// Verlauf je „Titel|Interpret“ statt Listenplatz – sonst verrutscht er, wenn Songs dazukommen oder wegfallen.
+// Einmalige Umstellung alter Einträge (Zahl = Platz in SONGS; Titelmelodien hatten schon einen Text-Schlüssel).
+const hk = s => s.t + "|" + s.a;
+if (store.get("histV", 1) < 2) {
+  const conv = i => typeof i === "number" || /^\d+$/.test(i) ? (DB[+i] ? hk(DB[+i]) : null) : (TV_BY_I(i) || i);
+  const TVL = { tv: typeof TVTHEMEN !== "undefined" ? TVTHEMEN : [], kids: typeof KINDERTHEMEN !== "undefined" ? KINDERTHEMEN : [], games: typeof GAMETHEMEN !== "undefined" ? GAMETHEMEN : [],
+    disney: typeof DISNEYTHEMEN !== "undefined" ? DISNEYTHEMEN : [], film: typeof FILMTHEMEN !== "undefined" ? FILMTHEMEN : [] };
+  const TV_BY_I = i => { const [pre, ...r] = String(i).split(":"), x = (TVL[pre] || []).find(x => x[0] === r.join(":"));
+    return x ? hk({ t: x[1], a: x[2] }) : null; };
+  state.played = new Set([...state.played].map(conv).filter(Boolean));
+  const pa = {}; for (const [i, n] of Object.entries(state.playedAt)) { const k = conv(i); if (k) pa[k] = Math.max(pa[k] || 0, n); }
+  state.playedAt = pa; store.set("histV", 2); store.set("played", [...state.played]); store.set("playedAt", pa);
+}
 const save = () => { store.set("playedAt", state.playedAt); store.set("playN", state.playN); store.set("sel", state.sel); store.set("weight", state.weight); store.set("randStart", state.randStart);
   store.set("range", state.range); store.set("played", [...state.played]); };
 
@@ -981,7 +994,7 @@ const quotaPool = l => { if (!quotaOn()) return l; const f = l.filter(quotaOk); 
 function candidates(cats, year, avoidPlayed){
   const all = {}, ok = {};
   for (const c of cats) {
-    const list = (byYearCat[c]?.[year] || []).filter(s => !avoidPlayed || !state.played.has(s.i));
+    const list = (byYearCat[c]?.[year] || []).filter(s => !avoidPlayed || !state.played.has(hk(s)));
     if (list.length) all[c] = list;
     const q = quotaOn() ? list.filter(quotaOk) : list;
     if (q.length) ok[c] = q;
@@ -992,9 +1005,9 @@ const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
 // Wiederholungen: nicht verboten, nur seltener. Ein gerade gelaufener Song hat ~10 % der Chance eines
 // frischen Songs; die Chance steigt mit jedem weiteren gespielten Song und ist nach REPEAT_BACK Songs wieder voll.
 const REPEAT_BACK = 250, REPEAT_MIN = .1;
-function songW(s){ const at = state.playedAt[s.i]; if (at == null) return 1;
+function songW(s){ const at = state.playedAt[hk(s)]; if (at == null) return 1;
   return Math.min(1, REPEAT_MIN + (1 - REPEAT_MIN) * (state.playN - at) / REPEAT_BACK); }
-const isRecent = s => state.playedAt[s.i] != null && state.playN - state.playedAt[s.i] < REPEAT_BACK;
+const isRecent = s => state.playedAt[hk(s)] != null && state.playN - state.playedAt[hk(s)] < REPEAT_BACK;
 function pickW(arr, w = songW){
   const ws = arr.map(w), sum = ws.reduce((a, b) => a + b, 0); let r = Math.random() * sum;
   for (let k = 0; k < arr.length; k++) { r -= ws[k]; if (r <= 0) return arr[k]; }
@@ -1234,7 +1247,6 @@ async function getDevice(){
     if (dv?.id && isMob(dv) && (me ? dv.id === me.id || dv.name === me.name : IS_IOS === isI(dv))) p = dv; } catch(e) {} }
   return p || null;              // Handy gerade nicht erreichbar → Mixtape bietet „Spotify wecken“ an (öffnet Spotify auf diesem Handy)
 }
-store.del("devPref");     // alte Festlegung (0.9.71) entfällt
 const DEV_IC = { Smartphone: "<span class=dw data-dw=phone></span>", Computer: "<span class=dw data-dw=laptop></span>", Speaker: "<span class=dw data-dw=speaker></span>", TV: "<span class=dw data-dw=tv></span>", Tablet: "<span class=dw data-dw=phone></span>", CastVideo: "<span class=dw data-dw=tv></span>", CastAudio: "<span class=dw data-dw=speaker></span>", AVR: "<span class=dw data-dw=speaker></span>", Automobile: "<span class=dw data-dw=car></span>" };
 async function openDevPicker(el){
   el = typeof el === "string" ? $(el) : el; if (!el) return;
@@ -1266,9 +1278,13 @@ $("#devPickBtn").addEventListener("click", () => openDevPicker("#devPickBox"));
 // Zugangsdaten kommen nicht in die Datei (die liegt z. B. in iCloud oder im Download-Ordner):
 // Spotify-Anmeldung und GitHub-Schlüssel bleiben nur auf dem Gerät.
 const BK_SECRET = ["tok", "pkce", "ghTok"];
+// Gehört nur zu diesem Gerät (Spotify-Gerät, offene Online-Räume, Stille-Track, Kontingent) – wird nicht gesichert
+// und beim Laden einer Sicherung auf diesem Gerät beibehalten.
+const BK_DEVICE = ["myPhone", "lastDev", "blitzPid", "blitzRoom", "blitzSong", "blitzRnd", "zonHost", "olHost", "blitzHosted", "silentOk", "silentTry2", "spQuota", "fbUrl"];
+const BK_SKIP = [...BK_SECRET, ...BK_DEVICE];
 async function backupNow(){
   store.set("bkLast", Date.now());
-  const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!BK_SECRET.includes(k)) data[k] = localStorage.getItem(k); }
+  const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!BK_SKIP.includes(k)) data[k] = localStorage.getItem(k); }
   const name = `mixtape-sicherung-${new Date().toISOString().slice(0, 10)}.json`;
   const blob = new Blob([JSON.stringify({ app: "mixtape", v: APP_VERSION, date: new Date().toISOString(), data })], { type: "application/json" });
   const file = new File([blob], name, { type: "application/json" });
@@ -1300,9 +1316,9 @@ $("#bkFile").addEventListener("change", async e => {
     const j = JSON.parse(await f.text()); if (j.app !== "mixtape" || !j.data) throw new Error("Das ist keine Mixtape-Sicherung.");
     if (!await ask(`Sicherung vom ${new Date(j.date).toLocaleString("de-DE")} laden? Der jetzige Stand auf diesem Gerät wird dabei ersetzt.`)) return;
     // Anmeldung und Schlüssel dieses Geräts behalten, dann den gesicherten Stand einspielen
-    const keep = Object.fromEntries(BK_SECRET.map(k => [k, localStorage.getItem(k)]).filter(([, v]) => v !== null));
-    localStorage.clear(); Object.entries(j.data).forEach(([k, v]) => { try { localStorage.setItem(k, v); } catch(e) {} });
-    Object.entries(keep).forEach(([k, v]) => { if (localStorage.getItem(k) === null) localStorage.setItem(k, v); });
+    const keep = Object.fromEntries(BK_SKIP.map(k => [k, localStorage.getItem(k)]).filter(([, v]) => v !== null));
+    localStorage.clear(); Object.entries(j.data).forEach(([k, v]) => { if (!BK_DEVICE.includes(k)) try { localStorage.setItem(k, v); } catch(e) {} });
+    Object.entries(keep).forEach(([k, v]) => { if (BK_DEVICE.includes(k) || localStorage.getItem(k) === null) localStorage.setItem(k, v); });
     msg("#bkMsg", "ok", "Sicherung geladen – die App startet neu …"); setTimeout(() => location.reload(), 800);
   } catch(err) { msg("#bkMsg", "err", esc(err.message || String(err))); }
   e.target.value = "";
@@ -1477,7 +1493,7 @@ async function handleYear(year){
   } catch(e) {
     if (e.nodevice) showWake("Spotify schläft gerade. Ein Tipp genügt – Mixtape öffnet Spotify kurz und spielt den Song danach automatisch ab.", m.app.typ === "sprint" ? () => sprintPlay(0) : null);
     else showErr(e, async () => { if (!cur.uri) { const tr = await resolveTrack(cur.song); Object.assign(cur, { uri: tr.uri, dur: tr.dur }); saveCur(); } await start(); },
-      () => { if (state.current === cur) { state.played.add(cur.song.i); state.playedAt[cur.song.i] = ++state.playN; save(); } state.current = null; handleYear(year); });
+      () => { if (state.current === cur) { state.played.add(hk(cur.song)); state.playedAt[hk(cur.song)] = ++state.playN; save(); } state.current = null; handleYear(year); });
     $("#playState").textContent = "Wiedergabe gestoppt";
   }
 }
@@ -1493,7 +1509,7 @@ function reveal(){
   clearTimeout(sprintTimer); sprintTok++;
   if (!c.revealed) {
     c.revealed = true;
-    state.played.add(c.song.i); state.playedAt[c.song.i] = ++state.playN; save();
+    state.played.add(hk(c.song)); state.playedAt[hk(c.song)] = ++state.playN; save();
     addHistory(c);
     if (modeDef().app.runden) state.game.runde++;
     if (modeDef().app.zug === "reihum") state.game.teams[state.game.turn].z++;
@@ -1895,7 +1911,7 @@ function nextTurn(){
 
 // ---------- Wunschkonzert: aktives Team wählt die Kategorie für das nächste Team ----------
 function wunschOptions(year){
-  const has = (c, avoid) => (byYearCat[c.id]?.[year] || []).some(s => !avoid || !state.played.has(s.i));
+  const has = (c, avoid) => (byYearCat[c.id]?.[year] || []).some(s => !avoid || !state.played.has(hk(s)));
   let avail = KATEGORIEN.filter(c => has(c, true)); if (avail.length < 3) avail = KATEGORIEN.filter(c => has(c, false));
   const shuf = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
   const extra = shuf(avail.filter(c => c.typ !== "main")), mains = shuf(avail.filter(c => c.typ === "main"));
@@ -3174,9 +3190,15 @@ $("#logoutBtn").addEventListener("click", () => { store.del("tok"); renderLogin(
 let installEvt = null;
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   // Neue Version sofort holen: SW ohne HTTP-Cache prüfen und nach Wechsel einmal neu laden
-  navigator.serviceWorker.register("sw.js", { updateViaCache:"none" }).then(r => r.update()).catch(()=>{});
+  // Beim allerersten Besuch (noch kein SW) übernimmt der SW nur die Kontrolle – dann nicht neu laden.
+  const hadSW = !!navigator.serviceWorker.controller;
+  let swReg = null;
+  navigator.serviceWorker.register("sw.js", { updateViaCache:"none" }).then(r => { swReg = r; return r.update(); }).catch(()=>{});
   let reloaded = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; maybeReload(); } });
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadSW && !reloaded) { reloaded = true; maybeReload(); } });
+  // Läuft die App lange im Hintergrund, beim Zurückkommen nach Updates schauen (höchstens alle 10 min)
+  let swChk = Date.now();
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && swReg && Date.now() - swChk > 6e5) { swChk = Date.now(); swReg.update().catch(() => {}); } });
 }
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; renderInstall(); });
 function renderInstall(){
@@ -4367,6 +4389,9 @@ function blStart(box){
     if (!["tvq", "wun"].includes(ex.game) && zsPool(o.cats).filter(s => !offPlay(s)).length < 30) return $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`;
     const code = Array.from(crypto.getRandomValues(new Uint8Array(5)), x => BL_ABC[x % BL_ABC.length]).join("");
     try { await fb(code, "PUT", { game: ex.game, host: blPid(), ts: SVT, phase: "lobby", round: 0, cfg: { v: OV, rounds: OV, hand: OV, ...(ex.sets ? { sets: ex.sets } : {}) }, players: { [blPid()]: { n, pts: 0, j: SVT } } });
+      // Vorher selbst eröffneten Raum aufräumen (nur wenn wir dort noch Host sind)
+      const old = store.get("blitzHosted", ""); store.set("blitzHosted", code);
+      if (old && old !== code) fb(old).then(st => st?.host === blPid() && fb(old, "DELETE")).catch(() => {});
       ex.cats = o.cats; ex.used = []; exSave(); bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender(box);
     } catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; } };
 }

@@ -1,8 +1,7 @@
 // =====================================================================
-//  Ergebnisse der MusicBrainz-Jahresprüfung – für ALLE Geräte.
-//  Wird aus dem Export unter „Daten“ → „Ergebnisse exportieren“ erzeugt.
+//  Ergebnisse der MusicBrainz-Jahresprüfung – pflegt die nächtliche Prüfung (tools/nightly.mjs).
 //  Format: "Titel|Interpret": [Jahr in Mixtape, frühestes Jahr laut MusicBrainz oder null]
-//  Songs, die hier stehen (und deren Jahr sich nicht geändert hat), prüft kein Gerät erneut.
+//  Songs, die hier stehen (und deren Jahr sich nicht geändert hat), werden nicht erneut geprüft.
 // =====================================================================
 const MB_GEPRUEFT = {
   "Georgia on My Mind|Hoagy Carmichael": [1930, 1930],

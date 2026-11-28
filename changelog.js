@@ -4,6 +4,12 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.4", d: "2026-11-28", e: [
+    ["fix", "Verlauf (welche Songs zuletzt liefen) bleibt jetzt richtig, auch wenn Songs dazukommen oder wegfallen – vorher konnte er auf andere Songs verrutschen."],
+    ["fix", "Updates kommen zuverlässiger an: kein unnötiges Neuladen beim ersten Öffnen, Update-Prüfung beim Zurückkehren in die App, sauberer Offline-Speicher."],
+    ["fix", "Sicherung: Gerätespezifisches (Spotify-Gerät, offene Online-Räume) wird nicht mehr mitgesichert und beim Laden auf dem Handy behalten."],
+    ["change", "Wer einen neuen Online-Raum eröffnet, räumt seinen alten automatisch auf."],
+  ]},
   { v: "0.17.3", d: "2026-11-28", e: [
     ["fix", "Zufälliger Startpunkt funktioniert jetzt auch bei Songs mit fester Aufnahme (vorher starteten die immer am Anfang)."],
     ["fix", "„Song nicht abspielbar“ erscheint nicht mehr fälschlich – die App schaut zweimal hin, bevor sie das meldet."],

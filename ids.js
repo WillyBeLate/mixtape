@@ -1,7 +1,7 @@
 // =====================================================================
 //  Feste Spotify-Track-IDs für die Songs der Jahreskarten.
-//  Erzeugt aus dem „Spotify-Abgleich“ unter Daten. Steht ein Song hier,
-//  sucht kein Gerät mehr – alle spielen garantiert dieselbe Aufnahme.
+//  Pflegt die nächtliche Prüfung (tools/nightly.mjs) samt eurer „Falscher Song“-Korrekturen.
+//  Steht ein Song hier, sucht kein Gerät mehr – alle spielen garantiert dieselbe Aufnahme.
 //  Format: "Titel|Interpret": "SpotifyTrackID"
 // =====================================================================
 const SPOTIFY_IDS = {
