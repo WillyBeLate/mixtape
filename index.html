@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.8"></script>
-<script src="regeln.js?v=0.15.8"></script>
-<script src="changelog.js?v=0.15.8"></script>
-<script src="geprueft.js?v=0.15.8"></script>
-<script src="ids.js?v=0.15.8"></script>
+<script src="daten.js?v=0.16.0"></script>
+<script src="regeln.js?v=0.16.0"></script>
+<script src="changelog.js?v=0.16.0"></script>
+<script src="geprueft.js?v=0.16.0"></script>
+<script src="ids.js?v=0.16.0"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -118,6 +118,8 @@
   .mt.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;padding:12px 14px}
   .mt.wide .mhd{order:0}.mt.wide .mic{width:66px;height:66px}.mt.wide .mtx{flex:1}.mt.wide .mtn{font-size:17px}
   .mt .mtr{display:flex;align-items:center;gap:5px}
+  .mt .mfav{display:inline-grid;place-items:center;width:20px;height:22px;margin:-4px -3px -4px 0;cursor:pointer;flex:none;z-index:2}
+  .mt.fav{border-color:#ffd23f99}
   .mt.wide .mtr{position:absolute;top:10px;right:12px}
   .mt.wide .mtx{padding-right:36px}
   .mt .mtx{display:flex;flex-direction:column;gap:5px;min-width:0}
@@ -525,6 +527,10 @@
   .pkV{font-size:44px;font-weight:900;min-width:110px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .djC{display:grid;grid-template-columns:1fr 1fr;gap:8px}.djC .btn{margin:0}.djC .btn:first-child{grid-column:1/-1;background:linear-gradient(135deg,#2ecc71,#14a37f)}
   .djV button{padding:8px 10px;font-size:13px}
+  .zlLine{margin:6px 0 10px}.zlRow{display:flex;gap:10px;align-items:baseline;background:#ffffff12;border-radius:12px;padding:8px 10px;margin:2px 0}.zlRow b{font-size:18px;font-weight:900;color:#ffd23f;min-width:44px}.zlRow span{font-size:13px;color:#e6ddff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .zlRow.zlNew{box-shadow:0 0 0 2px #9be15d inset;background:#2ecc7122}
+  .zlGap{display:block;width:100%;margin:3px 0;padding:8px;border-radius:12px;border:2px dashed #ffffff40;background:#ffffff08;color:#ffd1e6;font:700 13px system-ui,sans-serif;cursor:pointer;text-align:center}
+  .zlGap:not(div):active{background:#ff5fa22a;border-color:var(--accent)}.zlGap.on{border-color:var(--accent);background:#ff5fa22a;color:#fff}.zlGap.bad{border-color:#ff4d6d;background:#ff4d4d22;color:#fff}.zlSp{height:4px}
   .blCode{font-size:46px;font-weight:900;letter-spacing:8px;margin:4px 0;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .memoBar{display:flex;gap:6px;margin:8px 0 12px}.memoBar i{flex:1;height:8px;border-radius:9px;background:#ffffff1c}.memoBar i.done{background:#b06cff}.memoBar i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));animation:memoP 1s infinite alternate}@keyframes memoP{to{opacity:.55}}
   .rsOpt.good{border-color:#2ecc71;background:#2ecc7122}.rsOpt.badc{border-color:#ff4d6d;background:#ff4d4d22}
@@ -814,7 +820,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.8";
+const APP_VERSION = "0.16.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2090,6 +2096,8 @@ const MODE_ICON = {
     <path d="M32 8h12v10h-6l-4 4v-4h-2z" stroke="#ff4fb0" stroke-width="2"/><path d="M36 11.5c1-1.8 4-1.6 4 .4 0 1.6-2 1.6-2 3M38 17v.2" stroke="#ffd23f" stroke-width="1.6"/><path d="M34 34l8 6" stroke="#b06cff" stroke-width="2.4"/>`, "#ff4fb0"),
   blitz: MI(`<path d="M27 3L10 27h12l-4 18 19-25H25z" stroke="url(#miB)" stroke-width="2.6"/><rect x="2" y="30" width="9" height="15" rx="2" stroke="#3ee8ff" stroke-width="2"/><rect x="37" y="30" width="9" height="15" rx="2" stroke="#ff4fb0" stroke-width="2"/>
     <path d="M5 41h3M40 41h3" stroke="#9be15d" stroke-width="1.6"/>${SPARK(44, 8, 1.4, "#3ee8ff")}`, "#ffd23f"),
+  zon: MI(`<rect x="3" y="30" width="42" height="6" rx="2" stroke="url(#miC)" stroke-width="2.2"/><rect x="6" y="12" width="9" height="13" rx="2" stroke="#ff4fb0" stroke-width="2"/><rect x="19.5" y="8" width="9" height="13" rx="2" stroke="#ffd23f" stroke-width="2" stroke-dasharray="3 2"/><rect x="33" y="12" width="9" height="13" rx="2" stroke="#9be15d" stroke-width="2"/>
+    <path d="M24 23v5M21.5 25.5L24 28l2.5-2.5" stroke="#3ee8ff" stroke-width="2"/><path d="M8 42h4M22 42h4M36 42h4" stroke="#b06cff" stroke-width="1.8"/>`, "#3ee8ff"),
   memo: MI(`<path d="M24 40c-9 0-16-6-16-15 0-6 4-11 9-12 1-4 5-7 9-6 4-1 9 2 10 6 5 1 8 6 8 11 0 9-9 16-20 16z" stroke="url(#miD)" stroke-width="2.3"/>
     <path d="M24 9v30M16 18c3 0 5 2 5 5M32 18c-3 0-5 2-5 5M14 30c3-1 6 0 7 3M34 30c-3-1-6 0-7 3" stroke="#b06cff" stroke-width="1.7"/>${SPARK(42, 8, 1.5, "#ffd23f")}${SPARK(6, 10, 1.3, "#3ee8ff")}`, "#b06cff"),
   rette: MI(`<path d="M8 6h26l7 7v29H8z" stroke="url(#miB)" stroke-width="2.4"/><path d="M15 6v10h16V6" stroke="#ffd23f" stroke-width="2"/><path d="M26 9v4" stroke="#ffd23f" stroke-width="2"/>
@@ -2135,6 +2143,26 @@ function showModeInfo(id){
   $("#mpGo").onclick = () => { close(); document.querySelector(id === "rette" ? "#rsOpen" : id === "zeitsprung" ? "#zsOpen" : EX_DEF[id] ? "#exOpen-" + id : `#modeGrid [data-mode="${id}"]`)?.click(); };
   $("#mpRules")?.addEventListener("click", () => { close(); show("rules"); setTimeout(() => document.getElementById("r-" + id)?.scrollIntoView(), 50); });
 }
+// ---------- Favoriten: Stern auf jeder Kachel, Favoriten stehen oben in eigener Gruppe ----------
+const FAV_ST = on => `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="${on ? "#ffd23f" : "none"}" stroke="${on ? "#ffd23f" : "#ffffff8c"}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+const tileId = t => t.dataset.mode || (t.id === "zsOpen" ? "zeitsprung" : t.id === "rsOpen" ? "rette" : t.id.startsWith("exOpen-") ? t.id.slice(7) : "");
+function modeFavs(){
+  const grid = $("#modeGrid"); if (!grid) return;
+  const favs = store.get("favModes", []), tiles = [...grid.querySelectorAll(".mt")];
+  tiles.forEach(t => { const id = tileId(t); if (!id) return; const on = favs.includes(id); t.classList.toggle("fav", on);
+    const b = document.createElement("span"); b.className = "mfav"; b.setAttribute("role", "button"); b.setAttribute("aria-label", on ? "Aus Favoriten entfernen" : "Als Favorit merken"); b.innerHTML = FAV_ST(on);
+    b.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); const f = store.get("favModes", []);
+      store.set("favModes", f.includes(id) ? f.filter(x => x !== id) : [...f, id]); renderModePanel(); }, true);
+    let r = t.querySelector(".mtr");
+    if (!r) { r = document.createElement("span"); r.className = "mtr"; const tag = t.querySelector(".mhd .tag"); if (tag) r.appendChild(tag); t.querySelector(".mhd")?.appendChild(r); }
+    r.prepend(b); });
+  const favT = favs.map(id => tiles.find(t => tileId(t) === id)).filter(Boolean);
+  if (!favT.length) return;
+  const head = document.createElement("div"); head.className = "mgh"; head.innerHTML = `<i class="gd" style="background:#ffd23f"></i>Favoriten`;
+  const g = document.createElement("div"); g.className = "mgrid"; favT.forEach(t => { t.classList.remove("wide"); g.appendChild(t); });
+  grid.prepend(head, g);
+  grid.querySelectorAll(".mgrid").forEach(m => { if (!m.children.length) { m.previousElementSibling?.classList.contains("mgh") && m.previousElementSibling.remove(); m.remove(); } });
+}
 // ---------- Modus-Auswahl im Mix ----------
 function renderModePanel(){
   const m = modeDef(), g = state.game, [lo, hi] = m.app.teams;
@@ -2164,8 +2192,9 @@ function renderModePanel(){
   $("#modeGrid").innerHTML = GN.map((gn, gi) => { const l = sorted.filter(x => grp(x) === gi); return !l.length ? "" :
     `<div class="mgh"><i class="gd" style="background:${GC[gi]}"></i>${gn}${gi === 4 ? ' <span style="opacity:.6;font-weight:600;text-transform:none;letter-spacing:0">· Quiz-Modi kombinierbar</span>' : ""}</div><div class="mgrid">${l.map(x => tile(x, gi, l.length === 1 && gi !== 4)).join("")}${gi === 4 ? `<button class="mt" id="zsOpen" style="--gc:#2de2e6"><span class="mhd"><span class="mic">${MODE_ICON.zeitsprung}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">Zeitsprung</span><span class="mts"><span class="ppl">${PG}1–6 Personen</span><span>früher oder später?</span></span></span><span class="minfo" data-info="zeitsprung" role="button" aria-label="Kurz erklärt">i</span></button><button class="mt" id="rsOpen" style="--gc:#ffd23f"><span class="mhd"><span class="mic">${MODE_ICON.rette}</span><span class="tag">NEU</span></span>
-      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="tag">NEU</span></span>
+      <span class="mtx"><span class="mtn">Rette einen Song</span><span class="mts"><span class="ppl">${P2}1–2 Personen</span><span>Jahre oder Künstler</span></span></span><span class="minfo" data-info="rette" role="button" aria-label="Kurz erklärt">i</span></button>${Object.entries(EX_DEF).map(([k, d], j) => `<button class="mt" id="exOpen-${k}" style="--gc:${["#ff8a3d", "#9be15d", "#ff5fa2", "#ffd23f", "#2de2e6", "#b06cff"][j]}"><span class="mhd"><span class="mic">${MODE_ICON[k]}</span><span class="tag">NEU</span></span>
       <span class="mtx"><span class="mtn">${d.name}</span><span class="mts"><span class="ppl">${d.min > 1 ? P2 : PG}${d.wer}</span><span>${d.sub}</span></span></span><span class="minfo" data-info="${k}" role="button" aria-label="Kurz erklärt">i</span></button>`).join("")}` : ""}</div>`; }).join("");
+  modeFavs();
   document.querySelectorAll("#modeGrid [data-info]").forEach(el => el.addEventListener("click", e => { e.stopPropagation(); e.preventDefault(); showModeInfo(el.dataset.info); }, true));
   $("#zsOpen").onclick = () => { if (zs) { zs.view = zs.done ? "setup" : zs.view; zsSave(); } show("zeitsprung"); };
   Object.keys(EX_DEF).forEach(k => { const b = $("#exOpen-" + k); if (b) b.onclick = () => exOpen(k); });
@@ -3797,6 +3826,8 @@ const EX_DEF = {
     info: ["Nur der DJ kennt das Jahr – und vielleicht lügt er.", "Reihum ist einer DJ, sieht als Einziger Titel und Jahr und sagt ein Jahr an – echt oder gelogen. Die anderen tippen: „Glaub ich“ oder „Gelogen!“. Richtig getippt gibt einen Punkt, der DJ bekommt einen für jeden, den er reinlegt."] },
   blitz: { name: "Jahres-Blitz", wer: "2–8 Personen", sub: "jeder am eigenen Handy", min: 2,
     info: ["Wer kennt das Jahr am schnellsten?", "Ein Handy eröffnet einen Raum und spielt die Musik, alle anderen treten mit dem Raum-Code am eigenen Handy bei. Ein Song läuft, alle tippen gleichzeitig das Jahr. Punkte gibt es für jeden: genau richtig 5, ein Jahr daneben 3, bis drei Jahre daneben 1. Bei Punktgleichstand am Ende gewinnt, wer insgesamt schneller getippt hat."] },
+  zon: { name: "Zeitstrahl online", wer: "2–6 Personen", sub: "Hitster ohne Karten", min: 2,
+    info: ["Der Zeitstrahl – nur digital und jeder am eigenen Handy.", "Ein Handy eröffnet einen Raum und spielt die Musik, die anderen treten mit dem Code bei. Alle sehen denselben Zeitstrahl. Jeder hat verdeckte Handkarten. Wer dran ist, hört einen Song aus seiner Hand und legt ihn an die passende Stelle. Richtig: Die Karte bleibt im Zeitstrahl. Falsch: Sie fliegt raus und du ziehst eine neue. Wer zuerst keine Karten mehr hat, gewinnt."] },
   memo: { name: "Gedächtnis-Mixtape", wer: "1–6 Personen", sub: "6 Songs merken", R: [[4, "4"], [6, "6"], [8, "8"]], Rd: 6, Rl: "Fragen", min: 1,
     info: ["Gut zuhören – danach wird gefragt.", "6 Songs laufen hintereinander, je 15 Sekunden, ohne Titel. Danach kommen Fragen: Welcher kam als vierter? Welcher war der älteste? Welcher kam direkt nach …? Reihum beantwortet jeder eine Frage."] },
 };
@@ -3863,7 +3894,7 @@ function exOpen(g){
 }
 function exRender(){
   const box = $("#exBox"); if (!ex) return show("setup");
-  if (ex.game === "blitz") return blRender(box);
+  if (ex.game === "blitz" || ex.game === "zon") return blRender(box);
   if (ex.view === "setup") return exSetup(box);
   if (ex.done) return exEnd(box);
   ({ blind: exBlind, poker: exPoker, dj: exDj, memo: exMemo })[ex.game](box);
@@ -4128,14 +4159,15 @@ function blSetPath(obj, path, val){
 function blConnect(){
   blClose(); if (!bl.code) return;
   const es = new EventSource(fbBase() + "/blitz/" + bl.code + ".json"); bl.es = es;
-  const on = (ev, fn) => es.addEventListener(ev, e => { try { fn(JSON.parse(e.data)); } catch(_) {} if (curView === "extra" && ex?.game === "blitz") blRender($("#exBox")); });
+  const on = (ev, fn) => es.addEventListener(ev, e => { try { fn(JSON.parse(e.data)); } catch(_) {} if (curView === "extra" && blOnline()) blRender($("#exBox")); });
   on("put", d => { bl.got = true; bl.st = blSetPath(bl.st, d.path, d.data); });
   on("patch", d => { for (const [k, v] of Object.entries(d.data || {})) bl.st = blSetPath(bl.st, (d.path + "/" + k).replace(/\/+/g, "/"), v); });
   es.addEventListener("cancel", () => { bl.err = "Zugriff verweigert – Regeln der Datenbank prüfen."; blRender($("#exBox")); });
 }
 function blClose(){ try { bl.es?.close(); } catch(_) {} bl.es = null; }
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && bl.code && curView === "extra" && ex?.game === "blitz" && (!bl.es || bl.es.readyState === 2)) blConnect(); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && bl.code && curView === "extra" && blOnline() && (!bl.es || bl.es.readyState === 2)) blConnect(); });
 const blMe = () => bl.st?.players?.[blPid()];
+const blOnline = () => ex?.game === "blitz" || ex?.game === "zon";
 // Nur Tipps dieser Runde von Leuten, die noch im Raum sind
 const blGuesses = st => Object.fromEntries(Object.entries(st?.guess || {}).filter(([id, x]) => x && x.r === st.round && st.players?.[id]));
 const blHost = () => bl.st?.host === blPid();
@@ -4144,7 +4176,7 @@ function blLeave(){ blClose(); bl.code = ""; bl.st = null; bl.got = false; bl.so
 
 function blRender(box){
   if (!box) return;
-  const D = EX_DEF.blitz;
+  const D = EX_DEF[ex.game] || EX_DEF.blitz;
   if (!fbBase()) { box.innerHTML = exTop(D.sub) + `<div class="panel"><b>Noch nicht eingerichtet</b><p class="small">Für den Jahres-Blitz braucht Mixtape eine kleine Online-Datenbank (Firebase), damit sich die Handys abgleichen. Claude richtet sie mit dir ein.</p></div>`; return exBackBind(); }
   if (!bl.code) return blStart(box);
   if (!bl.es) blConnect();
@@ -4159,12 +4191,13 @@ function blRender(box){
   const score = `<div class="zsPl ex">${P.map((p, i) => `<div class="zsP ${p.id === blPid() ? "on" : ""}" style="--c:${EX_COL[i % 6]}"><b>${esc(p.n)}${p.id === st.host ? " <span class=dw data-dw=music></span>" : ""}</b><span>${p.pts || 0}</span></div>`).join("")}</div>`;
   if (st.phase === "lobby") {
     box.innerHTML = exTop("Warteraum") + `<div class="panel" style="text-align:center"><div class="small">Raum-Code</div><div class="blCode">${esc(bl.code)}</div>
-        <div class="small">Die anderen öffnen Mixtape → Extras → Jahres-Blitz → <b>Beitreten</b> und geben den Code ein.</div></div>
+        <div class="small">Die anderen öffnen Mixtape → Extras → ${esc(D.name)} → <b>Beitreten</b> und geben den Code ein.</div></div>
       <div class="panel"><b>Dabei (${P.length})</b>${P.map((p, i) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(p.n)}</span>${p.id === st.host ? " spielt die Musik" : ""}</span>${host && p.id !== blPid() ? `<button class="btn sec small" data-kick="${esc(p.id)}" style="width:auto;margin:0">✕</button>` : ""}</div>`).join("")}</div>
       <div id="exMsg"></div>
-      ${host ? `<button class="btn" id="blGo" ${P.length < 2 ? "disabled" : ""}>${P.length < 2 ? "Warte auf Mitspieler …" : `Los geht's (${R} Songs)`}</button>` : `<div class="panel small" style="text-align:center">Warte, bis ${esc(st.players?.[st.host]?.n || "der Host")} startet …</div>`}
+      ${host ? `<button class="btn" id="blGo" ${P.length < 2 ? "disabled" : ""}>${P.length < 2 ? "Warte auf Mitspieler …" : st.game === "zon" ? `Los geht's (${st.cfg?.hand || 5} Karten je Person)` : `Los geht's (${R} Songs)`}</button>` : `<div class="panel small" style="text-align:center">Warte, bis ${esc(st.players?.[st.host]?.n || "der Host")} startet …</div>`}
       <button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
-  } else if (st.phase === "play") {
+  } else if (st.game === "zon") return zonRender(box, st, P, host);
+  else if (st.phase === "play") {
     const g = blGuesses(st), mine = g[blPid()], n = Object.keys(g).length;
     box.innerHTML = exTop(`Song ${st.round} von ${R}`) + score + `${exHid("Song " + st.round + " läuft …", host ? "Nur du hörst über dein Spotify – stell die Musik laut" : "Hör genau hin")}
       ${host && bl.song ? `<div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(bl.song)}</div>` : ""}<div id="exMsg"></div>
@@ -4197,7 +4230,7 @@ function blRender(box){
     try { await fb(host ? bl.code : `${bl.code}/players/${blPid()}`, "DELETE"); } catch(_) {}
     blLeave(); blRender(box); });
   box.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => fb(`${bl.code}/players/${b.dataset.kick}`, "DELETE").catch(() => {}));
-  $("#blGo")?.addEventListener("click", () => blRound(1));
+  $("#blGo")?.addEventListener("click", () => st.game === "zon" ? zonStart() : blRound(1));
   $("#blNext")?.addEventListener("click", () => st.round >= R ? fb(bl.code, "PATCH", { phase: "end" }).then(exStop).catch(() => {}) : blRound(st.round + 1));
   $("#blAgain")?.addEventListener("click", () => { const up = { phase: "lobby", round: 0, guess: null, reveal: null }; P.forEach(p => { up[`players/${p.id}/pts`] = 0; up[`players/${p.id}/zt`] = 0; }); fb(bl.code, "PATCH", up).catch(() => {}); });
   $("#blRev")?.addEventListener("click", blReveal);
@@ -4207,20 +4240,20 @@ function blRender(box){
 function blBack(){ $("#exBack").onclick = () => { blClose(); show("setup"); }; }
 // Start: eröffnen oder beitreten
 function blStart(box){
-  const D = EX_DEF.blitz, o = { cats: ["global", "dehits"], ...store.get("exOpt", {}) }, R = store.get("blitzR", 10), name = store.get("blitzName", "");
+  const D = EX_DEF[ex.game] || EX_DEF.blitz, zon = ex.game === "zon", o = { cats: ["global", "dehits"], ...store.get("exOpt", {}) }, R = store.get("blitzR", 10), Hn = store.get("zonHand", 5), name = store.get("blitzName", "");
   const groups = [["Main", KATEGORIEN.filter(c => effTyp(c.id) === "main")], ["Support", KATEGORIEN.filter(c => effTyp(c.id) === "support")], ["Künstler", KATEGORIEN.filter(c => c.typ === "kuenstler")]];
   box.innerHTML = exTop(D.sub) + `<p class="sub" style="margin-top:4px"><b>${D.info[0]}</b> ${D.info[1]}</p>
     <div class="panel"><b>Dein Name</b><input type="text" id="blName" value="${esc(name)}" placeholder="Name" maxlength="16" style="margin-top:6px"></div>
     <div class="panel"><b>Mitspielen</b><div class="row" style="gap:6px;margin-top:6px"><input type="text" id="blCodeIn" placeholder="Raum-Code" maxlength="5" style="text-transform:uppercase;letter-spacing:3px;font-weight:800"><button class="btn" id="blJoin" style="width:auto;margin:0">Beitreten</button></div></div>
     <div class="panel"><b>Oder selbst eröffnen</b> <span class="small">(dein Handy spielt die Musik über Spotify)</span>
-      <div class="seg" id="blR" style="margin-top:8px">${[[5, "5"], [10, "10"], [15, "15"]].map(([v, l]) => `<button data-r="${v}" class="${v === R ? "on" : ""}">${l} Songs</button>`).join("")}</div>
+      <div class="seg" id="blR" style="margin-top:8px">${(zon ? [[3, "3"], [5, "5"], [7, "7"]] : [[5, "5"], [10, "10"], [15, "15"]]).map(([v, l]) => `<button data-r="${v}" class="${v === (zon ? Hn : R) ? "on" : ""}">${l} ${zon ? "Karten" : "Songs"}</button>`).join("")}</div>
       ${groups.map(([g, l]) => `<div class="small" style="margin:10px 0 4px;opacity:.8">${g}</div><div class="chips">${l.map(c => `<button data-xc="${c.id}" class="${o.cats.includes(c.id) ? "on" : ""}">${esc(c.name)}</button>`).join("")}</div>`).join("")}
       <button class="btn" id="blNew" style="margin-top:10px">Raum eröffnen</button></div>
     <div id="exMsg">${bl.err ? `<div class="msg warn">${esc(bl.err)}</div>` : ""}</div>`;
   bl.err = ""; blBack();
   const nm = () => { const n = $("#blName").value.trim(); store.set("blitzName", n); return n; };
   $("#blName").oninput = nm;
-  box.querySelectorAll("#blR button").forEach(b => b.onclick = () => { nm(); store.set("blitzR", +b.dataset.r); blStart(box); });
+  box.querySelectorAll("#blR button").forEach(b => b.onclick = () => { nm(); store.set(zon ? "zonHand" : "blitzR", +b.dataset.r); blStart(box); });
   box.querySelectorAll("[data-xc]").forEach(b => b.onclick = () => { nm(); const c = b.dataset.xc; o.cats = o.cats.includes(c) ? o.cats.filter(x => x !== c) : [...o.cats, c]; if (!o.cats.length) o.cats = [c]; store.set("exOpt", { ...store.get("exOpt", {}), cats: o.cats }); blStart(box); });
   $("#blJoin").onclick = () => { const c = $("#blCodeIn").value.trim().toUpperCase(), n = nm();
     if (!n) return $("#exMsg").innerHTML = `<div class="msg warn">Bitte erst deinen Namen eintragen.</div>`;
@@ -4231,13 +4264,14 @@ function blStart(box){
     if (!sp.tok()) return $("#exMsg").innerHTML = `<div class="msg warn">Wer eröffnet, spielt die Musik – bitte erst unter „Spiel“ bei Spotify anmelden. Alle anderen können ohne Spotify beitreten.</div>`;
     if (zsPool(o.cats).filter(s => !offPlay(s)).length < 30) return $("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`;
     const code = Array.from(crypto.getRandomValues(new Uint8Array(5)), x => BL_ABC[x % BL_ABC.length]).join("");
-    try { await fb(code, "PUT", { host: blPid(), ts: SVT, phase: "lobby", round: 0, cfg: { rounds: store.get("blitzR", 10) }, players: { [blPid()]: { n, pts: 0, j: SVT } } });
+    try { await fb(code, "PUT", { game: ex.game, host: blPid(), ts: SVT, phase: "lobby", round: 0, cfg: zon ? { hand: store.get("zonHand", 5) } : { rounds: store.get("blitzR", 10) }, players: { [blPid()]: { n, pts: 0, j: SVT } } });
       ex.cats = o.cats; ex.used = []; exSave(); bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender(box);
     } catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; } };
 }
 async function blJoin(code, n){
   try {
     const st = await fb(code); if (!st) throw new Error("Diesen Raum gibt es nicht (mehr). Code prüfen.");
+    if ((st.game || "blitz") !== ex.game) { ex = { game: st.game || "blitz", view: "setup" }; exSave(); }   // Code eines anderen Online-Spiels: dorthin wechseln
     if (!st.players?.[blPid()]) await fb(`${code}/players/${blPid()}`, "PUT", { n, pts: 0, j: SVT });
     bl.code = code; store.set("blitzRoom", code); bl.st = null; bl.got = false; blConnect(); blRender($("#exBox"));
   } catch(e) { bl.err = e.message; bl.code = ""; blRender($("#exBox")); }
@@ -4257,6 +4291,75 @@ async function blReveal(){
     if (p) up[`players/${id}/pts`] = (st.players[id].pts || 0) + p;
     up[`players/${id}/zt`] = (st.players[id].zt || 0) + Math.max(0, (x.t || 0) - (st.start || 0)); }
   try { await fb(bl.code, "PATCH", up); } catch(e) { bl.revealing = false; }
+}
+
+// ---------- Zeitstrahl online: gemeinsamer Zeitstrahl, verdeckte Handkarten, wer zuerst keine Karten mehr hat, gewinnt ----------
+// Nur das Host-Handy kennt Stapel und Handkarten (bl.z, lokal gespeichert) – in der Datenbank stehen nur Anzahlen.
+const zonLoad = () => { const z = store.get("zonHost", null); return z && z.code === bl.code ? z : null; };
+const zonSave = () => store.set("zonHost", bl.z);
+async function zonStart(){
+  ex.cats ??= store.get("exOpt", {}).cats || ["global", "dehits"];
+  const P = blPlayers(), H = bl.st?.cfg?.hand || 5;
+  const deck = exShuf(zsPool(ex.cats).filter(s => !offPlay(s)).map(zsKey));
+  if (deck.length < P.length * H + 10) return $("#exMsg") && ($("#exMsg").innerHTML = `<div class="msg warn">Zu wenige Songs – wähle mehr Kategorien.</div>`);
+  const start = deck.pop(), hands = {}; P.forEach(p => hands[p.id] = deck.splice(0, H));
+  bl.z = { code: bl.code, deck, hands }; zonSave();
+  const up = { phase: "play", round: 1, turn: P[0].id, tl: [{ k: start, y: exS(start).y }], pick: null, reveal: null, left: deck.length, win: null };
+  P.forEach(p => up[`players/${p.id}/hand`] = H);
+  try { await fb(bl.code, "PATCH", up); exPlay(hands[P[0].id][0]); } catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; }
+}
+async function zonResolve(st){
+  bl.z ??= zonLoad(); const z = bl.z; if (!z || bl.zbusy || bl.zDone === bl.code + st.round) return; bl.zbusy = true; bl.zDone = bl.code + st.round;
+  const who = st.turn, hand = z.hands[who] || [], k = hand[0], i = st.pick.i, tl = [...(st.tl || [])];
+  if (!k) { bl.zbusy = false; return; }
+  const y = exS(k).y, ok = (i === 0 || tl[i - 1].y <= y) && (i >= tl.length || y <= tl[i].y);
+  hand.shift(); let draw = false;
+  if (ok) tl.splice(i, 0, { k, y }); else if (z.deck.length) { hand.push(z.deck.pop()); draw = true; }
+  zonSave(); exStop();
+  const up = { phase: "reveal", tl, reveal: { k, y, i, ok, who, draw }, left: z.deck.length, [`players/${who}/hand`]: hand.length };
+  if (!hand.length) up.win = who;
+  try { await fb(bl.code, "PATCH", up); } catch(e) {} bl.zbusy = false;
+}
+async function zonNext(st, P){
+  bl.z ??= zonLoad(); const z = bl.z; if (!z) return;
+  if (st.win) return fb(bl.code, "PATCH", { phase: "end" }).catch(() => {});
+  const ids = P.map(p => p.id); let n = ids[(ids.indexOf(st.turn) + 1) % ids.length];
+  for (let t = 0; t < ids.length && !(z.hands[n] || []).length; t++) n = ids[(ids.indexOf(n) + 1) % ids.length];
+  try { await fb(bl.code, "PATCH", { phase: "play", round: (st.round || 0) + 1, turn: n, pick: null, reveal: null }); exPlay(z.hands[n][0]); } catch(e) {}
+}
+function zonRender(box, st, P, host){
+  const me = blPid(), act = st.turn === me, actP = st.players?.[st.turn], tl = st.tl || [], rv = st.reveal || {};
+  const col = id => EX_COL[Math.max(0, P.findIndex(p => p.id === id)) % 6];
+  const score = `<div class="zsPl ex">${P.map(p => `<div class="zsP ${p.id === st.turn ? "on" : ""}" style="--c:${col(p.id)}"><b>${esc(p.n)}${p.id === st.host ? " <span class=dw data-dw=music></span>" : ""}</b><span>${p.hand ?? "–"} ${(p.hand ?? 0) === 1 ? "Karte" : "Karten"}</span></div>`).join("")}</div>`;
+  const pend = st.phase === "play" && st.pick?.r === st.round ? st.pick.i : -1;
+  const row = (c, j) => !exS(c.k) ? "" : `<div class="zlRow ${st.phase !== "play" && rv.ok && j === rv.i ? "zlNew" : ""}"><b>${c.y}</b><span>${esc(showT(exS(c.k)))} · ${esc(showA(exS(c.k)))}</span></div>`;
+  const gap = j => st.phase === "play" && act && pend < 0 ? `<button class="zlGap" data-gap="${j}">hier einordnen</button>`
+    : pend === j ? `<div class="zlGap on">${esc(actP?.n || "")} legt hierhin …</div>`
+    : st.phase !== "play" && !rv.ok && rv.i === j ? `<div class="zlGap bad">${rv.y} gehört nicht hierhin</div>` : `<div class="zlSp"></div>`;
+  const line = `<div class="zlLine">${tl.map((c, j) => gap(j) + row(c, j)).join("")}${gap(tl.length)}</div>`;
+  let head = "";
+  if (st.phase === "play") head = exHid(act ? "Du bist dran – Song läuft …" : `${esc(actP?.n || "?")} ist dran`, act ? "Tippe unten auf die Lücke, in die der Song gehört" : "Hör mit – " + esc(actP?.n || "") + " legt die Karte")
+    + (host && bl.z?.hands?.[st.turn]?.[0] ? `<div style="display:flex;justify-content:center;margin:6px 0">${exPlBtn(bl.z.hands[st.turn][0])}</div>` : "");
+  else if (st.phase === "reveal" && !rv.k) head = "";
+  else if (st.phase === "reveal") head = `<div class="zsRes ${rv.ok ? "ok" : "no"}"><div class="zsV">${rv.ok ? `✓ ${esc(st.players?.[rv.who]?.n || "")} liegt richtig!` : `✗ Daneben – ${rv.draw ? esc(st.players?.[rv.who]?.n || "") + " zieht eine neue Karte" : "der Stapel ist leer"}`}</div>${exCard(rv.k)}</div>`;
+  else head = `<div class="panel" style="text-align:center"><div style="font-size:44px"><span class=dw data-dw=trophy></span></div><h2 style="margin:6px 0">${esc(st.players?.[st.win]?.n || "?")} gewinnt!</h2><div class="small">Keine Karten mehr auf der Hand.</div></div>`;
+  box.innerHTML = exTop(st.phase === "end" ? "Spiel vorbei" : `Zug ${st.round} · Stapel: ${st.left ?? "?"}`) + score + head + `<div id="exMsg"></div>
+    ${st.win && st.phase === "reveal" ? `<div class="msg ok" style="text-align:center">${esc(st.players?.[st.win]?.n || "")} hat keine Karten mehr!</div>` : ""}
+    ${host && st.phase === "reveal" ? `<button class="btn" id="zlNext">${st.win ? "Ergebnis" : "Nächster Zug →"}</button>` : ""}
+    ${host && st.phase === "end" ? `<button class="btn" id="zlAgain">Nochmal – gleiche Leute</button>` : ""}
+    <div class="small zsLbl">Zeitstrahl (${tl.length} ${tl.length === 1 ? "Karte" : "Karten"})</div>${line}
+    <button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
+  rsCovers(box); blBack(); exBindPl();
+  box.querySelectorAll("[data-gap]").forEach(b => b.onclick = async () => {
+    box.querySelectorAll("[data-gap]").forEach(x => x.disabled = true);
+    try { await fb(`${bl.code}/pick`, "PUT", { i: +b.dataset.gap, r: st.round }); } catch(e) { $("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`; box.querySelectorAll("[data-gap]").forEach(x => x.disabled = false); } });
+  $("#zlNext")?.addEventListener("click", () => zonNext(st, P));
+  $("#zlAgain")?.addEventListener("click", () => fb(bl.code, "PATCH", { phase: "lobby", round: 0, tl: null, pick: null, reveal: null, win: null }).catch(() => {}));
+  $("#blQuit")?.addEventListener("click", async () => {
+    if (!await ask(host ? "Raum für alle schließen?" : "Raum verlassen?")) return;
+    try { await fb(host ? bl.code : `${bl.code}/players/${blPid()}`, "DELETE"); } catch(_) {}
+    store.del("zonHost"); blLeave(); blRender(box); });
+  if (host && st.phase === "play" && pend >= 0) zonResolve(st);
 }
 
 // Daten-Bereich (Prüfungen, Abgleich, Import) nur auf freigeschalteten Geräten: 7× auf die Versionsnummer tippen.
