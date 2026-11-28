@@ -6,7 +6,7 @@ import vm from "vm";
 const ROOT = new URL("..", import.meta.url).pathname;
 const rd = f => fs.readFileSync(ROOT + f, "utf8"), wr = (f, t) => fs.writeFileSync(ROOT + f, t);
 const ctx = {}; vm.createContext(ctx);
-vm.runInContext(rd("daten.js") + rd("ids.js") + ";this.SONGS=SONGS;this.KATEGORIEN=KATEGORIEN;this.PRUEFEN=typeof PRUEFEN!=='undefined'?PRUEFEN:{};" +
+vm.runInContext(rd("daten.js") + rd("geprueft.js") + rd("ids.js") + ";this.MB=MB_GEPRUEFT;this.BEST=typeof BESTAETIGT!=='undefined'?BESTAETIGT:new Set();" + ";this.SONGS=SONGS;this.KATEGORIEN=KATEGORIEN;this.PRUEFEN=typeof PRUEFEN!=='undefined'?PRUEFEN:{};" +
   "this.NOSPOT=typeof NICHT_BEI_SPOTIFY!=='undefined'?NICHT_BEI_SPOTIFY:[];this.SPOTIFY_IDS=SPOTIFY_IDS;", ctx);
 const pruefen = JSON.parse(rd("tools/pruefen.json"));
 const NOSPOT = new Set(ctx.NOSPOT), key = s => s[0] + "|" + s[1], q = JSON.stringify;
@@ -23,7 +23,9 @@ const doppelt = Object.fromEntries(Object.entries(byId).filter(([, l]) => l.leng
 if (Object.keys(doppelt).length) pruefen.doppelt = doppelt; else delete pruefen.doppelt;
 const [, from, to] = rd("index.html").match(/const DEFAULT_FROM = (\d+), DEFAULT_TO = (\d+)/) || [, 1930, 2026];
 const out = new Set(UNSICHER);
-const ok = ctx.SONGS.filter(s => typeof s[2] === "number" && !NOSPOT.has(key(s)) && !out.has(key(s)) && !ctx.PRUEFEN[key(s)]);
+// wie in der App: nur mit fester Spotify-ID und geprüftem Jahr spielbar
+const ok = ctx.SONGS.filter(s => typeof s[2] === "number" && !NOSPOT.has(key(s)) && !out.has(key(s)) && !ctx.PRUEFEN[key(s)] &&
+  (typeof s[5] === "string" || ctx.SPOTIFY_IDS[key(s)]) && (ctx.MB[key(s)]?.[0] === s[2] || ctx.BEST.has(key(s))));
 const luecken = {};
 for (const c of ctx.KATEGORIEN.filter(c => c.typ === "main")) {
   const miss = [];

@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.19.0"></script>
-<script src="regeln.js?v=0.19.0"></script>
-<script src="changelog.js?v=0.19.0"></script>
-<script src="geprueft.js?v=0.19.0"></script>
-<script src="ids.js?v=0.19.0"></script>
+<script src="daten.js?v=0.19.1"></script>
+<script src="regeln.js?v=0.19.1"></script>
+<script src="changelog.js?v=0.19.1"></script>
+<script src="geprueft.js?v=0.19.1"></script>
+<script src="ids.js?v=0.19.1"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.19.0";
+const APP_VERSION = "0.19.1";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -886,9 +886,14 @@ const noSpot = s => NOSPOT_ALL.has(s.t + "|" + s.a) || store.get("nospot:" + s.t
 const UNS_ALL = new Set(typeof UNSICHER !== "undefined" ? UNSICHER : []);
 // Jahres-Zweifel (UNSICHER_JAHR, PRUEFEN) kann eine Spotify-Korrektur nicht klären – die bleiben draußen.
 const UNS_JAHR = new Set(typeof UNSICHER_JAHR !== "undefined" ? UNSICHER_JAHR : []);
-const unsicher = s => { const k = s.t + "|" + s.a;
+// Ungeprüft (neu hinzugefügt, die Nachtprüfung war noch nicht dran) ist ebenfalls draußen:
+// spielbar nur mit fester Spotify-Version (oder eigener Korrektur) UND geprüftem Jahr (MusicBrainz bzw. bestätigt).
+const MB_OK = typeof MB_GEPRUEFT !== "undefined" ? MB_GEPRUEFT : {}, JAHR_OK = typeof BESTAETIGT !== "undefined" ? BESTAETIGT : new Set();
+const unsicher = s => { const k = s.t + "|" + s.a, fx = store.get("fix:" + k, null);
   if (s.pruefen || UNS_JAHR.has(k)) return true;
-  return UNS_ALL.has(k) && !store.get("fix:" + k, null); };
+  if (!(MB_OK[k]?.[0] === s.y || JAHR_OK.has(k))) return true;     // Jahr noch nicht geprüft
+  if (!s.sid && !fx?.uri) return true;                              // noch keine feste Spotify-Version
+  return UNS_ALL.has(k) && !fx; };
 const offPlay = s => noSpot(s) || unsicher(s);
 const ACTIVE = DB.filter(s => !offPlay(s));
 const byYearCat = {};   // byYearCat[cat][year] = [songs]
