@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.6"></script>
-<script src="regeln.js?v=0.15.6"></script>
-<script src="changelog.js?v=0.15.6"></script>
-<script src="geprueft.js?v=0.15.6"></script>
-<script src="ids.js?v=0.15.6"></script>
+<script src="daten.js?v=0.15.7"></script>
+<script src="regeln.js?v=0.15.7"></script>
+<script src="changelog.js?v=0.15.7"></script>
+<script src="geprueft.js?v=0.15.7"></script>
+<script src="ids.js?v=0.15.7"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -814,7 +814,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.6";
+const APP_VERSION = "0.15.7";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -4105,7 +4105,7 @@ function exMemo(box){
 //  JAHRES-BLITZ – mehrere Handys, ein Raum (Firebase Realtime Database über REST + Live-Stream)
 //  Das Handy, das den Raum eröffnet, spielt die Musik (Spotify). Alle anderen tippen nur.
 // =====================================================================
-const FB_URL = "";   // Adresse der Firebase Realtime Database, z. B. https://mixtape-xxxx-default-rtdb.europe-west1.firebasedatabase.app
+const FB_URL = "https://mixtape-7-default-rtdb.europe-west1.firebasedatabase.app";   // Adresse der Firebase Realtime Database, z. B. https://mixtape-xxxx-default-rtdb.europe-west1.firebasedatabase.app
 const fbBase = () => (store.get("fbUrl", "") || FB_URL).replace(/\/+$/, "");
 const BL_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // ohne 0/O, 1/I
 const blPid = () => { let p = store.get("blitzPid", ""); if (!p) { p = Math.random().toString(36).slice(2, 10); store.set("blitzPid", p); } return p; };
