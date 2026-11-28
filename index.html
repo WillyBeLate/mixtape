@@ -15,11 +15,11 @@
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/html5-qrcode.min.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.3"></script>
-<script src="regeln.js?v=0.15.3"></script>
-<script src="changelog.js?v=0.15.3"></script>
-<script src="geprueft.js?v=0.15.3"></script>
-<script src="ids.js?v=0.15.3"></script>
+<script src="daten.js?v=0.15.4"></script>
+<script src="regeln.js?v=0.15.4"></script>
+<script src="changelog.js?v=0.15.4"></script>
+<script src="geprueft.js?v=0.15.4"></script>
+<script src="ids.js?v=0.15.4"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -814,7 +814,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.3";
+const APP_VERSION = "0.15.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2302,7 +2302,9 @@ function printRules(){
 // =====================================================================
 //  TV-QUIZ: Titelmelodien ohne Jahreskarten (Daten: TVTHEMEN in daten.js)
 // =====================================================================
-const mkTv = (arr, pre) => (arr || []).map((x, i) => ({ i: pre + ":" + x[0], serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4], sid: x[5] || null, tv:true, opt:{} }));
+// sid: eure übernommenen Korrekturen (TV_IDS in ids.js, schreibt die Nachtprüfung) haben Vorrang vor der ID in daten.js
+const mkTv = (arr, pre) => (arr || []).map((x, i) => ({ i: pre + ":" + x[0], serie:x[0], t:x[1], a:x[2], y:x[3], land:x[4],
+  sid: (typeof TV_IDS !== "undefined" && TV_IDS[pre + ":" + x[0]]) || x[5] || null, tv:true, opt:{} }));
 const TV_DATEN = {
   tv:   { name: "TV-Quiz · Serien-Titelmelodien", liste: mkTv(typeof TVTHEMEN !== "undefined" ? TVTHEMEN : [], "tv") },
   kids: { name: "Kinderserien-Quiz", liste: mkTv(typeof KINDERTHEMEN !== "undefined" ? KINDERTHEMEN : [], "kids") },
@@ -2439,8 +2441,9 @@ async function openTvPicker(q){
     box.querySelectorAll("[data-fp]").forEach(b => b.onclick = async () => { Object.assign(c, pick(+b.dataset.fp)); try { await playCurrent(true); msg("#playMsg"); } catch(e) { msg("#playMsg", "err", esc(e.message)); } });
     box.querySelectorAll("[data-fs]").forEach(b => b.onclick = () => {
       const r = pick(+b.dataset.fs); store.set("tvfix:" + x.i, r); Object.assign(c, { uri: r.uri, trName: r.name, trArtist: r.artist });
+      ghQueue("tvfix", x.i, { id: r.uri.split(":").pop(), name: r.name || "", artist: r.artist || "" });   // geht nachts an alle Geräte
       if (c.revealed) reveal();
-      const fb = $("#fixBox"); if (fb) fb.innerHTML = `<div class="msg ok">Gespeichert: „${esc(r.name)}“ ist ab jetzt die Melodie für „${esc(x.serie)}“. Unter „Daten → Sonderkategorien“ kannst du deine Korrekturen exportieren.</div>`; });
+      const fb = $("#fixBox"); if (fb) fb.innerHTML = `<div class="msg ok">Gespeichert: „${esc(r.name)}“ ist ab jetzt die Melodie für „${esc(x.serie)}“. ${store.get("ghTok", "") ? "Die Korrektur geht automatisch an die nächtliche Prüfung und gilt danach auf allen Geräten." : "Mit GitHub-Schlüssel (Einstellungen → Song-Prüfung) gilt sie nach der nächsten Nacht auf allen Geräten."}</div>`; });
   } catch(e) { $("#fixList").textContent = e.message; }
 }
 // Spotify-Treffer, die nachweislich falsch sind – pflegt die nächtliche Auswertung (Liste wird von tools/nightly.mjs gelesen)
@@ -2463,34 +2466,49 @@ function renderPruefStat(){
 // Korrekturen („Falscher Song“) landen in einer Warteschlange und gehen per GitHub-Issue ans Repo.
 // Die GitHub Action „Nächtliche Prüfung“ übernimmt sie, gleicht Spotify + MusicBrainz ab und veröffentlicht die neue Version.
 const GH_REPO = "WillyBeLate/mixtape";
-function ghQueue(kind, k, v){ const qq = store.get("ghQ", { fix: {}, nospot: [] });
-  if (kind === "fix") { qq.fix[k] = v; qq.nospot = qq.nospot.filter(x => x !== k); }
+function ghQueue(kind, k, v){ const qq = store.get("ghQ", { fix: {}, nospot: [] }); qq.tvfix ??= {};
+  if (kind === "tvfix") qq.tvfix[k] = v;
+  else if (kind === "fix") { qq.fix[k] = v; qq.nospot = qq.nospot.filter(x => x !== k); }
   else { if (!qq.nospot.includes(k)) qq.nospot.push(k); delete qq.fix[k]; }
   store.set("ghQ", qq); ghFlush(); }
 let ghBusy = false;
 async function ghFlush(){
   const tok = store.get("ghTok", ""), qq = store.get("ghQ", null);
-  if (!tok || ghBusy || !qq || (!Object.keys(qq.fix).length && !qq.nospot.length)) { renderGh(); return; }
+  const nQ = q => q ? Object.keys(q.fix || {}).length + (q.nospot || []).length + Object.keys(q.tvfix || {}).length : 0;
+  if (!tok || ghBusy || !nQ(qq)) { renderGh(); return; }
   ghBusy = true;
   try {
-    const n = Object.keys(qq.fix).length + qq.nospot.length;
+    const n = nQ(qq), tvf = qq.tvfix || {};
     const body = `Automatisch aus der App gesendet (${new Date().toLocaleString("de-DE")}, Version ${APP_VERSION}).\n\n` +
       Object.entries(qq.fix).map(([k, v]) => `- ✅ ${k} → ${v.name || ""} · ${v.artist || ""}`).join("\n") + (qq.nospot.length ? "\n" + qq.nospot.map(k => `- 🚫 ${k} (gibt es bei Spotify nicht)`).join("\n") : "") +
-      "\n\n```json\n" + JSON.stringify({ v: 1, fix: qq.fix, nospot: qq.nospot }) + "\n```";
+      (Object.keys(tvf).length ? "\n" + Object.entries(tvf).map(([k, v]) => `- 📺 ${k} → ${v.name || ""} · ${v.artist || ""}`).join("\n") : "") +
+      "\n\n```json\n" + JSON.stringify({ v: 1, fix: qq.fix, nospot: qq.nospot, tvfix: tvf }) + "\n```";
     const r = await fetch(`https://api.github.com/repos/${GH_REPO}/issues`, { method: "POST",
       headers: { Authorization: "Bearer " + tok, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
       body: JSON.stringify({ title: `[mixtape-auto] ${n} Korrektur${n === 1 ? "" : "en"}`, body }) });
     if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "Schlüssel ungültig oder ohne Recht auf Issues" : "GitHub " + r.status);
-    store.del("ghQ"); store.set("ghLast", { t: Date.now(), n, ok: true });
+    // Nur das Gesendete aus der Warteschlange nehmen – was währenddessen dazukam, bleibt für den nächsten Versand
+    const cur = store.get("ghQ", null) || { fix: {}, nospot: [] };
+    Object.keys(qq.fix).forEach(k => { if (cur.fix?.[k] === undefined || JSON.stringify(cur.fix[k]) === JSON.stringify(qq.fix[k])) delete cur.fix?.[k]; });
+    cur.nospot = (cur.nospot || []).filter(k => !qq.nospot.includes(k));
+    Object.keys(tvf).forEach(k => { if (JSON.stringify(cur.tvfix?.[k]) === JSON.stringify(tvf[k])) delete cur.tvfix[k]; });
+    if (nQ(cur)) { store.set("ghQ", cur); setTimeout(ghFlush, 1500); } else store.del("ghQ");
+    store.set("ghLast", { t: Date.now(), n, ok: true });
   } catch(e) { store.set("ghLast", { t: Date.now(), ok: false, err: e.message }); }
   ghBusy = false; renderGh();
 }
 function renderGh(){
   const el = $("#ghState"); if (!el) return;
-  const tok = store.get("ghTok", ""), qq = store.get("ghQ", null), l = store.get("ghLast", null), n = qq ? Object.keys(qq.fix).length + qq.nospot.length : 0;
+  const tok = store.get("ghTok", ""), qq = store.get("ghQ", null), l = store.get("ghLast", null), n = qq ? Object.keys(qq.fix || {}).length + (qq.nospot || []).length + Object.keys(qq.tvfix || {}).length : 0;
   if ($("#ghSum")) $("#ghSum").textContent = tok ? (n ? n + " warten" : "eingerichtet") : "nicht eingerichtet";
   el.innerHTML = `${tok ? "<span class=dw data-dw=ok></span> Schlüssel hinterlegt." : "Noch kein Schlüssel – Korrekturen bleiben nur auf diesem Handy."}${n ? ` · ${n} Korrektur${n === 1 ? "" : "en"} warten aufs Senden.` : ""}
     ${l ? `<br>Zuletzt: ${new Date(l.t).toLocaleString("de-DE", { weekday: "short", hour: "2-digit", minute: "2-digit" })} – ${l.ok ? l.n + " gesendet ✓" : "Fehler: " + esc(l.err || "")}` : ""}`;
+}
+// Einmalig: Titelmelodie-Korrekturen, die vor 0.15.4 nur auf diesem Gerät lagen, nachsenden
+if (store.get("ghTok", "") && !store.get("tvfixSent", false)) {
+  try { Object.keys(localStorage).filter(k => k.startsWith("tvfix:")).forEach(k => { const r = store.get(k, null);
+    if (r?.uri) ghQueue("tvfix", k.slice(6), { id: r.uri.split(":").pop(), name: r.name || "", artist: r.artist || "" }); }); } catch(e) {}
+  store.set("tvfixSent", true);
 }
 addEventListener("online", ghFlush); setTimeout(ghFlush, 4000);
 
@@ -2846,8 +2864,7 @@ function renderData(){
   const unsafe = Object.values(TV_DATEN).flatMap(D => D.liste).filter(x => !tvSafe(x));
   const fixes = Object.values(TV_DATEN).flatMap(D => D.liste).filter(x => tvFix(x));
   const fixPanel = `<div class="panel"><b>Eure Titelmelodie-Korrekturen: ${fixes.length}</b>
-    <div class="small" style="margin:4px 0 8px">Beim Auflösen könnt ihr mit „Falscher Song?“ die richtige Version festlegen. Exportiert die Liste und schickt sie mir – dann trage ich sie fest ein, damit sie auf allen Geräten gilt.</div>
-    ${fixes.length ? `<button class="btn small" id="fixExport"><span class=dw data-dw=upload></span> Korrekturen exportieren</button>` : ""}</div>
+    <div class="small" style="margin:4px 0 8px">Beim Auflösen könnt ihr mit „Falscher Song?“ die richtige Version festlegen. Mit GitHub-Schlüssel geht sie automatisch an die nächtliche Prüfung und gilt danach auf allen Geräten.</div></div>
     <div class="panel"><div class="row"><label for="tvUnsafe"><b>Ungesicherte Serien/Spiele mitspielen (${unsafe.length})</b></label><input type="checkbox" id="tvUnsafe" ${store.get("tvUnsafe", false) ? "checked" : ""}></div>
     <div class="small" style="margin-top:6px">Für diese Serien und Spiele gibt es noch keine feste Spotify-Version – die automatische Suche kann danebenliegen. Eingeschaltet könnt ihr sie spielen und per „Falscher Song?“ korrigieren; danach gelten sie als gesichert.</div>
     <div class="small" style="margin-top:6px;opacity:.7">${unsafe.map(x => esc(x.serie)).join(" · ")}</div></div>`;
@@ -2855,13 +2872,6 @@ function renderData(){
   $("#dataBox").innerHTML = h;
   if ($("#statSum")) $("#statSum").textContent = `${KATEGORIEN.length + nSp} Kategorien · ${ACTIVE.length} Songs`;
   $("#tvUnsafe")?.addEventListener("change", e => { store.set("tvUnsafe", e.target.checked); renderData(); });
-  $("#fixExport")?.addEventListener("click", async () => {
-    const out = {}; Object.values(TV_DATEN).flatMap(D => D.liste).forEach(x => { const f = tvFix(x); if (f) out[x.i] = [f.uri.split(":").pop(), f.name, f.artist]; });
-    const txt = JSON.stringify(out, null, 1);
-    try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"application/json" })); a.download = "mixtape-titelmelodien.json"; document.body.appendChild(a); a.click(); a.remove();
-      alert(Object.keys(out).length + " Korrekturen als „mixtape-titelmelodien.json“ gespeichert – einfach im Chat hochladen."); }
-    catch(e) { try { await navigator.clipboard.writeText(txt); alert("Korrekturen kopiert."); } catch(e2) { prompt("Korrekturen:", txt); } }
-  });
   document.querySelectorAll("details.fold[data-fold]").forEach(d => {
     if (!d.dataset.init && ["spotify", "plimport", "pruefung", "stats", "backup"].includes(d.dataset.fold)) { d.open = store.get("fold:" + d.dataset.fold, false); d.dataset.init = 1; }
     d.ontoggle = () => store.set("fold:" + d.dataset.fold, d.open);

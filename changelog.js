@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.4", d: "2026-11-28", e: [
+    ["change", "Titelmelodien: Eure „Falscher Song?“-Korrekturen im TV-, Kinder-, Spiele-, Disney- und Film-Quiz gehen jetzt wie bei den Songs automatisch an die nächtliche Prüfung und gelten danach auf allen Geräten. Bisherige Korrekturen auf diesem Gerät werden einmal nachgesendet."],
+  ]},
   { v: "0.15.3", d: "2026-11-28", e: [
     ["change", "Über 100 Songs mit unklarer Spotify-Version sind geprüft und wieder im Spiel – darunter „Bailando“, „Taki Taki“, „Felicità“, „Heat Wave“ und „1000 und 1 Nacht (Zoom!)“."],
     ["change", "„Herr Sorge“ von den Ärzten und „Weil du nur einmal lebst“ von Peter Fox gibt es bei Spotify nicht – dafür sind jetzt „Ich, am Strand“ und „Ein Auge blau“ dabei. Statt „Ein Augenblick“ läuft „Schüttel deinen Speck“."],

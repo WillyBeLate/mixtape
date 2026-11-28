@@ -23,7 +23,7 @@ const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(rd("daten.js") + rd("ids.js") + rd("geprueft.js") +
   ";this.SONGS=SONGS;this.KATEGORIEN=KATEGORIEN;this.PRUEFEN=typeof PRUEFEN!=='undefined'?PRUEFEN:{};this.RETTE_8=typeof RETTE_8!=='undefined'?RETTE_8:{};this.KUENSTLER_10=typeof KUENSTLER_10!=='undefined'?KUENSTLER_10:{};this.SPOTIFY_IDS=SPOTIFY_IDS;this.MB_GEPRUEFT=MB_GEPRUEFT;this.BESTAETIGT=typeof BESTAETIGT!=='undefined'?BESTAETIGT:new Set();" +
-  "this.NICHT_BEI_SPOTIFY=typeof NICHT_BEI_SPOTIFY!=='undefined'?NICHT_BEI_SPOTIFY:[];", ctx);
+  "this.NICHT_BEI_SPOTIFY=typeof NICHT_BEI_SPOTIFY!=='undefined'?NICHT_BEI_SPOTIFY:[];this.TV_IDS=typeof TV_IDS!=='undefined'?TV_IDS:{};", ctx);
 const { SONGS, SPOTIFY_IDS, MB_GEPRUEFT, BESTAETIGT } = ctx;
 const NOSPOT = new Set(ctx.NICHT_BEI_SPOTIFY);
 const html = rd("index.html");
@@ -55,6 +55,10 @@ if (process.env.GH_TOKEN) {
     for (const [k, v] of Object.entries(d.fix || {})) {
       if (!v?.id || !/^[A-Za-z0-9]{22}$/.test(v.id)) continue;
       SPOTIFY_IDS[k] = v.id; NOSPOT.delete(k); delete pruefen.spotify[k]; sum.fix++;
+    }
+    for (const [k, v] of Object.entries(d.tvfix || {})) {          // Titelmelodien: „tv:Serie“ → Spotify-ID
+      if (!/^(tv|kids|games|disney|film):.{1,120}$/.test(k) || !v?.id || !/^[A-Za-z0-9]{22}$/.test(v.id)) continue;
+      ctx.TV_IDS[k] = v.id; sum.tvfix = (sum.tvfix || 0) + 1;
     }
     for (const k of d.nospot || []) { if (typeof k === "string") { if (!NOSPOT.has(k)) ersatzNoetig(k); NOSPOT.add(k); delete SPOTIFY_IDS[k]; sum.nospot++; } }
     sum.issues.push(it.number);
@@ -162,7 +166,9 @@ const idsTxt = rd("ids.js");
 const head = idsTxt.slice(0, idsTxt.indexOf("const SPOTIFY_IDS"));
 wr("ids.js", head + "const SPOTIFY_IDS = {\n" + Object.entries(SPOTIFY_IDS).map(([k, v]) => `  ${q(k)}: ${q(v)}`).join(",\n") + "\n};\n" +
   "// Von euch über „Falscher Song“ als „gibt es bei Spotify nicht“ gemeldet – ist in keinem Spiel mehr\n" +
-  "const NICHT_BEI_SPOTIFY = [" + [...NOSPOT].map(q).join(", ") + "];\n");
+  "const NICHT_BEI_SPOTIFY = [" + [...NOSPOT].map(q).join(", ") + "];\n" +
+  "// Titelmelodien: eure „Falscher Song?“-Korrekturen aus TV-, Kinder-, Spiele-, Disney- und Film-Quiz (Schlüssel „quiz:Serie“)\n" +
+  "const TV_IDS = {\n" + Object.entries(ctx.TV_IDS).map(([k, v]) => `  ${q(k)}: ${q(v)}`).join(",\n") + "\n};\n");
 const gTxt = rd("geprueft.js"), gHead = gTxt.slice(0, gTxt.indexOf("const MB_GEPRUEFT"));
 wr("geprueft.js", gHead + "const MB_GEPRUEFT = {\n" + Object.entries(MB_GEPRUEFT).map(([k, v]) => `  ${q(k)}: ${q(v).replace(",", ", ")},`).join("\n") + "\n};\n");
 wr("tools/pruefen.json", JSON.stringify(pruefen, null, 1) + "\n");
@@ -173,6 +179,7 @@ const parts = [];
 if (sum.ids) parts.push(`${sum.ids} Spotify-IDs`);
 if (sum.fix) parts.push(`${sum.fix} Korrekturen`);
 if (sum.nospot) parts.push(`${sum.nospot} ohne Spotify`);
+if (sum.tvfix) parts.push(`${sum.tvfix} Titelmelodien`);
 if (sum.mb) parts.push(`${sum.mb} Jahre geprüft`);
 fs.writeFileSync(ROOT + "tools/.summary", parts.join(", ") || "Prüfliste aktualisiert");
 // Verarbeitete Issues schließt der Workflow erst NACH erfolgreichem Push (sonst gingen Korrekturen verloren)
