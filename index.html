@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.17.5"></script>
-<script src="regeln.js?v=0.17.5"></script>
-<script src="changelog.js?v=0.17.5"></script>
-<script src="geprueft.js?v=0.17.5"></script>
-<script src="ids.js?v=0.17.5"></script>
+<script src="daten.js?v=0.17.6"></script>
+<script src="regeln.js?v=0.17.6"></script>
+<script src="changelog.js?v=0.17.6"></script>
+<script src="geprueft.js?v=0.17.6"></script>
+<script src="ids.js?v=0.17.6"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -828,7 +828,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.17.5";
+const APP_VERSION = "0.17.6";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2984,7 +2984,8 @@ function renderData(){
 // Neue App-Version: erst neu laden, wenn gerade nicht gespielt wird (nie mitten in einer Runde)
 var needReload = false;   // var: show() kann schon vor dieser Zeile aufgerufen werden
 // Auch nicht, solange die Neuigkeiten offen sind – sonst verschwinden sie beim Lesen (lädt beim Zuklappen bzw. nächsten Wechsel)
-function reloadSafe(v){ return !["game", "play", "rette", "zeitsprung", "extra"].includes(v) && !scanner && !(v === "data" && document.getElementById("newsFold")?.open); }
+function reloadSafe(v){ return !["game", "play", "rette", "zeitsprung", "extra"].includes(v) && !scanner && !(v === "data" && document.getElementById("newsFold")?.open)
+  && !(document.getElementById("nbBody") && !document.getElementById("nbBody").hidden); }
 function maybeReload(){ if (reloadSafe(curView)) location.reload(); else needReload = true; }
 function show(v){
   if (needReload && reloadSafe(v)) { store.set("lastView", v); location.reload(); return; }
@@ -4869,11 +4870,13 @@ function showNewsBanner(){
     ${more > 0 ? `<div class="small" style="margin-top:6px">… und ${more} weitere</div>` : ""}
     <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" id="nbAll">Alle Neuigkeiten</button><button class="btn small sec" id="nbOk">Okay, gesehen</button></div></div>`;
   $("#newsBanner")?.remove(); $("#resumeBox").before(el);
-  const done = () => { markNewsSeen(fresh.map(e => e.id)); el.remove(); };
+  const done = () => { markNewsSeen(fresh.map(e => e.id)); el.remove(); if (needReload && reloadSafe(curView)) location.reload(); };
   $("#nbOk").onclick = done; $("#nbX").onclick = done;
+  // Aufklappen allein zählt noch nicht als gelesen (sonst wäre der Hinweis nach einem Update-Neuladen weg) –
+  // erst „Okay, gesehen“, ✕ oder „Alle Neuigkeiten“. Solange er offen ist, wartet ein Update mit dem Neuladen.
   $("#nbHead").onclick = () => { const b = $("#nbBody"); b.hidden = !b.hidden; $("#nbArr").style.transform = b.hidden ? "" : "rotate(180deg)";
-    if (!b.hidden) markNewsSeen(fresh.map(e => e.id)); };   // einmal gelesen → beim nächsten Öffnen nicht mehr da
-  $("#nbAll").onclick = () => { done(); $("#newsFold").open = true; show("data"); /* erst aufklappen → show() lädt dann nicht neu */ const f = $("#newsFold"); f.open = true; renderNews(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
+    if (b.hidden && needReload && reloadSafe(curView)) location.reload(); };
+  $("#nbAll").onclick = () => { $("#newsFold").open = true; done(); show("data"); /* erst aufklappen → show() lädt dann nicht neu */ const f = $("#newsFold"); f.open = true; renderNews(); setTimeout(() => f.scrollIntoView({ block: "start" }), 50); };
 }
 $("#newsFold").addEventListener("toggle", e => { if (!e.target.open && needReload && reloadSafe(curView)) return location.reload(); if (e.target.open) { const L = typeof CHANGELOG !== "undefined" ? CHANGELOG : []; markNewsSeen(L.flatMap(x => x.e.map((_, k) => newsId(x, k)))); $("#newsBanner")?.remove(); } });
 $("#appVer").textContent = APP_VERSION; document.querySelectorAll(".verTag").forEach(e => e.textContent = APP_VERSION);

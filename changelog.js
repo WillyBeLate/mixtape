@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.6", d: "2026-11-28", e: [
+    ["fix", "Der Hinweis „Neu für dich“ verschwindet nicht mehr, wenn sich die App beim Lesen aktualisiert: Solange er aufgeklappt ist, wartet das Update, und er gilt erst nach „Okay, gesehen“ als gelesen."],
+  ]},
   { v: "0.17.5", d: "2026-11-28", e: [
     ["fix", "Die Neuigkeiten verschwinden nicht mehr beim Lesen: Ein Update wird erst geladen, wenn du sie wieder zuklappst oder woanders hingehst."],
   ]},
