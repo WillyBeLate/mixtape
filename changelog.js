@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.5", d: "2026-11-28", e: [
+    ["fix", "Die Neuigkeiten verschwinden nicht mehr beim Lesen: Ein Update wird erst geladen, wenn du sie wieder zuklappst oder woanders hingehst."],
+  ]},
   { v: "0.17.4", d: "2026-11-28", e: [
     ["fix", "Verlauf (welche Songs zuletzt liefen) bleibt jetzt richtig, auch wenn Songs dazukommen oder wegfallen – vorher konnte er auf andere Songs verrutschen."],
     ["fix", "Updates kommen zuverlässiger an: kein unnötiges Neuladen beim ersten Öffnen, Update-Prüfung beim Zurückkehren in die App, sauberer Offline-Speicher."],
