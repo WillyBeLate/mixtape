@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.4", d: "2026-11-28", e: [
+    ["change", "Einstellungen → Kategorien: Ausgeblendete Kategorien stehen weiterhin in der Übersicht, mit kurzem Hinweis, warum sie gerade nicht im Spiel sind."],
+  ]},
   { v: "0.19.3", d: "2026-11-28", e: [
     ["change", "Jede Zusatz- und Künstler-Kategorie braucht jetzt mindestens 20 geprüfte Songs, sonst bleibt sie vorerst ausgeblendet. Kategorien unter 20 werden von der Nachtprüfung aufgefüllt."],
     ["fix", "Neue Songs, für die MusicBrainz nur eine spätere Veröffentlichung kennt, werden vor der Freigabe zusätzlich per Quelle geprüft."],

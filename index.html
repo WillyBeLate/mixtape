@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.19.3"></script>
-<script src="regeln.js?v=0.19.3"></script>
-<script src="changelog.js?v=0.19.3"></script>
-<script src="geprueft.js?v=0.19.3"></script>
-<script src="ids.js?v=0.19.3"></script>
+<script src="daten.js?v=0.19.4"></script>
+<script src="regeln.js?v=0.19.4"></script>
+<script src="changelog.js?v=0.19.4"></script>
+<script src="geprueft.js?v=0.19.4"></script>
+<script src="ids.js?v=0.19.4"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.19.3";
+const APP_VERSION = "0.19.4";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -905,7 +905,8 @@ for (const s of ACTIVE) for (const c of s.cats) {
 // Kategorien mit zu wenigen geprüften Songs (z. B. ganz neue, bevor die Nachtprüfung durch ist) bleiben verborgen –
 // sie erscheinen von selbst, sobald genug Songs geprüft sind. Main-Kategorien bleiben immer.
 const CAT_MIN = { support: 20, kuenstler: 20 };
-const CAT_IDX = Object.fromEntries(KATEGORIEN.map((c, i) => [c.id, i]));   // Farben bleiben gleich, auch wenn etwas verborgen ist
+const CAT_IDX = Object.fromEntries(KATEGORIEN.map((c, i) => [c.id, i]));
+const KAT_ALL = [...KATEGORIEN];                                            // inkl. verborgener (für die Übersicht in den Einstellungen)   // Farben bleiben gleich, auch wenn etwas verborgen ist
 const CAT_HIDDEN = new Set(KATEGORIEN.filter(c => c.typ !== "main" && ACTIVE.filter(s => s.cats.includes(c.id)).length < (CAT_MIN[c.typ] || 20)).map(c => c.id));
 for (let i = KATEGORIEN.length - 1; i >= 0; i--) if (CAT_HIDDEN.has(KATEGORIEN[i].id)) KATEGORIEN.splice(i, 1);
 for (const id of CAT_HIDDEN) delete byYearCat[id];
@@ -2954,11 +2955,13 @@ function renderCardInfo(){
 //  UI: Datenbank-Check
 // =====================================================================
 function catPanel(c, ys){
-  const hit = ys.filter(y => byYearCat[c.id]?.[y]?.length);
-  const miss = ys.filter(y => !byYearCat[c.id]?.[y]?.length);
+  const has = y => byYearCat[c.id]?.[y]?.length || (CAT_HIDDEN.has(c.id) && ACTIVE.some(s => s.y === y && s.cats.includes(c.id)));
+  const hit = ys.filter(has), miss = ys.filter(y => !has(y));
   const n = ACTIVE.filter(s => s.cats.includes(c.id)).length;
-  const warn = c.typ === "main" && miss.length ? `<div class="msg err">Lücken: ${miss.join(", ")} – zählt deshalb vorerst nur als Support.</div>` : "";
-  return `<div class="panel"><div class="row"><b>${esc(c.name)}</b><span class="small">${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
+  let warn = c.typ === "main" && miss.length ? `<div class="msg err">Lücken: ${miss.join(", ")} – zählt deshalb vorerst nur als Support.</div>` : "";
+  if (CAT_HIDDEN.has(c.id)) { const wait = DB.filter(s => s.cats.includes(c.id) && offPlay(s) && !noSpot(s)).length, need = CAT_MIN[c.typ] || 20;
+    warn = `<div class="msg warn"><b>Ausgeblendet</b> – erst ${n} von ${need} nötigen Songs geprüft. ${wait ? `${wait} ${wait === 1 ? "wartet" : "warten"} noch auf die Nachtprüfung.` : "Es werden noch Songs ergänzt."}</div>`; }
+  return `<div class="panel" ${CAT_HIDDEN.has(c.id) ? 'style="opacity:.75"' : ""}><div class="row"><b>${esc(c.name)}</b><span class="small">${n} Songs · ${hit.length}/${ys.length} Jahre</span></div>
     ${c.regel ? `<div class="small">Regel: ${esc(c.regel)}</div>` : ""}${warn}
     <div class="yeargrid">${ys.map(y => `<i class="${hit.includes(y) ? "h" : ""}" title="${y}"></i>`).join("")}</div></div>`;
 }
@@ -2970,9 +2973,10 @@ function renderData(){
   const ys = years();
   const groups = [["main", "Main-Kategorien"], ["support", "Support-Kategorien"], ["kuenstler", "Künstler"]];
   let h = groups.map(([t, title]) => {
-    const list = KATEGORIEN.filter(c => c.typ === t);
+    const list = KAT_ALL.filter(c => c.typ === t);
     const songs = new Set(ACTIVE.filter(s => s.cats.some(c => CAT[c]?.typ === t)).map(s => s.i)).size;
-    return foldHtml("cat-" + t, title, `${list.length} Kategorien · ${songs} Songs`, list.map(c => catPanel(c, ys)).join(""));
+    const nh = list.filter(c => CAT_HIDDEN.has(c.id)).length;
+    return foldHtml("cat-" + t, title, `${list.length - nh} Kategorien${nh ? ` (+${nh} ausgeblendet)` : ""} · ${songs} Songs`, list.map(c => catPanel(c, ys)).join(""));
   }).join("");
   // Sonderkategorien: Inhalte außerhalb der Jahreskarten (TV-Quiz, Kinderserien-Quiz …)
   const tvPanels = Object.entries(TV_DATEN).map(([pre, D]) => {
