@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.2", d: "2026-11-28", e: [
+    ["fix", "Nachtprüfung: Abgelehnte Spotify-Treffer werden automatisch neu gesucht (der falsche bleibt ausgeschlossen); doppelt vergebene Aufnahmen und Titelmelodien ohne feste Version werden erkannt und zur Prüfung vorgelegt."],
+    ["fix", "Eine eigene „Falscher Song“-Korrektur gibt Songs mit unsicherem Jahr nicht mehr frei – die bleiben draußen, bis das Jahr geklärt ist."],
+    ["change", "Kaputte Meldungen werden mit Hinweis geschlossen; mehrere Korrekturen zum selben Song: die neueste gewinnt."],
+  ]},
   { v: "0.17.1", d: "2026-11-28", e: [
     ["fix", "Sicherheit Online-Spiele: Alles, was aus der Online-Datenbank kommt, wird jetzt beim Empfang bereinigt – niemand kann über einen Raum fremden Code in die App einschleusen. Dazu passende, strengere Datenbank-Regeln."],
     ["fix", "Online-Spiele bleiben nicht mehr hängen, wenn ein Song fehlt oder Daten unvollständig sind."],

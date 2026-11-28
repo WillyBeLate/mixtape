@@ -36,7 +36,11 @@ jobs:
           git commit -m "Nächtliche Prüfung: $(cat tools/.summary)"
           # Falls in der Zwischenzeit jemand gepusht hat: erst den neuen Stand holen, dann pushen (bis zu 3 Versuche)
           for i in 1 2 3; do
-            git pull --rebase origin main && git push origin HEAD:main && ok=1 && break
+            if git pull --rebase origin main; then
+              # Neuer Stand von außen → UNSICHER/Lücken passend dazu neu berechnen
+              node tools/unsicher.mjs >/dev/null && git add ids.js tools/pruefen.json && (git diff --cached --quiet || git commit -m "Prüfliste nach Abgleich aktualisiert")
+              git push origin HEAD:main && ok=1 && break
+            fi
             git rebase --abort 2>/dev/null || true
             sleep 20
           done
@@ -51,4 +55,8 @@ jobs:
           for n in $(cat tools/.issues 2>/dev/null); do
             gh issue comment "$n" -R "${{ github.repository }}" -b "✅ Übernommen in der nächtlichen Prüfung." || true
             gh issue close "$n" -R "${{ github.repository }}" || true
+          done
+          for n in $(cat tools/.bad 2>/dev/null); do
+            gh issue comment "$n" -R "${{ github.repository }}" -b "⚠️ Diese Meldung konnte nicht gelesen werden (kein gültiger Korrektur-Block). Bitte in der App erneut über „Falscher Song?“ melden." || true
+            gh issue close "$n" -R "${{ github.repository }}" -r "not planned" || true
           done
