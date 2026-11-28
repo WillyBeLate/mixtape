@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.8", d: "2026-11-28", e: [
+    ["fix", "Startseite: Die Zeile „Spotify bereit / schläft“ hat ihren Platz jetzt von Anfang an („Spotify wird geprüft …“) – nichts rutscht mehr nach unten, wenn das Ergebnis kommt."],
+  ]},
   { v: "0.19.7", d: "2026-11-28", e: [
     ["change", "Neuigkeiten: Das Label „Neu“ heißt jetzt „New“."],
   ]},
