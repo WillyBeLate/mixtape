@@ -33,5 +33,9 @@ for (const c of ctx.KATEGORIEN.filter(c => c.typ === "main")) {
   if (miss.length) luecken[c.id] = miss;
 }
 pruefen.luecken = luecken;
+// Zusatz- und Künstler-Kategorien mit weniger als 20 spielbaren Songs: in der App verborgen → auffüllen
+const zuwenig = {};
+for (const c of ctx.KATEGORIEN.filter(c => c.typ !== "main")) { const n = ok.filter(s => s[4].split(/\s+/).includes(c.id)).length; if (n < 20) zuwenig[c.id] = n; }
+if (Object.keys(zuwenig).length) pruefen.zuwenig = zuwenig; else delete pruefen.zuwenig;
 wr("tools/pruefen.json", JSON.stringify(pruefen, null, 1) + "\n");
-console.log(JSON.stringify({ unsicher: UNSICHER.length, jahr: UNSICHER_JAHR.length, doppelt: Object.keys(doppelt).length, luecken }));
+console.log(JSON.stringify({ unsicher: UNSICHER.length, jahr: UNSICHER_JAHR.length, doppelt: Object.keys(doppelt).length, luecken, zuwenig }));

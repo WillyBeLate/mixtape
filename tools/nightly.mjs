@@ -215,6 +215,9 @@ async function mbCheck(s){
     if (Date.now() > deadline) break;
     try { const b = await mbCheck(s); MB_GEPRUEFT[key(s)] = [s[2], b ? b.y : null]; sum.mb++;
       if (b && b.y < s[2]) { pruefen.jahr[key(s)] = { wir: s[2], mb: b.y, datum: b.d }; sum.review++; }
+      // MusicBrainz kennt erst eine deutlich spätere Ausgabe: bei alten Songs oft nur Lücken in MusicBrainz – trotzdem
+      // nicht ungeprüft durchwinken (sonst ginge ein zu früh eingetragenes Jahr durch), sondern per Quelle bestätigen lassen
+      else if (b && b.y > s[2] + 1) { pruefen.jahr[key(s)] = { wir: s[2], mb: b.y, datum: b.d, status: "MusicBrainz kennt erst eine spätere Veröffentlichung – Jahr per Quelle prüfen" }; sum.review++; }
       else if (!b) { pruefen.jahr[key(s)] = { wir: s[2], mb: null, status: "bei MusicBrainz nicht gefunden – Jahr per Quelle prüfen" }; sum.review++; }
       else delete pruefen.jahr[key(s)]; }
     catch(e) { console.log("MB:", s[0], e.message); }

@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.19.2"></script>
-<script src="regeln.js?v=0.19.2"></script>
-<script src="changelog.js?v=0.19.2"></script>
-<script src="geprueft.js?v=0.19.2"></script>
-<script src="ids.js?v=0.19.2"></script>
+<script src="daten.js?v=0.19.3"></script>
+<script src="regeln.js?v=0.19.3"></script>
+<script src="changelog.js?v=0.19.3"></script>
+<script src="geprueft.js?v=0.19.3"></script>
+<script src="ids.js?v=0.19.3"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.19.2";
+const APP_VERSION = "0.19.3";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -904,7 +904,7 @@ for (const s of ACTIVE) for (const c of s.cats) {
 }
 // Kategorien mit zu wenigen geprüften Songs (z. B. ganz neue, bevor die Nachtprüfung durch ist) bleiben verborgen –
 // sie erscheinen von selbst, sobald genug Songs geprüft sind. Main-Kategorien bleiben immer.
-const CAT_MIN = { support: 15, kuenstler: 12 };
+const CAT_MIN = { support: 20, kuenstler: 20 };
 const CAT_IDX = Object.fromEntries(KATEGORIEN.map((c, i) => [c.id, i]));   // Farben bleiben gleich, auch wenn etwas verborgen ist
 const CAT_HIDDEN = new Set(KATEGORIEN.filter(c => c.typ !== "main" && ACTIVE.filter(s => s.cats.includes(c.id)).length < (CAT_MIN[c.typ] || 20)).map(c => c.id));
 for (let i = KATEGORIEN.length - 1; i >= 0; i--) if (CAT_HIDDEN.has(KATEGORIEN[i].id)) KATEGORIEN.splice(i, 1);

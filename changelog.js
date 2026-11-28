@@ -4,8 +4,12 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.3", d: "2026-11-28", e: [
+    ["change", "Jede Zusatz- und Künstler-Kategorie braucht jetzt mindestens 20 geprüfte Songs, sonst bleibt sie vorerst ausgeblendet. Kategorien unter 20 werden von der Nachtprüfung aufgefüllt."],
+    ["fix", "Neue Songs, für die MusicBrainz nur eine spätere Veröffentlichung kennt, werden vor der Freigabe zusätzlich per Quelle geprüft."],
+  ]},
   { v: "0.19.2", d: "2026-11-28", e: [
-    ["change", "Kategorien mit zu wenigen geprüften Songs bleiben verborgen und erscheinen von selbst, sobald genug Songs die Nachtprüfung bestanden haben (Zusatz-Kategorien ab 15, Künstler ab 12 Songs)."],
+    ["change", "Kategorien mit zu wenigen geprüften Songs bleiben verborgen und erscheinen von selbst, sobald genug Songs die Nachtprüfung bestanden haben (mindestens 20 geprüfte Songs je Kategorie)."],
     ["fix", "Songs, die MusicBrainz gar nicht gefunden hat, gelten nicht mehr als geprüft – ihr Jahr wird erst bestätigt, bevor sie wieder ins Spiel kommen."],
   ]},
   { v: "0.19.1", d: "2026-11-28", e: [
