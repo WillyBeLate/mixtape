@@ -4,6 +4,12 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.3", d: "2026-11-28", e: [
+    ["change", "Über 100 Songs mit unklarer Spotify-Version sind geprüft und wieder im Spiel – darunter „Bailando“, „Taki Taki“, „Felicità“, „Heat Wave“ und „1000 und 1 Nacht (Zoom!)“."],
+    ["change", "„Herr Sorge“ von den Ärzten und „Weil du nur einmal lebst“ von Peter Fox gibt es bei Spotify nicht – dafür sind jetzt „Ich, am Strand“ und „Ein Auge blau“ dabei. Statt „Ein Augenblick“ läuft „Schüttel deinen Speck“."],
+    ["fix", "Jahre korrigiert (erste Veröffentlichung zählt): u. a. „Under the Bridge“ 1991, „What's Up?“ 1992, „Joy to the World“ 1970, „Treasure“ 2012, „The A Team“ 2010, „Picture“ 2001, „Lucille“ 1976, „Mädchen auf dem Pferd“ 2023 und mehrere Helene-Fischer-Songs."],
+    ["neu", "Neue Songs füllen Lücken: „Shake Hands“ (Hits in Deutschland 1964), „Battle of the Heroes“ (Film 2005), „Sway“, „World in Motion“ und „Ecuador“ (Sommerhits 1954, 1990, 1997)."],
+  ]},
   { v: "0.15.2", d: "2026-11-28", e: [
     ["neu", "Einstellungen → App: Kurze Hilfe, wie das neue App-Icon auf Android und iPhone auf den Startbildschirm kommt."],
     ["change", "Playlist importieren: Bis 100 Songs reicht es, Claude den Link im Chat zu schicken. Den Import braucht ihr nur noch für größere, eigene Playlists – fremde Playlists gibt Spotify seit 2026 nicht mehr heraus."],
