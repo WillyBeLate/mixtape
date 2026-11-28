@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.19.5"></script>
-<script src="regeln.js?v=0.19.5"></script>
-<script src="changelog.js?v=0.19.5"></script>
-<script src="geprueft.js?v=0.19.5"></script>
-<script src="ids.js?v=0.19.5"></script>
+<script src="daten.js?v=0.19.6"></script>
+<script src="regeln.js?v=0.19.6"></script>
+<script src="changelog.js?v=0.19.6"></script>
+<script src="geprueft.js?v=0.19.6"></script>
+<script src="ids.js?v=0.19.6"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -839,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.19.5";
+const APP_VERSION = "0.19.6";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -4980,12 +4980,12 @@ $("#verTap").addEventListener("click", () => {
 });
 $("#admOff").addEventListener("click", async () => { if (!await ask("Daten-Bereich auf diesem Gerät ausblenden? (Wieder einblenden: 7× auf die Versionsnummer tippen.)")) return; store.set("admin", false); applyAdmin(); });
 // ---------- Neuigkeiten ----------
-const CL_LBL = { neu: "Neu", change: "Geändert", fix: "Fix" };
+const CL_LBL = { neu: "Neu", change: "Change", fix: "Fix" };
 const verNum = v => String(v).split(/[–-]/).pop().split(".").map(Number).reduce((a, x) => a * 1000 + (x || 0), 0);
 function renderNews(){
   const seenSet = newsSeen(), L = typeof CHANGELOG !== "undefined" ? CHANGELOG : [];
   $("#newsSum").textContent = L[0] ? `zuletzt: Version ${L[0].v}` : "";
-  $("#newsBox").innerHTML = `<div class="small" style="margin-bottom:4px"><span class="clt neu">Neu</span> neue Funktion · <span class="clt change">Geändert</span> anders als vorher · <span class="clt fix">Fix</span> Fehler behoben</div>` +
+  $("#newsBox").innerHTML = `<div class="small" style="margin-bottom:4px"><span class="clt neu">Neu</span> neue Funktion · <span class="clt change">Change</span> anders als vorher · <span class="clt fix">Fix</span> Fehler behoben</div>` +
     L.map(x => `<div class="cl ${x.e.some((_, k) => !seenSet.has(newsId(x, k))) ? "fresh" : ""}"><div class="clh"><span class="clv">Version ${esc(x.v)}</span><span class="cld">${new Date(x.d).toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" })}</span></div>
       ${x.e.map(([t, txt]) => `<div class="cle"><span class="clt ${t}">${CL_LBL[t] || t}</span><span>${esc(txt)}</span></div>`).join("")}</div>`).join("");
 }

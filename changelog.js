@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.6", d: "2026-11-28", e: [
+    ["change", "Neuigkeiten: Das Label „Geändert“ heißt jetzt „Change“."],
+  ]},
   { v: "0.19.5", d: "2026-11-28", e: [
     ["neu", "13 weitere Udo-Jürgens-Singles (z. B. „Matador“, „Rot blüht der Mohn“, „Café Größenwahn“) – kommen nach der Nachtprüfung ins Spiel."],
   ]},
