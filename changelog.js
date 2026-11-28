@@ -4,6 +4,11 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.17.3", d: "2026-11-28", e: [
+    ["fix", "Zufälliger Startpunkt funktioniert jetzt auch bei Songs mit fester Aufnahme (vorher starteten die immer am Anfang)."],
+    ["fix", "„Song nicht abspielbar“ erscheint nicht mehr fälschlich – die App schaut zweimal hin, bevor sie das meldet."],
+    ["change", "Ist Spotifys Tageskontingent erschöpft, zieht die App automatisch nur Songs, die ohne Suche laufen – das Spiel geht einfach weiter. Die Geräteprüfung läuft dabei normal weiter."],
+  ]},
   { v: "0.17.2", d: "2026-11-28", e: [
     ["fix", "Nachtprüfung: Abgelehnte Spotify-Treffer werden automatisch neu gesucht (der falsche bleibt ausgeschlossen); doppelt vergebene Aufnahmen und Titelmelodien ohne feste Version werden erkannt und zur Prüfung vorgelegt."],
     ["fix", "Eine eigene „Falscher Song“-Korrektur gibt Songs mit unsicherem Jahr nicht mehr frei – die bleiben draußen, bis das Jahr geklärt ist."],

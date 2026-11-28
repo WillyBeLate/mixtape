@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.17.2"></script>
-<script src="regeln.js?v=0.17.2"></script>
-<script src="changelog.js?v=0.17.2"></script>
-<script src="geprueft.js?v=0.17.2"></script>
-<script src="ids.js?v=0.17.2"></script>
+<script src="daten.js?v=0.17.3"></script>
+<script src="regeln.js?v=0.17.3"></script>
+<script src="changelog.js?v=0.17.3"></script>
+<script src="geprueft.js?v=0.17.3"></script>
+<script src="ids.js?v=0.17.3"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -828,7 +828,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.17.2";
+const APP_VERSION = "0.17.3";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -972,13 +972,21 @@ const flag = cc => flagSvg(cc);
 //  3) Bereits gespielte Songs werden vermieden; erst wenn ein Jahr
 //     komplett durch ist, darf sich etwas wiederholen.
 // =====================================================================
+// Spotify-Tageskontingent erschöpft (nur die Suche ist gesperrt): bevorzugt Songs ziehen, die ohne Suche laufen
+// (feste ID, eigene Korrektur oder schon einmal gefunden). Gibt es davon keinen, bleibt alles wie gehabt.
+// Alle 15 min darf trotzdem wieder ein Such-Song kommen – so merkt die App, wenn das Kontingent wieder frei ist.
+const quotaOn = () => { const q = sp.quota(); return !!q && Date.now() - (q.probe || 0) < 15 * 6e4; };
+const quotaOk = s => !!(s.sid || store.get("fix:" + s.t + "|" + s.a, null)?.uri || store.get("trk3:" + s.t + "|" + s.a, null));
+const quotaPool = l => { if (!quotaOn()) return l; const f = l.filter(quotaOk); return f.length ? f : l; };
 function candidates(cats, year, avoidPlayed){
-  const out = {};
+  const all = {}, ok = {};
   for (const c of cats) {
     const list = (byYearCat[c]?.[year] || []).filter(s => !avoidPlayed || !state.played.has(s.i));
-    if (list.length) out[c] = list;
+    if (list.length) all[c] = list;
+    const q = quotaOn() ? list.filter(quotaOk) : list;
+    if (q.length) ok[c] = q;
   }
-  return out;
+  return Object.keys(ok).length ? ok : all;
 }
 const pickRand = arr => arr[Math.floor(Math.random() * arr.length)];
 // Wiederholungen: nicht verboten, nur seltener. Ein gerade gelaufener Song hat ~10 % der Chance eines
@@ -996,7 +1004,7 @@ function pickW(arr, w = songW){
 function pickSong(year, force){
   // Wunschkonzert: Kategorie vom anderen Team gewählt (es werden nur Kategorien mit Song angeboten)
   if (force) {
-    const l = byYearCat[force]?.[year] || [];
+    const l = quotaPool(byYearCat[force]?.[year] || []);
     if (l.length) { const s = pickW(l); return { song: s, from: force, repeat: isRecent(s), forced: true }; }
     const p = pickSong(year); if (p) p.fizzle = force; return p;
   }
@@ -1320,6 +1328,11 @@ async function playCurrent(fromStart){
   const dev = await getDevice(); if (stale()) return;
   if (!dev) throw Object.assign(new Error("NODEVICE"), { nodevice:true });
   let pos = 0;
+  if (!fromStart && state.randStart && !c.dur && c.uri) {          // feste ID → Länge einmal holen und merken (für den Zufallsstart)
+    const id = c.uri.split(":").pop();
+    c.dur = store.get("dur:" + id, null) || await sp.api(`/tracks/${id}?market=DE`).then(j => { if (j?.duration_ms) store.set("dur:" + id, j.duration_ms); return j?.duration_ms || null; }).catch(() => null);
+    if (stale()) return;
+  }
   if (!fromStart && state.randStart && c.dur) pos = Math.floor(c.dur * (0.2 + Math.random() * 0.35));
   const sil = await silentList().catch(() => null); if (stale()) return;
   const body = JSON.stringify(sil ? { uris: [c.uri, ...sil], offset: { position: 0 }, position_ms: pos } : { uris: [c.uri], position_ms: pos });
@@ -1332,8 +1345,11 @@ async function playCurrent(fromStart){
   for (let i = 0; i < 2; i++) {
     await sleep(1200); if (stale()) return;
     const pl = await sp.api("/me/player").catch(() => null); if (stale()) return;
-    // Läuft statt des Songs schon der Stille-Track, war der Song nicht abspielbar (z. B. in DE gesperrt)
-    if (pl?.is_playing && sil?.includes(pl.item?.uri) && !pl.item?.linked_from)
+    // Läuft statt des Songs schon der Stille-Track, war der Song nicht abspielbar (z. B. in DE gesperrt).
+    // Erst beim zweiten Blick urteilen – direkt nach dem Start meldet Spotify manchmal kurz einen falschen Stand.
+    const still = pl?.is_playing && sil?.includes(pl.item?.uri) && !pl.item?.linked_from;
+    if (still && i === 0) { await sp.api(`/me/player/play?device_id=${dev.id}`, { method:"PUT", body }).catch(() => {}); continue; }
+    if (still)
       throw Object.assign(new Error("Spotify kann diesen Song gerade nicht abspielen (z. B. in Deutschland nicht verfügbar). Über „Falscher Song?“ kannst du eine andere Version wählen."), { unplayable: true });
     // Spotify ersetzt Tracks je nach Land manchmal durch eine andere ID (linked_from) → "läuft" reicht
     if (pl?.is_playing) {
@@ -1359,7 +1375,7 @@ let spWaking = false;        // Spotify wurde per Link geöffnet – warten auf 
 let pendingRetry = null;     // was nach dem Wecken automatisch passieren soll
 function renderSpReady(){
   const el = $("#spReadyBox"); if (!el) return;
-  if (!sp.tok() || sp.quota() || !spChecked) { el.innerHTML = ""; return; }
+  if (!sp.tok() || !spChecked) { el.innerHTML = ""; return; }
   el.innerHTML = spReady ? `<div class="spr ok"><i></i>Spotify bereit auf <b>${esc(spReady.name)}</b></div>`
     : `<div class="spr"><i></i>Spotify schläft gerade<button class="btn small" id="spWakeNow">Jetzt wecken</button></div>`;
   $("#spWakeNow")?.addEventListener("click", () => openSpotify(() => spCheck(true)));
@@ -1409,7 +1425,7 @@ function friendlyErr(e){
   const off = navigator.onLine === false || !!e?.net;   // nur echte Netzfehler – Programmfehler nicht als „kein Internet“ tarnen
   if (off) return { i: "<span class=dw data-dw=wifi></span>", t: "Keine Internetverbindung", d: "Prüf WLAN oder mobile Daten – dann einfach nochmal tippen.", btn: "Nochmal versuchen" };
   if (e?.unplayable) return { i: "<span class=dw data-dw=stop></span>", t: "Song nicht abspielbar", d: e.message, btn: "Anderen Song ziehen", other: true };
-  if (e?.quota) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst. Songs mit fester Aufnahme laufen trotzdem – nur die Suche nach neuen Songs pausiert.", btn: "Nochmal versuchen" };
+  if (e?.quota) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify macht gerade Pause", d: "Für diese App ist Spotifys Tageskontingent erschöpft. Das gibt sich nach ein paar Stunden von selbst. Songs mit fester Aufnahme laufen trotzdem – nur die Suche nach neuen Songs pausiert. Bis dahin werden nur solche Songs gezogen.", btn: "Anderen Song ziehen", other: true };
   if (e?.status === 429) return { i: "<span class=dw data-dw=hourglass></span>", t: "Spotify bremst kurz", d: "Zu viele Anfragen auf einmal. Ein paar Sekunden warten, dann nochmal tippen.", btn: "Nochmal versuchen" };
   if (e?.status === 401) return { i: "<span class=dw data-dw=key></span>", t: "Spotify-Anmeldung abgelaufen", d: "Einmal neu anmelden, danach geht's direkt weiter.", btn: "Neu anmelden", act: () => sp.login() };
   if (e?.status === 403) return { i: "<span class=dw data-dw=lock></span>", t: "Spotify lässt nicht abspielen", d: "Abspielen geht nur mit Spotify Premium und wenn dein Konto in der App freigeschaltet ist.", btn: "Nochmal versuchen" };
@@ -2382,7 +2398,10 @@ const SONDER_IDS = () => Object.keys(TV_DATEN).filter(k => TV_DATEN[k].liste.len
 const sonderSel = () => { const s = store.get("sonderSel", null); const ok = (s || SONDER_IDS()).filter(k => TV_DATEN[k]); return ok.length ? ok : SONDER_IDS(); };
 const tvList = () => { const d = modeDef().app.daten || "tv";
   const L = d === "mix" ? sonderSel().flatMap(k => TV_DATEN[k].liste) : TV_DATEN[d].liste;
-  return store.get("tvUnsafe", false) ? L : L.filter(tvSafe); };
+  const S = store.get("tvUnsafe", false) ? L : L.filter(tvSafe);
+  if (!quotaOn()) return S;
+  const Q = S.filter(x => x.sid || tvFix(x) || store.get("tv2:" + x.i, null));   // Kontingent leer → nur ohne Suche spielbare
+  return Q.length ? Q : S; };
 const tvRange = l => [Math.min(...l.map(x => x.y)), Math.max(...l.map(x => x.y))];
 function renderTvBox(){
   const tv = modeDef().app.typ === "tv";
@@ -3047,13 +3066,13 @@ document.addEventListener("click", e => { if (e.target.closest("#startBtn, #tvNe
 // für Spotify „weg“. Eine Webseite darf Spotify nur direkt bei einem Tipp öffnen – deshalb prüft Mixtape im
 // Hintergrund regelmäßig und öffnet Spotify schon beim Tipp auf „Scanner starten“, „Nächste Karte“ usw.
 let spPollT = 0;
-async function spPoll(){ if (!sp.tok() || sp.quota() || document.visibilityState !== "visible") return; spPollT = Date.now(); await spCheck(false); }
+async function spPoll(){ if (!sp.tok() || document.visibilityState !== "visible") return; spPollT = Date.now(); await spCheck(false); }
 // Alle 45 s reicht (spart Spotify-Kontingent und Akku); beim Zurückkehren in die App wird sofort geprüft.
 setInterval(() => { if (["setup", "game", "play", "rette", "zeitsprung", "extra"].includes(curView) && Date.now() - spPollT > 45000) spPoll(); }, 5000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && !spWaking) setTimeout(spPoll, 800); });
 document.addEventListener("click", e => {
   const b = e.target.closest("#scanBtn, #nextBtn, #tvNext, #resumeBtn, #wpNew, #rsPick, .rsOpt .pl");
-  if (!b || !sp.tok() || spReady || spWaking || sp.quota() || Date.now() - spPollT > 100000) return;
+  if (!b || !sp.tok() || spReady || spWaking || Date.now() - spPollT > 100000) return;
   if (b.id === "scanBtn" && scanner) return;                  // Scanner stoppen braucht kein Spotify
   // kein Gerät erreichbar → Spotify jetzt (im Tipp) öffnen; danach geht es automatisch mit dem Tipp weiter
   e.preventDefault(); e.stopImmediatePropagation();
