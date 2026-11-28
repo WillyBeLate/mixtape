@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.20.0", d: "2026-11-28", e: [
+    ["neu", "Kategorien aufgestockt (rund 200 neue Songs): Linkin Park, Grönemeyer, Die Ärzte, Udo Jürgens, Finnland, Polen und Türkei auf je 40+ Songs, NDW auf 51, Indie & Alternative auf 151, Schlager auf 113. Die neuen Songs kommen nach der Nachtprüfung ins Spiel."],
+  ]},
   { v: "0.19.8", d: "2026-11-28", e: [
     ["fix", "Startseite: Die Zeile „Spotify bereit / schläft“ hat ihren Platz jetzt von Anfang an („Spotify wird geprüft …“) – nichts rutscht mehr nach unten, wenn das Ergebnis kommt."],
   ]},
