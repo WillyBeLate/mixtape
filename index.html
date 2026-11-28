@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.17.6"></script>
-<script src="regeln.js?v=0.17.6"></script>
-<script src="changelog.js?v=0.17.6"></script>
-<script src="geprueft.js?v=0.17.6"></script>
-<script src="ids.js?v=0.17.6"></script>
+<script src="daten.js?v=0.18.0"></script>
+<script src="regeln.js?v=0.18.0"></script>
+<script src="changelog.js?v=0.18.0"></script>
+<script src="geprueft.js?v=0.18.0"></script>
+<script src="ids.js?v=0.18.0"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -537,6 +537,10 @@
   .zlGap{display:block;width:100%;margin:3px 0;padding:8px;border-radius:12px;border:2px dashed #ffffff40;background:#ffffff08;color:#ffd1e6;font:700 13px system-ui,sans-serif;cursor:pointer;text-align:center}
   .zlGap:not(div):active{background:#ff5fa22a;border-color:var(--accent)}.zlGap.on{border-color:var(--accent);background:#ff5fa22a;color:#fff}.zlGap.bad{border-color:#ff4d6d;background:#ff4d4d22;color:#fff}.zlSp{height:4px}
   .olOpts .rsOpt{width:100%;text-align:left;font:inherit;color:inherit}.olOpts .rsOpt:disabled{opacity:1}
+  .invPop{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:9999;background:var(--bg2);border:1px solid #ff5fa288;border-radius:var(--r);padding:14px 16px;box-shadow:0 10px 40px #0009;max-width:520px;margin:auto}
+  .invPop .invBar{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 1s linear;margin:10px 0}
+  .invRow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0}
+  .invTag{font-size:11px;opacity:.75;margin-left:6px}
   .blCode{font-size:46px;font-weight:900;letter-spacing:8px;margin:4px 0;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .memoBar{display:flex;gap:6px;margin:8px 0 12px}.memoBar i{flex:1;height:8px;border-radius:9px;background:#ffffff1c}.memoBar i.done{background:#b06cff}.memoBar i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));animation:memoP 1s infinite alternate}@keyframes memoP{to{opacity:.55}}
   .rsOpt.good{border-color:#2ecc71;background:#2ecc7122}.rsOpt.badc{border-color:#ff4d6d;background:#ff4d4d22}
@@ -749,6 +753,13 @@
       <div class="row" style="margin-top:12px"><label for="bigFont"><b>Große Schrift</b><br><span class="small">Alles etwas größer – angenehm beim Spieleabend, wenn das Handy auf dem Tisch liegt.</span></label><input type="checkbox" id="bigFont"></div>
       <div class="row" style="margin-top:12px"><label for="randStart"><b>Zufälliger Startpunkt im Song</b><br><span class="small">Der Song startet irgendwo in der Mitte statt am Anfang – schwerer, weil das bekannte Intro fehlt.</span></label><input type="checkbox" id="randStart"></div>
     </div></details>
+    <details class="fold" data-fold="online"><summary><span class="ft"><span class=dw data-dw=globe></span> Online-Spiele</span><span class="fs" id="olSum"></span></summary>
+    <div style="padding:0 2px 12px">
+      <label for="olNameSet"><b>Dein Name</b><br><span class="small">So sehen dich die anderen in Online-Spielen und beim Einladen.</span></label>
+      <input id="olNameSet" maxlength="16" placeholder="z. B. Willy" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px">
+      <div class="row"><label for="olVis"><b>Für Einladungen sichtbar</b><br><span class="small">Solange Mixtape offen ist, sehen dich Leute im selben WLAN und frühere Mitspieler und können dich in ihren Raum einladen.</span></label><input type="checkbox" id="olVis"></div>
+      <div id="olFrBox" class="small" style="margin-top:10px"></div>
+    </div></details>
     <details class="fold" data-fold="spotify"><summary><span class="ft"><span class=dw data-dw=headphones></span> Spotify</span><span class="fs" id="spSum"></span></summary>
     <div style="padding:0 2px 12px">
       <div id="spState" class="small" style="margin-bottom:8px"></div>
@@ -828,7 +839,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.17.6";
+const APP_VERSION = "0.18.0";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2998,7 +3009,7 @@ function show(v){
   if (v === "game" || v === "play") renderScore();
   if (v === "rules") renderRules();
   if (v === "game") spCheck(true);
-  if (v === "data") { renderNews(); renderSilent(); renderData(); }
+  if (v === "data") { renderNews(); renderSilent(); renderData(); renderOlSet(); }
   if (v === "cards") renderCardInfo();
   if (v === "rette") rsRender();
   if (v === "zeitsprung") zsRender();
@@ -4246,6 +4257,116 @@ const fbBase = () => (store.get("fbUrl", "") || FB_URL).replace(/\/+$/, "");
 const BL_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const BL_PTS = d => d === 0 ? 5 : d === 1 ? 3 : d <= 3 ? 1 : 0;   // ohne 0/O, 1/I
 const blPid = () => { let p = store.get("blitzPid", ""); if (!p) { p = Math.random().toString(36).slice(2, 10); store.set("blitzPid", p); } return p; };
+// =====================================================================
+//  EINLADEN: Leute im selben WLAN + frühere Mitspieler, die gerade Mixtape offen haben
+//  on/<id>        = { n, t }   „bin gerade da“ (für Mitspieler, nur einzeln abrufbar)
+//  nah/<netz>/<id>= { n, t }   dasselbe je Netz (Netz = Prüfsumme der öffentlichen IP – Leute im selben WLAN)
+//  inv/<id>       = { from, n, code, game, t }  Einladung → Pop-up mit Annehmen/Ablehnen
+//  Bluetooth dürfen Web-Apps nicht – das hier ist der Ersatz über die Online-Datenbank.
+// =====================================================================
+const INV_S = 20, NAH_ALT = 100000;                        // Sekunden fürs Annehmen · ab wann „nicht mehr da“
+const NAH = { net: null, netT: 0, off: 0, es: null, list: [], scanT: 0, sent: {}, seen: "" };
+const olVis = () => store.get("olVis", true) && !!store.get("blitzName", "") && !!fbBase();
+async function fbRaw(path, method = "GET", body){
+  const r = await fetch(fbBase() + "/" + path + ".json", { method, keepalive: method === "DELETE", body: body === undefined ? undefined : JSON.stringify(body) });
+  if (!r.ok) throw new Error("Datenbank " + r.status); return r.json();
+}
+async function nahNet(){                                   // Netz-Kennung, alle 5 min neu (WLAN ↔ mobile Daten)
+  if (NAH.net !== null && Date.now() - NAH.netT < 3e5) return NAH.net;
+  try { const j = await fetch("https://api.ipify.org?format=json").then(r => r.json());
+    const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("mixtape|" + j.ip)));
+    NAH.net = [...h.slice(0, 8)].map(b => b.toString(16).padStart(2, "0")).join(""); } catch(e) { NAH.net = ""; }
+  NAH.netT = Date.now(); return NAH.net;
+}
+async function nahBeat(){
+  if (!olVis() || document.visibilityState !== "visible") return;
+  const me = { n: olText(store.get("blitzName", "")), t: SVT }, old = NAH.net, net = await nahNet();
+  if (old && old !== net) fbRaw(`nah/${old}/${blPid()}`, "DELETE").catch(() => {});
+  try { const r = await fbRaw(`on/${blPid()}`, "PUT", me); if (typeof r?.t === "number") NAH.off = r.t - Date.now(); } catch(e) { return; }
+  if (net) fbRaw(`nah/${net}/${blPid()}`, "PUT", me).catch(() => {});
+  invListen();
+}
+function nahGone(){
+  NAH.es?.close(); NAH.es = null; if (!fbBase()) return;
+  fbRaw(`on/${blPid()}`, "DELETE").catch(() => {}); if (NAH.net) fbRaw(`nah/${NAH.net}/${blPid()}`, "DELETE").catch(() => {});
+}
+setInterval(nahBeat, 45000); setTimeout(nahBeat, 2500);
+document.addEventListener("visibilitychange", () => document.visibilityState === "visible" ? nahBeat() : nahGone());
+addEventListener("pagehide", nahGone);
+// Frühere Mitspieler merken (Name kann sich ändern), höchstens 30
+function olFriends(P){
+  const fr = store.get("olFreunde", {}); let ch = false;
+  for (const p of P) if (p.id !== blPid() && OL_KEY.test(p.id) && fr[p.id] !== p.n) { delete fr[p.id]; fr[p.id] = p.n; ch = true; }
+  if (ch) { const k = Object.keys(fr); k.slice(0, Math.max(0, k.length - 30)).forEach(x => delete fr[x]); store.set("olFreunde", fr); }
+}
+// Wer ist gerade da? (Lobby, alle 8 s)
+async function nahScan(){
+  NAH.scanT = Date.now();
+  const now = Date.now() + NAH.off, fresh = x => x && typeof x.t === "number" && now - x.t < NAH_ALT && x.n, out = new Map();
+  const net = await nahNet();
+  if (net) { const d = olClean(await fbRaw(`nah/${net}`).catch(() => null)) || {}; for (const [id, x] of Object.entries(d)) if (fresh(x)) out.set(id, { id, n: x.n, nah: true }); }
+  const fr = store.get("olFreunde", {});
+  await Promise.all(Object.keys(fr).filter(id => !out.has(id)).map(async id => { const x = olClean(await fbRaw(`on/${id}`).catch(() => null)); if (fresh(x)) out.set(id, { id, n: x.n, fr: true }); }));
+  for (const id of out.keys()) if (fr[id]) out.get(id).fr = true;
+  out.delete(blPid()); NAH.list = [...out.values()].sort((a, b) => a.n.localeCompare(b.n)); invRender();
+}
+setInterval(() => { if (curView === "extra" && document.visibilityState === "visible" && bl.st?.phase === "lobby" && $("#olInv")) nahScan(); }, 8000);
+function invRender(){
+  const el = $("#olInv"), st = bl.st; if (!el || !st) return;
+  const inRoom = st.players || {}, L = NAH.list.filter(x => !inRoom[x.id]);
+  el.innerHTML = `<b>Leute einladen</b>` + (L.length ? L.map(x => { const n0 = st.nein?.[x.id], nein = n0 && (!NAH.sent[x.id] || n0.t >= NAH.sent[x.id] + NAH.off - 3000),
+        sent = !nein && NAH.sent[x.id] && Date.now() - NAH.sent[x.id] < INV_S * 1000;
+      return `<div class="invRow"><span><b>${esc(x.n)}</b><span class="invTag">${x.nah ? "im selben WLAN" : ""}${x.nah && x.fr ? " · " : ""}${x.fr ? "Mitspieler" : ""}</span></span>
+        ${nein && !sent ? `<span class="small">hat abgelehnt</span> ` : ""}<button class="btn small ${sent ? "sec" : ""}" data-inv="${esc(x.id)}" style="width:auto;margin:0" ${sent ? "disabled" : ""}>${sent ? "eingeladen …" : nein ? "Nochmal" : "Einladen"}</button></div>`; }).join("")
+    : `<div class="small" style="margin-top:4px">${NAH.scanT ? "Gerade niemand zu sehen." : "Suche …"} Wer eingeladen werden will, muss Mixtape offen haben und unter Einstellungen → Online-Spiele einen Namen eingetragen haben (im selben WLAN oder schon einmal mitgespielt).</div>`);
+  el.querySelectorAll("[data-inv]").forEach(b => b.onclick = async () => {
+    const id = b.dataset.inv; b.disabled = true; b.textContent = "eingeladen …";
+    try { await fb(`${bl.code}/nein/${id}`, "DELETE").catch(() => {});
+      await fbRaw(`inv/${id}`, "PUT", { from: blPid(), n: olText(store.get("blitzName", "") || "Jemand"), code: bl.code, game: st.game || ex.game, t: SVT });
+      NAH.sent[id] = Date.now(); setTimeout(invRender, INV_S * 1000 + 200);
+    } catch(e) { b.disabled = false; b.textContent = "Einladen"; $("#exMsg") && ($("#exMsg").innerHTML = `<div class="msg warn">${esc(e.message)}</div>`); } });
+}
+// Eingehende Einladungen
+function invListen(){
+  if (NAH.es && NAH.es.readyState !== 2) return;
+  const es = new EventSource(fbBase() + `/inv/${blPid()}.json`); NAH.es = es;
+  const on = d => { if (d.path === "/") invShow(olClean(d.data)); else fbRaw(`inv/${blPid()}`).then(v => invShow(olClean(v))).catch(() => {}); };
+  ["put", "patch"].forEach(ev => es.addEventListener(ev, e => { try { on(JSON.parse(e.data)); } catch(_) {} }));
+}
+function invShow(v){
+  $("#invPop") && !v && $("#invPop").remove();
+  if (!v || !/^[A-Z2-9]{5}$/.test(v.code || "") || !OL_GAMES.includes(v.game) || typeof v.t !== "number") return;
+  const age = Date.now() + NAH.off - v.t, id = v.code + v.t;
+  if (age > INV_S * 1000 || NAH.seen === id || bl.code === v.code) return; NAH.seen = id;
+  $("#invPop")?.remove();
+  const D = EX_DEF[v.game] || {}, el = document.createElement("div"); el.className = "invPop"; el.id = "invPop";
+  el.innerHTML = `<div><span class=dw data-dw=sparkle></span> <b>${esc(v.n || "Jemand")}</b> lädt dich zu <b>${esc(D.name || "einem Online-Spiel")}</b> ein</div>
+    <div class="invBar" style="width:100%"></div><div style="display:flex;gap:8px"><button class="btn" id="invYes" style="margin:0">Annehmen</button><button class="btn sec" id="invNo" style="margin:0">Ablehnen</button></div>`;
+  document.body.appendChild(el);
+  let left = Math.max(1, Math.round(INV_S - age / 1000)); const bar = el.querySelector(".invBar");
+  const tick = () => { bar.style.width = (left / INV_S * 100) + "%"; };
+  requestAnimationFrame(tick);
+  const iv = setInterval(() => { left--; tick(); if (left <= 0) close(); }, 1000);
+  const close = () => { clearInterval(iv); el.remove(); fbRaw(`inv/${blPid()}`, "DELETE").catch(() => {}); };
+  $("#invNo").onclick = () => { close(); fb(`${v.code}/nein/${blPid()}`, "PUT", { n: olText(store.get("blitzName", "")), t: SVT }).catch(() => {}); };
+  $("#invYes").onclick = async () => { close();
+    if (bl.code && bl.code !== v.code) { await fb(bl.st?.host === blPid() ? bl.code : `${bl.code}/players/${blPid()}`, "DELETE").catch(() => {}); blLeave(); }
+    ex = { game: v.game, view: "setup" }; exSave(); show("extra"); blJoin(v.code, olText(store.get("blitzName", "") || "Gast")); };
+}
+// Einstellungen → Online-Spiele
+function renderOlSet(){
+  const n = store.get("blitzName", ""), fr = store.get("olFreunde", {});
+  if (document.activeElement !== $("#olNameSet")) $("#olNameSet").value = n;
+  $("#olVis").checked = store.get("olVis", true);
+  $("#olSum").textContent = n ? n + (store.get("olVis", true) ? " · sichtbar" : "") : "kein Name";
+  const ids = Object.keys(fr);
+  $("#olFrBox").innerHTML = ids.length ? `<b>Frühere Mitspieler</b> (können dich einladen, du sie auch)<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${ids.map(id => `<span class="chip" style="display:inline-flex;gap:6px;align-items:center;background:#ffffff18;border-radius:20px;padding:4px 10px">${esc(fr[id])}<a href="#" data-frx="${esc(id)}" aria-label="Entfernen">✕</a></span>`).join("")}</div>` : "";
+  $("#olFrBox").querySelectorAll("[data-frx]").forEach(a => a.onclick = e => { e.preventDefault(); const f = store.get("olFreunde", {}); delete f[a.dataset.frx]; store.set("olFreunde", f); renderOlSet(); });
+}
+$("#olNameSet").addEventListener("input", e => { store.set("blitzName", olText(e.target.value.trim())); renderOlSet(); });
+$("#olNameSet").addEventListener("change", () => nahBeat());
+$("#olVis").addEventListener("change", e => { store.set("olVis", e.target.checked); renderOlSet(); e.target.checked ? nahBeat() : nahGone(); });
+renderOlSet();
 let bl = { code: store.get("blitzRoom", ""), st: null, es: null, got: false, y: 1995, err: "", song: store.get("blitzSong", null), rnd: store.get("blitzRnd", 0) };
 async function fb(path, method = "GET", body){
   const r = await fetch(fbBase() + "/blitz/" + path + ".json", { method, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -4309,12 +4430,14 @@ function blRender(box){
     box.innerHTML = exTop("Raum " + esc(bl.code)) + `<div class="panel small">Du bist nicht (mehr) in diesem Raum.</div><button class="btn" id="blRe">Wieder beitreten</button><button class="btn sec" id="blQuit">Zurück</button>`;
     $("#blRe").onclick = () => blJoin(bl.code, store.get("blitzName", "Ich")); $("#blQuit").onclick = () => { blLeave(); blRender(box); }; return blBack(); }
   const P = blPlayers(), host = blHost(), R = st.cfg?.rounds || 10;
+  if (P.length > 1) olFriends(P);
   if (st.phase === "play" && bl.lastRound !== st.round) { bl.lastRound = st.round; bl.y = 1995; }
   const score = `<div class="zsPl ex">${P.map((p, i) => `<div class="zsP ${p.id === blPid() ? "on" : ""}" style="--c:${EX_COL[i % 6]}"><b>${esc(p.n)}${p.id === st.host ? " <span class=dw data-dw=music></span>" : ""}</b><span>${p.pts || 0}</span></div>`).join("")}</div>`;
   if (st.phase === "lobby") {
     box.innerHTML = exTop("Warteraum") + `<div class="panel" style="text-align:center"><div class="small">Raum-Code</div><div class="blCode">${esc(bl.code)}</div>
         <div class="small">Die anderen öffnen Mixtape → Extras → ${esc(D.name)} → <b>Beitreten</b> und geben den Code ein.</div></div>
       <div class="panel"><b>Dabei (${P.length})</b>${P.map((p, i) => `<div class="row" style="padding:5px 0"><span><span class="rsWho rsMe" style="--c:${EX_COL[i % 6]}">${esc(p.n)}</span>${p.id === st.host ? " spielt die Musik" : ""}</span>${host && p.id !== blPid() ? `<button class="btn sec small" data-kick="${esc(p.id)}" style="width:auto;margin:0">✕</button>` : ""}</div>`).join("")}</div>
+      <div class="panel" id="olInv"></div>
       <div id="exMsg"></div>
       ${host ? `<button class="btn" id="blGo" ${P.length < (D.min || 2) || (D.max && P.length > D.max) ? "disabled" : ""}>${P.length < (D.min || 2) ? "Warte auf Mitspieler …" : D.max && P.length > D.max ? `Nur ${D.max} Personen möglich` : `Los geht's (${st.cfg?.v ?? R} ${D.opt?.unit || "Songs"})`}</button>` : `<div class="panel small" style="text-align:center">Warte, bis ${esc(st.players?.[st.host]?.n || "der Host")} startet …</div>`}
       <button class="btn sec" id="blQuit">${host ? "Raum schließen" : "Raum verlassen"}</button>`;
@@ -4345,6 +4468,7 @@ function blRender(box){
     rsCovers(box);
   }
   blBack(); exBindPl();
+  if (st.phase === "lobby") { invRender(); if (Date.now() - NAH.scanT > 8000) nahScan(); }
   // ---- Bedienung ----
   box.querySelectorAll("[data-dy]").forEach(x => x.onclick = () => { bl.y = Math.max(1920, Math.min(new Date().getFullYear(), bl.y + +x.dataset.dy)); $("#blV").textContent = bl.y; });
   $("#blTip")?.addEventListener("click", async e => { e.target.disabled = true; try { await fb(`${bl.code}/guess/${blPid()}`, "PUT", { y: bl.y, t: SVT, r: st.round }); } catch(err) { e.target.disabled = false; $("#exMsg").innerHTML = `<div class="msg warn">${esc(err.message)}</div>`; } });

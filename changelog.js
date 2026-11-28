@@ -4,6 +4,10 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.18.0", d: "2026-11-28", e: [
+    ["neu", "Einladen statt Code abtippen: Im Warteraum eines Online-Spiels siehst du, wer im selben WLAN Mixtape offen hat – und frühere Mitspieler, die gerade online sind. Antippen → beim anderen erscheint eine Einladung, die 20 Sekunden lang angenommen oder abgelehnt werden kann."],
+    ["neu", "Einstellungen → Online-Spiele: Namen festlegen, Sichtbarkeit für Einladungen an/aus und frühere Mitspieler verwalten."],
+  ]},
   { v: "0.17.6", d: "2026-11-28", e: [
     ["fix", "Der Hinweis „Neu für dich“ verschwindet nicht mehr, wenn sich die App beim Lesen aktualisiert: Solange er aufgeklappt ist, wartet das Update, und er gilt erst nach „Okay, gesehen“ als gelesen."],
   ]},
