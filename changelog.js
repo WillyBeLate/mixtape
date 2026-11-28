@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.19.7", d: "2026-11-28", e: [
+    ["change", "Neuigkeiten: Das Label „Neu“ heißt jetzt „New“."],
+  ]},
   { v: "0.19.6", d: "2026-11-28", e: [
     ["change", "Neuigkeiten: Das Label „Geändert“ heißt jetzt „Change“."],
   ]},
