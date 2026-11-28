@@ -13,13 +13,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mixtape">
-<script src="lib/html5-qrcode.min.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="daten.js?v=0.15.4"></script>
-<script src="regeln.js?v=0.15.4"></script>
-<script src="changelog.js?v=0.15.4"></script>
-<script src="geprueft.js?v=0.15.4"></script>
-<script src="ids.js?v=0.15.4"></script>
+<script src="daten.js?v=0.15.5"></script>
+<script src="regeln.js?v=0.15.5"></script>
+<script src="changelog.js?v=0.15.5"></script>
+<script src="geprueft.js?v=0.15.5"></script>
+<script src="ids.js?v=0.15.5"></script>
 <style>
   :root{
     --bg:#1b1033; --bg2:#2a1850; --card:#fff; --ink:#1b1033; --muted:#8a7fa8;
@@ -814,7 +813,7 @@
 // =====================================================================
 const APP_NAME = "Mixtape";
 const APP_OWNER = "© Willy";
-const APP_VERSION = "0.15.4";
+const APP_VERSION = "0.15.5";
 const QR_PREFIX = "MIXTAPE:J:";       // Inhalt der Jahreskarten: MIXTAPE:J:1987
 const DEFAULT_FROM = 1930, DEFAULT_TO = 2026;
 const MAX_MIX = 4;
@@ -2514,9 +2513,17 @@ addEventListener("online", ghFlush); setTimeout(ghFlush, 4000);
 
 // ---------- QR-Scanner ----------
 let scanner = null, scanLock = false;
+// Die Scanner-Bibliothek (~375 KB) wird erst gebraucht, wenn gescannt wird – schnellerer Start.
+// Kurz nach dem Start lädt sie still im Hintergrund vor, damit der erste Scan nicht wartet.
+let qrLib = null;
+const loadQrLib = () => qrLib ??= new Promise((ok, bad) => { if (window.Html5Qrcode) return ok();
+  const sc = document.createElement("script"); sc.src = "lib/html5-qrcode.min.js"; sc.onload = ok;
+  sc.onerror = () => { qrLib = null; bad(new Error("Scanner konnte nicht geladen werden – Internet prüfen und nochmal tippen.")); }; document.head.appendChild(sc); });
+setTimeout(() => (window.requestIdleCallback || setTimeout)(() => loadQrLib().catch(() => {})), 4000);
 async function startScanner(){
   msg("#scanMsg"); scanLock = false;
   try {
+    await loadQrLib();
     scanner = new Html5Qrcode("reader");
     await scanner.start({ facingMode:"environment" }, { fps:10, qrbox:{ width:240, height:240 } }, txt => {
       const m = txt.match(/(\d{4})\s*$/);

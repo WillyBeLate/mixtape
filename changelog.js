@@ -4,6 +4,9 @@
 //  Bei jeder Änderung an der App hier einen Eintrag ergänzen.
 // =====================================================================
 const CHANGELOG = [
+  { v: "0.15.5", d: "2026-11-28", e: [
+    ["change", "Schnellerer Start: Der QR-Scanner wird erst kurz nach dem Start im Hintergrund geladen statt sofort."],
+  ]},
   { v: "0.15.4", d: "2026-11-28", e: [
     ["change", "Titelmelodien: Eure „Falscher Song?“-Korrekturen im TV-, Kinder-, Spiele-, Disney- und Film-Quiz gehen jetzt wie bei den Songs automatisch an die nächtliche Prüfung und gelten danach auf allen Geräten. Bisherige Korrekturen auf diesem Gerät werden einmal nachgesendet."],
   ]},
